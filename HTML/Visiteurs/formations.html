@@ -1,0 +1,1725 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catalogue Formations | ADSIAM - Aide à Domicile & EHPAD</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-pink: #d4a5a5;
+            --primary-blue: #a5c9d4;
+            --light-pink: #f5e6e6;
+            --light-blue: #e6f2f5;
+            --soft-gray: #f8f9fa;
+            --text-dark: #4a4a4a;
+            --text-light: #8a8a8a;
+            --white: #ffffff;
+            --gradient-pink: linear-gradient(135deg, #f5e6e6, #d4a5a5);
+            --gradient-blue: linear-gradient(135deg, #e6f2f5, #a5c9d4);
+            --gradient-contact: linear-gradient(135deg, #d4a5a5, #a5c9d4);
+            --gradient-purple: linear-gradient(135deg, #e8d5ff, #c7a3ff);
+            --gradient-green: linear-gradient(135deg, #d4f5e6, #a5d4b5);
+            --gradient-orange: linear-gradient(135deg, #ffe6d4, #ffb3a5);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background: var(--soft-gray);
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background: var(--gradient-contact);
+            color: white;
+            padding: 0.8rem 0;
+            font-size: 0.9rem;
+        }
+
+        .top-bar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .contact-info {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .contact-info a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-links a {
+            color: white;
+            font-size: 1.2rem;
+            text-decoration: none;
+        }
+
+        /* Header */
+        header {
+            background: var(--white);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        nav {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-dark);
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-contact);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            color: white;
+            font-weight: 700;
+            font-size: 1.3rem;
+        }
+
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: 300;
+            letter-spacing: 0.1em;
+        }
+
+        .logo-text .forma {
+            color: var(--primary-pink);
+        }
+
+        .logo-text .pro {
+            color: var(--primary-blue);
+            font-weight: 600;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-blue);
+        }
+
+        .nav-links a.active {
+            color: var(--primary-pink);
+            font-weight: 600;
+        }
+
+        .nav-cta {
+            background: var(--gradient-contact);
+            color: white !important;
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(212, 165, 165, 0.3);
+        }
+
+        /* Breadcrumb */
+        .breadcrumb {
+            background: var(--white);
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--soft-gray);
+        }
+
+        .breadcrumb-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .breadcrumb-nav {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .breadcrumb-nav a {
+            color: var(--text-light);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .breadcrumb-nav a:hover {
+            color: var(--primary-blue);
+        }
+
+        .breadcrumb-separator {
+            color: var(--text-light);
+        }
+
+        .breadcrumb-current {
+            color: var(--primary-pink);
+            font-weight: 500;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: var(--gradient-pink);
+            padding: 4rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -30%;
+            right: -20%;
+            width: 40%;
+            height: 160%;
+            background: var(--gradient-blue);
+            border-radius: 50%;
+            opacity: 0.3;
+            transform: rotate(-15deg);
+        }
+
+        .hero-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-badge {
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--primary-pink);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            display: inline-block;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            font-weight: 300;
+            color: white;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .hero-highlight {
+            font-weight: 700;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2rem;
+            line-height: 1.7;
+        }
+
+        /* Search & Filters Section */
+        .search-section {
+            background: var(--white);
+            margin: -3rem auto 0;
+            max-width: 1200px;
+            border-radius: 25px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            padding: 2.5rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .search-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .search-title {
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .search-subtitle {
+            color: var(--text-light);
+        }
+
+        .search-bar {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1.2rem 4rem 1.2rem 1.5rem;
+            border: 2px solid var(--soft-gray);
+            border-radius: 50px;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            background: var(--soft-gray);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            background: white;
+            box-shadow: 0 10px 30px rgba(165, 201, 212, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.3rem;
+            color: var(--primary-blue);
+            cursor: pointer;
+        }
+
+        .filters-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-label {
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+            color: var(--text-dark);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .filter-select {
+            padding: 1rem;
+            border: 2px solid var(--soft-gray);
+            border-radius: 15px;
+            background: white;
+            transition: all 0.3s;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 5px 15px rgba(165, 201, 212, 0.2);
+        }
+
+        .filter-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-bottom: 2rem;
+        }
+
+        .filter-tag {
+            background: var(--soft-gray);
+            color: var(--text-dark);
+            padding: 0.6rem 1.5rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .filter-tag:hover {
+            background: var(--light-blue);
+            color: var(--primary-blue);
+        }
+
+        .filter-tag.active {
+            background: var(--gradient-blue);
+            color: white;
+            border-color: var(--primary-blue);
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .btn-primary {
+            background: var(--gradient-contact);
+            color: white;
+            box-shadow: 0 10px 30px rgba(212, 165, 165, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(212, 165, 165, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-dark);
+            border: 2px solid var(--soft-gray);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary-blue);
+            color: var(--primary-blue);
+        }
+
+        /* Results Section */
+        .results-section {
+            max-width: 1400px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        .results-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .results-count {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .results-badge {
+            background: var(--gradient-green);
+            color: white;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .view-controls {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .sort-select {
+            padding: 0.8rem 1.5rem;
+            border: 2px solid var(--soft-gray);
+            border-radius: 15px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .view-toggle {
+            display: flex;
+            background: var(--soft-gray);
+            border-radius: 15px;
+            padding: 0.3rem;
+        }
+
+        .view-btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            background: transparent;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.2rem;
+        }
+
+        .view-btn.active {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            color: var(--primary-blue);
+        }
+
+        /* Formations Grid */
+        .formations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 2.5rem;
+            margin-bottom: 4rem;
+        }
+
+        .formation-card {
+            background: var(--white);
+            border-radius: 25px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(0,0,0,0.05);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            cursor: pointer;
+        }
+
+        .formation-card:hover {
+            transform: translateY(-15px) scale(1.02);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.15);
+        }
+
+        .formation-header {
+            height: 180px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .formation-card:nth-child(1) .formation-header { background: var(--gradient-pink); }
+        .formation-card:nth-child(2) .formation-header { background: var(--gradient-blue); }
+        .formation-card:nth-child(3) .formation-header { background: var(--gradient-purple); }
+        .formation-card:nth-child(4) .formation-header { background: var(--gradient-green); }
+        .formation-card:nth-child(5) .formation-header { background: var(--gradient-orange); }
+        .formation-card:nth-child(6) .formation-header { background: var(--gradient-contact); }
+        .formation-card:nth-child(7) .formation-header { background: linear-gradient(135deg, #ffd4e6, #ffb3d4); }
+        .formation-card:nth-child(8) .formation-header { background: linear-gradient(135deg, #d4e6ff, #b3d4ff); }
+        .formation-card:nth-child(9) .formation-header { background: linear-gradient(135deg, #e6ffd4, #d4ffb3); }
+
+        .formation-icon {
+            font-size: 3.5rem;
+            color: white;
+            z-index: 2;
+        }
+
+        .formation-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--text-dark);
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+        }
+
+        .formation-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+            animation: pulse 6s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.7; }
+            50% { transform: scale(1.1) rotate(180deg); opacity: 1; }
+        }
+
+        .formation-content {
+            padding: 2rem;
+        }
+
+        .formation-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .meta-tag {
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .modules-tag {
+            background: var(--light-blue);
+            color: var(--primary-blue);
+        }
+
+        .level-tag {
+            background: var(--light-pink);
+            color: var(--primary-pink);
+        }
+
+        .duration-tag {
+            background: var(--soft-gray);
+            color: var(--text-light);
+        }
+
+        .formation-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+            line-height: 1.3;
+        }
+
+        .formation-description {
+            color: var(--text-light);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        .formation-features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.8rem;
+            margin-bottom: 2rem;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .feature-icon {
+            color: var(--primary-blue);
+            font-size: 1rem;
+        }
+
+        .formation-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--soft-gray);
+        }
+
+        .formation-price {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .price-current {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary-pink);
+        }
+
+        .price-original {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            text-decoration: line-through;
+        }
+
+        .formation-btn {
+            background: var(--gradient-contact);
+            color: white;
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .formation-btn:hover {
+            transform: translateX(5px) scale(1.05);
+            box-shadow: 0 10px 25px rgba(212, 165, 165, 0.3);
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 4rem 0;
+        }
+
+        .pagination button {
+            padding: 1rem 1.3rem;
+            border: 2px solid var(--soft-gray);
+            background: white;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .pagination button:hover {
+            border-color: var(--primary-blue);
+            color: var(--primary-blue);
+            transform: translateY(-2px);
+        }
+
+        .pagination button.active {
+            background: var(--gradient-contact);
+            color: white;
+            border-color: transparent;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--text-dark);
+            color: white;
+            padding: 4rem 0 2rem;
+            margin-top: 4rem;
+        }
+
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 4rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-brand .logo-text {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-description {
+            opacity: 0.8;
+            line-height: 1.8;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h4 {
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 0.95rem;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-blue);
+            transform: translateX(5px);
+            display: inline-block;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 2rem;
+            text-align: center;
+            opacity: 0.7;
+        }
+
+        /* Chat Widget */
+        .chat-widget {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 1000;
+        }
+
+        .chat-button {
+            width: 65px;
+            height: 65px;
+            background: var(--gradient-contact);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 15px 40px rgba(212, 165, 165, 0.4);
+        }
+
+        .chat-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 20px 50px rgba(212, 165, 165, 0.5);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .formations-grid {
+                grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            }
+            
+            .results-header {
+                flex-direction: column;
+                gap: 2rem;
+            }
+            
+            .footer-content {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .formations-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-actions {
+                flex-direction: column;
+            }
+            
+            .results-header {
+                padding: 1.5rem;
+            }
+            
+            .view-controls {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .footer-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            
+            .hero {
+                padding: 3rem 0;
+            }
+        }
+
+        /* Animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="top-bar-content">
+            <div class="contact-info">
+                <a href="tel:0650848175">📞 06 50 84 81 75</a>
+                <a href="mailto:contact@formapro-plus.org">✉️ contact@formapro-plus.org</a>
+            </div>
+            <div class="social-links">
+                <a href="#">📘</a>
+                <a href="#">📷</a>
+                <a href="#">💼</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <nav>
+            <a href="index.html" class="logo">
+                <div class="logo-icon">P+</div>
+                <div class="logo-text">
+                    <span class="forma">FORMA</span><span class="pro">PRO+</span>
+                </div>
+            </a>
+            <ul class="nav-links">
+                <li><a href="#formations" class="active">Formations</a></li>
+                <li><a href="#financements">Financements</a></li>
+                <li><a href="#evenements">Événements</a></li>
+                <li><a href="#blog">Blog</a></li>
+                <li><a href="#contact" class="nav-cta">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <div class="breadcrumb-container">
+            <nav class="breadcrumb-nav">
+                <a href="index.html">🏠 Accueil</a>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-current">Catalogue des formations</span>
+            </nav>
+        </div>
+    </div>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-container">
+                <div class="hero-badge">📚 Catalogue Complet</div>
+                <h1>Toutes nos <span class="hero-highlight">Formations</span></h1>
+                <p>Découvrez notre catalogue complet de formations professionnelles pour l'aide à domicile et les EHPAD. 36 modules répartis en 10 blocs thématiques pour développer toutes vos compétences.</p>
+            </div>
+        </section>
+
+        <!-- Search & Filters Section -->
+        <section class="search-section">
+            <div class="search-header">
+                <h2 class="search-title">Trouvez votre formation idéale</h2>
+                <p class="search-subtitle">Utilisez les filtres ci-dessous pour affiner votre recherche</p>
+            </div>
+
+            <div class="search-bar">
+                <input type="text" class="search-input" placeholder="Rechercher une formation (ex: communication, hygiène, premiers secours...)">
+                <span class="search-icon">🔍</span>
+            </div>
+
+            <div class="filters-container">
+                <div class="filter-group">
+                    <label class="filter-label">Niveau</label>
+                    <select class="filter-select" id="levelFilter">
+                        <option value="">Tous les niveaux</option>
+                        <option value="debutant">Débutant</option>
+                        <option value="intermediaire">Intermédiaire</option>
+                        <option value="avance">Avancé</option>
+                        <option value="expert">Expert</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Durée</label>
+                    <select class="filter-select" id="durationFilter">
+                        <option value="">Toutes les durées</option>
+                        <option value="courte">1-3 modules</option>
+                        <option value="moyenne">4-6 modules</option>
+                        <option value="longue">7+ modules</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Prix</label>
+                    <select class="filter-select" id="priceFilter">
+                        <option value="">Tous les prix</option>
+                        <option value="gratuit">Gratuit</option>
+                        <option value="payant">Payant</option>
+                        <option value="moins50">Moins de 50€</option>
+                        <option value="50-100">50€ - 100€</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Domaine</label>
+                    <select class="filter-select" id="domainFilter">
+                        <option value="">Tous les domaines</option>
+                        <option value="communication">Communication</option>
+                        <option value="hygiene">Hygiène & Sécurité</option>
+                        <option value="ergonomie">Ergonomie</option>
+                        <option value="urgences">Urgences</option>
+                        <option value="nutrition">Nutrition</option>
+                        <option value="pathologies">Pathologies</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="filter-tags">
+                <button class="filter-tag active">📋 Toutes</button>
+                <button class="filter-tag">🆓 Gratuites</button>
+                <button class="filter-tag">⭐ Populaires</button>
+                <button class="filter-tag">🆕 Nouveautés</button>
+                <button class="filter-tag">🏆 Certifiantes</button>
+            </div>
+
+            <div class="filter-actions">
+                <button class="btn btn-primary">Appliquer les filtres</button>
+                <button class="btn btn-secondary">Réinitialiser</button>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section class="results-section">
+            <div class="results-header">
+                <div class="results-info">
+                    <span class="results-count">36 formations trouvées</span>
+                    <span class="results-badge">Toutes disponibles</span>
+                </div>
+                <div class="view-controls">
+                    <select class="sort-select">
+                        <option>Trier par popularité</option>
+                        <option>Prix croissant</option>
+                        <option>Prix décroissant</option>
+                        <option>Niveau</option>
+                        <option>Durée</option>
+                    </select>
+                    <div class="view-toggle">
+                        <button class="view-btn active">⊞</button>
+                        <button class="view-btn">☰</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formations Grid -->
+            <div class="formations-grid" id="formationsGrid">
+                <div class="formation-card fade-in" data-level="debutant" data-duration="courte" data-price="gratuit" data-domain="communication">
+                    <div class="formation-header">
+                        <div class="formation-icon">🗣️</div>
+                        <div class="formation-badge">Essentiel</div>
+                    </div>
+                    <div class="formation-content">
+                        <div class="formation-meta">
+                            <span class="meta-tag modules-tag">5 modules</span>
+                            <span class="meta-tag level-tag">Débutant</span>
+                            <span class="meta-tag duration-tag">3h</span>
+                        </div>
+                        <h3 class="formation-title">Communication & Relationnel</h3>
+                        <p class="formation-description">Maîtrisez l'art de la communication bienveillante, la gestion des émotions et des situations difficiles avec les résidents et les familles.</p>
+                        <div class="formation-features">
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>Écoute active</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>Gestion conflits</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>Respect dignité</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>Vidéos pratiques</span>
+                            </div>
+                        </div>
+                        <div class="formation-footer">
+                            <div class="formation-price">
+                                <span class="price-current">Gratuit</span>
+                            </div>
+                            <button class="formation-btn">Commencer</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="formation-card fade-in" data-level="intermediaire" data-duration="moyenne" data-price="payant" data-domain="hygiene">
+                    <div class="formation-header">
+                        <div class="formation-icon">🛡️</div>
+                        <div class="formation-badge">Avancé</div>
+                    </div>
+                    <div class="formation-content">
+                        <div class="formation-meta">
+                            <span class="meta-tag modules-tag">4 modules</span>
+                            <span class="meta-tag level-tag">Intermédiaire</span>
+                            <span class="meta-tag duration-tag">4h</span>
+                        </div>
+                        <h3 class="formation-title">Hygiène, Sécurité & Prévention</h3>
+                        <p class="formation-description">Protocoles d'hygiène professionnelle, sécurité avec les produits ménagers, prévention des risques domestiques et des infections.</p>
+                        <div class="formation-features">
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>Protocoles hygiène</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>Sécurité produits</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>Prévention chutes</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>Anti-infections</span>
+                            </div>
+                        </div>
+                        <div class="formation-footer">
+                            <div class="formation-price">
+                                <span class="price-current">49€</span>
+                                <span class="price-original">79€</span>
+                            </div>
+                            <button class="formation-btn">Commencer</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="formation-card fade-in" data-level="avance" data-duration="moyenne" data-price="payant" data-domain="ergonomie">
+                    <div class="formation-header">
+                        <div class="formation-icon">🏥</div>
+                        <div class="formation-badge">Expert</div>
+                    </div>
+                    <div class="formation-content">
+                        <div class="formation-meta">
+                            <span class="meta-tag modules-tag">3 modules</span>
+                            <span class="meta-tag level-tag">Avancé</span>
+                            <span class="meta-tag duration-tag">5h</span>
+                        </div>
+                        <h3 class="formation-title">Ergonomie & Gestes Professionnels</h3>
+                        <p class="formation-description">Techniques de manutention, prévention des TMS, utilisation du matériel médical et accompagnement sécurisé des transferts.</p>
+                        <div class="formation-features">
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>Bonnes postures</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>Transferts sécurisés</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>Matériel médical</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>Prévention TMS</span>
+                            </div>
+                        </div>
+                        <div class="formation-footer">
+                            <div class="formation-price">
+                                <span class="price-current">79€</span>
+                            </div>
+                            <button class="formation-btn">Commencer</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="formation-card fade-in" data-level="expert" data-duration="longue" data-price="payant" data-domain="urgences">
+                    <div class="formation-header">
+                        <div class="formation-icon">🚨</div>
+                        <div class="formation-badge">Critique</div>
+                    </div>
+                    <div class="formation-content">
+                        <div class="formation-meta">
+                            <span class="meta-tag modules-tag">5 modules</span>
+                            <span class="meta-tag level-tag">Essentiel</span>
+                            <span class="meta-tag duration-tag">6h</span>
+                        </div>
+                        <h3 class="formation-title">Gestion des Urgences & Premiers Secours</h3>
+                        <p class="formation-description">Formation complète aux gestes qui sauvent : RCP, défibrillateur, position latérale de sécurité, gestion des blessures.</p>
+                        <div class="formation-features">
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>RCP & Défibrillateur</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>Position PLS</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>Gestion blessures</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>Situations critiques</span>
+                            </div>
+                        </div>
+                        <div class="formation-footer">
+                            <div class="formation-price">
+                                <span class="price-current">99€</span>
+                            </div>
+                            <button class="formation-btn">Commencer</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="formation-card fade-in" data-level="intermediaire" data-duration="moyenne" data-price="payant" data-domain="nutrition">
+                    <div class="formation-header">
+                        <div class="formation-icon">🍽️</div>
+                        <div class="formation-badge">Pratique</div>
+                    </div>
+                    <div class="formation-content">
+                        <div class="formation-meta">
+                            <span class="meta-tag modules-tag">4 modules</span>
+                            <span class="meta-tag level-tag">Intermédiaire</span>
+                            <span class="meta-tag duration-tag">4h</span>
+                        </div>
+                        <h3 class="formation-title">Préparation des Repas & Alimentation</h3>
+                        <p class="formation-description">Hygiène alimentaire, repas équilibrés adaptés, gestion des textures pour éviter les fausses routes.</p>
+                        <div class="formation-features">
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>Hygiène alimentaire</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>Repas équilibrés</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>Textures adaptées</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>Hydratation</span>
+                            </div>
+                        </div>
+                        <div class="formation-footer">
+                            <div class="formation-price">
+                                <span class="price-current">59€</span>
+                            </div>
+                            <button class="formation-btn">Commencer</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="formation-card fade-in" data-level="expert" data-duration="moyenne" data-price="payant" data-domain="pathologies">
+                    <div class="formation-header">
+                        <div class="formation-icon">🧠</div>
+                        <div class="formation-badge">Spécialisé</div>
+                    </div>
+                    <div class="formation-content">
+                        <div class="formation-meta">
+                            <span class="meta-tag modules-tag">4 modules</span>
+                            <span class="meta-tag level-tag">Expert</span>
+                            <span class="meta-tag duration-tag">5h</span>
+                        </div>
+                        <h3 class="formation-title">Pathologies & Situations Spécifiques</h3>
+                        <p class="formation-description">Accompagnement des troubles cognitifs, Alzheimer, maladies chroniques, perte de mobilité et fin de vie.</p>
+                        <div class="formation-features">
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>Troubles cognitifs</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>Maladies chroniques</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>Perte mobilité</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>Fin de vie</span>
+                            </div>
+                        </div>
+                        <div class="formation-footer">
+                            <div class="formation-price">
+                                <span class="price-current">89€</span>
+                            </div>
+                            <button class="formation-btn">Commencer</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="formation-card fade-in" data-level="intermediaire" data-duration="courte" data-price="payant" data-domain="communication">
+                    <div class="formation-header">
+                        <div class="formation-icon">⚖️</div>
+                        <div class="formation-badge">Professionnel</div>
+                    </div>
+                    <div class="formation-content">
+                        <div class="formation-meta">
+                            <span class="meta-tag modules-tag">3 modules</span>
+                            <span class="meta-tag level-tag">Intermédiaire</span>
+                            <span class="meta-tag duration-tag">3h</span>
+                        </div>
+                        <h3 class="formation-title">Bonnes Pratiques & Déontologie</h3>
+                        <p class="formation-description">Limites professionnelles, confidentialité, bonnes pratiques quotidiennes et gestion des situations délicates.</p>
+                        <div class="formation-features">
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>Limites pro</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>Confidentialité</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>Bonnes pratiques</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>Situations délicates</span>
+                            </div>
+                        </div>
+                        <div class="formation-footer">
+                            <div class="formation-price">
+                                <span class="price-current">45€</span>
+                            </div>
+                            <button class="formation-btn">Commencer</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="formation-card fade-in" data-level="avance" data-duration="courte" data-price="payant" data-domain="communication">
+                    <div class="formation-header">
+                        <div class="formation-icon">💪</div>
+                        <div class="formation-badge">Bien-être</div>
+                    </div>
+                    <div class="formation-content">
+                        <div class="formation-meta">
+                            <span class="meta-tag modules-tag">3 modules</span>
+                            <span class="meta-tag level-tag">Avancé</span>
+                            <span class="meta-tag duration-tag">3h</span>
+                        </div>
+                        <h3 class="formation-title">Professionnalisation & Bien-être</h3>
+                        <p class="formation-description">Gestion du stress, prévention de l'épuisement, organisation du temps et formation continue.</p>
+                        <div class="formation-features">
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>Gestion stress</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>Anti-épuisement</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>Organisation temps</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>Formation continue</span>
+                            </div>
+                        </div>
+                        <div class="formation-footer">
+                            <div class="formation-price">
+                                <span class="price-current">39€</span>
+                            </div>
+                            <button class="formation-btn">Commencer</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="formation-card fade-in" data-level="debutant" data-duration="courte" data-price="payant" data-domain="communication">
+                    <div class="formation-header">
+                        <div class="formation-icon">📱</div>
+                        <div class="formation-badge">Digital</div>
+                    </div>
+                    <div class="formation-content">
+                        <div class="formation-meta">
+                            <span class="meta-tag modules-tag">3 modules</span>
+                            <span class="meta-tag level-tag">Débutant</span>
+                            <span class="meta-tag duration-tag">2h</span>
+                        </div>
+                        <h3 class="formation-title">Outils Numériques & Communication</h3>
+                        <p class="formation-description">Cahiers de liaison numériques, applications professionnelles, outils vidéo et maintien du lien avec les familles.</p>
+                        <div class="formation-features">
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>Cahiers numériques</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>Apps professionnelles</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>Outils vidéo</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>Lien famille</span>
+                            </div>
+                        </div>
+                        <div class="formation-footer">
+                            <div class="formation-price">
+                                <span class="price-current">35€</span>
+                            </div>
+                            <button class="formation-btn">Commencer</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination">
+                <button disabled>‹ Précédent</button>
+                <button class="active">1</button>
+                <button>2</button>
+                <button>3</button>
+                <button>4</button>
+                <button>Suivant ›</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="logo-text">
+                        <span class="forma">FORMA</span><span class="pro">PRO+</span>
+                    </div>
+                    <p class="footer-description">ADSIAM est la plateforme de formation de référence pour les professionnels de l'aide à domicile et des EHPAD. Nous proposons des formations complètes, interactives et adaptées aux réalités du terrain.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Nos Formations</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">Communication & Relationnel</a></li>
+                        <li><a href="#">Hygiène & Sécurité</a></li>
+                        <li><a href="#">Ergonomie & Gestes</a></li>
+                        <li><a href="#">Premiers Secours</a></li>
+                        <li><a href="#">Nutrition & Repas</a></li>
+                        <li><a href="#">Pathologies Spécifiques</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Services</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">Formations en ligne</a></li>
+                        <li><a href="#">Certifications</a></li>
+                        <li><a href="#">Support 24/7</a></li>
+                        <li><a href="#">Suivi personnalisé</a></li>
+                        <li><a href="#">Communauté</a></li>
+                        <li><a href="#">Ressources PDF</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">Centre d'aide</a></li>
+                        <li><a href="#">Contact</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Tutoriels</a></li>
+                        <li><a href="#">Mentions légales</a></li>
+                        <li><a href="#">Politique confidentialité</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 ADSIAM. Tous droits réservés. | Formation professionnelle pour aide à domicile et EHPAD</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Chat Widget -->
+    <div class="chat-widget">
+        <div class="chat-button" title="Besoin d'aide pour choisir ?">💬</div>
+    </div>
+
+    <script>
+        // Gestion des filtres
+        const filterButtons = document.querySelectorAll('.filter-tag');
+        const formationCards = document.querySelectorAll('.formation-card');
+        const searchInput = document.querySelector('.search-input');
+        const levelFilter = document.getElementById('levelFilter');
+        const durationFilter = document.getElementById('durationFilter');
+        const priceFilter = document.getElementById('priceFilter');
+        const domainFilter = document.getElementById('domainFilter');
+
+        // Animation au scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'fadeInUp 0.8s ease forwards';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Gestion des tags de filtre
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                
+                const filterType = button.textContent.toLowerCase();
+                filterFormations(filterType);
+            });
+        });
+
+        // Fonction de filtrage
+        function filterFormations(filterType) {
+            formationCards.forEach(card => {
+                let show = true;
+
+                if (filterType.includes('gratuites')) {
+                    show = card.dataset.price === 'gratuit';
+                } else if (filterType.includes('populaires')) {
+                    // Logique pour les populaires (exemple)
+                    show = ['communication', 'hygiene', 'urgences'].includes(card.dataset.domain);
+                } else if (filterType.includes('nouveautés')) {
+                    // Logique pour les nouveautés
+                    show = ['pathologies', 'ergonomie'].includes(card.dataset.domain);
+                } else if (filterType.includes('certifiantes')) {
+                    // Logique pour les certifiantes
+                    show = ['urgences', 'pathologies', 'hygiene'].includes(card.dataset.domain);
+                }
+
+                if (show) {
+                    card.style.display = 'block';
+                    card.style.animation = 'fadeInUp 0.5s ease forwards';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            updateResultsCount();
+        }
+
+        // Recherche textuelle
+        searchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            
+            formationCards.forEach(card => {
+                const title = card.querySelector('.formation-title').textContent.toLowerCase();
+                const description = card.querySelector('.formation-description').textContent.toLowerCase();
+                
+                if (title.includes(searchTerm) || description.includes(searchTerm) || searchTerm === '') {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            updateResultsCount();
+        });
+
+        // Filtres select
+        [levelFilter, durationFilter, priceFilter, domainFilter].forEach(select => {
+            select.addEventListener('change', applyFilters);
+        });
+
+        function applyFilters() {
+            const levelValue = levelFilter.value;
+            const durationValue = durationFilter.value;
+            const priceValue = priceFilter.value;
+            const domainValue = domainFilter.value;
+
+            formationCards.forEach(card => {
+                let show = true;
+
+                if (levelValue && card.dataset.level !== levelValue) show = false;
+                if (durationValue && card.dataset.duration !== durationValue) show = false;
+                if (priceValue && card.dataset.price !== priceValue) show = false;
+                if (domainValue && card.dataset.domain !== domainValue) show = false;
+
+                card.style.display = show ? 'block' : 'none';
+            });
+
+            updateResultsCount();
+        }
+
+        // Mettre à jour le compteur de résultats
+        function updateResultsCount() {
+            const visibleCards = Array.from(formationCards).filter(card => 
+                card.style.display !== 'none'
+            );
+            document.querySelector('.results-count').textContent = 
+                `${visibleCards.length} formation${visibleCards.length > 1 ? 's' : ''} trouvée${visibleCards.length > 1 ? 's' : ''}`;
+        }
+
+        // Boutons d'action des filtres
+        document.querySelector('.btn-primary').addEventListener('click', applyFilters);
+        
+        document.querySelector('.btn-secondary').addEventListener('click', () => {
+            // Réinitialiser tous les filtres
+            levelFilter.value = '';
+            durationFilter.value = '';
+            priceFilter.value = '';
+            domainFilter.value = '';
+            searchInput.value = '';
+            
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            filterButtons[0].classList.add('active');
+            
+            formationCards.forEach(card => {
+                card.style.display = 'block';
+            });
+            
+            updateResultsCount();
+        });
+
+        // Gestion des cartes de formation
+        formationCards.forEach(card => {
+            card.addEventListener('click', (e) => {
+                if (!e.target.classList.contains('formation-btn')) {
+                    const title = card.querySelector('.formation-title').textContent;
+                    window.location.href = `formation-detail.html?course=${encodeURIComponent(title)}`;
+                }
+            });
+        });
+
+        // Boutons d'inscription
+        document.querySelectorAll('.formation-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const card = e.target.closest('.formation-card');
+                const title = card.querySelector('.formation-title').textContent;
+                const price = card.querySelector('.price-current').textContent;
+                
+                if (price === 'Gratuit') {
+                    alert(`🎉 Accès immédiat à la formation :\n"${title}"\n\n✅ Formation gratuite\n🚀 Commencez maintenant !`);
+                } else {
+                    alert(`💳 Formation : ${title}\n💰 Prix : ${price}\n\n🛒 Redirection vers le panier...`);
+                }
+            });
+        });
+
+        // Gestion de la vue (grille/liste)
+        document.querySelectorAll('.view-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                // Ici vous pourriez implémenter la vue liste vs grille
+                if (btn.textContent === '☰') {
+                    alert('Vue liste - À implémenter');
+                }
+            });
+        });
+
+        // Chat widget
+        document.querySelector('.chat-button').addEventListener('click', () => {
+            alert('💬 Aide personnalisée\n\n🎯 Besoin d\'aide pour choisir votre formation ?\n\n👨‍🎓 Nos conseillers pédagogiques vous accompagnent :\n\n✅ Analyse de vos besoins\n✅ Recommandations personnalisées\n✅ Information sur les financements\n✅ Support technique\n\nContactez-nous maintenant !');
+        });
+
+        // Pagination
+        document.querySelectorAll('.pagination button').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                if (!btn.disabled) {
+                    document.querySelectorAll('.pagination button').forEach(b => b.classList.remove('active'));
+                    if (!isNaN(btn.textContent)) {
+                        btn.classList.add('active');
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                }
+            });
+        });
+
+        // Tri des formations
+        document.querySelector('.sort-select').addEventListener('change', (e) => {
+            const sortType = e.target.value;
+            const grid = document.getElementById('formationsGrid');
+            const cards = Array.from(grid.children);
+            
+            cards.sort((a, b) => {
+                if (sortType === 'Prix croissant') {
+                    const priceA = a.querySelector('.price-current').textContent;
+                    const priceB = b.querySelector('.price-current').textContent;
+                    return parsePrice(priceA) - parsePrice(priceB);
+                } else if (sortType === 'Prix décroissant') {
+                    const priceA = a.querySelector('.price-current').textContent;
+                    const priceB = b.querySelector('.price-current').textContent;
+                    return parsePrice(priceB) - parsePrice(priceA);
+                }
+                return 0;
+            });
+            
+            cards.forEach(card => grid.appendChild(card));
+        });
+
+        function parsePrice(priceText) {
+            if (priceText === 'Gratuit') return 0;
+            return parseInt(priceText.replace('€', '')) || 0;
+        }
+
+        // Smooth scroll pour les liens
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        console.log('📚 Catalogue ADSIAM chargé - 9 formations affichées sur 36 disponibles');
+    </script>
+</body>
+</html>

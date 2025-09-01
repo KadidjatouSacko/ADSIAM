@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Communication & Relationnel | ADSIAM - Formation Détaillée</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-pink: #d4a5a5;
+            --primary-blue: #a5c9d4;
+            --light-pink: #f5e6e6;
+            --light-blue: #e6f2f5;
+            --soft-gray: #f8f9fa;
+            --text-dark: #4a4a4a;
+            --text-light: #8a8a8a;
+            --white: #ffffff;
+            --success: #28a745;
+            --gradient-pink: linear-gradient(135deg, #f5e6e6, #d4a5a5);
+            --gradient-blue: linear-gradient(135deg, #e6f2f5, #a5c9d4);
+            --gradient-contact: linear-gradient(135deg, #d4a5a5, #a5c9d4);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background: var(--soft-gray);
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background: var(--gradient-contact);
+            color: white;
+            padding: 0.8rem 0;
+            font-size: 0.9rem;
+        }
+
+        .top-bar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .contact-info {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .contact-info a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-links a {
+            color: white;
+            font-size: 1.2rem;
+            text-decoration: none;
+        }
+
+        /* Header */
+        header {
+            background: var(--white);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        nav {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-dark);
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-contact);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            color: white;
+            font-weight: 700;
+            font-size: 1.3rem;
+        }
+
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: 300;
+            letter-spacing: 0.1em;
+        }
+
+        .logo-text .forma {
+            color: var(--primary-pink);
+        }
+
+        .logo-text .pro {
+            color: var(--primary-blue);
+            font-weight: 600;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-blue);
+        }
+
+        .nav-cta {
+            background: var(--gradient-contact);
+            color: white !important;
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(212, 165, 165, 0.3);
+        }
+
+        /* Breadcrumb */
+        .breadcrumb {
+            background: var(--white);
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--soft-gray);
+        }
+
+        .breadcrumb-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .breadcrumb-nav {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .breadcrumb-nav a {
+            color: var(--text-light);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .breadcrumb-nav a:hover {
+            color: var(--primary-blue);
+        }
+
+        .breadcrumb-separator {
+            color: var(--text-light);
+        }
+
+        .breadcrumb-current {
+            color: var(--primary-pink);
+            font-weight: 500;
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 3rem;
+        }
+
+        /* Formation Header */
+        .formation-header {
+            background: var(--white);
+            border-radius: 25px;
+            padding: 3rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .formation-header::before {
+            content: '';
+            position: absolute;
+            top: -30%;
+            right: -20%;
+            width: 40%;
+            height: 160%;
+            background: var(--gradient-pink);
+            border-radius: 50%;
+            opacity: 0.1;
+            transform: rotate(-15deg);
+        }
+
+        .formation-hero {
+            display: grid;
+            grid-template-columns: 1fr 150px;
+            gap: 2rem;
+            align-items: start;
+            position: relative;
+            z-index: 2;
+        }
+
+        .formation-info h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .formation-subtitle {
+            font-size: 1.2rem;
+            color: var(--primary-blue);
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+
+        .formation-description {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            line-height: 1.7;
+            margin-bottom: 2rem;
+        }
+
+        .formation-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .meta-badge {
+            padding: 0.6rem 1.5rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .meta-badge.level {
+            background: var(--light-pink);
+            color: var(--primary-pink);
+        }
+
+        .meta-badge.duration {
+            background: var(--light-blue);
+            color: var(--primary-blue);
+        }
+
+        .meta-badge.modules {
+            background: var(--soft-gray);
+            color: var(--text-dark);
+        }
+
+        .meta-badge.rating {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .formation-icon-large {
+            width: 150px;
+            height: 150px;
+            background: var(--gradient-contact);
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: white;
+            box-shadow: 0 15px 40px rgba(212, 165, 165, 0.3);
+        }
+
+        /* Course Content */
+        .course-content {
+            background: var(--white);
+            border-radius: 25px;
+            padding: 3rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.08);
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .section-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-blue);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        /* Modules List */
+        .modules-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .module-item {
+            background: var(--soft-gray);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .module-item:hover {
+            background: white;
+            border-color: var(--primary-blue);
+            box-shadow: 0 10px 30px rgba(165, 201, 212, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .module-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .module-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .module-number {
+            width: 35px;
+            height: 35px;
+            background: var(--gradient-contact);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .module-status {
+            padding: 0.4rem 1rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .module-status.available {
+            background: #d4edda;
+            color: var(--success);
+        }
+
+        .module-status.locked {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .module-description {
+            color: var(--text-light);
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .module-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .module-detail {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .detail-icon {
+            color: var(--primary-blue);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* Purchase Card */
+        .purchase-card {
+            background: var(--white);
+            border-radius: 25px;
+            padding: 2.5rem;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 6rem;
+        }
+
+        .price-section {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid var(--soft-gray);
+        }
+
+        .price-current {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--primary-pink);
+            display: block;
+        }
+
+        .price-original {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            text-decoration: line-through;
+            margin-top: 0.5rem;
+        }
+
+        .price-save {
+            background: var(--success);
+            color: white;
+            padding: 0.3rem 1rem;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-top: 1rem;
+            display: inline-block;
+        }
+
+        .purchase-features {
+            margin-bottom: 2rem;
+        }
+
+        .feature-list {
+            list-style: none;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .feature-icon {
+            width: 25px;
+            height: 25px;
+            background: var(--success);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .cta-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 1.2rem 2rem;
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+            text-align: center;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .btn-primary {
+            background: var(--gradient-contact);
+            color: white;
+            box-shadow: 0 15px 40px rgba(212, 165, 165, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 50px rgba(212, 165, 165, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary-blue);
+            border: 2px solid var(--primary-blue);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        /* Instructor Card */
+        .instructor-card {
+            background: var(--white);
+            border-radius: 25px;
+            padding: 2rem;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+
+        .instructor-avatar {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient-contact);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .instructor-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .instructor-title {
+            color: var(--text-light);
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .instructor-bio {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* Reviews Section */
+        .reviews-section {
+            background: var(--white);
+            border-radius: 25px;
+            padding: 3rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.08);
+        }
+
+        .reviews-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .rating-overview {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .rating-score {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--primary-pink);
+        }
+
+        .rating-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .stars {
+            color: #ffc107;
+            font-size: 1.5rem;
+        }
+
+        .rating-count {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .review-item {
+            background: var(--soft-gray);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .reviewer-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .reviewer-avatar {
+            width: 45px;
+            height: 45px;
+            background: var(--gradient-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .reviewer-details h4 {
+            color: var(--text-dark);
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .reviewer-details .role {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .review-rating {
+            color: #ffc107;
+            font-size: 1.2rem;
+        }
+
+        .review-text {
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        /* Related Courses */
+        .related-courses {
+            background: var(--white);
+            border-radius: 25px;
+            padding: 3rem;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.08);
+        }
+
+        .related-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .related-course {
+            background: var(--soft-gray);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .related-course:hover {
+            background: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transform: translateY(-5px);
+        }
+
+        .related-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--gradient-contact);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.8rem;
+            color: white;
+        }
+
+        .related-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .related-price {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-pink);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .formation-hero {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .main-content {
+                padding: 2rem 1rem;
+            }
+            
+            .formation-header,
+            .course-content,
+            .purchase-card {
+                padding: 2rem;
+            }
+            
+            .formation-info h1 {
+                font-size: 2rem;
+            }
+            
+            .price-current {
+                font-size: 2.5rem;
+            }
+        }
+
+        /* Animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="top-bar-content">
+            <div class="contact-info">
+                <a href="tel:0650848175">📞 06 50 84 81 75</a>
+                <a href="mailto:contact@formapro-plus.org">✉️ contact@formapro-plus.org</a>
+            </div>
+            <div class="social-links">
+                <a href="#">📘</a>
+                <a href="#">📷</a>
+                <a href="#">💼</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <nav>
+            <a href="index.html" class="logo">
+                <div class="logo-icon">P+</div>
+                <div class="logo-text">
+                    <span class="forma">FORMA</span><span class="pro">PRO+</span>
+                </div>
+            </a>
+            <ul class="nav-links">
+                <li><a href="catalog.html">Formations</a></li>
+                <li><a href="#financements">Financements</a></li>
+                <li><a href="#evenements">Événements</a></li>
+                <li><a href="#blog">Blog</a></li>
+                <li><a href="contact.html" class="nav-cta">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <div class="breadcrumb-container">
+            <nav class="breadcrumb-nav">
+                <a href="index.html">🏠 Accueil</a>
+                <span class="breadcrumb-separator">›</span>
+                <a href="catalog.html">Formations</a>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-current">Communication & Relationnel</span>
+            </nav>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Left Column - Course Content -->
+        <div class="content-column">
+            <!-- Formation Header -->
+            <div class="formation-header fade-in">
+                <div class="formation-hero">
+                    <div class="formation-info">
+                        <h1>Communication & Relationnel</h1>
+                        <p class="formation-subtitle">Maîtrisez l'art de la communication bienveillante</p>
+                        <p class="formation-description">
+                            Développez vos compétences en communication avec les personnes âgées, leurs familles et votre équipe. Cette formation essentielle vous apprendra les techniques de communication bienveillante, la gestion des émotions et des situations difficiles.
+                        </p>
+                        <div class="formation-meta">
+                            <div class="meta-badge level">
+                                📚 Niveau débutant
+                            </div>
+                            <div class="meta-badge duration">
+                                ⏱️ 3 heures
+                            </div>
+                            <div class="meta-badge modules">
+                                🎯 5 modules
+                            </div>
+                            <div class="meta-badge rating">
+                                ⭐ 4.8/5 (127 avis)
+                            </div>
+                        </div>
+                    </div>
+                    <div class="formation-icon-large">
+                        🗣️
+                    </div>
+                </div>
+            </div>
+
+            <!-- Course Content -->
+            <div class="course-content fade-in">
+                <h2 class="section-title">
+                    <div class="section-icon">📋</div>
+                    Contenu de la formation
+                </h2>
+                <div class="modules-list">
+                    <div class="module-item">
+                        <div class="module-header">
+                            <div class="module-title">
+                                <div class="module-number">1</div>
+                                Introduction à la communication professionnelle
+                            </div>
+                            <div class="module-status available">Disponible</div>
+                        </div>
+                        <p class="module-description">
+                            Découvrez le rôle et les enjeux de la communication dans le secteur de l'aide à domicile. Comprenez les spécificités de la relation d'aide et identifiez les erreurs fréquentes à éviter.
+                        </p>
+                        <div class="module-details">
+                            <div class="module-detail">
+                                <span class="detail-icon">🎥</span>
+                                <span>Vidéo 15 min</span>
+                            </div>
+                            <div class="module-detail">
+                                <span class="detail-icon">📄</span>
+                                <span>PDF téléchargeable</span>
+                            </div>
+                            <div class="module-detail">
+                                <span class="detail-icon">❓</span>
+                                <span>Quiz 5 questions</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="module-item">
+                        <div class="module-header">
+                            <div class="module-title">
+                                <div class="module-number">2</div>
+                                Les bases de la communication bienveillante
+                            </div>
+                            <div class="module-status available">Disponible</div>
+                        </div>
+                        <p class="module-description">
+                            Maîtrisez l'écoute active et la reformulation. Apprenez à poser les bonnes questions ouvertes et adoptez le bon ton, attitude et posture professionnelle.
+                        </p>
+                        <div class="module-details">
+                            <div class="module-detail">
+                                <span class="detail-icon">🎥</span>
+                                <span>Vidéo 20 min</span>
+                            </div>
+                            <div class="module-detail">
+                                <span class="detail-icon">🎭</span>
+                                <span>Mise en situation</span>
+                            </div>
+                            <div class="module-detail">
+                                <span class="detail-icon">📋</span>
+                                <span>Exercices pratiques</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="module-item">
+                        <div class="module-header">
+                            <div class="module-title">
+                                <div class="module-number">3</div>
+                                Gestion des émotions et situations difficiles
+                            </div>
+                            <div class="module-status locked">Verrouillé</div>
+                        </div>
+                        <p class="module-description">
+                            Apprenez à identifier vos émotions et celles de la personne accompagnée. Découvrez les techniques d'apaisement et comment désamorcer colère et refus.
+                        </p>
+                        <div class="module-details">
+                            <div class="module-detail">
+                                <span class="detail-icon">🎥</span>
+                                <span>Vidéo 25 min</span>
+                            </div>
+                            <div class="module-detail">
+                                <span class="detail-icon">🧘</span>
+                                <span>Exercices relaxation</span>
+                            </div>
+                            <div class="module-detail">
+                                <span class="detail-icon">💡</span>
+                                <span>Cas pratiques</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="module-item">
+                        <div class="module-header">
+                            <div class="module-title">
+                                <div class="module-number">4</div>
+                                Communication avec les familles et l'équipe
+                            </div>
+                            <div class="module-status locked">Verrouillé</div>
+                        </div>
+                        <p class="module-description">
+                            Maîtrisez la transmission claire des informations, valorisez le travail collectif et apprenez à gérer les conflits internes avec diplomatie et professionnalisme.
+                        </p>
+                        <div class="module-details">
+                            <div class="module-detail">
+                                <span class="detail-icon">🎥</span>
+                                <span>Vidéo 18 min</span>
+                            </div>
+                            <div class="module-detail">
+                                <span class="detail-icon">📝</span>
+                                <span>Templates communication</span>
+                            </div>
+                            <div class="module-detail">
+                                <span class="detail-icon">👥</span>
+                                <span>Jeux de rôles</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="module-item">
+                        <div class="module-header">
+                            <div class="module-title">
+                                <div class="module-number">5</div>
+                                Respect de la dignité et de l'autonomie
+                            </div>
+                            <div class="module-status locked">Verrouillé</div>
+                        </div>
+                        <p class="module-description">
+                            Apprenez à encourager l'autonomie sans imposer, valoriser les choix de la personne et adapter votre langage et posture selon les situations.
+                        </p>
+                        <div class="module-details">
+                            <div class="module-detail">
+                                <span class="detail-icon">🎥</span>
+                                <span>Vidéo 22 min</span>
+                            </div>
+                            <div class="module-detail">
+                                <span class="detail-icon">🎯</span>
+                                <span>Évaluation finale</span>
+                            </div>
+                            <div class="module-detail">
+                                <span class="detail-icon">🏆</span>
+                                <span>Certificat</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reviews Section -->
+            <div class="reviews-section fade-in">
+                <div class="reviews-header">
+                    <h2 class="section-title">
+                        <div class="section-icon">💬</div>
+                        Avis des apprenants
+                    </h2>
+                    <div class="rating-overview">
+                        <div class="rating-score">4.8</div>
+                        <div class="rating-details">
+                            <div class="stars">★★★★★</div>
+                            <div class="rating-count">127 avis vérifiés</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="review-item">
+                    <div class="review-header">
+                        <div class="reviewer-info">
+                            <div class="reviewer-avatar">SM</div>
+                            <div class="reviewer-details">
+                                <h4>Sophie Martin</h4>
+                                <div class="role">Aide à domicile - Paris</div>
+                            </div>
+                        </div>
+                        <div class="review-rating">★★★★★</div>
+                    </div>
+                    <p class="review-text">
+                        "Cette formation m'a vraiment aidée dans mon quotidien. Les techniques de communication bienveillante ont transformé mes relations avec les personnes que j'accompagne. Les vidéos sont très réalistes et les conseils directement applicables."
+                    </p>
+                </div>
+
+                <div class="review-item">
+                    <div class="review-header">
+                        <div class="reviewer-info">
+                            <div class="reviewer-avatar">MD</div>
+                            <div class="reviewer-details">
+                                <h4>Marie Dubois</h4>
+                                <div class="role">Auxiliaire de vie - Lyon</div>
+                            </div>
+                        </div>
+                        <div class="review-rating">★★★★★</div>
+                    </div>
+                    <p class="review-text">
+                        "Excellente formation ! J'ai particulièrement apprécié le module sur la gestion des émotions. Les situations pratiques m'ont permis de mieux comprendre comment réagir face aux moments difficiles."
+                    </p>
+                </div>
+
+                <div class="review-item">
+                    <div class="review-header">
+                        <div class="reviewer-info">
+                            <div class="reviewer-avatar">JL</div>
+                            <div class="reviewer-details">
+                                <h4>Jean Legrand</h4>
+                                <div class="role">Aide-soignant EHPAD - Marseille</div>
+                            </div>
+                        </div>
+                        <div class="review-rating">★★★★☆</div>
+                    </div>
+                    <p class="review-text">
+                        "Formation très complète et bien structurée. Les PDF téléchargeables sont parfaits pour réviser. Je recommande vivement pour tous les professionnels du secteur."
+                    </p>
+                </div>
+            </div>
+
+            <!-- Related Courses -->
+            <div class="related-courses fade-in">
+                <h2 class="section-title">
+                    <div class="section-icon">🎯</div>
+                    Formations recommandées
+                </h2>
+                <div class="related-grid">
+                    <div class="related-course">
+                        <div class="related-icon">🛡️</div>
+                        <h3 class="related-title">Hygiène & Sécurité</h3>
+                        <div class="related-price">49€</div>
+                    </div>
+                    <div class="related-course">
+                        <div class="related-icon">🚨</div>
+                        <h3 class="related-title">Premiers Secours</h3>
+                        <div class="related-price">99€</div>
+                    </div>
+                    <div class="related-course">
+                        <div class="related-icon">🏥</div>
+                        <h3 class="related-title">Ergonomie & Gestes</h3>
+                        <div class="related-price">79€</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Sidebar -->
+        <div class="sidebar">
+            <!-- Purchase Card -->
+            <div class="purchase-card fade-in">
+                <div class="price-section">
+                    <span class="price-current">Gratuit</span>
+                    <div class="price-original">Valeur 79€</div>
+                    <div class="price-save">🎉 Formation offerte</div>
+                </div>
+
+                <div class="purchase-features">
+                    <ul class="feature-list">
+                        <li class="feature-item">
+                            <div class="feature-icon">✓</div>
+                            <span>Accès immédiat à vie</span>
+                        </li>
+                        <li class="feature-item">
+                            <div class="feature-icon">✓</div>
+                            <span>5 modules interactifs</span>
+                        </li>
+                        <li class="feature-item">
+                            <div class="feature-icon">✓</div>
+                            <span>Vidéos HD professionnelles</span>
+                        </li>
+                        <li class="feature-item">
+                            <div class="feature-icon">✓</div>
+                            <span>PDF téléchargeables</span>
+                        </li>
+                        <li class="feature-item">
+                            <div class="feature-icon">✓</div>
+                            <span>Quiz d'évaluation</span>
+                        </li>
+                        <li class="feature-item">
+                            <div class="feature-icon">✓</div>
+                            <span>Certificat de réussite</span>
+                        </li>
+                        <li class="feature-item">
+                            <div class="feature-icon">✓</div>
+                            <span>Support 7j/7</span>
+                        </li>
+                        <li class="feature-item">
+                            <div class="feature-icon">✓</div>
+                            <span>Accès mobile & desktop</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="cta-buttons">
+                    <button class="btn btn-primary">🚀 Commencer maintenant</button>
+                    <a href="#" class="btn btn-secondary">📋 Voir le programme détaillé</a>
+                </div>
+            </div>
+
+            <!-- Instructor Card -->
+            <div class="instructor-card fade-in">
+                <div class="instructor-avatar">👩‍⚕️</div>
+                <h3 class="instructor-name">Dr. Claire Rousseau</h3>
+                <p class="instructor-title">Experte en Communication Soignante</p>
+                <p class="instructor-bio">
+                    15 ans d'expérience en EHPAD et formation professionnelle. Spécialiste de la communication bienveillante et de l'accompagnement des personnes âgées.
+                </p>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="instructor-card fade-in">
+                <h3 class="instructor-name">📊 Statistiques</h3>
+                <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>👥 Inscrits</span>
+                        <strong style="color: var(--primary-pink);">2,847</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>🎯 Taux de réussite</span>
+                        <strong style="color: var(--success);">94%</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>⏱️ Temps moyen</span>
+                        <strong style="color: var(--primary-blue);">2h45</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>🏆 Certifiés</span>
+                        <strong style="color: var(--primary-pink);">2,675</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Animation au scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'fadeInUp 0.8s ease forwards';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Module interactions
+        document.querySelectorAll('.module-item').forEach(module => {
+            module.addEventListener('click', () => {
+                const title = module.querySelector('.module-title').textContent.trim();
+                const status = module.querySelector('.module-status').textContent;
+                
+                if (status === 'Disponible') {
+                    alert(`📚 Ouverture du module :\n${title}\n\n🎥 Lecture de la vidéo...\n✨ Bonne formation !`);
+                } else {
+                    alert(`🔒 Module verrouillé\n\n${title}\n\n💡 Terminez d'abord les modules précédents pour débloquer celui-ci.`);
+                }
+            });
+        });
+
+        // CTA Button
+        document.querySelector('.btn-primary').addEventListener('click', () => {
+            alert('🎉 Félicitations !\n\n✅ Inscription réussie à la formation "Communication & Relationnel"\n\n🚀 Accès immédiat aux modules\n📧 Email de confirmation envoyé\n🎓 Commencez dès maintenant votre parcours de formation !\n\nRedirection vers le premier module...');
+        });
+
+        // Secondary CTA
+        document.querySelector('.btn-secondary').addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('📋 Programme détaillé\n\nModule 1: Introduction (15 min)\nModule 2: Communication bienveillante (20 min)\nModule 3: Gestion des émotions (25 min)\nModule 4: Communication équipe/famille (18 min)\nModule 5: Dignité et autonomie (22 min)\n\n📄 PDF complet téléchargeable après inscription');
+        });
+
+        // Related courses
+        document.querySelectorAll('.related-course').forEach(course => {
+            course.addEventListener('click', () => {
+                const title = course.querySelector('.related-title').textContent;
+                const price = course.querySelector('.related-price').textContent;
+                alert(`🎯 Formation recommandée :\n${title}\n\nPrix : ${price}\n\n🔗 Redirection vers la page de formation...`);
+            });
+        });
+
+        // Smooth scroll pour les liens
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // Sticky sidebar effect
+        window.addEventListener('scroll', () => {
+            const sidebar = document.querySelector('.purchase-card');
+            const scrollTop = window.pageYOffset;
+            
+            if (scrollTop > 300) {
+                sidebar.style.boxShadow = '0 20px 60px rgba(0,0,0,0.15)';
+            } else {
+                sidebar.style.boxShadow = '0 15px 50px rgba(0,0,0,0.08)';
+            }
+        });
+
+        console.log('📚 Page formation "Communication & Relationnel" chargée');
+        console.log('🎯 Formation gratuite avec 5 modules interactifs');
+        console.log('⭐ Note : 4.8/5 basée sur 127 avis');
+    </script>
+</body>
+</html>
