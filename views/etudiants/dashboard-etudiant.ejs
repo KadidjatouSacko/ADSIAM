@@ -626,63 +626,7 @@
 </head>
 <body>
     <!-- Header -->
-    <header class="header">
-        <div class="header-content">
-            <a href="../Visiteurs/home" class="logo">
-                <div class="logo-icon">A+</div>
-                <div class="logo-text">
-                    <span class="ads">ADS</span><span class="iam">IAM</span>
-                </div>
-            </a>
-            
-            <nav class="header-nav">
-                <a href="./dashboard-etudiant" class="nav-item active">
-                    <span>🏠</span>
-                    Tableau de bord
-                </a>
-                <a href="./formations-etudiant" class="nav-item">
-                    <span>📚</span>
-                    Mes formations
-                </a>
-                <a href="./planning-calendrier" class="nav-item">
-                    <span>📅</span>
-                    Planning
-                </a>
-                <a href="#" class="nav-item">
-                    <span>💬</span>
-                    Messages
-                </a>
-            </nav>
-            
-            <div class="user-profile">
-                <div class="notifications">
-                    <span style="font-size: 1.2rem;">🔔</span>
-                    <div class="notification-badge">3</div>
-                </div>
-                <div class="profile-avatar" onclick="toggleProfileDropdown()">
-                    SM
-                </div>
-                <div class="profile-dropdown" id="profileDropdown">
-                    <a href="./profil" class="dropdown-item">
-                        <span>👤</span>
-                        Mon profil
-                    </a>
-                    <a href="#" class="dropdown-item">
-                        <span>⚙️</span>
-                        Paramètres
-                    </a>
-                    <a href="#" class="dropdown-item">
-                        <span>❓</span>
-                        Aide
-                    </a>
-                    <a href="#" class="dropdown-item">
-                        <span>🚪</span>
-                        Déconnexion
-                    </a>
-                </div>
-            </div>
-        </div>
-    </header>
+   <%- include('../partials/header-etudiant') %>
 
     <!-- Main Container -->
     <div class="main-container">
@@ -691,10 +635,10 @@
             <div class="sidebar-section">
                 <h3 class="sidebar-title">Navigation</h3>
                 <ul class="sidebar-menu">
-                    <li><a href="./dashboard-etudiant" class="active"><span class="icon">🏠</span> Tableau de bord</a></li>
-                    <li><a href="./formations-etudiant"><span class="icon">📚</span> Mes formations</a></li>
+                    <li><a href="/etudiant/dashboard" class="active"><span class="icon">🏠</span> Tableau de bord</a></li>
+                    <li><a href="/etudiant/formations"><span class="icon">📚</span> Mes formations</a></li>
                     <li><a href="#"><span class="icon">📊</span> Progression</a></li>
-                    <li><a href="./planning-calendrier"><span class="icon">📅</span> Planning</a></li>
+                    <li><a href="/etudiant/planning"><span class="icon">📅</span> Planning</a></li>
                     <li><a href="#"><span class="icon">🎓</span> Certifications</a></li>
                     <li><a href="#"><span class="icon">💬</span> Messagerie</a></li>
                     <li><a href="#"><span class="icon">👥</span> Communauté</a></li>
@@ -882,7 +826,7 @@
                             <span class="card-icon">📅</span>
                             Prochains événements
                         </h2>
-                        <a href="#" class="card-action">Planning complet →</a>
+                        <a href="/etudiant/planning" class="card-action">Planning complet →</a>
                     </div>
                     
                     <div class="event-item">
@@ -921,6 +865,8 @@
             </div>
         </main>
     </div>
+
+       <%- include('../partials/footer') %>
 
     <script>
         // Toggle profile dropdown

@@ -988,29 +988,13 @@
     </div>
 
     <!-- Header -->
-    <header>
-        <nav>
-            <a href="./home" class="logo">
-                <div class="logo-icon">A+</div>
-                <div class="logo-text">
-                    <span class="forma">ADS</span><span class="pro">IAM</span>
-                </div>
-            </a>
-            <ul class="nav-links">
-                <li><a href="./formations">Formations</a></li>
-                <li><a href="#financements">Financements</a></li>
-                <li><a href="#evenements">Événements</a></li>
-                <li><a href="#blog">Blog</a></li>
-                <li><a href="./contact" class="nav-cta active">Contact</a></li>
-            </ul>
-        </nav>
-    </header>
+<%- include('../partials/header') %>
 
     <!-- Breadcrumb -->
     <div class="breadcrumb">
         <div class="breadcrumb-container">
             <nav class="breadcrumb-nav">
-                <a href="./home">🏠 Accueil</a>
+                <a href="/">🏠 Accueil</a>
                 <span class="breadcrumb-separator">›</span>
                 <span class="breadcrumb-current">Contact & Support</span>
             </nav>
@@ -1245,52 +1229,9 @@
         </section>
     </main>
 
+  
     <!-- Footer -->
-    <footer>
-        <div class="footer-container">
-            <div class="footer-content">
-                <div class="footer-brand">
-                    <div class="logo-text">
-                        <span class="">AD</span><span class="pro">SIAM</span>
-                    </div>
-                    <p class="footer-description">ADSIAM est la plateforme de tion de référence pour les professionnels de l'aide à domicile et des EHPAD. Support expert 7j/7.</p>
-                </div>
-                <div class="footer-section">
-                    <h4>Support</h4>
-                    <ul class="footer-links">
-                        <li><a href="#">Centre d'aide</a></li>
-                        <li><a href="#">FAQ</a></li>
-                        <li><a href="#">Tutoriels vidéo</a></li>
-                        <li><a href="#">Guides PDF</a></li>
-                        <li><a href="#">Status technique</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h4>Contact</h4>
-                    <ul class="footer-links">
-                        <li><a href="#">Chat en direct</a></li>
-                        <li><a href="tel:0650848175">Téléphone</a></li>
-                        <li><a href="mailto:contact@formapro-plus.org">Email</a></li>
-                        <li><a href="#">Planifier un RDV</a></li>
-                        <li><a href="#">Support urgent</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h4>Informations</h4>
-                    <ul class="footer-links">
-                        <li><a href="#">Mentions légales</a></li>
-                        <li><a href="#">Politique confidentialité</a></li>
-                        <li><a href="#">CGU</a></li>
-                        <li><a href="#">Accessibilité</a></li>
-                        <li><a href="#">Plan du site</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2024 ADSIAM. Tous droits réservés. | Support expert pour votre réussite professionnelle</p>
-            </div>
-        </div>
-    </footer>
+   <%- include('../partials/footer') %>
 
     <script>
         // Animation au scroll

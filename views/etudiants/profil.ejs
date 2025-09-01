@@ -692,39 +692,7 @@
 </head>
 <body>
     <!-- Header -->
-    <header class="header">
-        <div class="header-content">
-            <a href="../Visiteurs/home" class="logo">
-                <div class="logo-icon">A+</div>
-                <div class="logo-text">
-                    <span class="ads">ADS</span><span class="iam">IAM</span>
-                </div>
-            </a>
-            
-            <nav class="header-nav">
-                <a href="./dashboard-etudiant" class="nav-item">
-                    <span>🏠</span>
-                    Tableau de bord
-                </a>
-                <a href="./formations-etudiant" class="nav-item">
-                    <span>📚</span>
-                    Mes formations
-                </a>
-                <a href="/planning-calendrier" class="nav-item">
-                    <span>📅</span>
-                    Planning
-                </a>
-                <a href="./profil" class="nav-item active">
-                    <span>👤</span>
-                    Profil
-                </a>
-            </nav>
-            
-            <div class="user-profile">
-                <div class="profile-avatar">SM</div>
-            </div>
-        </div>
-    </header>
+   <%- include('../partials/header-etudiant') %>
 
     <!-- Main Container -->
     <div class="main-container">
@@ -1018,3 +986,7 @@
                             <div class="progress-title">Préparation des Repas & Alimentation</div>
                             <div class="progress-meta">Non commencée • 5 modules</div>
                         </div>
+
+
+
+                        <%- include('../partials/footer') %>
