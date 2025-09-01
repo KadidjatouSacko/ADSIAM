@@ -4,8 +4,8 @@ const router = express.Router();
 // ----- VISITEURS -----
 router.get('/', (req, res) => {
     res.render('Visiteurs/home', {
-        title: 'Accueil',
-        header: 'partials/header-visiteur',
+        title: 'ADSIAM | Formation Excellence Aide à Domicile & EHPAD',
+        header: 'partials/header',
         footer: 'partials/footer',
         currentPage: 'home'
     });
@@ -13,17 +13,17 @@ router.get('/', (req, res) => {
 
 router.get('/formations', (req, res) => {
     res.render('Visiteurs/formations', {
-        title: 'Formations',
-        header: 'partials/header-visiteur',
+        title: 'Catalogue Formations | ADSIAM - Aide à Domicile & EHPAD',
+        header: 'partials/header',
         footer: 'partials/footer',
         currentPage: 'formations'
     });
 });
 
-router.get('/formation/:id', (req, res) => {
+router.get('/formation/:slug', (req, res) => {
     res.render('Visiteurs/formation', {
-        title: 'Formation',
-        header: 'partials/header-visiteur',
+        title: 'Formation + :slug',
+        header: 'partials/header',
         footer: 'partials/footer',
         currentPage: 'formations'
     });
@@ -31,8 +31,8 @@ router.get('/formation/:id', (req, res) => {
 
 router.get('/contact', (req, res) => {
     res.render('Visiteurs/contact', {
-        title: 'Contact',
-        header: 'partials/header-visiteur',
+        title: 'Contact & Support | ADSIAM+ - Nous sommes là pour vous aider',
+        header: 'partials/header',
         footer: 'partials/footer',
         currentPage: 'contact'
     });
@@ -41,7 +41,7 @@ router.get('/contact', (req, res) => {
 // ----- ETUDIANTS -----
 router.get('/etudiant/dashboard', (req, res) => {
     res.render('Etudiants/dashboard-etudiant', {
-        title: 'Tableau de bord',
+        title: 'Tableau de Bord | ADSIAM Formations',
         header: 'partials/header-etudiant',
         footer: 'partials/footer',
         currentPage: 'dashboard'
@@ -50,7 +50,7 @@ router.get('/etudiant/dashboard', (req, res) => {
 
 router.get('/etudiant/formations', (req, res) => {
     res.render('Etudiants/formations-etudiant', {
-        title: 'Mes formations',
+        title: 'Mes Formations | ADSIAM Étudiant',
         header: 'partials/header-etudiant',
         footer: 'partials/footer',
         currentPage: 'formations'
@@ -59,7 +59,7 @@ router.get('/etudiant/formations', (req, res) => {
 
 router.get('/etudiant/planning', (req, res) => {
     res.render('Etudiants/planning-calendrier', {
-        title: 'Planning',
+        title: 'Planning & Calendrier | ADSIAM Étudiant',
         header: 'partials/header-etudiant',
         footer: 'partials/footer',
         currentPage: 'planning'
@@ -68,7 +68,7 @@ router.get('/etudiant/planning', (req, res) => {
 
 router.get('/etudiant/profil', (req, res) => {
     res.render('Etudiants/profil', {
-        title: 'Profil',
+        title: 'Mon Profil | ADSIAM Étudiant',
         header: 'partials/header-etudiant',
         footer: 'partials/footer',
         currentPage: 'profil'
