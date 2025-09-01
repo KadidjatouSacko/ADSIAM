@@ -13,20 +13,29 @@
             box-sizing: border-box;
         }
 
-        :root {
-            --primary-pink: #d4a5a5;
-            --primary-blue: #a5c9d4;
-            --light-pink: #f5e6e6;
-            --light-blue: #e6f2f5;
-            --soft-gray: #f8f9fa;
-            --text-dark: #4a4a4a;
-            --text-light: #8a8a8a;
-            --white: #ffffff;
-            --success: #28a745;
-            --gradient-pink: linear-gradient(135deg, #f5e6e6, #d4a5a5);
-            --gradient-blue: linear-gradient(135deg, #e6f2f5, #a5c9d4);
-            --gradient-contact: linear-gradient(135deg, #d4a5a5, #a5c9d4);
-        }
+              :root {
+  /* Couleurs principales */
+  --primary-pink: #e7a6b7;      /* Rose gold doux */
+  --primary-blue: #a5bfd4;      /* Bleu poudré */
+  
+  /* Couleurs secondaires */
+  --light-pink: #fce8ec;        /* Rose très clair */
+  --light-blue: #e8f3f8;        /* Bleu très clair */
+  --soft-gray: #f5f5f7;         /* Gris clair neutre */
+  
+  /* Texte */
+  --text-dark: #2f2f2f;         /* Gris anthracite lisible */
+  --text-light: #6f6f6f;        /* Gris doux */
+  --white: #ffffff;
+
+  /* Dégradés */
+  --gradient-pink: linear-gradient(135deg, #fce8ec, #e7a6b7);
+  --gradient-blue: linear-gradient(135deg, #e8f3f8, #a5bfd4);
+  --gradient-contact: linear-gradient(135deg, #e7a6b7, #a5bfd4);
+  --gradient-purple: linear-gradient(135deg, #f0e1ff, #c7a3ff);
+  --gradient-green: linear-gradient(135deg, #e2f8ee, #9dd6b5);
+  --gradient-orange: linear-gradient(135deg, #ffe9dc, #ff9f80);
+}
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -824,18 +833,18 @@
     <!-- Header -->
     <header>
         <nav>
-            <a href="index.html" class="logo">
+            <a href="/accueil" class="logo">
                 <div class="logo-icon">P+</div>
                 <div class="logo-text">
                     <span class="forma">FORMA</span><span class="pro">PRO+</span>
                 </div>
             </a>
             <ul class="nav-links">
-                <li><a href="catalog.html">Formations</a></li>
+                <li><a href="/formations">Formations</a></li>
                 <li><a href="#financements">Financements</a></li>
                 <li><a href="#evenements">Événements</a></li>
                 <li><a href="#blog">Blog</a></li>
-                <li><a href="contact.html" class="nav-cta">Contact</a></li>
+                <li><a href="/contact" class="nav-cta">Contact</a></li>
             </ul>
         </nav>
     </header>
@@ -844,9 +853,9 @@
     <div class="breadcrumb">
         <div class="breadcrumb-container">
             <nav class="breadcrumb-nav">
-                <a href="index.html">🏠 Accueil</a>
+                <a href="/">🏠 Accueil</a>
                 <span class="breadcrumb-separator">›</span>
-                <a href="catalog.html">Formations</a>
+                <a href="/formations">Formations</a>
                 <span class="breadcrumb-separator">›</span>
                 <span class="breadcrumb-current">Communication & Relationnel</span>
             </nav>
