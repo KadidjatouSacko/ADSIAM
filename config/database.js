@@ -1,12 +1,18 @@
 import { Sequelize } from "sequelize";
+import dotenv from "dotenv";
+dotenv.config();
 
-export const sequelize = new Sequelize(
-  "nom_de_ta_base",   // nom BDD
-  "ton_utilisateur",  // utilisateur
-  "ton_mot_de_passe", // mot de passe
+const sequelize = new Sequelize(
+  process.env.DB_NAME,
+  process.env.DB_USER,
+  process.env.DB_PASSWORD,
   {
-    host: "localhost",
+    host: process.env.DB_HOST,
     dialect: "postgres",
+    port: process.env.DB_PORT,
     logging: false
   }
 );
+
+export default sequelize;
+export { sequelize };
