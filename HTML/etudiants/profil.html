@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Profil | ADSIAM Étudiant</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-pink: #e7a6b7;
+            --primary-blue: #a5bfd4;
+            --light-pink: #fce8ec;
+            --light-blue: #e8f3f8;
+            --soft-gray: #f5f5f7;
+            --text-dark: #2f2f2f;
+            --text-light: #6f6f6f;
+            --white: #ffffff;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
+            --gradient-pink: linear-gradient(135deg, #fce8ec, #e7a6b7);
+            --gradient-blue: linear-gradient(135deg, #e8f3f8, #a5bfd4);
+            --gradient-contact: linear-gradient(135deg, #e7a6b7, #a5bfd4);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background: var(--soft-gray);
+        }
+
+        /* Header similaire aux autres pages */
+        .header {
+            background: var(--white);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-dark);
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: var(--gradient-contact);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            color: white;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 300;
+            letter-spacing: 0.1em;
+        }
+
+        .logo-text .ads {
+            color: var(--primary-pink);
+        }
+
+        .logo-text .iam {
+            color: var(--primary-blue);
+            font-weight: 600;
+        }
+
+        .header-nav {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .nav-item {
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-item:hover {
+            color: var(--primary-blue);
+            background: var(--light-blue);
+        }
+
+        .nav-item.active {
+            color: var(--primary-blue);
+            background: var(--light-blue);
+            font-weight: 600;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .profile-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-contact);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+        }
+
+        /* Sidebar Navigation */
+        .profile-sidebar {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            height: fit-content;
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid var(--soft-gray);
+        }
+
+        .profile-picture {
+            width: 100px;
+            height: 100px;
+            background: var(--gradient-contact);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0 auto 1rem;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .profile-picture:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(231, 166, 183, 0.4);
+        }
+
+        .photo-upload {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            width: 30px;
+            height: 30px;
+            background: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-blue);
+            font-size: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .profile-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-role {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .profile-menu {
+            list-style: none;
+        }
+
+        .profile-menu li {
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-menu a {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            color: var(--text-light);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .profile-menu a:hover, .profile-menu a.active {
+            background: var(--light-blue);
+            color: var(--primary-blue);
+            transform: translateX(5px);
+        }
+
+        .menu-icon {
+            font-size: 1.2rem;
+        }
+
+        /* Content Area */
+        .profile-content {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .section-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--soft-gray);
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .section-subtitle {
+            color: var(--text-light);
+            font-size: 1rem;
+        }
+
+        /* Form Styles */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--soft-gray);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background: var(--white);
+            font-family: inherit;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(165, 191, 212, 0.2);
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-help {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-top: 0.3rem;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 2px solid var(--soft-gray);
+        }
+
+        .btn {
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-contact);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(231, 166, 183, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-light);
+            border: 2px solid var(--soft-gray);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary-blue);
+            color: var(--primary-blue);
+        }
+
+        /* Statistics Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            color: white;
+        }
+
+        .stat-card:nth-child(1) { background: var(--gradient-blue); }
+        .stat-card:nth-child(2) { background: var(--gradient-pink); }
+        .stat-card:nth-child(3) { background: linear-gradient(135deg, #28a745, #20c997); }
+        .stat-card:nth-child(4) { background: linear-gradient(135deg, #ffc107, #fd7e14); }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* Progress Section */
+        .progress-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: var(--soft-gray);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+
+        .progress-info {
+            flex: 1;
+        }
+
+        .progress-title {
+            font-weight: 500;
+            color: var(--text-dark);
+            margin-bottom: 0.3rem;
+        }
+
+        .progress-meta {
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+
+        .progress-value {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .progress-percentage {
+            font-weight: 600;
+            color: var(--primary-blue);
+        }
+
+        .progress-bar {
+            width: 100px;
+            height: 6px;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient-contact);
+            border-radius: 10px;
+            transition: width 0.8s ease;
+        }
+
+        /* Certifications */
+        .cert-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .cert-card {
+            background: var(--soft-gray);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .cert-card:hover {
+            background: var(--light-blue);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .cert-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .cert-title {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .cert-date {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .cert-actions {
+            display: flex;
+            gap: 0.8rem;
+            justify-content: center;
+        }
+
+        .cert-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .cert-btn.download {
+            background: var(--gradient-contact);
+            color: white;
+        }
+
+        .cert-btn.share {
+            background: transparent;
+            color: var(--primary-blue);
+            border: 1px solid var(--primary-blue);
+        }
+
+        /* Notifications Settings */
+        .notification-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--soft-gray);
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        .notification-info {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-weight: 500;
+            color: var(--text-dark);
+            margin-bottom: 0.3rem;
+        }
+
+        .notification-description {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 25px;
+            background: var(--soft-gray);
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: var(--primary-blue);
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 21px;
+            height: 21px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(25px);
+        }
+
+        /* Security Section */
+        .security-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            background: var(--soft-gray);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+
+        .security-info {
+            flex: 1;
+        }
+
+        .security-title {
+            font-weight: 500;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .security-description {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .security-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-success {
+            color: var(--success);
+        }
+
+        .status-warning {
+            color: var(--warning);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-nav {
+                display: none;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .cert-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Success message */
+        .success-message {
+            background: var(--success);
+            color: white;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .success-message.show {
+            display: flex;
+            animation: slideDown 0.5s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="../Visiteurs/home.html" class="logo">
+                <div class="logo-icon">A+</div>
+                <div class="logo-text">
+                    <span class="ads">ADS</span><span class="iam">IAM</span>
+                </div>
+            </a>
+            
+            <nav class="header-nav">
+                <a href="./dashboard-etudiant.html" class="nav-item">
+                    <span>🏠</span>
+                    Tableau de bord
+                </a>
+                <a href="./formations-etudiant.html" class="nav-item">
+                    <span>📚</span>
+                    Mes formations
+                </a>
+                <a href="./planning-calendrier.html" class="nav-item">
+                    <span>📅</span>
+                    Planning
+                </a>
+                <a href="./profil.html" class="nav-item active">
+                    <span>👤</span>
+                    Profil
+                </a>
+            </nav>
+            
+            <div class="user-profile">
+                <div class="profile-avatar">SM</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside class="profile-sidebar fade-in">
+            <div class="profile-header">
+                <div class="profile-picture" onclick="changePhoto()">
+                    SM
+                    <div class="photo-upload">📷</div>
+                </div>
+                <h2 class="profile-name">Sophie Martin</h2>
+                <p class="profile-role">Aide à domicile • Paris 15e</p>
+            </div>
+            
+            <ul class="profile-menu">
+                <li><a href="#" class="menu-link active" data-section="general">
+                    <span class="menu-icon">👤</span>
+                    Informations générales
+                </a></li>
+                <li><a href="#" class="menu-link" data-section="stats">
+                    <span class="menu-icon">📊</span>
+                    Mes statistiques
+                </a></li>
+                <li><a href="#" class="menu-link" data-section="progress">
+                    <span class="menu-icon">📈</span>
+                    Ma progression
+                </a></li>
+                <li><a href="#" class="menu-link" data-section="certifications">
+                    <span class="menu-icon">🎓</span>
+                    Mes certifications
+                </a></li>
+                <li><a href="#" class="menu-link" data-section="notifications">
+                    <span class="menu-icon">🔔</span>
+                    Notifications
+                </a></li>
+                <li><a href="#" class="menu-link" data-section="security">
+                    <span class="menu-icon">🔒</span>
+                    Sécurité & Compte
+                </a></li>
+                <li><a href="#" class="menu-link" data-section="preferences">
+                    <span class="menu-icon">⚙️</span>
+                    Préférences
+                </a></li>
+            </ul>
+        </aside>
+
+        <!-- Content -->
+        <main class="profile-content fade-in">
+            <!-- Success Message -->
+            <div class="success-message" id="successMessage">
+                <span>✅</span>
+                <span>Modifications sauvegardées avec succès !</span>
+            </div>
+
+            <!-- Section: Informations générales -->
+            <section class="content-section active" id="general">
+                <div class="section-header">
+                    <h1 class="section-title">Informations générales</h1>
+                    <p class="section-subtitle">Gérez vos informations personnelles et professionnelles</p>
+                </div>
+                
+                <form id="generalForm">
+                    <div class="form-grid">
+                        <div>
+                            <div class="form-group">
+                                <label class="form-label">Prénom *</label>
+                                <input type="text" class="form-input" value="Sophie" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Nom *</label>
+                                <input type="text" class="form-input" value="Martin" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Email *</label>
+                                <input type="email" class="form-input" value="sophie.martin@email.com" required>
+                                <div class="form-help">Utilisé pour la connexion et les communications importantes</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Téléphone</label>
+                                <input type="tel" class="form-input" value="06 45 78 92 34">
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="form-group">
+                                <label class="form-label">Date de naissance</label>
+                                <input type="date" class="form-input" value="1985-03-15">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Adresse</label>
+                                <input type="text" class="form-input" value="25 rue de la Paix">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Ville</label>
+                                <input type="text" class="form-input" value="Paris">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Code postal</label>
+                                <input type="text" class="form-input" value="75015">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Statut professionnel</label>
+                        <select class="form-select">
+                            <option selected>Aide à domicile</option>
+                            <option>Auxiliaire de vie</option>
+                            <option>Aide-soignant EHPAD</option>
+                            <option>Infirmier à domicile</option>
+                            <option>Autre</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Expérience professionnelle</label>
+                        <select class="form-select">
+                            <option>Moins d'1 an</option>
+                            <option>1-2 ans</option>
+                            <option selected>3-5 ans</option>
+                            <option>5-10 ans</option>
+                            <option>Plus de 10 ans</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Présentation</label>
+                        <textarea class="form-textarea" placeholder="Parlez-nous de votre parcours et de vos motivations...">Aide à domicile passionnée avec 4 ans d'expérience. Je me spécialise dans l'accompagnement des personnes âgées et j'ai à cœur de maintenir leur autonomie et leur dignité au quotidien.</textarea>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary">↶ Annuler</button>
+                        <button type="submit" class="btn btn-primary">💾 Sauvegarder</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Section: Statistiques -->
+            <section class="content-section" id="stats">
+                <div class="section-header">
+                    <h1 class="section-title">Mes statistiques</h1>
+                    <p class="section-subtitle">Vue d'ensemble de votre parcours de formation ADSIAM</p>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-number">47h</span>
+                        <span class="stat-label">Temps de formation total</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">6</span>
+                        <span class="stat-label">Formations suivies</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">3</span>
+                        <span class="stat-label">Certifications obtenues</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">91%</span>
+                        <span class="stat-label">Score moyen</span>
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-top: 2rem;">
+                    <div style="background: var(--soft-gray); padding: 2rem; border-radius: 15px;">
+                        <h3 style="margin-bottom: 1rem; color: var(--text-dark);">📅 Activité mensuelle</h3>
+                        <div style="height: 200px; background: var(--white); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--text-light);">
+                            Graphique d'activité
+                            <br><small>À implémenter avec Chart.js</small>
+                        </div>
+                    </div>
+                    
+                    <div style="background: var(--soft-gray); padding: 2rem; border-radius: 15px;">
+                        <h3 style="margin-bottom: 1rem; color: var(--text-dark);">🎯 Domaines de compétence</h3>
+                        <div style="height: 200px; background: var(--white); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--text-light);">
+                            Radar des compétences
+                            <br><small>À implémenter avec Chart.js</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 2rem;">
+                    <h3 style="margin-bottom: 1rem; color: var(--text-dark);">🏆 Derniers accomplissements</h3>
+                    <div style="background: var(--soft-gray); padding: 1.5rem; border-radius: 15px;">
+                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                            <span style="font-size: 2rem;">🎓</span>
+                            <div>
+                                <div style="font-weight: 600; color: var(--text-dark);">Certification Communication & Relationnel</div>
+                                <div style="color: var(--text-light); font-size: 0.9rem;">Obtenue le 10 janvier 2025 • Score: 95%</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                            <span style="font-size: 2rem;">⭐</span>
+                            <div>
+                                <div style="font-weight: 600; color: var(--text-dark);">Score parfait en Hygiène & Sécurité</div>
+                                <div style="color: var(--text-light); font-size: 0.9rem;">Module terminé avec 100% • Il y a 2 jours</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <span style="font-size: 2rem;">🔥</span>
+                            <div>
+                                <div style="font-weight: 600; color: var(--text-dark);">Série de 5 jours consécutifs</div>
+                                <div style="color: var(--text-light); font-size: 0.9rem;">Félicitations pour votre assiduité !</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Progression -->
+            <section class="content-section" id="progress">
+                <div class="section-header">
+                    <h1 class="section-title">Ma progression</h1>
+                    <p class="section-subtitle">Suivez votre avancement dans chaque formation</p>
+                </div>
+                
+                <div style="margin-bottom: 2rem;">
+                    <div class="progress-item">
+                        <div class="progress-info">
+                            <div class="progress-title">Communication & Relationnel</div>
+                            <div class="progress-meta">Terminée • 5 modules • Certifiée</div>
+                        </div>
+                        <div class="progress-value">
+                            <span class="progress-percentage">100%</span>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 100%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-item">
+                        <div class="progress-info">
+                            <div class="progress-title">Hygiène, Sécurité & Prévention</div>
+                            <div class="progress-meta">En cours • 4/6 modules • Score actuel: 88%</div>
+                        </div>
+                        <div class="progress-value">
+                            <span class="progress-percentage">67%</span>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 67%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-item">
+                        <div class="progress-info">
+                            <div class="progress-title">Gestion des Urgences</div>
+                            <div class="progress-meta">En cours • 2/8 modules • Score actuel: 92%</div>
+                        </div>
+                        <div class="progress-value">
+                            <span class="progress-percentage">25%</span>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 25%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-item">
+                        <div class="progress-info">
+                            <div class="progress-title">Pathologies & Situations Spécifiques</div>
+                            <div class="progress-meta">Terminée • 7 modules • Certifiée</div>
+                        </div>
+                        <div class="progress-value">
+                            <span class="progress-percentage">100%</span>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 100%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-item">
+                        <div class="progress-info">
+                            <div class="progress-title">Ergonomie & Gestes Professionnels</div>
+                            <div class="progress-meta">Terminée • 6 modules • Certifiée</div>
+                        </div>
+                        <div class="progress-value">
+                            <span class="progress-percentage">100%</span>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 100%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-item">
+                        <div class="progress-info">
+                            <div class="progress-title">Préparation des Repas & Alimentation</div>
+                            <div class="progress-meta">Non commencée • 5 modules</div>
+                        </div>

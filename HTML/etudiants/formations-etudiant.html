@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes Formations | ADSIAM Étudiant</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-pink: #e7a6b7;
+            --primary-blue: #a5bfd4;
+            --light-pink: #fce8ec;
+            --light-blue: #e8f3f8;
+            --soft-gray: #f5f5f7;
+            --text-dark: #2f2f2f;
+            --text-light: #6f6f6f;
+            --white: #ffffff;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
+            --gradient-pink: linear-gradient(135deg, #fce8ec, #e7a6b7);
+            --gradient-blue: linear-gradient(135deg, #e8f3f8, #a5bfd4);
+            --gradient-contact: linear-gradient(135deg, #e7a6b7, #a5bfd4);
+            --gradient-success: linear-gradient(135deg, #d4edda, #28a745);
+            --gradient-warning: linear-gradient(135deg, #fff3cd, #ffc107);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background: var(--soft-gray);
+        }
+
+        /* Header similaire au dashboard */
+        .header {
+            background: var(--white);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-dark);
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: var(--gradient-contact);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            color: white;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 300;
+            letter-spacing: 0.1em;
+        }
+
+        .logo-text .ads {
+            color: var(--primary-pink);
+        }
+
+        .logo-text .iam {
+            color: var(--primary-blue);
+            font-weight: 600;
+        }
+
+        .header-nav {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .nav-item {
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-item:hover {
+            color: var(--primary-blue);
+            background: var(--light-blue);
+        }
+
+        .nav-item.active {
+            color: var(--primary-blue);
+            background: var(--light-blue);
+            font-weight: 600;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .profile-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-contact);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Page Header */
+        .page-header {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 300;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        .page-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 1.5rem;
+            border-radius: 15px;
+            background: var(--gradient-blue);
+            color: white;
+        }
+
+        .stat-card:nth-child(2) { background: var(--gradient-success); }
+        .stat-card:nth-child(3) { background: var(--gradient-warning); }
+        .stat-card:nth-child(4) { background: var(--gradient-pink); }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* Filters */
+        .filters-section {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        }
+
+        .filters-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .filters-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .view-toggle {
+            display: flex;
+            background: var(--soft-gray);
+            border-radius: 15px;
+            padding: 0.3rem;
+        }
+
+        .view-btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            background: transparent;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.2rem;
+        }
+
+        .view-btn.active {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            color: var(--primary-blue);
+        }
+
+        .filters-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-label {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+        }
+
+        .filter-select {
+            padding: 0.8rem;
+            border: 2px solid var(--soft-gray);
+            border-radius: 10px;
+            background: white;
+            transition: all 0.3s;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+        }
+
+        .filter-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+        }
+
+        .filter-tag {
+            background: var(--soft-gray);
+            color: var(--text-dark);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .filter-tag:hover {
+            background: var(--light-blue);
+            color: var(--primary-blue);
+        }
+
+        .filter-tag.active {
+            background: var(--gradient-blue);
+            color: white;
+            border-color: var(--primary-blue);
+        }
+
+        /* Formations Grid */
+        .formations-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 2rem;
+        }
+
+        .formation-card {
+            background: var(--white);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .formation-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+        }
+
+        .formation-header {
+            position: relative;
+            height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .formation-card:nth-child(1) .formation-header { background: var(--gradient-pink); }
+        .formation-card:nth-child(2) .formation-header { background: var(--gradient-blue); }
+        .formation-card:nth-child(3) .formation-header { background: linear-gradient(135deg, #e8d5ff, #c7a3ff); }
+        .formation-card:nth-child(4) .formation-header { background: var(--gradient-success); }
+        .formation-card:nth-child(5) .formation-header { background: var(--gradient-warning); }
+        .formation-card:nth-child(6) .formation-header { background: linear-gradient(135deg, #ffe9dc, #ff9f80); }
+
+        .formation-icon {
+            font-size: 3rem;
+            color: white;
+            z-index: 2;
+        }
+
+        .formation-status {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+        }
+
+        .status-completed {
+            background: rgba(40, 167, 69, 0.9);
+            color: white;
+        }
+
+        .status-in-progress {
+            background: rgba(255, 193, 7, 0.9);
+            color: var(--text-dark);
+        }
+
+        .status-not-started {
+            background: rgba(108, 117, 125, 0.9);
+            color: white;
+        }
+
+        .formation-content {
+            padding: 2rem;
+        }
+
+        .formation-meta {
+            display: flex;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .meta-tag {
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .level-tag {
+            background: var(--light-pink);
+            color: var(--primary-pink);
+        }
+
+        .duration-tag {
+            background: var(--light-blue);
+            color: var(--primary-blue);
+        }
+
+        .modules-tag {
+            background: var(--soft-gray);
+            color: var(--text-dark);
+        }
+
+        .formation-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+        }
+
+        .formation-description {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .formation-progress {
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-label {
+            font-weight: 500;
+            color: var(--text-dark);
+            font-size: 0.9rem;
+        }
+
+        .progress-percentage {
+            font-weight: 600;
+            color: var(--primary-blue);
+            font-size: 0.9rem;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: var(--soft-gray);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient-contact);
+            border-radius: 10px;
+            transition: width 0.8s ease;
+        }
+
+        .formation-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: var(--soft-gray);
+            border-radius: 10px;
+        }
+
+        .formation-stat {
+            text-align: center;
+        }
+
+        .formation-stat-number {
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 1.1rem;
+            display: block;
+        }
+
+        .formation-stat-label {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .formation-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .last-activity {
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+
+        .formation-actions {
+            display: flex;
+            gap: 0.8rem;
+        }
+
+        .btn {
+            padding: 0.6rem 1.5rem;
+            border: none;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-contact);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 166, 183, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary-blue);
+            border: 1px solid var(--primary-blue);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        /* List View */
+        .formations-list {
+            display: none;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .formations-list.active {
+            display: flex;
+        }
+
+        .formations-container.list-view {
+            display: none;
+        }
+
+        .formation-list-item {
+            background: var(--white);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 2rem;
+            align-items: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .formation-list-item:hover {
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+            transform: translateY(-2px);
+        }
+
+        .list-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .list-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 2rem;
+            align-items: center;
+            width: 100%;
+        }
+
+        .list-info h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .list-info p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .list-progress {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .list-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+            font-size: 0.85rem;
+        }
+
+        .list-actions {
+            display: flex;
+            gap: 0.8rem;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-light);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+        }
+
+        .empty-state p {
+            margin-bottom: 2rem;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .formations-container {
+                grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            }
+            
+            .list-content {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .formation-list-item {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-nav {
+                display: none;
+            }
+            
+            .page-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .filters-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .formations-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .formation-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .slide-in {
+            opacity: 0;
+            transform: translateX(-20px);
+            animation: slideInLeft 0.6s ease forwards;
+        }
+
+        @keyframes slideInLeft {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="#" class="logo">
+                <div class="logo-icon">A+</div>
+                <div class="logo-text">
+                    <span class="ads">ADS</span><span class="iam">IAM</span>
+                </div>
+            </a>
+            
+            <nav class="header-nav">
+                <a href="./dashboard-etudiant.html" class="nav-item">
+                    <span>🏠</span>
+                    Tableau de bord
+                </a>
+                <a href="./formations-etudiant.html" class="nav-item active">
+                    <span>📚</span>
+                    Mes formations
+                </a>
+                <a href="./planning-calendrier.html" class="nav-item">
+                    <span>📅</span>
+                    Planning
+                </a>
+                <a href="#" class="nav-item">
+                    <span>💬</span>
+                    Messages
+                </a>
+            </nav>
+            
+            <div class="user-profile">
+                <div class="profile-avatar">SM</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Page Header -->
+        <section class="page-header fade-in">
+            <h1 class="page-title">Mes Formations 📚</h1>
+            <p class="page-subtitle">Suivez votre progression et continuez votre parcours d'apprentissage ADSIAM</p>
+            
+            <div class="page-stats">
+                <div class="stat-card">
+                    <span class="stat-number">6</span>
+                    <span class="stat-label">Formations inscrites</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">3</span>
+                    <span class="stat-label">Formations terminées</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">2</span>
+                    <span class="stat-label">En cours</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">78%</span>
+                    <span class="stat-label">Progression moyenne</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Filters Section -->
+        <section class="filters-section fade-in">
+            <div class="filters-header">
+                <h2 class="filters-title">Filtrer et organiser</h2>
+                <div class="view-toggle">
+                    <button class="view-btn active" onclick="toggleView('grid')">⊞</button>
+                    <button class="view-btn" onclick="toggleView('list')">☰</button>
+                </div>
+            </div>
+            
+            <div class="filters-row">
+                <div class="filter-group">
+                    <label class="filter-label">Statut</label>
+                    <select class="filter-select" id="statusFilter">
+                        <option value="">Tous les statuts</option>
+                        <option value="completed">Terminées</option>
+                        <option value="in-progress">En cours</option>
+                        <option value="not-started">Non commencées</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">Catégorie</label>
+                    <select class="filter-select" id="categoryFilter">
+                        <option value="">Toutes les catégories</option>
+                        <option value="communication">Communication</option>
+                        <option value="hygiene">Hygiène & Sécurité</option>
+                        <option value="urgences">Premiers Secours</option>
+                        <option value="pathologies">Pathologies</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">Niveau</label>
+                    <select class="filter-select" id="levelFilter">
+                        <option value="">Tous les niveaux</option>
+                        <option value="debutant">Débutant</option>
+                        <option value="intermediaire">Intermédiaire</option>
+                        <option value="avance">Avancé</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">Trier par</label>
+                    <select class="filter-select" id="sortFilter">
+                        <option value="progress">Progression</option>
+                        <option value="name">Nom A-Z</option>
+                        <option value="date">Date d'inscription</option>
+                        <option value="completion">Date de fin</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="filter-tags">
+                <button class="filter-tag active" onclick="filterByTag('all')">Toutes</button>
+                <button class="filter-tag" onclick="filterByTag('favorites')">⭐ Favorites</button>
+                <button class="filter-tag" onclick="filterByTag('urgent')">⚡ À terminer</button>
+                <button class="filter-tag" onclick="filterByTag('new')">🆕 Récentes</button>
+                <button class="filter-tag" onclick="filterByTag('certified')">🎓 Certifiantes</button>
+            </div>
+        </section>
+
+        <!-- Formations Grid View -->
+        <section class="formations-container" id="gridView">
+            <!-- Formation Card 1 -->
+            <div class="formation-card fade-in" data-status="completed" data-category="communication" data-level="debutant">
+                <div class="formation-header">
+                    <div class="formation-icon">🗣️</div>
+                    <div class="formation-status status-completed">Terminée ✓</div>
+                </div>
+                <div class="formation-content">
+                    <div class="formation-meta">
+                        <span class="meta-tag level-tag">Débutant</span>
+                        <span class="meta-tag duration-tag">3h</span>
+                        <span class="meta-tag modules-tag">5 modules</span>
+                    </div>
+                    <h3 class="formation-title">Communication & Relationnel</h3>
+                    <p class="formation-description">Maîtrisez l'art de la communication bienveillante avec les résidents et leurs familles. Formation essentielle pour développer vos compétences relationnelles.</p>
+                    
+                    <div class="formation-progress">
+                        <div class="progress-header">
+                            <span class="progress-label">Progression</span>
+                            <span class="progress-percentage">100%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="formation-stats">
+                        <div class="formation-stat">
+                            <span class="formation-stat-number">95%</span>
+                            <span class="formation-stat-label">Score final</span>
+                        </div>
+                        <div class="formation-stat">
+                            <span class="formation-stat-number">2h45</span>
+                            <span class="formation-stat-label">Temps passé</span>
+                        </div>
+                        <div class="formation-stat">
+                            <span class="formation-stat-number">🏆</span>
+                            <span class="formation-stat-label">Certifié</span>
+                        </div>
+                    </div>
+                    
+                    <div class="formation-footer">
+                        <span class="last-activity">Terminée il y a 3 jours</span>
+                        <div class="formation-actions">
+                            <a href="#" class="btn btn-success">🎓 Certificat</a>
+                            <a href="#" class="btn btn-secondary">📋 Revoir</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formation Card 2 -->
+            <div class="formation-card fade-in" data-status="in-progress" data-category="hygiene" data-level="intermediaire">
+                <div class="formation-header">
+                    <div class="formation-icon">🛡️</div>
+                    <div class="formation-status status-in-progress">En cours</div>
+                </div>
+                <div class="formation-content">
+                    <div class="formation-meta">
+                        <span class="meta-tag level-tag">Intermédiaire</span>
+                        <span class="meta-tag duration-tag">4h</span>
+                        <span class="meta-tag modules-tag">6 modules</span>
+                    </div>
+                    <h3 class="formation-title">Hygiène, Sécurité & Prévention</h3>
+                    <p class="formation-description">Protocoles d'hygiène professionnelle, sécurité avec les produits ménagers, prévention des risques domestiques et des infections.</p>
+                    
+                    <div class="formation-progress">
+                        <div class="progress-header">
+                            <span class="progress-label">Progression</span>
+                            <span class="progress-percentage">67%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 67%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="formation-stats">
+                        <div class="formation-stat">
+                            <span class="formation-stat-number">4/6</span>
+                            <span class="formation-stat-label">Modules</span>
+                        </div>
+                        <div class="formation-stat">
+                            <span class="formation-stat-number">2h30</span>
+                            <span class="formation-stat-label">Temps passé</span>
+                        </div>
+                        <div class="formation-stat">
+                            <span class="formation-stat-number">88%</span>
+                            <span class="formation-stat-label">Score moyen</span>
+                        </div>
+                    </div>
+                    
+                    <div class="formation-footer">
+                        <span class="last-activity">Dernière activité: hier</span>
+                        <div class="formation-actions">
+                            <a href="#" class="btn btn-primary">▶️ Continuer</a>
+                            <a href="#" class="btn btn-secondary">📊 Détails</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formation Card 3 -->
+            <div class="formation-card fade-in" data-status="in-progress" data-category="urgences" data-level="avance">
+                <div class="formation-header">
+                    <div class="formation-icon">🚨</div>
+                    <div class="formation-status status-in-progress">En cours</div>
+                </div>
+                <div class="formation-content">
+                    <div class="formation-meta">
+                        <span class="meta-tag level-tag">Avancé</span>
+                        <span class="meta-tag duration-tag">6h</span>
+                        <span class="meta-tag modules-tag">8 modules</span>
+                    </div>
+                    <h3 class="formation-title">Gestion des Urgences & Premiers Secours</h3>
+                    <p class="formation-description">Formation complète aux gestes qui sauvent : RCP, défibrillateur, position latérale de sécurité, gestion des blessures et situations critiques.</p>
+                    
+                    <div class="formation-progress">
+                        <div class="progress-header">
+                            <span class="progress-label">Progression</span>
+                            <span class="progress-percentage">25%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 25%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="formation-stats">
+                        <div class="formation-stat">
+                            <span class="formation-stat-number">2/8</span>
+                            <span class="formation-stat-label">Modules</span>
+                        </div>
+                        <div class="formation-stat">
+                            <span class="formation-stat-number">1h15</span>
+                            <span class="formation-stat-label">Temps passé</span>
+                        </div>
+                        <div class="formation-stat">
+                            <span class="formation-stat-number">92%</span>
+                            <span class="formation-stat-label">Score moyen</span>
+                        </div>
+                    </div>
+                    
+                    <div class="formation-footer">
+                        <span class="last-activity">Dernière activité: il y a 2 jours</span>
+                        <div class="formation-actions">
+                            <a href="#" class="btn btn-primary">▶️ Continuer</a>
+                            <a href="#" class="btn btn-secondary">📊 Détails</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formation Card 4 -->
+            <div class="formation-card fade-in" data-status="completed" data-category="pathologies" data-level="avance">
+                <div class="formation-header">
+                    <div class="formation-icon">🧠</div>
+                    <div class="formation-status status-completed">Terminée ✓</div>
+                </div>
+                <div class="formation-content">
+                    <div class="formation-meta">
+                        <span class="meta-tag level-tag">Avancé</span>
+                        <span class="meta-tag duration-tag">5h</span>
+                        <span class="meta-tag modules-tag">7 modules</span>
+                    </div>
+                    <h3 class="formation-title">Pathologies & Situations Spécifiques</h3>
+                    <p class="formation-description">Accompagnement des troubles cognitifs, Alzheimer, maladies chroniques, perte de mobilité et accompagnement en fin de vie.</p>
+                    
+                    <div class="formation-progress">
+                        <div class="progress-header">
+                            <span class="progress-label">Progression</span>
+                            <span class="progress-percentage">100%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="formation-stats">
+                        <div class="formation-stat">
+                            <span class="formation-stat-number">91%</span>
+                            <span class="formation-stat-label">Score final</span>
+                        </div>
+                        <div class="formation-stat">
+                            <span class="formation-stat-number">4h20</span>
+                            <span class="formation-stat-label">Temps passé</span>
+                        </div>
+                        <div class="formation-stat">
+                            <span class="formation-stat-number">🏆</span>
+                            <span class="formation-stat-label">Certifié</span>
+                        </div>
+                    </div>
+                    
+                    <div class="formation-footer">
+                        <span class="last-activity">Terminée il y a 1 semaine</span>
+                        <div class="formation-actions">
+                            <a href="#" class="btn btn-success">🎓 Certificat</a>
+                            <a href="#" class="btn btn-secondary">📋 Revoir</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formation Card 5 -->
+            <div class="formation-card fade-in" data-status="not-started" data-category="nutrition" data-level="intermediaire">
+                <div class="formation-header">
+                    <div class="formation-icon">🍽️</div>
+                    <div class="formation-status status-not-started">Non commencée</div>
+                </div>
+                <div class="formation-content">
+                    <div class="formation-meta">
+                        <span class="meta-tag level-tag">Intermédiaire</span>
+                        <span class="meta-tag duration-tag">4h</span>
+                        <span class="meta-tag modules-tag">5 modules</span>
+                    </div>
+                    <h3 class="formation-title">Préparation des Repas & Alimentation</h3>
+                    <p class="formation-description">Hygiène alimentaire, repas équilibrés adaptés, gestion des textures pour éviter les fausses routes, techniques d'hydratation.</p>
+                    
+                    <div class="formation-progress">
+                        <div class="progress-header">
+                            <span class="progress-label">Progression</span>
+                            <span class="progress-percentage">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="formation-stats">
+                        <div class="formation-stat">
+                            <span class="formation-stat-number">0/5</span>
+                            <span class="formation-stat-label">Modules</span>
+                        </div>
+                        <div class="formation-stat">
+                            <span class="formation-stat-number">0h</span>
+                            <span class="formation-stat-label">Temps passé</span>
+                        </div>
+                        <div class="formation-stat">
+                            <span class="formation-stat-number">-</span>
+                            <span class="formation-stat-label">Score</span>
+                        </div>
+                    </div>
+                    
+                    <div class="formation-footer">
+                        <span class="last-activity">Inscrite il y a 2 jours</span>
+                        <div class="formation-actions">
+                            <a href="#" class="btn btn-primary">🚀 Commencer</a>
+                            <a href="#" class="btn btn-secondary">📊 Détails</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formation Card 6 -->
+            <div class="formation-card fade-in" data-status="completed" data-category="ergonomie" data-level="avance">
+                <div class="formation-header">
+                    <div class="formation-icon">🏥</div>
+                    <div class="formation-status status-completed">Terminée ✓</div>
+                </div>
+                <div class="formation-content">
+                    <div class="formation-meta">
+                        <span class="meta-tag level-tag">Avancé</span>
+                        <span class="meta-tag duration-tag">5h</span>
+                        <span class="meta-tag modules-tag">6 modules</span>
+                    </div>
+                    <h3 class="formation-title">Ergonomie & Gestes Professionnels</h3>
+                    <p class="formation-description">Techniques de manutention, prévention des TMS, utilisation du matériel médical et accompagnement sécurisé des transferts.</p>
+                    
+                    <div class="formation-progress">
+                        <div class="progress-header">
+                            <span class="progress-label">Progression</span>
+                            <span class="progress-percentage">100%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="formation-stats">
+                        <div class="formation-stat">
+                            <span class="formation-stat-number">87%</span>
+                            <span class="formation-stat-label">Score final</span>
+                        </div>
+                        <div class="formation-stat">
+                            <span class="formation-stat-number">4h55</span>
+                            <span class="formation-stat-label">Temps passé</span>
+                        </div>
+                        <div class="formation-stat">
+                            <span class="formation-stat-number">🏆</span>
+                            <span class="formation-stat-label">Certifié</span>
+                        </div>
+                    </div>
+                    
+                    <div class="formation-footer">
+                        <span class="last-activity">Terminée il y a 2 semaines</span>
+                        <div class="formation-actions">
+                            <a href="#" class="btn btn-success">🎓 Certificat</a>
+                            <a href="#" class="btn btn-secondary">📋 Revoir</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- List View (Initially Hidden) -->
+        <section class="formations-list" id="listView">
+            <!-- Formation List Item 1 -->
+            <div class="formation-list-item">
+                <div class="list-icon" style="background: var(--gradient-pink);">🗣️</div>
+                <div class="list-content">
+                    <div class="list-info">
+                        <h3>Communication & Relationnel</h3>
+                        <p>Formation terminée • 5 modules • Niveau débutant</p>
+                    </div>
+                    <div class="list-progress">
+                        <div class="progress-header">
+                            <span class="progress-label">100%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 100%"></div>
+                        </div>
+                        <span style="font-size: 0.8rem; color: var(--text-light);">Score: 95%</span>
+                    </div>
+                    <div class="list-stats">
+                        <span>✅ Terminée il y a 3 jours</span>
+                        <span>⏱️ 2h45 de formation</span>
+                        <span>🎓 Certificat disponible</span>
+                    </div>
+                </div>
+                <div class="list-actions">
+                    <a href="#" class="btn btn-success">🎓 Certificat</a>
+                    <a href="#" class="btn btn-secondary">📋 Revoir</a>
+                </div>
+            </div>
+
+            <!-- Formation List Item 2 -->
+            <div class="formation-list-item">
+                <div class="list-icon" style="background: var(--gradient-blue);">🛡️</div>
+                <div class="list-content">
+                    <div class="list-info">
+                        <h3>Hygiène, Sécurité & Prévention</h3>
+                        <p>En cours • 6 modules • Niveau intermédiaire</p>
+                    </div>
+                    <div class="list-progress">
+                        <div class="progress-header">
+                            <span class="progress-label">67%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 67%"></div>
+                        </div>
+                        <span style="font-size: 0.8rem; color: var(--text-light);">Score: 88%</span>
+                    </div>
+                    <div class="list-stats">
+                        <span>📚 Module 4/6</span>
+                        <span>⏱️ 2h30 de formation</span>
+                        <span>🕐 Dernière activité: hier</span>
+                    </div>
+                </div>
+                <div class="list-actions">
+                    <a href="#" class="btn btn-primary">▶️ Continuer</a>
+                    <a href="#" class="btn btn-secondary">📊 Détails</a>
+                </div>
+            </div>
+
+            <!-- Plus d'éléments de liste peuvent être ajoutés ici -->
+        </section>
+    </div>
+
+    <script>
+        // Toggle between grid and list view
+        function toggleView(viewType) {
+            const gridView = document.getElementById('gridView');
+            const listView = document.getElementById('listView');
+            const buttons = document.querySelectorAll('.view-btn');
+            
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            if (viewType === 'grid') {
+                gridView.style.display = 'grid';
+                listView.classList.remove('active');
+                buttons[0].classList.add('active');
+            } else {
+                gridView.style.display = 'none';
+                listView.classList.add('active');
+                buttons[1].classList.add('active');
+            }
+        }
+
+        // Filter by tag
+        function filterByTag(tag) {
+            const tags = document.querySelectorAll('.filter-tag');
+            const cards = document.querySelectorAll('.formation-card');
+            
+            tags.forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            cards.forEach(card => {
+                card.style.display = 'block';
+                card.style.animation = 'fadeInUp 0.5s ease forwards';
+            });
+            
+            if (tag !== 'all') {
+                // Simulation du filtrage
+                setTimeout(() => {
+                    if (tag === 'favorites') {
+                        // Masquer certaines cartes pour simulation
+                        cards[2].style.display = 'none';
+                        cards[4].style.display = 'none';
+                    } else if (tag === 'urgent') {
+                        // Afficher seulement les formations en cours
+                        cards.forEach(card => {
+                            if (card.dataset.status !== 'in-progress') {
+                                card.style.display = 'none';
+                            }
+                        });
+                    }
+                }, 100);
+            }
+        }
+
+        // Filters functionality
+        document.getElementById('statusFilter').addEventListener('change', function() {
+            const status = this.value;
+            const cards = document.querySelectorAll('.formation-card');
+            
+            cards.forEach(card => {
+                if (status === '' || card.dataset.status === status) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        document.getElementById('categoryFilter').addEventListener('change', function() {
+            const category = this.value;
+            const cards = document.querySelectorAll('.formation-card');
+            
+            cards.forEach(card => {
+                if (category === '' || card.dataset.category === category) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        // Formation card interactions
+        document.querySelectorAll('.formation-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                if (e.target.classList.contains('btn') || e.target.closest('.btn')) {
+                    return;
+                }
+                
+                const title = this.querySelector('.formation-title').textContent;
+                const status = this.dataset.status;
+                
+                if (status === 'completed') {
+                    alert(`📚 Formation: ${title}\n\n✅ Formation terminée\n🎓 Certificat disponible\n📊 Consulter les détails et statistiques`);
+                } else if (status === 'in-progress') {
+                    alert(`📚 Formation: ${title}\n\n📖 Formation en cours\n▶️ Reprendre où vous vous êtes arrêté\n📊 Voir la progression détaillée`);
+                } else {
+                    alert(`📚 Formation: ${title}\n\n🚀 Formation non commencée\n✨ Prêt à commencer votre apprentissage?\n📋 Consulter le programme détaillé`);
+                }
+            });
+        });
+
+        // Button interactions
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const text = this.textContent.trim();
+                const card = this.closest('.formation-card') || this.closest('.formation-list-item');
+                const title = card.querySelector('.formation-title, h3').textContent;
+                
+                if (text.includes('Certificat')) {
+                    alert(`🎓 Téléchargement du certificat\n\nFormation: ${title}\n\n✅ Certificat officiel ADSIAM\n📄 Format PDF téléchargeable\n🔗 Lien de vérification inclus\n📧 Envoi par email également`);
+                } else if (text.includes('Continuer')) {
+                    alert(`▶️ Reprise de la formation\n\nFormation: ${title}\n\n📖 Reprise au module en cours\n⏱️ Temps estimé restant affiché\n💾 Progression automatiquement sauvegardée`);
+                } else if (text.includes('Commencer')) {
+                    alert(`🚀 Début de la formation\n\nFormation: ${title}\n\n📚 Introduction et objectifs\n🎯 Premier module accessible\n⭐ Bonne formation avec ADSIAM!`);
+                } else if (text.includes('Détails')) {
+                    alert(`📊 Détails de la formation\n\nFormation: ${title}\n\n📈 Statistiques détaillées\n📝 Historique des modules\n💬 Messages du formateur\n📥 Ressources téléchargeables`);
+                } else if (text.includes('Revoir')) {
+                    alert(`📋 Révision de la formation\n\nFormation: ${title}\n\n🔄 Accès aux modules terminés\n📚 Ressources de révision\n🧠 Quiz de révision disponibles`);
+                }
+            });
+        });
+
+        // Animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'fadeInUp 0.6s ease forwards';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Animate progress bars on load
+        function animateProgressBars() {
+            const progressBars = document.querySelectorAll('.progress-fill');
+            progressBars.forEach((bar, index) => {
+                setTimeout(() => {
+                    bar.style.transform = 'scaleX(1)';
+                }, index * 100);
+            });
+        }
+
+        // Initialize
+        window.addEventListener('load', () => {
+            animateProgressBars();
+            console.log('📚 Page Mes Formations ADSIAM chargée');
+            console.log('🎯 6 formations affichées: 3 terminées, 2 en cours, 1 non commencée');
+            console.log('⭐ Système de filtres et vues multiples opérationnel');
+        });
+    </script>
+</body>
+</html>
