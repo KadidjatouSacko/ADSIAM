@@ -69,4 +69,64 @@ router.get('/etudiant/profil', (req, res) => {
     });
 });
 
+
+// ----- ENTREPRISES -----
+router.get('/entreprise/dashboard', (req, res) => {
+    res.render('entreprises/dashboard-entreprise', {
+        title: 'Tableau de Bord | ADSIAM Entreprise',
+        header: 'partials/header', // ou header spécifique si tu veux en créer un
+        footer: 'partials/footer',
+        currentPage: 'dashboard-entreprise'
+    });
+});
+
+router.get('/entreprise/inscription', (req, res) => {
+    res.render('entreprises/inscription-entreprise', {
+        title: 'Inscription | ADSIAM Entreprise',
+        header: 'partials/header',
+        footer: 'partials/footer',
+        currentPage: 'inscription-entreprise'
+    });
+});
+
+router.get('/entreprise/salaries', (req, res) => {
+    res.render('entreprises/salaries-entreprise', {
+        title: 'Gestion des Salariés | ADSIAM Entreprise',
+        header: 'partials/header',
+        footer: 'partials/footer',
+        currentPage: 'salaries-entreprise'
+    });
+});
+
+router.get('/entreprise/facturation', (req, res) => {
+    res.render('entreprises/facturation-entreprise', {
+        title: 'Facturation | ADSIAM Entreprise',
+        header: 'partials/header',
+        footer: 'partials/footer',
+        currentPage: 'facturation-entreprise'
+    });
+});
+
+router.get('/entreprise/rapport-formation', (req, res) => {
+    res.render('entreprises/rapport-formation-entreprise', {
+        title: 'Rapports de Formation | ADSIAM Entreprise',
+        header: 'partials/header',
+        footer: 'partials/footer',
+        currentPage: 'rapport-formation-entreprise'
+    });
+});
+
+
+
+// ----- SALARIÉS -----
+router.get('/salarie/dashboard', (req, res) => {
+    res.render('salaries/dashboard-salarie', {
+        title: 'Tableau de Bord | ADSIAM Salarié',
+        header: 'partials/header-salarie', // tu peux créer un header spécifique salarié si besoin
+        footer: 'partials/footer',
+        currentPage: 'dashboard',
+        css: '/css/dashboard-salarie.css' // si tu veux un css spécifique
+    });
+});
+
 export default router;
