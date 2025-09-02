@@ -5,7 +5,554 @@
     <title>Centre d'aide | ADSIAM</title>
     <link rel="stylesheet" href="/css/salaries-entreprise.css">
 </head>
+<style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        :root {
+            --primary-pink: #d4a5a5;
+            --primary-blue: #a5c9d4;
+            --light-pink: #f5e6e6;
+            --light-blue: #e6f2f5;
+            --soft-gray: #f8f9fa;
+            --text-dark: #4a4a4a;
+            --text-light: #8a8a8a;
+            --white: #ffffff;
+            --success: #28a745;
+            --warning: #ffc107;
+            --error: #dc3545;
+            --info: #17a2b8;
+            --gradient-pink: linear-gradient(135deg, #f5e6e6, #d4a5a5);
+            --gradient-blue: linear-gradient(135deg, #e6f2f5, #a5c9d4);
+            --gradient-contact: linear-gradient(135deg, #d4a5a5, #a5c9d4);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background: var(--soft-gray);
+        }
+
+        /* Header */
+        header {
+            background: var(--white);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+            padding: 1rem 0;
+        }
+
+        nav {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-contact);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+        }
+
+        .forma {
+            color: var(--primary-pink);
+        }
+        .forma {
+            color: var(--primary-pink);
+        }
+
+        .pro {
+            color: var(--primary-blue);
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-light);
+        }
+
+        .breadcrumb a {
+            color: var(--text-light);
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--primary-blue);
+        }
+
+        .breadcrumb-current {
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-contact);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--soft-gray);
+            color: var(--text-dark);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary-blue);
+            border: 2px solid var(--primary-blue);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        /* Page Header */
+        .page-header {
+            background: var(--gradient-contact);
+            border-radius: 25px;
+            padding: 3rem;
+            margin-bottom: 3rem;
+            color: white;
+            text-align: center;
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 1rem;
+        }
+
+        .page-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        /* Support Layout */
+        .support-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        /* Support Options */
+        .support-card {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .support-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.12);
+        }
+
+        .support-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .support-card h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+        }
+
+        .support-description {
+            color: var(--text-light);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .support-features {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            margin-bottom: 2rem;
+        }
+
+        .support-feature {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-size: 0.9rem;
+        }
+
+        .feature-check {
+            color: var(--success);
+        }
+
+        /* Configuration Section */
+        .config-section {
+            background: var(--white);
+            border-radius: 25px;
+            padding: 2.5rem;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.08);
+            margin-bottom: 3rem;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .config-card {
+            background: var(--soft-gray);
+            border-radius: 15px;
+            padding: 2rem;
+            transition: all 0.3s;
+        }
+
+        .config-card:hover {
+            background: var(--light-blue);
+        }
+
+        .config-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .config-title {
+            font-weight: 600;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .config-status {
+            padding: 0.3rem 0.8rem;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-enabled {
+            background: #d4edda;
+            color: var(--success);
+        }
+
+        .status-disabled {
+            background: #f8d7da;
+            color: var(--error);
+        }
+
+        .config-description {
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .config-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* FAQ Section */
+        .faq-section {
+            background: var(--white);
+            border-radius: 25px;
+            padding: 2.5rem;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.08);
+        }
+
+        .faq-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .faq-item {
+            border: 2px solid var(--soft-gray);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .faq-item:hover {
+            border-color: var(--primary-blue);
+        }
+
+        .faq-question {
+            padding: 1.5rem;
+            background: var(--soft-gray);
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-dark);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-question:hover {
+            background: var(--light-blue);
+        }
+
+        .faq-answer {
+            padding: 0 1.5rem;
+            background: white;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .faq-answer.open {
+            padding: 1.5rem;
+            max-height: 200px;
+        }
+
+        .faq-toggle {
+            font-size: 1.2rem;
+            color: var(--primary-blue);
+            transition: transform 0.3s;
+        }
+
+        .faq-item.open .faq-toggle {
+            transform: rotate(180deg);
+        }
+
+        /* Chat Widget */
+        .chat-widget {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 1000;
+        }
+
+        .chat-button {
+            width: 60px;
+            height: 60px;
+            background: var(--gradient-contact);
+            border-radius: 50%;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+        }
+
+        .chat-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .chat-window {
+            position: absolute;
+            bottom: 80px;
+            right: 0;
+            width: 350px;
+            height: 450px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-window.show {
+            display: flex;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chat-header {
+            background: var(--gradient-contact);
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-title {
+            font-weight: 600;
+        }
+
+        .chat-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .chat-content {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        .chat-message {
+            margin-bottom: 1rem;
+            padding: 0.8rem;
+            border-radius: 12px;
+            background: var(--soft-gray);
+        }
+
+        .chat-message.support {
+            background: var(--light-blue);
+        }
+
+        .chat-input-area {
+            padding: 1rem;
+            border-top: 1px solid var(--soft-gray);
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 0.8rem;
+            border: 1px solid var(--soft-gray);
+            border-radius: 12px;
+            outline: none;
+        }
+
+        .chat-send {
+            padding: 0.8rem 1rem;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.6s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .slide-in {
+            animation: slideInLeft 0.8s ease forwards;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .support-layout {
+                grid-template-columns: 1fr;
+            }
+            
+            .config-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .chat-widget {
+                bottom: 1rem;
+                right: 1rem;
+            }
+            
+            .chat-window {
+                width: calc(100vw - 2rem);
+                right: -1rem;
+            }
+        }
+    </style>
 <body>
 
         <div class="dashboard-layout">
@@ -80,11 +627,572 @@
 
 
        
-        <main class="main-content">
-            <h1>❓ Centre d'aide</h1>
-            <p>Consultez la FAQ ou trouvez des ressources utiles.</p>
-            <!-- Ajoute ici la FAQ ou les ressources -->
-        </main>
+         <main class="main-content">
+        <!-- Page Header -->
+        <section class="page-header fade-in">
+            <h1>Support et configuration</h1>
+            <p class="page-subtitle">Configurez votre espace et accédez au support prioritaire</p>
+        </section>
+
+        <!-- Support Options -->
+        <section class="support-layout fade-in">
+            <div class="support-card" onclick="openPriorityChat()">
+                <div class="support-icon">💬</div>
+                <h3>Chat support prioritaire</h3>
+                <p class="support-description">
+                    Discutez en direct avec notre équipe support dédiée aux entreprises. 
+                    Réponse garantie sous 15 minutes pendant les heures d'ouverture.
+                </p>
+                <div class="support-features">
+                    <div class="support-feature">
+                        <span class="feature-check">✅</span>
+                        <span>Disponible 9h-18h</span>
+                    </div>
+                    <div class="support-feature">
+                        <span class="feature-check">✅</span>
+                        <span>Support technique inclus</span>
+                    </div>
+                    <div class="support-feature">
+                        <span class="feature-check">✅</span>
+                        <span>Assistance pédagogique</span>
+                    </div>
+                </div>
+                <button class="btn btn-primary">💬 Démarrer le chat</button>
+            </div>
+
+            <div class="support-card" onclick="scheduleCall()">
+                <div class="support-icon">📞</div>
+                <h3>Appel téléphonique</h3>
+                <p class="support-description">
+                    Programmez un appel avec votre account manager pour discuter de vos besoins 
+                    spécifiques et optimiser votre utilisation.
+                </p>
+                <div class="support-features">
+                    <div class="support-feature">
+                        <span class="feature-check">✅</span>
+                        <span>Account manager dédié</span>
+                    </div>
+                    <div class="support-feature">
+                        <span class="feature-check">✅</span>
+                        <span>Conseil personnalisé</span>
+                    </div>
+                    <div class="support-feature">
+                        <span class="feature-check">✅</span>
+                        <span>Optimisation du ROI</span>
+                    </div>
+                </div>
+                <button class="btn btn-primary">📅 Programmer un appel</button>
+            </div>
+        </section>
+
+        <!-- Configuration Section -->
+        <section class="config-section fade-in">
+            <h2 class="section-title">
+                <span>⚙️</span>
+                Configuration de l'entreprise
+            </h2>
+
+            <div class="config-grid">
+                <div class="config-card">
+                    <div class="config-header">
+                        <h3 class="config-title">
+                            <span>🏢</span>
+                            Informations entreprise
+                        </h3>
+                        <span class="config-status status-enabled">Configuré</span>
+                    </div>
+                    <p class="config-description">
+                        Gérez les informations de votre entreprise, logo, coordonnées et paramètres généraux.
+                    </p>
+                    <div class="config-actions">
+                        <button class="btn btn-outline" onclick="editCompanyInfo()">✏️ Modifier</button>
+                    </div>
+                </div>
+
+                <div class="config-card">
+                    <div class="config-header">
+                        <h3 class="config-title">
+                            <span>👥</span>
+                            Gestion des utilisateurs
+                        </h3>
+                        <span class="config-status status-enabled">Actif</span>
+                    </div>
+                    <p class="config-description">
+                        Configurez les rôles, permissions et groupes d'utilisateurs pour votre organisation.
+                    </p>
+                    <div class="config-actions">
+                        <button class="btn btn-outline" onclick="manageUsers()">👥 Gérer</button>
+                    </div>
+                </div>
+
+                <div class="config-card">
+                    <div class="config-header">
+                        <h3 class="config-title">
+                            <span>🔔</span>
+                            Notifications
+                        </h3>
+                        <span class="config-status status-enabled">Configuré</span>
+                    </div>
+                    <p class="config-description">
+                        Personnalisez les notifications email, rappels automatiques et alertes administrateur.
+                    </p>
+                    <div class="config-actions">
+                        <button class="btn btn-outline" onclick="configureNotifications()">🔔 Configurer</button>
+                    </div>
+                </div>
+
+                <div class="config-card">
+                    <div class="config-header">
+                        <h3 class="config-title">
+                            <span>🔗</span>
+                            Intégrations
+                        </h3>
+                        <span class="config-status status-disabled">Non configuré</span>
+                    </div>
+                    <p class="config-description">
+                        Connectez FormaPro+ à vos outils RH, SIRH ou systèmes de gestion existants.
+                    </p>
+                    <div class="config-actions">
+                        <button class="btn btn-outline" onclick="setupIntegrations()">🔗 Configurer</button>
+                    </div>
+                </div>
+
+                <div class="config-card">
+                    <div class="config-header">
+                        <h3 class="config-title">
+                            <span>🎨</span>
+                            Personnalisation
+                        </h3>
+                        <span class="config-status status-enabled">Configuré</span>
+                    </div>
+                    <p class="config-description">
+                        Personnalisez l'interface avec vos couleurs, logo et messages de bienvenue.
+                    </p>
+                    <div class="config-actions">
+                        <button class="btn btn-outline" onclick="customizeInterface()">🎨 Personnaliser</button>
+                    </div>
+                </div>
+
+                <div class="config-card">
+                    <div class="config-header">
+                        <h3 class="config-title">
+                            <span>📊</span>
+                            Rapports automatiques
+                        </h3>
+                        <span class="config-status status-enabled">Actif</span>
+                    </div>
+                    <p class="config-description">
+                        Configurez la génération et l'envoi automatique de rapports de formation.
+                    </p>
+                    <div class="config-actions">
+                        <button class="btn btn-outline" onclick="configureReports()">📅 Programmer</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="faq-section fade-in">
+            <h2 class="section-title">
+                <span>❓</span>
+                Questions fréquentes
+            </h2>
+
+            <div class="faq-grid">
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>Comment ajouter de nouveaux salariés à la plateforme ?</span>
+                        <span class="faq-toggle">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Vous pouvez ajouter des salariés de plusieurs façons : individuellement via le bouton "Ajouter un salarié" dans le dashboard, par import CSV pour des ajouts en masse, ou en envoyant des invitations groupées par email. Chaque salarié recevra un lien d'activation pour créer son compte.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>Comment suivre la progression de mes équipes ?</span>
+                        <span class="faq-toggle">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Le dashboard principal vous donne une vue d'ensemble des progressions. Vous pouvez accéder aux rapports détaillés dans la section "Rapports et analyses", filtrer par service ou formation, et recevoir des rapports automatiques par email selon la fréquence que vous définissez.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>Puis-je personnaliser les formations pour mon entreprise ?</span>
+                        <span class="faq-toggle">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Oui ! Votre plan Premium inclut la création de formations sur mesure. Notre équipe pédagogique peut adapter le contenu à vos processus internes, créer des modules spécifiques à votre secteur, et intégrer vos propres documents et procédures.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>Comment gérer les certificats et attestations ?</span>
+                        <span class="faq-toggle">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Les certificats sont générés automatiquement lors de la validation des formations. Vous pouvez les télécharger individuellement ou en masse, les personnaliser avec votre logo, et ils sont également envoyés automatiquement par email aux salariés concernés.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>Comment intégrer FormaPro+ à nos outils RH existants ?</span>
+                        <span class="faq-toggle">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Nous proposons une API complète et des connecteurs pour les principaux SIRH (SAP, Workday, etc.). Notre équipe technique peut également développer des intégrations spécifiques selon vos besoins. Contactez le support pour une étude personnalisée.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>Quelle est la politique de facturation et de résiliation ?</span>
+                        <span class="faq-toggle">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>La facturation est mensuelle avec engagement de 12 mois minimum. Vous pouvez résilier avec un préavis de 30 jours. Les données restent accessibles 90 jours après résiliation. Aucune pénalité en cas de changement de plan vers le haut.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Chat Widget -->
+    <div class="chat-widget">
+        <button class="chat-button" onclick="toggleChat()">💬</button>
+        <div class="chat-window" id="chatWindow">
+            <div class="chat-header">
+                <span class="chat-title">🎧 Support FormaPro+</span>
+                <button class="chat-close" onclick="toggleChat()">✕</button>
+            </div>
+            <div class="chat-content" id="chatContent">
+                <div class="chat-message support">
+                    <strong>Support FormaPro+</strong><br>
+                    Bonjour ! Je suis Amélie de l'équipe support. Comment puis-je vous aider aujourd'hui ? 😊
+                </div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" class="chat-input" placeholder="Tapez votre message..." id="chatInput">
+                <button class="chat-send" onclick="sendMessage()">➤</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Support functions
+        function openPriorityChat() {
+            toggleChat();
+            showToast('💬 Chat support prioritaire activé');
+        }
+
+        function scheduleCall() {
+            alert(`📞 Programmation d'appel avec votre Account Manager
+
+👤 Votre contact dédié : Amélie Durand
+📧 Email : amelie.durand@formapro-plus.org  
+📞 Direct : 06 50 84 81 75
+
+📅 Créneaux disponibles cette semaine :
+• Lundi 14h-16h
+• Mardi 10h-12h  
+• Mercredi 14h-17h
+• Jeudi 9h-11h
+• Vendredi 14h-16h
+
+🎯 Sujets de discussion suggérés :
+• Optimisation de votre plan de formation
+• Nouvelles fonctionnalités disponibles
+• Intégrations avec vos outils
+• Formation des administrateurs
+
+📋 Un calendrier de réservation vous sera envoyé par email`);
+        }
+
+        function emergencyContact() {
+            alert(`🚨 Contact d'urgence - Support Premium
+
+📞 Ligne directe : 06 50 84 81 75
+📧 Email urgence : urgent@formapro-plus.org
+
+⚡ Disponibilité :
+• Lundi-Vendredi : 8h-20h
+• Weekend : 10h-18h
+• Jours fériés : Sur appel
+
+🎧 Types d'urgences prises en charge :
+• Panne technique majeure
+• Problème d'accès critique  
+• Questions de sécurité/conformité
+• Support pour audit/contrôle
+
+💡 Pour les questions non-urgentes, privilégiez le chat support ou l'email standard`);
+        }
+
+        // Configuration functions
+        function editCompanyInfo() {
+            alert(`🏢 Configuration des informations entreprise
+
+📋 Informations modifiables :
+• Raison sociale et SIRET
+• Adresse et coordonnées
+• Logo et charte graphique
+• Responsable de formation
+• Paramètres de facturation
+
+✏️ Modifications en cours :
+• Nom d'affichage personnalisé
+• Message de bienvenue
+• Signatures automatiques
+• Coordonnées de contact
+
+💾 Les modifications sont appliquées en temps réel et visibles par tous vos salariés.`);
+        }
+
+        function manageUsers() {
+            alert(`👥 Gestion des utilisateurs et permissions
+
+🎯 Rôles disponibles :
+• Administrateur : Accès complet
+• Gestionnaire : Gestion équipe
+• Formateur : Suivi pédagogique
+• Salarié : Accès formations
+
+⚙️ Fonctionnalités :
+• Création de groupes personnalisés
+• Attribution de formations par rôle
+• Permissions granulaires
+• Délégation de responsabilités
+
+📊 Actuellement configuré :
+• 1 Administrateur principal
+• 2 Gestionnaires par service
+• 24 Salariés actifs
+
+🔧 Interface de gestion complète disponible dans la section dédiée`);
+        }
+
+        function configureNotifications() {
+            alert(`🔔 Configuration des notifications
+
+📧 Types de notifications disponibles :
+• Nouvelles inscriptions
+• Fins de formation
+• Certificats obtenus
+• Rappels d'échéances
+• Rapports automatiques
+
+⚙️ Paramètres configurables :
+• Fréquence des envois
+• Destinataires par type
+• Templates personnalisés
+• Horaires d'envoi
+
+📱 Canaux de notification :
+• Email (principal)
+• SMS (optionnel)
+• Notifications push
+• Webhook API
+
+✅ Configuration actuelle :
+• Rapports hebdomadaires activés
+• Alertes de fin de formation activées
+• Support prioritaire configuré`);
+        }
+
+        function setupIntegrations() {
+            alert(`🔗 Configuration des intégrations
+
+🛠️ Intégrations disponibles :
+• SIRH (SAP, Workday, ADP)
+• Outils RH (BambooHR, Personio)
+• SSO (Active Directory, Google Workspace)
+• API REST complète
+
+📊 Données synchronisables :
+• Liste des employés
+• Organigramme et services
+• Progressions de formation
+• Certificats obtenus
+
+🔧 Support technique :
+• Configuration assistée
+• Tests de fonctionnement
+• Documentation complète
+• Formation de vos équipes IT
+
+📞 Contactez notre équipe technique pour une étude personnalisée`);
+        }
+
+        function customizeInterface() {
+            alert(`🎨 Personnalisation de l'interface
+
+🖌️ Éléments personnalisables :
+• Logo de l'entreprise
+• Couleurs et thème
+• Messages de bienvenue
+• Signatures automatiques
+
+📱 Templates configurables :
+• Emails de notification
+• Certificats de formation
+• Rapports automatiques
+• Page de connexion
+
+🎯 Branding disponible :
+• Interface aux couleurs de l'entreprise
+• Documents de formation personnalisés
+• Signatures avec coordonnées
+• Messages adaptés à votre culture
+
+✨ Nos designers peuvent créer un thème complet sur mesure`);
+        }
+
+        function configureReports() {
+            window.location.href = 'rapports-entreprise.html';
+        }
+
+        // Chat functionality
+        function toggleChat() {
+            const chatWindow = document.getElementById('chatWindow');
+            chatWindow.classList.toggle('show');
+            
+            if (chatWindow.classList.contains('show')) {
+                document.getElementById('chatInput').focus();
+            }
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const content = document.getElementById('chatContent');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Add user message
+            const userMsg = document.createElement('div');
+            userMsg.className = 'chat-message';
+            userMsg.innerHTML = `<strong>Vous</strong><br>${message}`;
+            content.appendChild(userMsg);
+            
+            input.value = '';
+            content.scrollTop = content.scrollHeight;
+            
+            // Simulate support response
+            setTimeout(() => {
+                const responses = [
+                    "Merci pour votre message ! Je transfère votre demande à l'équipe technique.",
+                    "Je vais vérifier cela dans votre compte et vous revenir dans quelques minutes.",
+                    "C'est une excellente question ! Laissez-moi consulter la documentation.",
+                    "Je vous mets en relation avec un spécialiste de ce sujet.",
+                    "Votre demande a été enregistrée avec le ticket #SP-2025-0829-001"
+                ];
+                
+                const supportMsg = document.createElement('div');
+                supportMsg.className = 'chat-message support';
+                supportMsg.innerHTML = `<strong>Support FormaPro+</strong><br>${responses[Math.floor(Math.random() * responses.length)]}`;
+                content.appendChild(supportMsg);
+                content.scrollTop = content.scrollHeight;
+            }, 1000 + Math.random() * 2000);
+        }
+
+        // FAQ functionality
+        function toggleFaq(element) {
+            const faqItem = element.parentElement;
+            const answer = faqItem.querySelector('.faq-answer');
+            
+            // Close other open FAQs
+            document.querySelectorAll('.faq-item').forEach(item => {
+                if (item !== faqItem && item.classList.contains('open')) {
+                    item.classList.remove('open');
+                    item.querySelector('.faq-answer').classList.remove('open');
+                }
+            });
+            
+            // Toggle current FAQ
+            faqItem.classList.toggle('open');
+            answer.classList.toggle('open');
+        }
+
+        // Chat input enter key support
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatInput = document.getElementById('chatInput');
+            chatInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+        });
+
+        // Function to show toast notifications
+        function showToast(message, duration = 3000) {
+            const existingToast = document.querySelector('.toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+            
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.style.cssText = `
+                position: fixed;
+                top: 2rem;
+                right: 2rem;
+                background: var(--success);
+                color: white;
+                padding: 1rem 2rem;
+                border-radius: 15px;
+                z-index: 10000;
+                box-shadow: 0 10px 30px rgba(40, 167, 69, 0.3);
+                animation: slideInRight 0.3s ease;
+                max-width: 400px;
+                font-weight: 500;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            }, duration);
+        }
+
+        // Load animations
+        window.addEventListener('load', () => {
+            showToast('🎧 Support et configuration chargés - Assistance disponible');
+        });
+
+        // Additional styles for animations
+        const styles = document.createElement('style');
+        styles.textContent = `
+            @keyframes slideInRight {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            
+            @keyframes slideOutRight {
+                to { transform: translateX(100%); opacity: 0; }
+            }
+            
+            .chat-button {
+                animation: pulse 2s infinite;
+            }
+            
+            @keyframes pulse {
+                0% { box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+                50% { box-shadow: 0 10px 30px rgba(165, 201, 212, 0.4); }
+                100% { box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+            }
+        `;
+        document.head.appendChild(styles);
+    </script>
     </div>
 </body>
 </html>
