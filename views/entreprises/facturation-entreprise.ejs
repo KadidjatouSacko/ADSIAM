@@ -1,0 +1,1806 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapports de Formation | ADSIAM - Suivi et Attestations</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Couleurs principales */
+            --primary-pink: #e7a6b7;      /* Rose gold doux */
+            --primary-blue: #a5bfd4;      /* Bleu poudré */
+            
+            /* Couleurs secondaires */
+            --light-pink: #fce8ec;        /* Rose très clair */
+            --light-blue: #e8f3f8;        /* Bleu très clair */
+            --soft-gray: #f5f5f7;         /* Gris clair neutre */
+            
+            /* Texte */
+            --text-dark: #2f2f2f;         /* Gris anthracite lisible */
+            --text-light: #6f6f6f;        /* Gris doux */
+            --white: #ffffff;
+
+            /* Dégradés */
+            --gradient-pink: linear-gradient(135deg, #fce8ec, #e7a6b7);
+            --gradient-blue: linear-gradient(135deg, #e8f3f8, #a5bfd4);
+            --gradient-contact: linear-gradient(135deg, #e7a6b7, #a5bfd4);
+            --gradient-purple: linear-gradient(135deg, #f0e1ff, #c7a3ff);
+            --gradient-green: linear-gradient(135deg, #e2f8ee, #9dd6b5);
+            --gradient-orange: linear-gradient(135deg, #ffe9dc, #ff9f80);
+            
+            /* Utilitaires */
+            --border-light: #e8e8ea;
+            --success: #9dd6b5;
+            --warning: #ff9f80;
+            --danger: #ff8a9b;
+            --shadow-lg: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--soft-gray);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        /* Layout Principal */
+        .dashboard-layout {
+            display: grid;
+            grid-template-areas: 
+                "sidebar header"
+                "sidebar main";
+            grid-template-columns: 280px 1fr;
+            grid-template-rows: 80px 1fr;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            grid-area: header;
+            background: var(--white);
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .header-left h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .breadcrumb {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-contact);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            transition: all 0.3s;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-contact);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Sidebar - même code que les autres pages */
+        .sidebar {
+            grid-area: sidebar;
+            background: var(--white);
+            border-right: 1px solid var(--border-light);
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: var(--gradient-contact);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 300;
+            letter-spacing: 0.05em;
+            color: var(--text-dark);
+        }
+
+        .nav-section {
+            margin-bottom: 2rem;
+        }
+
+        .nav-section-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            text-decoration: none;
+            color: var(--text-light);
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .nav-link:hover {
+            background: var(--soft-gray);
+            color: var(--primary-blue);
+        }
+
+        .nav-link.active {
+            background: var(--light-blue);
+            color: var(--primary-blue);
+            font-weight: 600;
+        }
+
+        .nav-icon {
+            font-size: 1.2rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .nav-badge {
+            background: var(--primary-pink);
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 20px;
+            margin-left: auto;
+        }
+
+        /* Main Content */
+        .main-content {
+            grid-area: main;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        /* Report Types */
+        .report-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .report-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-light);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .report-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+        }
+
+        .report-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .report-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: white;
+        }
+
+        .report-card:nth-child(1) .report-icon { background: var(--gradient-blue); }
+        .report-card:nth-child(2) .report-icon { background: var(--gradient-green); }
+        .report-card:nth-child(3) .report-icon { background: var(--gradient-orange); }
+        .report-card:nth-child(4) .report-icon { background: var(--gradient-purple); }
+
+        .report-info h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .report-info p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .report-description {
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .report-stats {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+        }
+
+        .report-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn-secondary {
+            flex: 1;
+            background: transparent;
+            color: var(--text-light);
+            border: 1px solid var(--border-light);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary-blue);
+            color: var(--primary-blue);
+        }
+
+        /* Quick Filters */
+        .quick-filters {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-light);
+        }
+
+        .filters-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .filter-select, .filter-input {
+            padding: 0.75rem;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            background: var(--white);
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .filter-select:focus, .filter-input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(165, 191, 212, 0.1);
+        }
+
+        /* Progress Overview */
+        .progress-overview {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-light);
+        }
+
+        .overview-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+        }
+
+        .overview-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .progress-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .progress-item {
+            background: var(--soft-gray);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .progress-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .progress-title {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .progress-percentage {
+            font-weight: 700;
+            color: var(--primary-blue);
+            font-size: 1.1rem;
+        }
+        .quick-actions {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-light);
+        }
+
+        .actions-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .quick-action-btn {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            background: var(--white);
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: var(--text-dark);
+        }
+
+        .quick-action-btn:hover {
+            border-color: var(--primary-blue);
+            background: var(--light-blue);
+            transform: translateY(-2px);
+        }
+
+        .quick-action-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: white;
+        }
+
+        .quick-action-btn:nth-child(1) .quick-action-icon { background: var(--gradient-green); }
+        .quick-action-btn:nth-child(2) .quick-action-icon { background: var(--gradient-blue); }
+        .quick-action-btn:nth-child(3) .quick-action-icon { background: var(--gradient-orange); }
+        .quick-action-btn:nth-child(4) .quick-action-icon { background: var(--gradient-pink); }
+
+        .quick-action-text h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+
+        .quick-action-text p {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 800px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .modal-close {
+            background: var(--soft-gray);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+        }
+
+        .modal-close:hover {
+            background: var(--light-pink);
+            color: var(--primary-pink);
+        }
+
+        /* Invoice Preview */
+        .invoice-preview {
+            background: var(--soft-gray);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 1rem 0;
+        }
+
+        .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 2rem;
+        }
+
+        .invoice-logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .invoice-logo-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--gradient-contact);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .invoice-details {
+            text-align: right;
+        }
+
+        .invoice-number {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .invoice-date {
+            color: var(--text-light);
+        }
+
+        .invoice-parties {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .party-section h4 {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .party-section p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .invoice-items {
+            margin-bottom: 2rem;
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--white);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .items-table th {
+            background: var(--light-blue);
+            color: var(--primary-blue);
+            font-weight: 600;
+            padding: 1rem;
+            text-align: left;
+        }
+
+        .items-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .invoice-totals {
+            background: var(--white);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-left: auto;
+            width: 300px;
+        }
+
+        .total-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .total-line.final {
+            border-top: 2px solid var(--primary-blue);
+            padding-top: 1rem;
+            margin-top: 1rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--primary-blue);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .dashboard-layout {
+                grid-template-columns: 1fr;
+                grid-template-areas: 
+                    "header"
+                    "main";
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .stats-overview {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .stats-overview {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .documents-table th,
+            .documents-table td {
+                padding: 0.75rem 0.5rem;
+                font-size: 0.8rem;
+            }
+            
+            .invoice-parties {
+                grid-template-columns: 1fr;
+            }
+            
+            .invoice-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .invoice-details {
+                text-align: left;
+            }
+        }
+
+        /* Animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--border-light);
+            border-radius: 50%;
+            border-top-color: var(--primary-blue);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">A+</div>
+                <div class="logo-text">ADSIAM</div>
+            </div>
+
+            <nav class="nav-section">
+                <div class="nav-section-title">Navigation</div>
+                <div class="nav-links">
+                    <a href="/entreprise/dashboard" class="nav-link">
+                        <span class="nav-icon">📊</span>
+                        <span>Tableau de bord</span>
+                    </a>
+                    <a href="/entreprise/salaries" class="nav-link">
+                        <span class="nav-icon">👥</span>
+                        <span>Mes salariés</span>
+                        <span class="nav-badge">24</span>
+                    </a>
+                    <a href="/entreprise/inscriptions" class="nav-link">
+                        <span class="nav-icon">✍️</span>
+                        <span>Inscriptions</span>
+                    </a>
+                    <a href="#" class="nav-link active">
+                        <span class="nav-icon">💰</span>
+                        <span>Facturation</span>
+                        <span class="nav-badge">3</span>
+                    </a>
+                    <a href="/entreprise/rapports" class="nav-link">
+                        <span class="nav-icon">📈</span>
+                        <span>Rapports de formation</span>
+                    </a>
+                </div>
+            </nav>
+
+            <nav class="nav-section">
+                <div class="nav-section-title">Formations</div>
+                <div class="nav-links">
+                    <a href="#" class="nav-link">
+                        <span class="nav-icon">📚</span>
+                        <span>Catalogue</span>
+                    </a>
+                    <a href="#" class="nav-link">
+                        <span class="nav-icon">🎯</span>
+                        <span>Formations en cours</span>
+                        <span class="nav-badge">12</span>
+                    </a>
+                    <a href="#" class="nav-link">
+                        <span class="nav-icon">🏆</span>
+                        <span>Certifications</span>
+                    </a>
+                </div>
+            </nav>
+
+            <nav class="nav-section">
+                <div class="nav-section-title">Support</div>
+                <div class="nav-links">
+                    <a href="#" class="nav-link">
+                        <span class="nav-icon">💬</span>
+                        <span>Support</span>
+                    </a>
+                    <a href="#" class="nav-link">
+                        <span class="nav-icon">❓</span>
+                        <span>Centre d'aide</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <div>
+                    <h1>Facturation</h1>
+                    <div class="breadcrumb">Espace Entreprise › Devis et Factures</div>
+                </div>
+            </div>
+            
+            <div class="header-right">
+                <button class="btn-primary" onclick="createQuote()">
+                    <span>➕</span>
+                    <span>Nouveau devis</span>
+                </button>
+                
+                <div class="user-menu">
+                    <div class="user-avatar">SH</div>
+                    <div>
+                        <div style="font-size: 0.9rem; font-weight: 600;">Services Habitat</div>
+                        <div style="font-size: 0.8rem; color: var(--text-light);">Administrateur RH</div>
+                    </div>
+                    <span>⌄</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Stats Overview -->
+            <div class="stats-overview fade-in">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon">💰</div>
+                    </div>
+                    <div class="stat-value">2,847€</div>
+                    <div class="stat-label">Chiffre d'affaires 2024</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon">⏳</div>
+                    </div>
+                    <div class="stat-value">1,240€</div>
+                    <div class="stat-label">En attente de paiement</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon">📄</div>
+                    </div>
+                    <div class="stat-value">18</div>
+                    <div class="stat-label">Factures émises</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon">📊</div>
+                    </div>
+                    <div class="stat-value">3</div>
+                    <div class="stat-label">Devis en attente</div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions fade-in">
+                <h3 class="actions-title">⚡ Actions rapides</h3>
+                <div class="actions-grid">
+                    <a href="#" class="quick-action-btn" onclick="createQuote()">
+                        <div class="quick-action-icon">📝</div>
+                        <div class="quick-action-text">
+                            <h4>Créer un devis</h4>
+                            <p>Nouveau devis formation</p>
+                        </div>
+                    </a>
+                    
+                    <a href="#" class="quick-action-btn" onclick="createInvoice()">
+                        <div class="quick-action-icon">🧾</div>
+                        <div class="quick-action-text">
+                            <h4>Créer une facture</h4>
+                            <p>Facturation directe</p>
+                        </div>
+                    </a>
+                    
+                    <a href="#" class="quick-action-btn" onclick="exportData()">
+                        <div class="quick-action-icon">📊</div>
+                        <div class="quick-action-text">
+                            <h4>Exporter données</h4>
+                            <p>Export comptabilité</p>
+                        </div>
+                    </a>
+                    
+                    <a href="#" class="quick-action-btn" onclick="viewReports()">
+                        <div class="quick-action-icon">📈</div>
+                        <div class="quick-action-text">
+                            <h4>Rapports financiers</h4>
+                            <p>Analyses détaillées</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters-section fade-in">
+                <div class="filters-grid">
+                    <div class="filter-group">
+                        <label class="filter-label">Recherche</label>
+                        <input type="text" class="filter-input" placeholder="N° document, client..." id="searchFilter">
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label">Type de document</label>
+                        <select class="filter-select" id="typeFilter">
+                            <option value="">Tous les types</option>
+                            <option value="devis">Devis</option>
+                            <option value="facture">Factures</option>
+                            <option value="avoir">Avoirs</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label">Statut</label>
+                        <select class="filter-select" id="statusFilter">
+                            <option value="">Tous les statuts</option>
+                            <option value="paid">Payé</option>
+                            <option value="pending">En attente</option>
+                            <option value="overdue">En retard</option>
+                            <option value="draft">Brouillon</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label">Période</label>
+                        <select class="filter-select" id="periodFilter">
+                            <option value="">Toute période</option>
+                            <option value="this-month">Ce mois</option>
+                            <option value="last-month">Mois dernier</option>
+                            <option value="this-year">Cette année</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Documents Table -->
+            <div class="documents-section fade-in">
+                <div class="table-header">
+                    <h3 class="table-title">💼 Documents de facturation</h3>
+                    <div class="table-actions">
+                        <button class="btn-secondary" onclick="refreshTable()">🔄 Actualiser</button>
+                        <button class="btn-secondary" onclick="bulkDownload()">📥 Télécharger tout</button>
+                    </div>
+                </div>
+                
+                <table class="documents-table">
+                    <thead>
+                        <tr>
+                            <th>Document</th>
+                            <th>Date</th>
+                            <th>Formation</th>
+                            <th>Statut</th>
+                            <th>Montant</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="document-info">
+                                    <div class="document-icon doc-facture">F</div>
+                                    <div class="document-details">
+                                        <h4>Facture #2024-003</h4>
+                                        <p>Formation Communication</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>15/02/2024</td>
+                            <td>3 employés • Communication & Relationnel</td>
+                            <td>
+                                <span class="status-badge status-paid">Payé</span>
+                            </td>
+                            <td class="amount-cell">0€</td>
+                            <td>
+                                <div class="actions-cell">
+                                    <button class="action-btn btn-view" onclick="viewDocument('F2024-003')" title="Voir">👁️</button>
+                                    <button class="action-btn btn-download" onclick="downloadDocument('F2024-003')" title="Télécharger">⬇️</button>
+                                    <button class="action-btn btn-send" onclick="sendDocument('F2024-003')" title="Envoyer">📧</button>
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <td>
+                                <div class="document-info">
+                                    <div class="document-icon doc-facture">F</div>
+                                    <div class="document-details">
+                                        <h4>Facture #2024-002</h4>
+                                        <p>Formation Hygiène</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>08/02/2024</td>
+                            <td>5 employés • Hygiène & Sécurité</td>
+                            <td>
+                                <span class="status-badge status-pending">En attente</span>
+                            </td>
+                            <td class="amount-cell">245€</td>
+                            <td>
+                                <div class="actions-cell">
+                                    <button class="action-btn btn-view" onclick="viewDocument('F2024-002')" title="Voir">👁️</button>
+                                    <button class="action-btn btn-download" onclick="downloadDocument('F2024-002')" title="Télécharger">⬇️</button>
+                                    <button class="action-btn btn-send" onclick="sendDocument('F2024-002')" title="Envoyer">📧</button>
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <td>
+                                <div class="document-info">
+                                    <div class="document-icon doc-devis">D</div>
+                                    <div class="document-details">
+                                        <h4>Devis #2024-005</h4>
+                                        <p>Formation Premiers Secours</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>20/02/2024</td>
+                            <td>8 employés • Premiers Secours</td>
+                            <td>
+                                <span class="status-badge status-draft">Brouillon</span>
+                            </td>
+                            <td class="amount-cell">792€</td>
+                            <td>
+                                <div class="actions-cell">
+                                    <button class="action-btn btn-view" onclick="viewDocument('D2024-005')" title="Voir">👁️</button>
+                                    <button class="action-btn btn-download" onclick="downloadDocument('D2024-005')" title="Télécharger">⬇️</button>
+                                    <button class="action-btn btn-send" onclick="sendDocument('D2024-005')" title="Envoyer">📧</button>
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <td>
+                                <div class="document-info">
+                                    <div class="document-icon doc-facture">F</div>
+                                    <div class="document-details">
+                                        <h4>Facture #2024-001</h4>
+                                        <p>Formation Ergonomie</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>25/01/2024</td>
+                            <td>2 employés • Ergonomie & Gestes</td>
+                            <td>
+                                <span class="status-badge status-overdue">En retard</span>
+                            </td>
+                            <td class="amount-cell">158€</td>
+                            <td>
+                                <div class="actions-cell">
+                                    <button class="action-btn btn-view" onclick="viewDocument('F2024-001')" title="Voir">👁️</button>
+                                    <button class="action-btn btn-download" onclick="downloadDocument('F2024-001')" title="Télécharger">⬇️</button>
+                                    <button class="action-btn btn-send" onclick="sendDocument('F2024-001')" title="Envoyer">📧</button>
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <td>
+                                <div class="document-info">
+                                    <div class="document-icon doc-devis">D</div>
+                                    <div class="document-details">
+                                        <h4>Devis #2024-004</h4>
+                                        <p>Formation Nutrition</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>18/02/2024</td>
+                            <td>4 employés • Nutrition & Repas</td>
+                            <td>
+                                <span class="status-badge status-pending">En attente</span>
+                            </td>
+                            <td class="amount-cell">236€</td>
+                            <td>
+                                <div class="actions-cell">
+                                    <button class="action-btn btn-view" onclick="viewDocument('D2024-004')" title="Voir">👁️</button>
+                                    <button class="action-btn btn-download" onclick="downloadDocument('D2024-004')" title="Télécharger">⬇️</button>
+                                    <button class="action-btn btn-send" onclick="sendDocument('D2024-004')" title="Envoyer">📧</button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="table-footer">
+                    <div>Affichage 1-5 sur 18 documents</div>
+                    <div class="pagination">
+                        <button class="pagination-btn">‹</button>
+                        <button class="pagination-btn active">1</button>
+                        <button class="pagination-btn">2</button>
+                        <button class="pagination-btn">3</button>
+                        <button class="pagination-btn">4</button>
+                        <button class="pagination-btn">›</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Document Preview -->
+    <div class="modal" id="documentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Aperçu du document</h3>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+            
+            <div class="invoice-preview" id="documentPreview">
+                <div class="invoice-header">
+                    <div class="invoice-logo">
+                        <div class="invoice-logo-icon">A+</div>
+                        <div>
+                            <h3>ADSIAM</h3>
+                            <p style="color: var(--text-light);">Formation professionnelle</p>
+                        </div>
+                    </div>
+                    <div class="invoice-details">
+                        <div class="invoice-number" id="docNumber">Facture #2024-003</div>
+                        <div class="invoice-date" id="docDate">Date: 15/02/2024</div>
+                    </div>
+                </div>
+                
+                <div class="invoice-parties">
+                    <div class="party-section">
+                        <h4>Émetteur</h4>
+                        <p>
+                            ADSIAM<br>
+                            123 Avenue de la Formation<br>
+                            75001 Paris<br>
+                            SIRET: 123 456 789 00012<br>
+                            TVA: FR12345678901
+                        </p>
+                    </div>
+                    
+                    <div class="party-section">
+                        <h4>Destinataire</h4>
+                        <p id="clientInfo">
+                            Services Habitat<br>
+                            456 Rue des Soins<br>
+                            69000 Lyon<br>
+                            SIRET: 987 654 321 00098
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="invoice-items">
+                    <table class="items-table">
+                        <thead>
+                            <tr>
+                                <th>Description</th>
+                                <th style="text-align: center;">Quantité</th>
+                                <th style="text-align: right;">Prix unitaire</th>
+                                <th style="text-align: right;">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="itemsTable">
+                            <tr>
+                                <td>Formation Communication & Relationnel</td>
+                                <td style="text-align: center;">3 employés</td>
+                                <td style="text-align: right;">0€</td>
+                                <td style="text-align: right;">0€</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="invoice-totals">
+                    <div class="total-line">
+                        <span>Sous-total HT:</span>
+                        <span id="subtotal">0€</span>
+                    </div>
+                    <div class="total-line">
+                        <span>TVA (20%):</span>
+                        <span id="vat">0€</span>
+                    </div>
+                    <div class="total-line final">
+                        <span>Total TTC:</span>
+                        <span id="totalAmount">0€</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem;">
+                <button class="btn-secondary" onclick="downloadCurrentDocument()">⬇️ Télécharger PDF</button>
+                <button class="btn-primary" onclick="sendCurrentDocument()">📧 Envoyer par email</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentDocument = null;
+
+        // Document actions
+        function viewDocument(docId) {
+            currentDocument = docId;
+            
+            // Simulate document data
+            const docData = {
+                'F2024-003': {
+                    type: 'Facture',
+                    number: 'F2024-003',
+                    date: '15/02/2024',
+                    items: [{ desc: 'Formation Communication & Relationnel', qty: 3, price: 0, total: 0 }],
+                    subtotal: 0,
+                    vat: 0,
+                    total: 0
+                },
+                'F2024-002': {
+                    type: 'Facture',
+                    number: 'F2024-002',
+                    date: '08/02/2024',
+                    items: [{ desc: 'Formation Hygiène & Sécurité', qty: 5, price: 49, total:<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facturation | ADSIAM - Devis et Factures Entreprise</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Couleurs principales */
+            --primary-pink: #e7a6b7;      /* Rose gold doux */
+            --primary-blue: #a5bfd4;      /* Bleu poudré */
+            
+            /* Couleurs secondaires */
+            --light-pink: #fce8ec;        /* Rose très clair */
+            --light-blue: #e8f3f8;        /* Bleu très clair */
+            --soft-gray: #f5f5f7;         /* Gris clair neutre */
+            
+            /* Texte */
+            --text-dark: #2f2f2f;         /* Gris anthracite lisible */
+            --text-light: #6f6f6f;        /* Gris doux */
+            --white: #ffffff;
+
+            /* Dégradés */
+            --gradient-pink: linear-gradient(135deg, #fce8ec, #e7a6b7);
+            --gradient-blue: linear-gradient(135deg, #e8f3f8, #a5bfd4);
+            --gradient-contact: linear-gradient(135deg, #e7a6b7, #a5bfd4);
+            --gradient-purple: linear-gradient(135deg, #f0e1ff, #c7a3ff);
+            --gradient-green: linear-gradient(135deg, #e2f8ee, #9dd6b5);
+            --gradient-orange: linear-gradient(135deg, #ffe9dc, #ff9f80);
+            
+            /* Utilitaires */
+            --border-light: #e8e8ea;
+            --success: #9dd6b5;
+            --warning: #ff9f80;
+            --danger: #ff8a9b;
+            --shadow-lg: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--soft-gray);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        /* Layout Principal */
+        .dashboard-layout {
+            display: grid;
+            grid-template-areas: 
+                "sidebar header"
+                "sidebar main";
+            grid-template-columns: 280px 1fr;
+            grid-template-rows: 80px 1fr;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            grid-area: header;
+            background: var(--white);
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .header-left h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .breadcrumb {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-contact);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            transition: all 0.3s;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-contact);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            grid-area: sidebar;
+            background: var(--white);
+            border-right: 1px solid var(--border-light);
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: var(--gradient-contact);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 300;
+            letter-spacing: 0.05em;
+            color: var(--text-dark);
+        }
+
+        .nav-section {
+            margin-bottom: 2rem;
+        }
+
+        .nav-section-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            text-decoration: none;
+            color: var(--text-light);
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .nav-link:hover {
+            background: var(--soft-gray);
+            color: var(--primary-blue);
+        }
+
+        .nav-link.active {
+            background: var(--light-blue);
+            color: var(--primary-blue);
+            font-weight: 600;
+        }
+
+        .nav-icon {
+            font-size: 1.2rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .nav-badge {
+            background: var(--primary-pink);
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 20px;
+            margin-left: auto;
+        }
+
+        /* Main Content */
+        .main-content {
+            grid-area: main;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        /* Stats Overview */
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-light);
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .stat-card:nth-child(1) .stat-icon { background: var(--gradient-green); }
+        .stat-card:nth-child(2) .stat-icon { background: var(--gradient-orange); }
+        .stat-card:nth-child(3) .stat-icon { background: var(--gradient-blue); }
+        .stat-card:nth-child(4) .stat-icon { background: var(--gradient-pink); }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        /* Filters */
+        .filters-section {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-light);
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .filter-select, .filter-input {
+            padding: 0.75rem;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            background: var(--white);
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .filter-select:focus, .filter-input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(165, 191, 212, 0.1);
+        }
+
+        /* Documents Table */
+        .documents-section {
+            background: var(--white);
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-light);
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .table-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-light);
+            border: 1px solid var(--border-light);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary-blue);
+            color: var(--primary-blue);
+        }
+
+        .documents-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .documents-table th {
+            padding: 1rem;
+            text-align: left;
+            background: var(--soft-gray);
+            color: var(--text-dark);
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .documents-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-light);
+            font-size: 0.9rem;
+        }
+
+        .document-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .document-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: white;
+            font-weight: 600;
+        }
+
+        .doc-devis { background: var(--gradient-blue); }
+        .doc-facture { background: var(--gradient-green); }
+        .doc-avoir { background: var(--gradient-orange); }
+
+        .document-details h4 {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.2rem;
+        }
+
+        .document-details p {
+            color: var(--text-light);
+            font-size: 0.8rem;
+        }
+
+        .status-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .status-paid {
+            background: var(--light-blue);
+            color: var(--primary-blue);
+        }
+
+        .status-pending {
+            background: var(--light-pink);
+            color: var(--primary-pink);
+        }
+
+        .status-overdue {
+            background: #ffe9dc;
+            color: var(--warning);
+        }
+
+        .status-draft {
+            background: var(--soft-gray);
+            color: var(--text-light);
+        }
+
+        .amount-cell {
+            text-align: right;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .actions-cell {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+
+        .btn-view {
+            background: var(--light-blue);
+            color: var(--primary-blue);
+        }
+
+        .btn-download {
+            background: var(--light-pink);
+            color: var(--primary-pink);
+        }
+
+        .btn-send {
+            background: #e2f8ee;
+            color: var(--success);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        /* Pagination */
+        .table-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .pagination {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .pagination-btn {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--border-light);
+            background: var(--white);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .pagination-btn:hover {
+            border-color: var(--primary-blue);
+            color: var(--primary-blue);
+        }
+
+        .pagination-btn.active {
+            background: var(--gradient-contact);
+            color: white;
+            border-color: transparent;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-lg);
+            border:

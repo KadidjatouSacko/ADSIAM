@@ -42,8 +42,6 @@ router.get('/contact', (req, res) => {
 router.get('/etudiant/dashboard', (req, res) => {
     res.render('Etudiants/dashboard-etudiant', {
         title: 'Tableau de Bord | ADSIAM Formations',
-        header: 'partials/header-etudiant',
-        footer: 'partials/footer',
         currentPage: 'dashboard'
     });
 });
@@ -51,8 +49,6 @@ router.get('/etudiant/dashboard', (req, res) => {
 router.get('/etudiant/formations', (req, res) => {
     res.render('Etudiants/formations-etudiant', {
         title: 'Mes Formations | ADSIAM Étudiant',
-        header: 'partials/header-etudiant',
-        footer: 'partials/footer',
         currentPage: 'formations'
     });
 });
@@ -60,8 +56,6 @@ router.get('/etudiant/formations', (req, res) => {
 router.get('/etudiant/planning', (req, res) => {
     res.render('Etudiants/planning-calendrier', {
         title: 'Planning & Calendrier | ADSIAM Étudiant',
-        header: 'partials/header-etudiant',
-        footer: 'partials/footer',
         currentPage: 'planning'
     });
 });
