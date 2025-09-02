@@ -46,16 +46,16 @@
             <nav class="nav-section">
                 <div class="nav-section-title">Formations</div>
                 <div class="nav-links">
-                    <a href="#" class="nav-link">
+                    <a href="/entreprise/catalogue" class="nav-link">
                         <span class="nav-icon">📚</span>
                         <span>Catalogue</span>
                     </a>
-                    <a href="#" class="nav-link">
+                    <a href="/entreprise/formations-en-cours" class="nav-link">
                         <span class="nav-icon">🎯</span>
                         <span>Formations en cours</span>
                         <span class="nav-badge">12</span>
                     </a>
-                    <a href="#" class="nav-link">
+                    <a href="/entreprise/certifications" class="nav-link">
                         <span class="nav-icon">🏆</span>
                         <span>Certifications</span>
                     </a>
@@ -65,11 +65,11 @@
             <nav class="nav-section">
                 <div class="nav-section-title">Support</div>
                 <div class="nav-links">
-                    <a href="#" class="nav-link">
+                    <a href="/contact" class="nav-link">
                         <span class="nav-icon">💬</span>
                         <span>Support</span>
                     </a>
-                    <a href="#" class="nav-link">
+                    <a href="/entreprise/centre-aide" class="nav-link">
                         <span class="nav-icon">❓</span>
                         <span>Centre d'aide</span>
                     </a>
@@ -509,3 +509,28 @@
 
         function generateReport(employeeId) {
             alert(`📊 Génération du rapport de formation pour : ${employeeId}\n\n📄
+            // ...existing code...
+Génération du rapport téléchargé !`);
+        }
+
+        function closeModal() {
+            document.getElementById('employeeModal').classList.remove('show');
+        }
+
+        function exportData() {
+            alert("📊 Export des données salariés en cours...");
+            // Ajoute ici la génération réelle d'un fichier si besoin
+        }
+
+        // Pagination (exemple simple)
+        document.querySelectorAll('.pagination-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                alert('Pagination non implémentée (à compléter selon tes besoins)');
+            });
+        });
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', () => {
+            setupFilters();
+        });
+    </script>

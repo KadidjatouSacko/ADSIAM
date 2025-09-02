@@ -116,7 +116,22 @@ router.get('/entreprise/rapport-formation', (req, res) => {
     });
 });
 
-
+// ...dans router.js...
+router.get('/entreprise/catalogue', (req, res) => {
+    res.render('entreprises/catalogue-formations');
+});
+router.get('/entreprise/formations-en-cours', (req, res) => {
+    res.render('entreprises/formations-en-cours');
+});
+router.get('/entreprise/certifications', (req, res) => {
+    res.render('entreprises/certifications');
+});
+router.get('/entreprise/support', (req, res) => {
+    res.render('entreprises/support');
+});
+router.get('/entreprise/centre-aide', (req, res) => {
+    res.render('entreprises/centre-aide');
+});
 
 // ----- SALARIÉS -----
 router.get('/salarie/dashboard', (req, res) => {

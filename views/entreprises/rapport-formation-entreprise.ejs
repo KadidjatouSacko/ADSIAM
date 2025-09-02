@@ -1,4 +1,179 @@
-.progress-percentage {
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapports de Formation | ADSIAM - Suivi et Attestations</title>
+    <link rel="stylesheet" href="/css/rapport-formation-entreprise.css">
+    <style>
+        :root {
+            --primary-blue: #2a4d9b;
+            --primary-pink: #ffb6c1;
+            --primary-green: #9dd6b5;
+            --soft-gray: #f5f7fa;
+            --white: #fff;
+            --text-dark: #222;
+            --text-light: #7a7a7a;
+            --border-light: #e8e8ea;
+            --gradient-blue: linear-gradient(90deg,#2a4d9b,#e2eafc);
+            --gradient-green: linear-gradient(90deg,#9dd6b5,#e2f8ee);
+            --gradient-pink: linear-gradient(90deg,#ffb6c1,#ffe2f0);
+            --gradient-orange: linear-gradient(90deg,#ff9f80,#ffe9dc);
+            --shadow-lg: 0 10px 30px rgba(0,0,0,0.08);
+        }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: var(--soft-gray);
+            color: var(--text-dark);
+        }
+        .dashboard-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            background: var(--white);
+            border-right: 1px solid var(--border-light);
+            width: 260px;
+            padding: 2rem 1rem;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: var(--gradient-pink);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 300;
+            letter-spacing: 0.05em;
+            color: var(--text-dark);
+        }
+        .nav-section-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+            margin-bottom: 0.75rem;
+        }
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            text-decoration: none;
+            color: var(--text-light);
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .nav-link:hover {
+            background: var(--soft-gray);
+            color: var(--primary-blue);
+        }
+        .nav-link.active {
+            background: var(--gradient-blue);
+            color: var(--primary-blue);
+            font-weight: 600;
+        }
+        .nav-icon {
+            font-size: 1.2rem;
+            width: 20px;
+            text-align: center;
+        }
+        .nav-badge {
+            background: var(--primary-pink);
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 20px;
+            margin-left: auto;
+        }
+        .header {
+            background: var(--white);
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .header-left h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-blue);
+        }
+        .breadcrumb {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .btn-primary {
+            background: var(--gradient-pink);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            transition: all 0.3s;
+        }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-pink);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+        .progress-percentage {
             font-weight: 700;
             color: var(--primary-blue);
             font-size: 1.1rem;
@@ -446,16 +621,16 @@
             <nav class="nav-section">
                 <div class="nav-section-title">Formations</div>
                 <div class="nav-links">
-                    <a href="#" class="nav-link">
+                    <a href="/entreprise/catalogue" class="nav-link">
                         <span class="nav-icon">📚</span>
                         <span>Catalogue</span>
                     </a>
-                    <a href="#" class="nav-link">
+                    <a href="/entreprise/formations-en-cours" class="nav-link">
                         <span class="nav-icon">🎯</span>
                         <span>Formations en cours</span>
                         <span class="nav-badge">12</span>
                     </a>
-                    <a href="#" class="nav-link">
+                    <a href="/entreprise/certifications" class="nav-link">
                         <span class="nav-icon">🏆</span>
                         <span>Certifications</span>
                     </a>
@@ -465,11 +640,11 @@
             <nav class="nav-section">
                 <div class="nav-section-title">Support</div>
                 <div class="nav-links">
-                    <a href="#" class="nav-link">
+                    <a href="/contact" class="nav-link">
                         <span class="nav-icon">💬</span>
                         <span>Support</span>
                     </a>
-                    <a href="#" class="nav-link">
+                    <a href="/entreprise/centre-aide" class="nav-link">
                         <span class="nav-icon">❓</span>
                         <span>Centre d'aide</span>
                     </a>
@@ -845,3 +1020,220 @@
                             </td>
                             <td>
                                 <div class="actions-cell">
+                                    // ...existing code...
+                                    <button class="action-btn btn-report" onclick="viewEmployeeReport('jean-martin')" title="Rapport détaillé">📊</button>
+                                    <button class="action-btn btn-certificate" onclick="viewCertificate('jean-martin')" title="Voir certificat">🏆</button>
+                                    <button class="action-btn btn-download" onclick="downloadEmployeeReport('jean-martin')" title="Télécharger">⬇️</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="employee-info">
+                                    <div class="employee-avatar" style="background: var(--gradient-pink);">SL</div>
+                                    <div class="employee-details">
+                                        <h4>Sophie Leroy</h4>
+                                        <p>Aide à domicile</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                    <div class="progress-mini">
+                                        <div class="progress-mini-fill" style="width: 100%"></div>
+                                    </div>
+                                    <span style="font-weight: 600; color: var(--success);">100%</span>
+                                </div>
+                                <div style="font-size: 0.8rem; color: var(--text-light); margin-top: 0.3rem;">
+                                    4 formations • 4 terminées
+                                </div>
+                            </td>
+                            <td>
+                                <div style="font-weight: 500;">Il y a 2 jours</div>
+                                <div style="font-size: 0.8rem; color: var(--text-light);">Nutrition - Module 4</div>
+                            </td>
+                            <td>
+                                <div class="certification-status">
+                                    <div class="cert-icon cert-obtained">✓</div>
+                                    <span>4 certifications</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="actions-cell">
+                                    <button class="action-btn btn-report" onclick="viewEmployeeReport('sophie-leroy')" title="Rapport détaillé">📊</button>
+                                    <button class="action-btn btn-certificate" onclick="viewCertificate('sophie-leroy')" title="Voir certificat">🏆</button>
+                                    <button class="action-btn btn-download" onclick="downloadEmployeeReport('sophie-leroy')" title="Télécharger">⬇️</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="employee-info">
+                                    <div class="employee-avatar" style="background: var(--gradient-orange);">PD</div>
+                                    <div class="employee-details">
+                                        <h4>Pierre Durand</h4>
+                                        <p>Soins infirmiers</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                    <div class="progress-mini">
+                                        <div class="progress-mini-fill" style="width: 15%"></div>
+                                    </div>
+                                    <span style="font-weight: 600; color: var(--warning);">15%</span>
+                                </div>
+                                <div style="font-size: 0.8rem; color: var(--text-light); margin-top: 0.3rem;">
+                                    1 formation • 0 terminée
+                                </div>
+                            </td>
+                            <td>
+                                <div style="font-weight: 500;">Il y a 5 jours</div>
+                                <div style="font-size: 0.8rem; color: var(--text-light);">Ergonomie - Module 1</div>
+                            </td>
+                            <td>
+                                <div class="certification-status">
+                                    <div class="cert-icon cert-none">-</div>
+                                    <span>Aucune</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="actions-cell">
+                                    <button class="action-btn btn-report" onclick="viewEmployeeReport('pierre-durand')" title="Rapport détaillé">📊</button>
+                                    <button class="action-btn btn-certificate" onclick="viewCertificate('pierre-durand')" title="Voir certificat">🏆</button>
+                                    <button class="action-btn btn-download" onclick="downloadEmployeeReport('pierre-durand')" title="Télécharger">⬇️</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="employee-info">
+                                    <div class="employee-avatar" style="background: var(--gradient-purple);">AL</div>
+                                    <div class="employee-details">
+                                        <h4>Anne Lefebvre</h4>
+                                        <p>Administration</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                    <div class="progress-mini">
+                                        <div class="progress-mini-fill" style="width: 60%"></div>
+                                    </div>
+                                    <span style="font-weight: 600; color: var(--primary-blue);">60%</span>
+                                </div>
+                                <div style="font-size: 0.8rem; color: var(--text-light); margin-top: 0.3rem;">
+                                    2 formations • 1 terminée
+                                </div>
+                            </td>
+                            <td>
+                                <div style="font-weight: 500;">Il y a 7 jours</div>
+                                <div style="font-size: 0.8rem; color: var(--text-light);">Communication - Module 2</div>
+                            </td>
+                            <td>
+                                <div class="certification-status">
+                                    <div class="cert-icon cert-pending">⏳</div>
+                                    <span>En cours</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="actions-cell">
+                                    <button class="action-btn btn-report" onclick="viewEmployeeReport('anne-lefebvre')" title="Rapport détaillé">📊</button>
+                                    <button class="action-btn btn-certificate" onclick="viewCertificate('anne-lefebvre')" title="Voir certificat">🏆</button>
+                                    <button class="action-btn btn-download" onclick="downloadEmployeeReport('anne-lefebvre')" title="Télécharger">⬇️</button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+    <!-- Modal for reports/certificates -->
+    <div class="modal" id="reportModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Aperçu du rapport</h3>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+            <div id="modalBody">
+                <p style="color:var(--text-light);">Aperçu du rapport ou certificat sélectionné...</p>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem;">
+                <button class="btn-secondary" onclick="downloadCurrentReport()">⬇️ Télécharger PDF</button>
+                <button class="btn-primary" onclick="sendCurrentReport()">📧 Envoyer par email</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        function generateGlobalReport() {
+            alert("Fonction rapport global à implémenter !");
+        }
+        function generateProgressReport() {
+            alert("Fonction rapport de progression à implémenter !");
+        }
+        function previewProgressReport() {
+            openModal("Aperçu du rapport de progression", "<p>Rapport de progression (aperçu à compléter)</p>");
+        }
+        function generateCertificatesReport() {
+            alert("Fonction rapport d'attestations à implémenter !");
+        }
+        function previewCertificate() {
+            openModal("Aperçu d'attestation", "<p>Certificat PDF (aperçu à compléter)</p>");
+        }
+        function downloadAllCertificates() {
+            alert("Téléchargement de toutes les attestations !");
+        }
+        function generateComplianceReport() {
+            alert("Fonction rapport de conformité à implémenter !");
+        }
+        function previewComplianceReport() {
+            openModal("Aperçu du rapport de conformité", "<p>Rapport de conformité (aperçu à compléter)</p>");
+        }
+        function exportComplianceData() {
+            alert("Export conformité à implémenter !");
+        }
+        function generateROIReport() {
+            alert("Fonction analyse ROI à implémenter !");
+        }
+        function previewROIReport() {
+            openModal("Aperçu analyse ROI", "<p>Analyse ROI (aperçu à compléter)</p>");
+        }
+        function refreshOverview() {
+            alert("Actualisation de la vue d'ensemble !");
+        }
+        function exportOverview() {
+            alert("Export de la vue d'ensemble !");
+        }
+        function bulkDownload() {
+            alert("Téléchargement de tous les rapports !");
+        }
+        function sendReports() {
+            alert("Envoi des rapports par email !");
+        }
+        function viewEmployeeReport(empId) {
+            openModal("Rapport détaillé : " + empId, "<p>Rapport individuel pour " + empId + " (aperçu à compléter)</p>");
+        }
+        function viewCertificate(empId) {
+            openModal("Certificat : " + empId, "<p>Certificat PDF pour " + empId + " (aperçu à compléter)</p>");
+        }
+        function downloadEmployeeReport(empId) {
+            alert("Téléchargement du rapport de " + empId + " !");
+        }
+        function openModal(title, body) {
+            document.getElementById('reportModal').classList.add('show');
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalBody').innerHTML = body;
+        }
+        function closeModal() {
+            document.getElementById('reportModal').classList.remove('show');
+        }
+        function downloadCurrentReport() {
+            alert("Téléchargement du PDF !");
+        }
+        function sendCurrentReport() {
+            alert("Envoi du rapport par email !");
+        }
+    </script>
+</body>
+</html>

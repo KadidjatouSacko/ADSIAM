@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aperçu du Certificat</title>
+    <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+    <div class="modal" id="certificateModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Certificat de Formation</h3>
+                <button class="modal-close" onclick="closeCertificateModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="certificate-preview">
+                    <div class="certificate-header">
+                        <div class="certificate-logo">A+</div>
+                        <h2 class="certificate-title">Certificat de Réussite</h2>
+                        <p class="certificate-subtitle">Délivré à :</p>
+                        <h3 class="certificate-name" id="employeeName">Nom de l'Employé</h3>
+                    </div>
+                    <div class="certificate-body">
+                        <p class="certificate-text">
+                            Ce certificat atteste que <span id="employeeNameBold">Nom de l'Employé</span> a complété avec succès la formation <span id="courseName">Nom de la Formation</span>.
+                        </p>
+                        <p class="certificate-date" id="certificateDate">Date de Délivrance : <span>JJ/MM/AAAA</span></p>
+                    </div>
+                    <div class="certificate-footer">
+                        <div class="certificate-signature">
+                            <div class="signature-line"></div>
+                            <span>Signature</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="downloadCertificate()">⬇️ Télécharger PDF</button>
+                <button class="btn-primary" onclick="sendCertificate()">📧 Envoyer par email</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        function closeCertificateModal() {
+            document.getElementById('certificateModal').style.display = 'none';
+        }
+
+        function downloadCertificate() {
+            alert("Téléchargement du certificat !");
+        }
+
+        function sendCertificate() {
+            alert("Envoi du certificat par email !");
+        }
+    </script>
+</body>
+</html>
