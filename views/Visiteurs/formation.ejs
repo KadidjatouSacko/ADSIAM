@@ -1,42 +1,15 @@
+<!-- views/visiteurs/formation.ejs -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Communication & Relationnel | ADSIAM - Formation Détaillée</title>
+    <title><%= formation.titre %> | ADSIAM - Formation Détaillée</title>
     <link rel="stylesheet" href="/css/formation.css">
 </head>
 <body>
-    <!-- Top Bar -->
-    <div class="top-bar">
-        <div class="top-bar-content">
-            <div class="contact-info">
-                <a href="tel:0650848175">📞 06 50 84 81 75</a>
-                <a href="mailto:contact@formapro-plus.org">✉️ contact@formapro-plus.org</a>
-            </div>
-            <div class="social-links">
-                <a href="#">📘</a>
-                <a href="#">📷</a>
-                <a href="#">💼</a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Header -->
     <%- include('../partials/header') %>
-
-    <!-- Breadcrumb -->
-    <div class="breadcrumb">
-        <div class="breadcrumb-container">
-            <nav class="breadcrumb-nav">
-                <a href="/">🏠 Accueil</a>
-                <span class="breadcrumb-separator">›</span>
-                <a href="/formations">Formations</a>
-                <span class="breadcrumb-separator">›</span>
-                <span class="breadcrumb-current">Communication & Relationnel</span>
-            </nav>
-        </div>
-    </div>
+    <%- include('../partials/breadcrumb', { breadcrumb: [{ name: 'Formations', url: '/formations' }, { name: formation.titre }] }) %>
 
     <div class="main-content">
         <!-- Left Column - Course Content -->
@@ -45,28 +18,28 @@
             <div class="formation-header fade-in">
                 <div class="formation-hero">
                     <div class="formation-info">
-                        <h1>Communication & Relationnel</h1>
-                        <p class="formation-subtitle">Maîtrisez l'art de la communication bienveillante</p>
-                        <p class="formation-description">
-                            Développez vos compétences en communication avec les personnes âgées, leurs familles et votre équipe. Cette formation essentielle vous apprendra les techniques de communication bienveillante, la gestion des émotions et des situations difficiles.
-                        </p>
+                        <h1><%= formation.titre %></h1>
+                        <p class="formation-subtitle">Formation <%= formation.niveau %> • <%= formation.duree_heures %> heures • <%= formation.nombre_modules %> modules</p>
+                        <p class="formation-description"><%= formation.description %></p>
                         <div class="formation-meta">
                             <div class="meta-badge level">
-                                📚 Niveau débutant
+                                📚 Niveau <%= formation.niveau %>
                             </div>
                             <div class="meta-badge duration">
-                                ⏱️ 3 heures
+                                ⏱️ <%= formation.duree_heures %> heures
                             </div>
                             <div class="meta-badge modules">
-                                🎯 5 modules
+                                🎯 <%= formation.nombre_modules %> modules
                             </div>
+                            <% if (formation.nombreAvis > 0) { %>
                             <div class="meta-badge rating">
-                                ⭐ 4.8/5 (127 avis)
+                                ⭐ <%= formation.noteMoyenne %>/5 (<%= formation.nombreAvis %> avis)
                             </div>
+                            <% } %>
                         </div>
                     </div>
                     <div class="formation-icon-large">
-                        🗣️
+                        <%= formation.icone %>
                     </div>
                 </div>
             </div>
@@ -78,144 +51,41 @@
                     Contenu de la formation
                 </h2>
                 <div class="modules-list">
+                    <% formation.modules.forEach((module, index) => { %>
                     <div class="module-item">
                         <div class="module-header">
                             <div class="module-title">
-                                <div class="module-number">1</div>
-                                Introduction à la communication professionnelle
+                                <div class="module-number"><%= index + 1 %></div>
+                                <%= module.titre %>
                             </div>
-                            <div class="module-status available">Disponible</div>
+                            <div class="module-status <%= module.disponible ? 'available' : 'locked' %>">
+                                <%= module.disponible ? 'Disponible' : 'Verrouillé' %>
+                            </div>
                         </div>
-                        <p class="module-description">
-                            Découvrez le rôle et les enjeux de la communication dans le secteur de l'aide à domicile. Comprenez les spécificités de la relation d'aide et identifiez les erreurs fréquentes à éviter.
-                        </p>
+                        <p class="module-description"><%= module.description %></p>
                         <div class="module-details">
                             <div class="module-detail">
                                 <span class="detail-icon">🎥</span>
-                                <span>Vidéo 15 min</span>
+                                <span><%= module.type_contenu.charAt(0).toUpperCase() + module.type_contenu.slice(1) %> <%= module.duree_minutes %> min</span>
                             </div>
                             <div class="module-detail">
                                 <span class="detail-icon">📄</span>
                                 <span>PDF téléchargeable</span>
                             </div>
+                            <% if (module.type_contenu === 'quiz') { %>
                             <div class="module-detail">
                                 <span class="detail-icon">❓</span>
-                                <span>Quiz 5 questions</span>
+                                <span>Quiz d'évaluation</span>
                             </div>
+                            <% } %>
                         </div>
                     </div>
-
-                    <div class="module-item">
-                        <div class="module-header">
-                            <div class="module-title">
-                                <div class="module-number">2</div>
-                                Les bases de la communication bienveillante
-                            </div>
-                            <div class="module-status available">Disponible</div>
-                        </div>
-                        <p class="module-description">
-                            Maîtrisez l'écoute active et la reformulation. Apprenez à poser les bonnes questions ouvertes et adoptez le bon ton, attitude et posture professionnelle.
-                        </p>
-                        <div class="module-details">
-                            <div class="module-detail">
-                                <span class="detail-icon">🎥</span>
-                                <span>Vidéo 20 min</span>
-                            </div>
-                            <div class="module-detail">
-                                <span class="detail-icon">🎭</span>
-                                <span>Mise en situation</span>
-                            </div>
-                            <div class="module-detail">
-                                <span class="detail-icon">📋</span>
-                                <span>Exercices pratiques</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="module-item">
-                        <div class="module-header">
-                            <div class="module-title">
-                                <div class="module-number">3</div>
-                                Gestion des émotions et situations difficiles
-                            </div>
-                            <div class="module-status locked">Verrouillé</div>
-                        </div>
-                        <p class="module-description">
-                            Apprenez à identifier vos émotions et celles de la personne accompagnée. Découvrez les techniques d'apaisement et comment désamorcer colère et refus.
-                        </p>
-                        <div class="module-details">
-                            <div class="module-detail">
-                                <span class="detail-icon">🎥</span>
-                                <span>Vidéo 25 min</span>
-                            </div>
-                            <div class="module-detail">
-                                <span class="detail-icon">🧘</span>
-                                <span>Exercices relaxation</span>
-                            </div>
-                            <div class="module-detail">
-                                <span class="detail-icon">💡</span>
-                                <span>Cas pratiques</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="module-item">
-                        <div class="module-header">
-                            <div class="module-title">
-                                <div class="module-number">4</div>
-                                Communication avec les familles et l'équipe
-                            </div>
-                            <div class="module-status locked">Verrouillé</div>
-                        </div>
-                        <p class="module-description">
-                            Maîtrisez la transmission claire des informations, valorisez le travail collectif et apprenez à gérer les conflits internes avec diplomatie et professionnalisme.
-                        </p>
-                        <div class="module-details">
-                            <div class="module-detail">
-                                <span class="detail-icon">🎥</span>
-                                <span>Vidéo 18 min</span>
-                            </div>
-                            <div class="module-detail">
-                                <span class="detail-icon">📝</span>
-                                <span>Templates communication</span>
-                            </div>
-                            <div class="module-detail">
-                                <span class="detail-icon">👥</span>
-                                <span>Jeux de rôles</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="module-item">
-                        <div class="module-header">
-                            <div class="module-title">
-                                <div class="module-number">5</div>
-                                Respect de la dignité et de l'autonomie
-                            </div>
-                            <div class="module-status locked">Verrouillé</div>
-                        </div>
-                        <p class="module-description">
-                            Apprenez à encourager l'autonomie sans imposer, valoriser les choix de la personne et adapter votre langage et posture selon les situations.
-                        </p>
-                        <div class="module-details">
-                            <div class="module-detail">
-                                <span class="detail-icon">🎥</span>
-                                <span>Vidéo 22 min</span>
-                            </div>
-                            <div class="module-detail">
-                                <span class="detail-icon">🎯</span>
-                                <span>Évaluation finale</span>
-                            </div>
-                            <div class="module-detail">
-                                <span class="detail-icon">🏆</span>
-                                <span>Certificat</span>
-                            </div>
-                        </div>
-                    </div>
+                    <% }); %>
                 </div>
             </div>
 
             <!-- Reviews Section -->
+            <% if (formation.avis && formation.avis.length > 0) { %>
             <div class="reviews-section fade-in">
                 <div class="reviews-header">
                     <h2 class="section-title">
@@ -223,87 +93,56 @@
                         Avis des apprenants
                     </h2>
                     <div class="rating-overview">
-                        <div class="rating-score">4.8</div>
+                        <div class="rating-score"><%= formation.noteMoyenne %></div>
                         <div class="rating-details">
                             <div class="stars">★★★★★</div>
-                            <div class="rating-count">127 avis vérifiés</div>
+                            <div class="rating-count"><%= formation.nombreAvis %> avis vérifiés</div>
                         </div>
                     </div>
                 </div>
 
+                <% formation.avis.forEach(avis => { %>
                 <div class="review-item">
                     <div class="review-header">
                         <div class="reviewer-info">
-                            <div class="reviewer-avatar">SM</div>
+                            <div class="reviewer-avatar"><%= avis.nom_utilisateur.split(' ').map(n => n[0]).join('') %></div>
                             <div class="reviewer-details">
-                                <h4>Sophie Martin</h4>
-                                <div class="role">Aide à domicile - Paris</div>
+                                <h4><%= avis.nom_utilisateur %></h4>
+                                <div class="role"><%= avis.role %><%= avis.ville ? ` - ${avis.ville}` : '' %></div>
                             </div>
                         </div>
-                        <div class="review-rating">★★★★★</div>
-                    </div>
-                    <p class="review-text">
-                        "Cette formation m'a vraiment aidée dans mon quotidien. Les techniques de communication bienveillante ont transformé mes relations avec les personnes que j'accompagne. Les vidéos sont très réalistes et les conseils directement applicables."
-                    </p>
-                </div>
-
-                <div class="review-item">
-                    <div class="review-header">
-                        <div class="reviewer-info">
-                            <div class="reviewer-avatar">MD</div>
-                            <div class="reviewer-details">
-                                <h4>Marie Dubois</h4>
-                                <div class="role">Auxiliaire de vie - Lyon</div>
-                            </div>
+                        <div class="review-rating">
+                            <% for (let i = 1; i <= 5; i++) { %>
+                                <%= i <= avis.note ? '★' : '☆' %>
+                            <% } %>
                         </div>
-                        <div class="review-rating">★★★★★</div>
                     </div>
-                    <p class="review-text">
-                        "Excellente formation ! J'ai particulièrement apprécié le module sur la gestion des émotions. Les situations pratiques m'ont permis de mieux comprendre comment réagir face aux moments difficiles."
-                    </p>
+                    <p class="review-text">"<%= avis.commentaire %>"</p>
                 </div>
-
-                <div class="review-item">
-                    <div class="review-header">
-                        <div class="reviewer-info">
-                            <div class="reviewer-avatar">JL</div>
-                            <div class="reviewer-details">
-                                <h4>Jean Legrand</h4>
-                                <div class="role">Aide-soignant EHPAD - Marseille</div>
-                            </div>
-                        </div>
-                        <div class="review-rating">★★★★☆</div>
-                    </div>
-                    <p class="review-text">
-                        "Formation très complète et bien structurée. Les PDF téléchargeables sont parfaits pour réviser. Je recommande vivement pour tous les professionnels du secteur."
-                    </p>
-                </div>
+                <% }); %>
             </div>
+            <% } %>
 
             <!-- Related Courses -->
+            <% if (formationsSimilaires && formationsSimilaires.length > 0) { %>
             <div class="related-courses fade-in">
                 <h2 class="section-title">
                     <div class="section-icon">🎯</div>
                     Formations recommandées
                 </h2>
                 <div class="related-grid">
-                    <div class="related-course">
-                        <div class="related-icon">🛡️</div>
-                        <h3 class="related-title">Hygiène & Sécurité</h3>
-                        <div class="related-price">49€</div>
+                    <% formationsSimilaires.forEach(f => { %>
+                    <div class="related-course" onclick="window.location.href='/formations/<%= f.id %>'">
+                        <div class="related-icon"><%= f.icone %></div>
+                        <h3 class="related-title"><%= f.titre %></h3>
+                        <div class="related-price">
+                            <%= f.gratuit ? 'Gratuit' : Math.floor(f.prix) + '€' %>
+                        </div>
                     </div>
-                    <div class="related-course">
-                        <div class="related-icon">🚨</div>
-                        <h3 class="related-title">Premiers Secours</h3>
-                        <div class="related-price">99€</div>
-                    </div>
-                    <div class="related-course">
-                        <div class="related-icon">🏥</div>
-                        <h3 class="related-title">Ergonomie & Gestes</h3>
-                        <div class="related-price">79€</div>
-                    </div>
+                    <% }); %>
                 </div>
             </div>
+            <% } %>
         </div>
 
         <!-- Right Sidebar -->
@@ -311,9 +150,16 @@
             <!-- Purchase Card -->
             <div class="purchase-card fade-in">
                 <div class="price-section">
+                    <% if (formation.gratuit) { %>
                     <span class="price-current">Gratuit</span>
-                    <div class="price-original">Valeur 79€</div>
                     <div class="price-save">🎉 Formation offerte</div>
+                    <% } else { %>
+                    <span class="price-current"><%= Math.floor(formation.prix) %>€</span>
+                    <% if (formation.prix_original) { %>
+                    <div class="price-original"><%= Math.floor(formation.prix_original) %>€</div>
+                    <div class="price-save">💰 Économisez <%= Math.floor(formation.prix_original - formation.prix) %>€</div>
+                    <% } %>
+                    <% } %>
                 </div>
 
                 <div class="purchase-features">
@@ -324,7 +170,7 @@
                         </li>
                         <li class="feature-item">
                             <div class="feature-icon">✓</div>
-                            <span>5 modules interactifs</span>
+                            <span><%= formation.nombre_modules %> modules interactifs</span>
                         </li>
                         <li class="feature-item">
                             <div class="feature-icon">✓</div>
@@ -338,63 +184,72 @@
                             <div class="feature-icon">✓</div>
                             <span>Quiz d'évaluation</span>
                         </li>
+                        <% if (formation.certifiant) { %>
                         <li class="feature-item">
                             <div class="feature-icon">✓</div>
                             <span>Certificat de réussite</span>
                         </li>
+                        <% } %>
                         <li class="feature-item">
                             <div class="feature-icon">✓</div>
                             <span>Support 7j/7</span>
-                        </li>
-                        <li class="feature-item">
-                            <div class="feature-icon">✓</div>
-                            <span>Accès mobile & desktop</span>
                         </li>
                     </ul>
                 </div>
 
                 <div class="cta-buttons">
-                    <button class="btn btn-primary">🚀 Commencer maintenant</button>
-                    <a href="#" class="btn btn-secondary">📋 Voir le programme détaillé</a>
+                    <button class="btn btn-primary" onclick="commencerFormation(<%= formation.id %>, '<%= formation.titre %>', <%= formation.prix %>, <%= formation.gratuit %>)">
+                        🚀 Commencer maintenant
+                    </button>
+                    <button class="btn btn-secondary" onclick="voirProgramme()">
+                        📋 Programme détaillé
+                    </button>
                 </div>
             </div>
 
-            <!-- Instructor Card -->
-            <div class="instructor-card fade-in">
-                <div class="instructor-avatar">👩‍⚕️</div>
-                <h3 class="instructor-name">Dr. Claire Rousseau</h3>
-                <p class="instructor-title">Experte en Communication Soignante</p>
-                <p class="instructor-bio">
-                    15 ans d'expérience en EHPAD et formation professionnelle. Spécialiste de la communication bienveillante et de l'accompagnement des personnes âgées.
-                </p>
-            </div>
-
-            <!-- Quick Stats -->
+            <!-- Stats -->
             <div class="instructor-card fade-in">
                 <h3 class="instructor-name">📊 Statistiques</h3>
                 <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem;">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span>👥 Inscrits</span>
-                        <strong style="color: var(--primary-pink);">2,847</strong>
+                        <span>👥 Domaine</span>
+                        <strong style="color: var(--primary-pink); text-transform: capitalize;"><%= formation.domaine %></strong>
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span>🎯 Taux de réussite</span>
-                        <strong style="color: var(--success);">94%</strong>
+                        <span>⏱️ Durée totale</span>
+                        <strong style="color: var(--primary-blue);"><%= formation.duree_heures %>h</strong>
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span>⏱️ Temps moyen</span>
-                        <strong style="color: var(--primary-blue);">2h45</strong>
+                        <span>🎯 Modules</span>
+                        <strong style="color: var(--primary-pink);"><%= formation.nombre_modules %></strong>
                     </div>
+                    <% if (formation.nombreAvis > 0) { %>
                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span>🏆 Certifiés</span>
-                        <strong style="color: var(--primary-pink);">2,675</strong>
+                        <span>⭐ Note moyenne</span>
+                        <strong style="color: var(--success);"><%= formation.noteMoyenne %>/5</strong>
                     </div>
+                    <% } %>
                 </div>
             </div>
         </div>
     </div>
 
+    <%- include('../partials/footer') %>
+    <%- include('../partials/chat-widget') %>
+
     <script>
+        function commencerFormation(id, titre, prix, gratuit) {
+            if (gratuit) {
+                alert(`🎉 Félicitations !\n\n✅ Accès immédiat à la formation :\n"${titre}"\n\n🚀 Redirection vers le premier module...`);
+            } else {
+                alert(`💳 Formation : ${titre}\nPrix : ${prix}€\n\n🛒 Redirection vers le paiement sécurisé...`);
+            }
+        }
+
+        function voirProgramme() {
+            alert('📋 Programme détaillé\n\n<%= formation.modules.map((m, i) => `Module ${i+1}: ${m.titre} (${m.duree_minutes} min)`).join('\\n') %>\n\n📄 Programme complet téléchargeable après inscription');
+        }
+
         // Animation au scroll
         const observerOptions = {
             threshold: 0.1,
@@ -413,66 +268,7 @@
             observer.observe(el);
         });
 
-        // Module interactions
-        document.querySelectorAll('.module-item').forEach(module => {
-            module.addEventListener('click', () => {
-                const title = module.querySelector('.module-title').textContent.trim();
-                const status = module.querySelector('.module-status').textContent;
-                
-                if (status === 'Disponible') {
-                    alert(`📚 Ouverture du module :\n${title}\n\n🎥 Lecture de la vidéo...\n✨ Bonne formation !`);
-                } else {
-                    alert(`🔒 Module verrouillé\n\n${title}\n\n💡 Terminez d'abord les modules précédents pour débloquer celui-ci.`);
-                }
-            });
-        });
-
-        // CTA Button
-        document.querySelector('.btn-primary').addEventListener('click', () => {
-            alert('🎉 Félicitations !\n\n✅ Inscription réussie à la formation "Communication & Relationnel"\n\n🚀 Accès immédiat aux modules\n📧 Email de confirmation envoyé\n🎓 Commencez dès maintenant votre parcours de formation !\n\nRedirection vers le premier module...');
-        });
-
-        // Secondary CTA
-        document.querySelector('.btn-secondary').addEventListener('click', (e) => {
-            e.preventDefault();
-            alert('📋 Programme détaillé\n\nModule 1: Introduction (15 min)\nModule 2: Communication bienveillante (20 min)\nModule 3: Gestion des émotions (25 min)\nModule 4: Communication équipe/famille (18 min)\nModule 5: Dignité et autonomie (22 min)\n\n📄 PDF complet téléchargeable après inscription');
-        });
-
-        // Related courses
-        document.querySelectorAll('.related-course').forEach(course => {
-            course.addEventListener('click', () => {
-                const title = course.querySelector('.related-title').textContent;
-                const price = course.querySelector('.related-price').textContent;
-                alert(`🎯 Formation recommandée :\n${title}\n\nPrix : ${price}\n\n🔗 Redirection vers la page de formation...`);
-            });
-        });
-
-        // Smooth scroll pour les liens
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            });
-        });
-
-        // Sticky sidebar effect
-        window.addEventListener('scroll', () => {
-            const sidebar = document.querySelector('.purchase-card');
-            const scrollTop = window.pageYOffset;
-            
-            if (scrollTop > 300) {
-                sidebar.style.boxShadow = '0 20px 60px rgba(0,0,0,0.15)';
-            } else {
-                sidebar.style.boxShadow = '0 15px 50px rgba(0,0,0,0.08)';
-            }
-        });
-
-        console.log('📚 Page formation "Communication & Relationnel" chargée');
-        console.log('🎯 Formation gratuite avec 5 modules interactifs');
-        console.log('⭐ Note : 4.8/5 basée sur 127 avis');
+        console.log('📚 Formation "<%= formation.titre %>" chargée');
     </script>
 </body>
 </html>

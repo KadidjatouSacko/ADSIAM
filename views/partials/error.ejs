@@ -1,0 +1,34 @@
+<!-- views/partials/error.ejs -->
+<div class="error-container" style="text-align: center; padding: 4rem 2rem; max-width: 600px; margin: 0 auto;">
+    <div class="error-icon" style="font-size: 5rem; margin-bottom: 2rem;">
+        <% if (typeof error !== 'undefined' && error.status === 404) { %>
+        🔍
+        <% } else { %>
+        ⚠️
+        <% } %>
+    </div>
+    
+    <h1 style="font-size: 2.5rem; color: var(--text-dark); margin-bottom: 1rem;">
+        <% if (typeof error !== 'undefined' && error.status === 404) { %>
+        Page non trouvée
+        <% } else { %>
+        Erreur
+        <% } %>
+    </h1>
+    
+    <p style="font-size: 1.2rem; color: var(--text-light); margin-bottom: 2rem;">
+        <%= message || 'Une erreur s\'est produite' %>
+    </p>
+    
+    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <a href="/" class="btn btn-primary">🏠 Retour à l'accueil</a>
+        <a href="/formations" class="btn btn-secondary">📚 Voir nos formations</a>
+    </div>
+    
+    <% if (typeof error !== 'undefined' && error.stack && process.env.NODE_ENV !== 'production') { %>
+    <details style="margin-top: 2rem; text-align: left; background: #f8f9fa; padding: 1rem; border-radius: 8px;">
+        <summary style="cursor: pointer; font-weight: 600;">Détails techniques</summary>
+        <pre style="margin-top: 1rem; font-size: 0.9rem; overflow-x: auto;"><%= error.stack %></pre>
+    </details>
+    <% } %>
+</div>

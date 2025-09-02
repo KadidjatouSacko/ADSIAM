@@ -1,105 +1,92 @@
+<!-- views/visiteurs/home.ejs - Votre design adapté avec la BDD -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ADSIAM | Formation Excellence Aide à Domicile & EHPAD</title>
-   <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="/css/home.css">
 </head>
 
 <style>
     .valeurs-section {
-    margin: 12rem 0;
-}
-.valeurs-title {
-    color: #d4a5a5;
-    font-size: 2.2rem;
-    font-weight: 400;
-    margin-bottom: 2rem;
-    text-align: center;
-    letter-spacing: 0.02em;
-}
-.valeurs-grid {
-    display: flex;
-    gap: 2rem;
-    justify-content: center;
-    flex-wrap: wrap;
-}
-.valeur-card {
-    background: #fff;
-    border-radius: 30px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.06);
-    padding: 2rem 2rem 1.5rem 2rem;
-    flex: 1 1 280px;
-    max-width: 350px;
-    text-align: center;
-    transition: box-shadow 0.3s;
-}
-.valeur-card:hover {
-    box-shadow: 0 16px 40px rgba(0,0,0,0.12);
-}
-.valeur-icon {
-    margin-bottom: 1rem;
-}
-.valeur-label {
-    font-size: 1.2rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
-}
-.valeur-desc {
-    font-size: 1rem;
-    color: #7a7a7a;
-}
-@media (max-width: 900px) {
+        margin: 12rem 0;
+    }
+    .valeurs-title {
+        color: #d4a5a5;
+        font-size: 2.2rem;
+        font-weight: 400;
+        margin-bottom: 2rem;
+        text-align: center;
+        letter-spacing: 0.02em;
+    }
     .valeurs-grid {
-        flex-direction: column;
+        display: flex;
         gap: 2rem;
-        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
     }
     .valeur-card {
-        max-width: 100%;
+        background: #fff;
+        border-radius: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+        padding: 2rem 2rem 1.5rem 2rem;
+        flex: 1 1 280px;
+        max-width: 350px;
+        text-align: center;
+        transition: box-shadow 0.3s;
     }
-}
+    .valeur-card:hover {
+        box-shadow: 0 16px 40px rgba(0,0,0,0.12);
+    }
+    .valeur-icon {
+        margin-bottom: 1rem;
+    }
+    .valeur-label {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+    .valeur-desc {
+        font-size: 1rem;
+        color: #7a7a7a;
+    }
+    @media (max-width: 900px) {
+        .valeurs-grid {
+            flex-direction: column;
+            gap: 2rem;
+            align-items: center;
+        }
+        .valeur-card {
+            max-width: 100%;
+        }
+    }
 </style>
+
 <body>
     <!-- Top Bar -->
-    <div class="top-bar">
-        <div class="top-bar-content">
-            <div class="contact-info">
-                <a href="tel:0650848175">📞 06 50 84 81 75</a>
-                <a href="mailto:contact@formapro-plus.org">✉️ contact@formapro-plus.org</a>
-            </div>
-            <div class="social-links">
-                <a href="#" title="Facebook">📘</a>
-                <a href="#" title="Instagram">📷</a>
-                <a href="#" title="LinkedIn">💼</a>
-            </div>
-        </div>
-    </div>
+   
 
     <!-- Header -->
-   <%- include('../partials/header') %>
+    <%- include('../partials/header') %>
 
     <main>
-
-
-        
-        <!-- Hero Section -->
+        <!-- Hero Section - STATS DYNAMIQUES -->
         <section class="hero">
             <div class="hero-container">
                 <div class="hero-content fade-in">
                     <h1>FORMATION COMPLÈTE <span class="hero-highlight">AIDE À DOMICILE & EHPAD</span></h1>
                     <p class="hero-subtitle">Communication, sécurité, pratiques professionnelles</p>
-                    <p class="hero-description">Développez vos compétences avec notre formation complète en 10 blocs thématiques et 36 modules interactifs. De la communication bienveillante aux gestes techniques, maîtrisez tous les aspects de votre métier.</p>
+                    <p class="hero-description">Développez vos compétences avec notre formation complète en <%= stats.totalFormations %> formations thématiques et <%= stats.totalModules %> modules interactifs. De la communication bienveillante aux gestes techniques, maîtrisez tous les aspects de votre métier.</p>
                     
                     <div class="hero-stats">
                         <div class="stat-item">
-                            <span class="stat-number">36</span>
+                            <span class="stat-number"><%= stats.totalModules %></span>
                             <span class="stat-label">Modules</span>
                         </div>
                         <div class="stat-item">
-                            <span class="stat-number">10</span>
-                            <span class="stat-label">Blocs</span>
+                            <span class="stat-number"><%= stats.totalFormations %></span>
+                            <span class="stat-label">Formations</span>
                         </div>
                         <div class="stat-item">
                             <span class="stat-number">24/7</span>
@@ -117,54 +104,53 @@
             </div>
         </section>
 
-        <!-- Section NOS VALEURS avec icônes SVG, sans effet coulissant -->
-<section class="valeurs-section" style="margin: 4rem 0;">
-    <h2 class="valeurs-title" style="color: #d4a5a5; margin-top: 20rem; font-size: 2.2rem; font-weight: 400; margin-bottom: 2rem; text-align: left;">
-        NOS VALEURS
-    </h2>
-    <div style="display: flex; gap: 2rem; justify-content: center; text-align: center; margin-top: 8rem;">
-        <div style="background: #e6f2f5; border-radius: 30px; padding: 2rem 2rem 1.5rem 2rem; flex: 1; text-align: center;">
-            <!-- Icône PARTAGE SVG -->
-            <svg width="60" height="60" viewBox="0 0 60 60" fill="none" style="margin-bottom:1rem;">
-                <circle cx="30" cy="30" r="28" fill="#e6f2f5"/>
-                <path d="M20 32c0-4 3-7 7-7s7 3 7 7c0 2-1 4-3 5l-4 3-4-3c-2-1-3-3-3-5z" stroke="#a5c9d4" stroke-width="2" fill="none"/>
-                <path d="M30 25v-3a5 5 0 0 1 10 0v3" stroke="#a5c9d4" stroke-width="2" fill="none"/>
-            </svg>
-            <h3 style="color: #a5c9d4; font-size: 1.2rem; font-weight: 600; margin-bottom: 1rem;">LE PARTAGE</h3>
-            <p style="color: #a5c9d4; font-size: 1rem;">
-                Le partage d’expériences avec le formateur et l’ensemble du groupe permet la prise de recul, l’analyse de sa propre pratique, l’enrichissement de sa compétence et le développement de nouveaux savoir-faire.
-            </p>
-        </div>
-        <div style="background: #edeaf3; border-radius: 30px; padding: 2rem 2rem 1.5rem 2rem; flex: 1; text-align: center;">
-            <!-- Icône COMPÉTENCE SVG -->
-            <svg width="60" height="60" viewBox="0 0 60 60" fill="none" style="margin-bottom:1rem;">
-                <circle cx="30" cy="30" r="28" fill="#edeaf3"/>
-                <path d="M30 20a10 10 0 1 1-10 10" stroke="#b6b1c9" stroke-width="2" fill="none"/>
-                <rect x="28" y="32" width="4" height="10" rx="2" fill="#b6b1c9"/>
-                <circle cx="30" cy="30" r="3" fill="#b6b1c9"/>
-            </svg>
-            <h3 style="color: #b6b1c9; font-size: 1.2rem; font-weight: 600; margin-bottom: 1rem;">LE DÉVELOPPEMENT DE SA COMPÉTENCE</h3>
-            <p style="color: #b6b1c9; font-size: 1rem;">
-                Les dispositifs et les techniques de soins évoluent à grande vitesse. Maîtriser les connaissances et les savoir-faire, permet d’assurer une prise en charge de qualité et de valoriser la compétence du soignant.
-            </p>
-        </div>
-        <div style="background: #f5e6e6; border-radius: 30px; padding: 2rem 2rem 1.5rem 2rem; flex: 1; text-align: center;">
-            <!-- Icône ÉPANOUISSEMENT SVG -->
-            <svg width="60" height="60" viewBox="0 0 60 60" fill="none" style="margin-bottom:1rem;">
-                <circle cx="30" cy="30" r="28" fill="#f5e6e6"/>
-                <path d="M30 40c8-8 8-16 0-24-8 8-8 16 0 24z" stroke="#d4a5a5" stroke-width="2" fill="none"/>
-                <ellipse cx="30" cy="32" rx="8" ry="4" stroke="#d4a5a5" stroke-width="2" fill="none"/>
-            </svg>
-            <h3 style="color: #d4a5a5; font-size: 1.2rem; font-weight: 600; margin-bottom: 1rem;">L’ÉPANOUISSEMENT</h3>
-            <p style="color: #d4a5a5; font-size: 1rem;">
-                Chaque participant a des attentes et des besoins. Le formateur modère les enseignements de sorte à ce que tous les participants puissent atteindre les objectifs qu’ils se sont fixés.
-            </p>
-        </div>
-    </div>
-</section>
+        <!-- Section NOS VALEURS - GARDÉE IDENTIQUE -->
+        <section class="valeurs-section" style="margin: 4rem 0;">
+            <h2 class="valeurs-title" style="color: #d4a5a5; margin-top: 20rem; font-size: 2.2rem; font-weight: 400; margin-bottom: 2rem; text-align: left;">
+                NOS VALEURS
+            </h2>
+            <div style="display: flex; gap: 2rem; justify-content: center; text-align: center; margin-top: 8rem;">
+                <div style="background: #e6f2f5; border-radius: 30px; padding: 2rem 2rem 1.5rem 2rem; flex: 1; text-align: center;">
+                    <!-- Icône PARTAGE SVG -->
+                    <svg width="60" height="60" viewBox="0 0 60 60" fill="none" style="margin-bottom:1rem;">
+                        <circle cx="30" cy="30" r="28" fill="#e6f2f5"/>
+                        <path d="M20 32c0-4 3-7 7-7s7 3 7 7c0 2-1 4-3 5l-4 3-4-3c-2-1-3-3-3-5z" stroke="#a5c9d4" stroke-width="2" fill="none"/>
+                        <path d="M30 25v-3a5 5 0 0 1 10 0v3" stroke="#a5c9d4" stroke-width="2" fill="none"/>
+                    </svg>
+                    <h3 style="color: #a5c9d4; font-size: 1.2rem; font-weight: 600; margin-bottom: 1rem;">LE PARTAGE</h3>
+                    <p style="color: #a5c9d4; font-size: 1rem;">
+                        Le partage d'expériences avec le formateur et l'ensemble du groupe permet la prise de recul, l'analyse de sa propre pratique, l'enrichissement de sa compétence et le développement de nouveaux savoir-faire.
+                    </p>
+                </div>
+                <div style="background: #edeaf3; border-radius: 30px; padding: 2rem 2rem 1.5rem 2rem; flex: 1; text-align: center;">
+                    <!-- Icône COMPÉTENCE SVG -->
+                    <svg width="60" height="60" viewBox="0 0 60 60" fill="none" style="margin-bottom:1rem;">
+                        <circle cx="30" cy="30" r="28" fill="#edeaf3"/>
+                        <path d="M30 20a10 10 0 1 1-10 10" stroke="#b6b1c9" stroke-width="2" fill="none"/>
+                        <rect x="28" y="32" width="4" height="10" rx="2" fill="#b6b1c9"/>
+                        <circle cx="30" cy="30" r="3" fill="#b6b1c9"/>
+                    </svg>
+                    <h3 style="color: #b6b1c9; font-size: 1.2rem; font-weight: 600; margin-bottom: 1rem;">LE DÉVELOPPEMENT DE SA COMPÉTENCE</h3>
+                    <p style="color: #b6b1c9; font-size: 1rem;">
+                        Les dispositifs et les techniques de soins évoluent à grande vitesse. Maîtriser les connaissances et les savoir-faire, permet d'assurer une prise en charge de qualité et de valoriser la compétence du soignant.
+                    </p>
+                </div>
+                <div style="background: #f5e6e6; border-radius: 30px; padding: 2rem 2rem 1.5rem 2rem; flex: 1; text-align: center;">
+                    <!-- Icône ÉPANOUISSEMENT SVG -->
+                    <svg width="60" height="60" viewBox="0 0 60 60" fill="none" style="margin-bottom:1rem;">
+                        <circle cx="30" cy="30" r="28" fill="#f5e6e6"/>
+                        <path d="M30 40c8-8 8-16 0-24-8 8-8 16 0 24z" stroke="#d4a5a5" stroke-width="2" fill="none"/>
+                        <ellipse cx="30" cy="32" rx="8" ry="4" stroke="#d4a5a5" stroke-width="2" fill="none"/>
+                    </svg>
+                    <h3 style="color: #d4a5a5; font-size: 1.2rem; font-weight: 600; margin-bottom: 1rem;">L'ÉPANOUISSEMENT</h3>
+                    <p style="color: #d4a5a5; font-size: 1rem;">
+                        Chaque participant a des attentes et des besoins. Le formateur modère les enseignements de sorte à ce que tous les participants puissent atteindre les objectifs qu'ils se sont fixés.
+                    </p>
+                </div>
+            </div>
+        </section>
 
-
-        <!-- Public Section -->
+        <!-- FORMATIONS SECTION - MAINTENANT DYNAMIQUE -->
         <section class="public-section">
             <div class="public-container">
                 <h2 class="section-title">NOS FORMATIONS</h2>
@@ -173,245 +159,66 @@
                 </div>
                 
                 <div class="formations-grid">
-                    <div class="formation-card fade-in">
+                    <!-- BOUCLE SUR LES FORMATIONS DE LA BDD -->
+                    <% formations.forEach((formation, index) => { %>
+                    <div class="formation-card fade-in" data-formation-id="<%= formation.id %>">
                         <div class="formation-header">
-                            <div class="formation-icon">🗣️</div>
-                            <div class="formation-badge">Essentiel</div>
+                            <div class="formation-icon"><%= formation.icone %></div>
+                            <% if (formation.badge) { %>
+                            <div class="formation-badge"><%= formation.badge %></div>
+                            <% } %>
                         </div>
                         <div class="formation-content">
                             <div class="formation-meta">
-                                <span class="meta-tag modules-tag">5 modules</span>
-                                <span class="meta-tag level-tag">Débutant</span>
+                                <span class="meta-tag modules-tag"><%= formation.nombre_modules %> modules</span>
+                                <span class="meta-tag level-tag"><%= formation.niveau.charAt(0).toUpperCase() + formation.niveau.slice(1) %></span>
+                                <% if (formation.nombreAvis > 0) { %>
+                                <span class="meta-tag">⭐ <%= formation.noteMoyenne %>/5</span>
+                                <% } %>
                             </div>
-                            <h3 class="formation-title">Communication & Relationnel</h3>
-                            <p class="formation-description">Maîtrisez l'art de la communication bienveillante, la gestion des émotions et des situations difficiles. Apprenez à communiquer efficacement avec les familles et l'équipe.</p>
+                            <h3 class="formation-title"><%= formation.titre %></h3>
+                            <p class="formation-description"><%= formation.description %></p>
                             <div class="formation-features">
+                                <!-- CARACTÉRISTIQUES DYNAMIQUES -->
+                                <% formation.caracteristiques.slice(0, 4).forEach(carac => { %>
                                 <div class="feature-item">
-                                    <span class="feature-icon">✓</span>
-                                    <span>Écoute active</span>
+                                    <span class="feature-icon"><%= carac.icone %></span>
+                                    <span><%= carac.titre %></span>
                                 </div>
-                                <div class="feature-item">
-                                    <span class="feature-icon">✓</span>
-                                    <span>Gestion conflits</span>
-                                </div>
-                                <div class="feature-item">
-                                    <span class="feature-icon">✓</span>
-                                    <span>Respect dignité</span>
-                                </div>
-                                <div class="feature-item">
-                                    <span class="feature-icon">✓</span>
-                                    <span>Vidéos pratiques</span>
-                                </div>
+                                <% }); %>
                             </div>
                             <div class="formation-footer">
-                                <div class="formation-price">Gratuit</div>
-                                <button class="formation-btn">Commencer</button>
+                                <!-- PRIX DYNAMIQUE -->
+                                <div class="formation-price">
+                                    <% if (formation.gratuit) { %>
+                                    Gratuit
+                                    <% } else { %>
+                                    <%= Math.floor(formation.prix) %>€
+                                    <% } %>
+                                </div>
+                                <button class="formation-btn" onclick="redirectToFormation(<%= formation.id %>)">Commencer</button>
                             </div>
                         </div>
                     </div>
-
-                    <div class="formation-card fade-in">
-                        <div class="formation-header">
-                            <div class="formation-icon">🛡️</div>
-                            <div class="formation-badge">Avancé</div>
-                        </div>
-                        <div class="formation-content">
-                            <div class="formation-meta">
-                                <span class="meta-tag modules-tag">4 modules</span>
-                                <span class="meta-tag level-tag">Intermédiaire</span>
-                            </div>
-                            <h3 class="formation-title">Hygiène, Sécurité & Prévention</h3>
-                            <p class="formation-description">Protocoles d'hygiène professionnelle, sécurité avec les produits ménagers, prévention des risques domestiques et des infections.</p>
-                            <div class="formation-features">
-                                <div class="feature-item">
-                                    <span class="feature-icon">✓</span>
-                                    <span>Protocoles hygiène</span>
-                                </div>
-                                <div class="feature-item">
-                                    <span class="feature-icon">✓</span>
-                                    <span>Sécurité produits</span>
-                                </div>
-                                <div class="feature-item">
-                                    <span class="feature-icon">✓</span>
-                                    <span>Prévention chutes</span>
-                                </div>
-                                <div class="feature-item">
-                                    <span class="feature-icon">✓</span>
-                                    <span>Anti-infections</span>
-                                </div>
-                            </div>
-                            <div class="formation-footer">
-                                <div class="formation-price">49€</div>
-                                <button class="formation-btn">Commencer</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="formation-card fade-in">
-                        <div class="formation-header">
-                            <div class="formation-icon">🏥</div>
-                            <div class="formation-badge">Expert</div>
-                        </div>
-                        <div class="formation-content">
-                            <div class="formation-meta">
-                                <span class="meta-tag modules-tag">3 modules</span>
-                                <span class="meta-tag level-tag">Avancé</span>
-                            </div>
-                            <h3 class="formation-title">Ergonomie & Gestes Professionnels</h3>
-                            <p class="formation-description">Techniques de manutention, prévention des TMS, utilisation du matériel médical et accompagnement sécurisé des transferts.</p>
-                            <div class="formation-features">
-                                <div class="feature-item">
-                                    <span class="feature-icon">✓</span>
-                                    <span>Bonnes postures</span>
-                                </div>
-                                <div class="feature-item">
-                                    <span class="feature-icon">✓</span>
-                                    <span>Transferts sécurisés</span>
-                                </div>
-                                <div class="feature-item">
-                                    <span class="feature-icon">✓</span>
-                                    <span>Matériel médical</span>
-                                </div>
-                                <div class="feature-item">
-                                    <span class="feature-icon">✓</span>
-                                    <span>Prévention TMS</span>
-                                </div>
-                            </div>
-                            <div class="formation-footer">
-                                <div class="formation-price">79€</div>
-                                <button class="formation-btn">Commencer</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="formation-card fade-in">
-                        <div class="formation-header">
-                            <div class="formation-icon">🚨</div>
-                            <div class="formation-badge">Critique</div>
-                        </div>
-                        <div class="formation-content">
-                            <div class="formation-meta">
-                                <span class="meta-tag modules-tag">5 modules</span>
-                                <span class="meta-tag level-tag">Essentiel</span>
-                            </div>
-                            <h3 class="formation-title">Gestion des Urgences & Premiers Secours</h3>
-                            <p class="formation-description">Formation complète aux gestes qui sauvent : RCP, défibrillateur, position latérale de sécurité, gestion des blessures et étouffements.</p>
-                            <div class="formation-features">
-                                <div class="feature-item">
-                                    <span class="feature-icon">✓</span>
-                                    <span>RCP & Défibrillateur</span>
-                                </div>
-                                <div class="feature-item">
-                                    <span class="feature-icon">✓</span>
-                                    <span>Position PLS</span>
-                                </div>
-                                <div class="feature-item">
-                                    <span class="feature-icon">✓</span>
-                                    <span>Gestion blessures</span>
-                                </div>
-                                <div class="feature-item">
-                                    <span class="feature-icon">✓</span>
-                                    <span>Situations critiques</span>
-                                </div>
-                            </div>
-                            <div class="formation-footer">
-                                <div class="formation-price">99€</div>
-                                <button class="formation-btn">Commencer</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="formation-card fade-in">
-                        <div class="formation-header">
-                            <div class="formation-icon">🍽️</div>
-                            <div class="formation-badge">Pratique</div>
-                        </div>
-                        <div class="formation-content">
-                            <div class="formation-meta">
-                                <span class="meta-tag modules-tag">4 modules</span>
-                                <span class="meta-tag level-tag">Intermédiaire</span>
-                            </div>
-                            <h3 class="formation-title">Préparation des Repas & Alimentation</h3>
-                            <p class="formation-description">Hygiène alimentaire, repas équilibrés adaptés, gestion des textures pour éviter les fausses routes, techniques d'hydratation.</p>
-                            <div class="formation-features">
-                                <div class="feature-item">
-                                    <span class="feature-icon">✓</span>
-                                    <span>Hygiène alimentaire</span>
-                                </div>
-                                <div class="feature-item">
-                                    <span class="feature-icon">✓</span>
-                                    <span>Repas équilibrés</span>
-                                </div>
-                                <div class="feature-item">
-                                    <span class="feature-icon">✓</span>
-                                    <span>Textures adaptées</span>
-                                </div>
-                                <div class="feature-item">
-                                    <span class="feature-icon">✓</span>
-                                    <span>Hydratation</span>
-                                </div>
-                            </div>
-                            <div class="formation-footer">
-                                <div class="formation-price">59€</div>
-                                <button class="formation-btn">Commencer</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="formation-card fade-in">
-                        <div class="formation-header">
-                            <div class="formation-icon">🧠</div>
-                            <div class="formation-badge">Spécialisé</div>
-                        </div>
-                        <div class="formation-content">
-                            <div class="formation-meta">
-                                <span class="meta-tag modules-tag">4 modules</span>
-                                <span class="meta-tag level-tag">Expert</span>
-                            </div>
-                            <h3 class="formation-title">Pathologies & Situations Spécifiques</h3>
-                            <p class="formation-description">Accompagnement des troubles cognitifs, Alzheimer, maladies chroniques, perte de mobilité et accompagnement en fin de vie.</p>
-                            <div class="formation-features">
-                                <div class="feature-item">
-                                    <span class="feature-icon">✓</span>
-                                    <span>Troubles cognitifs</span>
-                                </div>
-                                <div class="feature-item">
-                                    <span class="feature-icon">✓</span>
-                                    <span>Maladies chroniques</span>
-                                </div>
-                                <div class="feature-item">
-                                    <span class="feature-icon">✓</span>
-                                    <span>Perte mobilité</span>
-                                </div>
-                                <div class="feature-item">
-                                    <span class="feature-icon">✓</span>
-                                    <span>Fin de vie</span>
-                                </div>
-                            </div>
-                            <div class="formation-footer">
-                                <div class="formation-price">89€</div>
-                                <button class="formation-btn">Commencer</button>
-                            </div>
-                        </div>
-                    </div>
+                    <% }); %>
                 </div>
             </div>
         </section>
 
-        <!-- Stats Section -->
+        <!-- Stats Section - STATS DYNAMIQUES -->
         <section class="stats-section">
             <div class="stats-container">
                 <div class="stats-grid">
                     <div class="stat-card fade-in">
-                        <span class="stat-number">2,500+</span>
+                        <span class="stat-number"><%= stats.professionnelsFormes.toLocaleString() %>+</span>
                         <span class="stat-label">Professionnels formés</span>
                     </div>
                     <div class="stat-card fade-in">
-                        <span class="stat-number">36</span>
+                        <span class="stat-number"><%= stats.totalModules %></span>
                         <span class="stat-label">Modules interactifs</span>
                     </div>
                     <div class="stat-card fade-in">
-                        <span class="stat-number">97%</span>
+                        <span class="stat-number"><%= stats.tauxSatisfaction %>%</span>
                         <span class="stat-label">Taux de satisfaction</span>
                     </div>
                     <div class="stat-card fade-in">
@@ -426,13 +233,13 @@
         <section class="cta-section">
             <div class="cta-container">
                 <h2 class="cta-title">Prêt à <span class="cta-highlight">développer vos compétences</span> ?</h2>
-                <p class="cta-description">Rejoignez plus de 2500 professionnels qui ont déjà fait confiance à ADSIAM pour leur développement professionnel. Accédez à nos formations dès aujourd'hui.</p>
+                <p class="cta-description">Rejoignez plus de <%= stats.professionnelsFormes.toLocaleString() %> professionnels qui ont déjà fait confiance à ADSIAM pour leur développement professionnel. Accédez à nos formations dès aujourd'hui.</p>
                 <div class="cta-buttons">
                     <a href="/formations" class="cta-button">
                         🚀 Commencer maintenant
                     </a>
-                    <a href="#demo" class="cta-button secondary">
-                        ▶️ Voir la démonstration
+                    <a href="/contact" class="cta-button secondary">
+                        💬 Nous contacter
                     </a>
                 </div>
             </div>
@@ -440,7 +247,7 @@
     </main>
 
     <!-- Footer -->
-      <%- include('../partials/footer') %>
+    <%- include('../partials/footer') %>
 
     <!-- Chat Widget -->
     <div class="chat-widget">
@@ -451,6 +258,11 @@
     </div>
 
     <script>
+        // FONCTION POUR REDIRECTION DYNAMIQUE VERS FORMATION
+        function redirectToFormation(formationId) {
+            window.location.href = `/formations/${formationId}`;
+        }
+
         // Smooth scrolling pour les liens
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
@@ -488,7 +300,7 @@
             observer.observe(el);
         });
 
-        // Animation des compteurs dans les stats
+        // Animation des compteurs dans les stats - VALEURS DYNAMIQUES
         function animateCounter(element, target) {
             let count = 0;
             const targetNum = parseInt(target.replace(/[^\d]/g, ''));
@@ -503,11 +315,11 @@
                     if (target.includes('%')) {
                         element.textContent = Math.floor(count) + '%';
                     } else if (target.includes('+')) {
-                        element.textContent = Math.floor(count) + '+';
+                        element.textContent = Math.floor(count).toLocaleString() + '+';
                     } else if (target.includes('/')) {
                         element.textContent = target;
                     } else {
-                        element.textContent = Math.floor(count);
+                        element.textContent = Math.floor(count).toLocaleString();
                     }
                 }
             }, 50);
@@ -532,28 +344,32 @@
             statsObserver.observe(el);
         });
 
-        // Interaction des cartes de formation
+        // Interaction des cartes de formation - LIENS DYNAMIQUES
         document.querySelectorAll('.formation-card').forEach(card => {
             card.addEventListener('click', (e) => {
                 if (!e.target.classList.contains('formation-btn')) {
-                    const title = card.querySelector('.formation-title').textContent;
-                    window.location.href = `formation-detail.html?course=${encodeURIComponent(title)}`;
+                    const formationId = card.dataset.formationId;
+                    window.location.href = `/formations/${formationId}`;
                 }
             });
         });
 
-        // Boutons de formation
+        // Boutons de formation - LOGIQUE AMÉLIORÉE
         document.querySelectorAll('.formation-btn').forEach(button => {
             button.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const card = e.target.closest('.formation-card');
                 const title = card.querySelector('.formation-title').textContent;
                 const price = card.querySelector('.formation-price').textContent;
+                const formationId = card.dataset.formationId;
                 
-                if (price === 'Gratuit') {
-                    alert(`🎉 Félicitations !\n\nVous accédez maintenant à la formation :\n"${title}"\n\nRedirection vers le contenu...`);
+                if (price === 'Gratuit' || price === '0€') {
+                    alert(`🎉 Félicitations !\n\nAccès immédiat à la formation :\n"${title}"\n\n🚀 Redirection vers le contenu...`);
+                    // Redirection vers la formation
+                    window.location.href = `/formations/${formationId}`;
                 } else {
-                    alert(`💳 Formation : ${title}\nPrix : ${price}\n\nRedirection vers la page de paiement...`);
+                    alert(`💳 Formation : ${title}\nPrix : ${price}\n\n🛒 Redirection vers la page de la formation...`);
+                    window.location.href = `/formations/${formationId}`;
                 }
             });
         });
@@ -584,48 +400,12 @@
             }
         });
 
-        // Gestion responsive du menu
-        if (window.innerWidth <= 768) {
-            // Ajouter un bouton menu mobile (hamburger)
-            const nav = document.querySelector('nav');
-            const menuToggle = document.createElement('div');
-            menuToggle.className = 'mobile-menu-toggle';
-            menuToggle.innerHTML = '☰';
-            menuToggle.style.cssText = `
-                display: block;
-                font-size: 1.5rem;
-                color: var(--text-dark);
-                cursor: pointer;
-                padding: 0.5rem;
-            `;
-            
-            nav.appendChild(menuToggle);
-            
-            menuToggle.addEventListener('click', () => {
-                const navLinks = document.querySelector('.nav-links');
-                if (navLinks.style.display === 'flex') {
-                    navLinks.style.display = 'none';
-                } else {
-                    navLinks.style.display = 'flex';
-                    navLinks.style.flexDirection = 'column';
-                    navLinks.style.position = 'absolute';
-                    navLinks.style.top = '100%';
-                    navLinks.style.left = '0';
-                    navLinks.style.right = '0';
-                    navLinks.style.background = 'white';
-                    navLinks.style.boxShadow = '0 5px 20px rgba(0,0,0,0.1)';
-                    navLinks.style.padding = '1rem';
-                    navLinks.style.zIndex = '1000';
-                }
-            });
-        }
-
         // Message de bienvenue au chargement
         window.addEventListener('load', () => {
             setTimeout(() => {
-                console.log('🚀 FormaPro+ - Plateforme de formation chargée avec succès !');
-                console.log('📚 36 modules de formation disponibles');
-                console.log('👥 Rejoignez plus de 2500 professionnels déjà formés');
+                console.log('🚀 ADSIAM - Plateforme de formation chargée avec succès !');
+                console.log(`📚 ${<%= stats.totalModules %>} modules de formation disponibles`);
+                console.log(`👥 Rejoignez plus de ${<%= stats.professionnelsFormes %>} professionnels déjà formés`);
             }, 1000);
         });
 

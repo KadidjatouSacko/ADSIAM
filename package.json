@@ -1,34 +1,43 @@
 {
-  "name": "adsiam",
+  "name": "adsiam-platform",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Plateforme de formation pour aide à domicile et EHPAD",
+  "main": "app.js",
   "type": "module",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js",
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "seed": "node scripts/seedDatabase.js",
+    "db:sync": "node -e \"import('./models/index.js').then(({sequelize}) => sequelize.sync({force: false}))\"",
+    "db:reset": "node -e \"import('./models/index.js').then(({sequelize}) => sequelize.sync({force: true}))\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/KadidjatouSacko/ADSIAM.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/KadidjatouSacko/ADSIAM/issues"
-  },
-  "homepage": "https://github.com/KadidjatouSacko/ADSIAM#readme",
+  "keywords": [
+    "formation",
+    "aide-domicile",
+    "ehpad",
+    "nodejs",
+    "express",
+    "sequelize"
+  ],
+  "author": "ADSIAM",
+  "license": "MIT",
   "dependencies": {
-    "dotenv": "^17.2.1",
-    "ejs": "^3.1.10",
-    "express": "^5.1.0",
-    "pg": "^8.16.3",
+    "express": "^4.18.2",
+    "ejs": "^3.1.9",
+    "sequelize": "^6.35.2",
+    "pg": "^8.11.3",
     "pg-hstore": "^2.3.4",
-    "sequelize": "^6.37.7"
+    "dotenv": "^16.3.1",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "compression": "^1.7.4"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
   }
 }

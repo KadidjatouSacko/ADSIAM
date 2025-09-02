@@ -1,40 +1,15 @@
+<!-- views/visiteurs/formations.ejs -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Catalogue Formations | ADSIAM - Aide à Domicile & EHPAD</title>
-  <link rel="stylesheet" href="/css/formations.css">
+    <link rel="stylesheet" href="/css/formations.css">
 </head>
 <body>
-    <!-- Top Bar -->
-    <div class="top-bar">
-        <div class="top-bar-content">
-            <div class="contact-info">
-                <a href="tel:0650848175">📞 06 50 84 81 75</a>
-                <a href="mailto:contact@formapro-plus.org">✉️ contact@formapro-plus.org</a>
-            </div>
-            <div class="social-links">
-                <a href="#">📘</a>
-                <a href="#">📷</a>
-                <a href="#">💼</a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Header -->
-    <%- include('../partials/header') %>
-
-    <!-- Breadcrumb -->
-    <div class="breadcrumb">
-        <div class="breadcrumb-container">
-            <nav class="breadcrumb-nav">
-                <a href="/">🏠 Accueil</a>
-                <span class="breadcrumb-separator">›</span>
-                <span class="breadcrumb-current">Catalogue des formations</span>
-            </nav>
-        </div>
-    </div>
+    <%- include('../partials/header', { currentPage: 'formations' }) %>
+    <%- include('../partials/breadcrumb', { breadcrumb: [{ name: 'Catalogue des formations', url: '/formations' }] }) %>
 
     <main>
         <!-- Hero Section -->
@@ -42,7 +17,7 @@
             <div class="hero-container">
                 <div class="hero-badge">📚 Catalogue Complet</div>
                 <h1>Toutes nos <span class="hero-highlight">Formations</span></h1>
-                <p>Découvrez notre catalogue complet de formations professionnelles pour l'aide à domicile et les EHPAD. 36 modules répartis en 10 blocs thématiques pour développer toutes vos compétences.</p>
+                <p>Découvrez notre catalogue complet de formations professionnelles pour l'aide à domicile et les EHPAD. Des formations interactives et adaptées aux réalités du terrain.</p>
             </div>
         </section>
 
@@ -53,488 +28,164 @@
                 <p class="search-subtitle">Utilisez les filtres ci-dessous pour affiner votre recherche</p>
             </div>
 
-            <div class="search-bar">
-                <input type="text" class="search-input" placeholder="Rechercher une formation (ex: communication, hygiène, premiers secours...)">
-                <span class="search-icon">🔍</span>
-            </div>
-
-            <div class="filters-container">
-                <div class="filter-group">
-                    <label class="filter-label">Niveau</label>
-                    <select class="filter-select" id="levelFilter">
-                        <option value="">Tous les niveaux</option>
-                        <option value="debutant">Débutant</option>
-                        <option value="intermediaire">Intermédiaire</option>
-                        <option value="avance">Avancé</option>
-                        <option value="expert">Expert</option>
-                    </select>
+            <form method="GET" action="/formations">
+                <div class="search-bar">
+                    <input type="text" name="recherche" class="search-input" 
+                           placeholder="Rechercher une formation..." 
+                           value="<%= filtres.recherche || '' %>">
+                    <button type="submit" class="search-icon">🔍</button>
                 </div>
 
-                <div class="filter-group">
-                    <label class="filter-label">Durée</label>
-                    <select class="filter-select" id="durationFilter">
-                        <option value="">Toutes les durées</option>
-                        <option value="courte">1-3 modules</option>
-                        <option value="moyenne">4-6 modules</option>
-                        <option value="longue">7+ modules</option>
-                    </select>
+                <div class="filters-container">
+                    <div class="filter-group">
+                        <label class="filter-label">Niveau</label>
+                        <select name="niveau" class="filter-select">
+                            <option value="">Tous les niveaux</option>
+                            <option value="debutant" <%= filtres.niveau === 'debutant' ? 'selected' : '' %>>Débutant</option>
+                            <option value="intermediaire" <%= filtres.niveau === 'intermediaire' ? 'selected' : '' %>>Intermédiaire</option>
+                            <option value="avance" <%= filtres.niveau === 'avance' ? 'selected' : '' %>>Avancé</option>
+                            <option value="expert" <%= filtres.niveau === 'expert' ? 'selected' : '' %>>Expert</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">Durée</label>
+                        <select name="duree" class="filter-select">
+                            <option value="">Toutes les durées</option>
+                            <option value="courte" <%= filtres.duree === 'courte' ? 'selected' : '' %>>1-3 modules</option>
+                            <option value="moyenne" <%= filtres.duree === 'moyenne' ? 'selected' : '' %>>4-6 modules</option>
+                            <option value="longue" <%= filtres.duree === 'longue' ? 'selected' : '' %>>7+ modules</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">Prix</label>
+                        <select name="prix" class="filter-select">
+                            <option value="">Tous les prix</option>
+                            <option value="gratuit" <%= filtres.prix === 'gratuit' ? 'selected' : '' %>>Gratuit</option>
+                            <option value="payant" <%= filtres.prix === 'payant' ? 'selected' : '' %>>Payant</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">Domaine</label>
+                        <select name="domaine" class="filter-select">
+                            <option value="">Tous les domaines</option>
+                            <option value="communication" <%= filtres.domaine === 'communication' ? 'selected' : '' %>>Communication</option>
+                            <option value="hygiene" <%= filtres.domaine === 'hygiene' ? 'selected' : '' %>>Hygiène & Sécurité</option>
+                            <option value="ergonomie" <%= filtres.domaine === 'ergonomie' ? 'selected' : '' %>>Ergonomie</option>
+                            <option value="urgences" <%= filtres.domaine === 'urgences' ? 'selected' : '' %>>Urgences</option>
+                            <option value="nutrition" <%= filtres.domaine === 'nutrition' ? 'selected' : '' %>>Nutrition</option>
+                            <option value="pathologies" <%= filtres.domaine === 'pathologies' ? 'selected' : '' %>>Pathologies</option>
+                        </select>
+                    </div>
                 </div>
 
-                <div class="filter-group">
-                    <label class="filter-label">Prix</label>
-                    <select class="filter-select" id="priceFilter">
-                        <option value="">Tous les prix</option>
-                        <option value="gratuit">Gratuit</option>
-                        <option value="payant">Payant</option>
-                        <option value="moins50">Moins de 50€</option>
-                        <option value="50-100">50€ - 100€</option>
-                    </select>
+                <div class="filter-actions">
+                    <button type="submit" class="btn btn-primary">Appliquer les filtres</button>
+                    <a href="/formations" class="btn btn-secondary">Réinitialiser</a>
                 </div>
-
-                <div class="filter-group">
-                    <label class="filter-label">Domaine</label>
-                    <select class="filter-select" id="domainFilter">
-                        <option value="">Tous les domaines</option>
-                        <option value="communication">Communication</option>
-                        <option value="hygiene">Hygiène & Sécurité</option>
-                        <option value="ergonomie">Ergonomie</option>
-                        <option value="urgences">Urgences</option>
-                        <option value="nutrition">Nutrition</option>
-                        <option value="pathologies">Pathologies</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="filter-tags">
-                <button class="filter-tag active">📋 Toutes</button>
-                <button class="filter-tag">🆓 Gratuites</button>
-                <button class="filter-tag">⭐ Populaires</button>
-                <button class="filter-tag">🆕 Nouveautés</button>
-                <button class="filter-tag">🏆 Certifiantes</button>
-            </div>
-
-            <div class="filter-actions">
-                <button class="btn btn-primary">Appliquer les filtres</button>
-                <button class="btn btn-secondary">Réinitialiser</button>
-            </div>
+            </form>
         </section>
 
         <!-- Results Section -->
         <section class="results-section">
             <div class="results-header">
                 <div class="results-info">
-                    <span class="results-count">36 formations trouvées</span>
+                    <span class="results-count"><%= pagination.totalFormations %> formation<%= pagination.totalFormations > 1 ? 's' : '' %> trouvée<%= pagination.totalFormations > 1 ? 's' : '' %></span>
                     <span class="results-badge">Toutes disponibles</span>
                 </div>
                 <div class="view-controls">
-                    <select class="sort-select">
-                        <option>Trier par popularité</option>
-                        <option>Prix croissant</option>
-                        <option>Prix décroissant</option>
-                        <option>Niveau</option>
-                        <option>Durée</option>
-                    </select>
-                    <div class="view-toggle">
-                        <button class="view-btn active">⊞</button>
-                        <button class="view-btn">☰</button>
-                    </div>
+                    <form method="GET" action="/formations" style="display: inline;">
+                        <% Object.keys(filtres).forEach(key => { %>
+                            <% if (filtres[key] && key !== 'tri') { %>
+                            <input type="hidden" name="<%= key %>" value="<%= filtres[key] %>">
+                            <% } %>
+                        <% }); %>
+                        <select name="tri" class="sort-select" onchange="this.form.submit()">
+                            <option value="populaire" <%= filtres.tri === 'populaire' ? 'selected' : '' %>>Trier par popularité</option>
+                            <option value="prix_croissant" <%= filtres.tri === 'prix_croissant' ? 'selected' : '' %>>Prix croissant</option>
+                            <option value="prix_decroissant" <%= filtres.tri === 'prix_decroissant' ? 'selected' : '' %>>Prix décroissant</option>
+                            <option value="niveau" <%= filtres.tri === 'niveau' ? 'selected' : '' %>>Niveau</option>
+                            <option value="duree" <%= filtres.tri === 'duree' ? 'selected' : '' %>>Durée</option>
+                        </select>
+                    </form>
                 </div>
             </div>
 
             <!-- Formations Grid -->
-            <div class="formations-grid" id="formationsGrid">
-                <div class="formation-card fade-in" data-level="debutant" data-duration="courte" data-price="gratuit" data-domain="communication">
+            <div class="formations-grid">
+                <% formations.forEach(formation => { %>
+                <div class="formation-card fade-in" onclick="window.location.href='/formations/<%= formation.id %>'">
                     <div class="formation-header">
-                        <div class="formation-icon">🗣️</div>
-                        <div class="formation-badge">Essentiel</div>
+                        <div class="formation-icon"><%= formation.icone %></div>
+                        <% if (formation.badge) { %>
+                        <div class="formation-badge"><%= formation.badge %></div>
+                        <% } %>
                     </div>
                     <div class="formation-content">
                         <div class="formation-meta">
-                            <span class="meta-tag modules-tag">5 modules</span>
-                            <span class="meta-tag level-tag">Débutant</span>
-                            <span class="meta-tag duration-tag">3h</span>
+                            <span class="meta-tag modules-tag"><%= formation.nombre_modules %> modules</span>
+                            <span class="meta-tag level-tag"><%= formation.niveau.charAt(0).toUpperCase() + formation.niveau.slice(1) %></span>
+                            <span class="meta-tag duration-tag"><%= formation.duree_heures %>h</span>
+                            <% if (formation.nombreAvis > 0) { %>
+                            <span class="meta-tag rating-tag">⭐ <%= formation.noteMoyenne %>/5</span>
+                            <% } %>
                         </div>
-                        <h3 class="formation-title">Communication & Relationnel</h3>
-                        <p class="formation-description">Maîtrisez l'art de la communication bienveillante, la gestion des émotions et des situations difficiles avec les résidents et les familles.</p>
+                        <h3 class="formation-title"><%= formation.titre %></h3>
+                        <p class="formation-description"><%= formation.description %></p>
                         <div class="formation-features">
+                            <% formation.caracteristiques.slice(0, 4).forEach(carac => { %>
                             <div class="feature-item">
-                                <span class="feature-icon">✓</span>
-                                <span>Écoute active</span>
+                                <span class="feature-icon"><%= carac.icone %></span>
+                                <span><%= carac.titre %></span>
                             </div>
-                            <div class="feature-item">
-                                <span class="feature-icon">✓</span>
-                                <span>Gestion conflits</span>
-                            </div>
-                            <div class="feature-item">
-                                <span class="feature-icon">✓</span>
-                                <span>Respect dignité</span>
-                            </div>
-                            <div class="feature-item">
-                                <span class="feature-icon">✓</span>
-                                <span>Vidéos pratiques</span>
-                            </div>
+                            <% }); %>
                         </div>
                         <div class="formation-footer">
                             <div class="formation-price">
+                                <% if (formation.gratuit) { %>
                                 <span class="price-current">Gratuit</span>
+                                <% } else { %>
+                                <span class="price-current"><%= Math.floor(formation.prix) %>€</span>
+                                <% if (formation.prix_original) { %>
+                                <span class="price-original"><%= Math.floor(formation.prix_original) %>€</span>
+                                <% } %>
+                                <% } %>
                             </div>
-                            <button class="formation-btn">Commencer</button>
+                            <button class="formation-btn" onclick="event.stopPropagation(); window.location.href='/formations/<%= formation.id %>'">
+                                Commencer
+                            </button>
                         </div>
                     </div>
                 </div>
-
-                <div class="formation-card fade-in" data-level="intermediaire" data-duration="moyenne" data-price="payant" data-domain="hygiene">
-                    <div class="formation-header">
-                        <div class="formation-icon">🛡️</div>
-                        <div class="formation-badge">Avancé</div>
-                    </div>
-                    <div class="formation-content">
-                        <div class="formation-meta">
-                            <span class="meta-tag modules-tag">4 modules</span>
-                            <span class="meta-tag level-tag">Intermédiaire</span>
-                            <span class="meta-tag duration-tag">4h</span>
-                        </div>
-                        <h3 class="formation-title">Hygiène, Sécurité & Prévention</h3>
-                        <p class="formation-description">Protocoles d'hygiène professionnelle, sécurité avec les produits ménagers, prévention des risques domestiques et des infections.</p>
-                        <div class="formation-features">
-                            <div class="feature-item">
-                                <span class="feature-icon">✓</span>
-                                <span>Protocoles hygiène</span>
-                            </div>
-                            <div class="feature-item">
-                                <span class="feature-icon">✓</span>
-                                <span>Sécurité produits</span>
-                            </div>
-                            <div class="feature-item">
-                                <span class="feature-icon">✓</span>
-                                <span>Prévention chutes</span>
-                            </div>
-                            <div class="feature-item">
-                                <span class="feature-icon">✓</span>
-                                <span>Anti-infections</span>
-                            </div>
-                        </div>
-                        <div class="formation-footer">
-                            <div class="formation-price">
-                                <span class="price-current">49€</span>
-                                <span class="price-original">79€</span>
-                            </div>
-                            <button class="formation-btn">Commencer</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="formation-card fade-in" data-level="avance" data-duration="moyenne" data-price="payant" data-domain="ergonomie">
-                    <div class="formation-header">
-                        <div class="formation-icon">🏥</div>
-                        <div class="formation-badge">Expert</div>
-                    </div>
-                    <div class="formation-content">
-                        <div class="formation-meta">
-                            <span class="meta-tag modules-tag">3 modules</span>
-                            <span class="meta-tag level-tag">Avancé</span>
-                            <span class="meta-tag duration-tag">5h</span>
-                        </div>
-                        <h3 class="formation-title">Ergonomie & Gestes Professionnels</h3>
-                        <p class="formation-description">Techniques de manutention, prévention des TMS, utilisation du matériel médical et accompagnement sécurisé des transferts.</p>
-                        <div class="formation-features">
-                            <div class="feature-item">
-                                <span class="feature-icon">✓</span>
-                                <span>Bonnes postures</span>
-                            </div>
-                            <div class="feature-item">
-                                <span class="feature-icon">✓</span>
-                                <span>Transferts sécurisés</span>
-                            </div>
-                            <div class="feature-item">
-                                <span class="feature-icon">✓</span>
-                                <span>Matériel médical</span>
-                            </div>
-                            <div class="feature-item">
-                                <span class="feature-icon">✓</span>
-                                <span>Prévention TMS</span>
-                            </div>
-                        </div>
-                        <div class="formation-footer">
-                            <div class="formation-price">
-                                <span class="price-current">79€</span>
-                            </div>
-                            <button class="formation-btn">Commencer</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="formation-card fade-in" data-level="expert" data-duration="longue" data-price="payant" data-domain="urgences">
-                    <div class="formation-header">
-                        <div class="formation-icon">🚨</div>
-                        <div class="formation-badge">Critique</div>
-                    </div>
-                    <div class="formation-content">
-                        <div class="formation-meta">
-                            <span class="meta-tag modules-tag">5 modules</span>
-                            <span class="meta-tag level-tag">Essentiel</span>
-                            <span class="meta-tag duration-tag">6h</span>
-                        </div>
-                        <h3 class="formation-title">Gestion des Urgences & Premiers Secours</h3>
-                        <p class="formation-description">Formation complète aux gestes qui sauvent : RCP, défibrillateur, position latérale de sécurité, gestion des blessures.</p>
-                        <div class="formation-features">
-                            <div class="feature-item">
-                                <span class="feature-icon">✓</span>
-                                <span>RCP & Défibrillateur</span>
-                            </div>
-                            <div class="feature-item">
-                                <span class="feature-icon">✓</span>
-                                <span>Position PLS</span>
-                            </div>
-                            <div class="feature-item">
-                                <span class="feature-icon">✓</span>
-                                <span>Gestion blessures</span>
-                            </div>
-                            <div class="feature-item">
-                                <span class="feature-icon">✓</span>
-                                <span>Situations critiques</span>
-                            </div>
-                        </div>
-                        <div class="formation-footer">
-                            <div class="formation-price">
-                                <span class="price-current">99€</span>
-                            </div>
-                            <button class="formation-btn">Commencer</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="formation-card fade-in" data-level="intermediaire" data-duration="moyenne" data-price="payant" data-domain="nutrition">
-                    <div class="formation-header">
-                        <div class="formation-icon">🍽️</div>
-                        <div class="formation-badge">Pratique</div>
-                    </div>
-                    <div class="formation-content">
-                        <div class="formation-meta">
-                            <span class="meta-tag modules-tag">4 modules</span>
-                            <span class="meta-tag level-tag">Intermédiaire</span>
-                            <span class="meta-tag duration-tag">4h</span>
-                        </div>
-                        <h3 class="formation-title">Préparation des Repas & Alimentation</h3>
-                        <p class="formation-description">Hygiène alimentaire, repas équilibrés adaptés, gestion des textures pour éviter les fausses routes.</p>
-                        <div class="formation-features">
-                            <div class="feature-item">
-                                <span class="feature-icon">✓</span>
-                                <span>Hygiène alimentaire</span>
-                            </div>
-                            <div class="feature-item">
-                                <span class="feature-icon">✓</span>
-                                <span>Repas équilibrés</span>
-                            </div>
-                            <div class="feature-item">
-                                <span class="feature-icon">✓</span>
-                                <span>Textures adaptées</span>
-                            </div>
-                            <div class="feature-item">
-                                <span class="feature-icon">✓</span>
-                                <span>Hydratation</span>
-                            </div>
-                        </div>
-                        <div class="formation-footer">
-                            <div class="formation-price">
-                                <span class="price-current">59€</span>
-                            </div>
-                            <button class="formation-btn">Commencer</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="formation-card fade-in" data-level="expert" data-duration="moyenne" data-price="payant" data-domain="pathologies">
-                    <div class="formation-header">
-                        <div class="formation-icon">🧠</div>
-                        <div class="formation-badge">Spécialisé</div>
-                    </div>
-                    <div class="formation-content">
-                        <div class="formation-meta">
-                            <span class="meta-tag modules-tag">4 modules</span>
-                            <span class="meta-tag level-tag">Expert</span>
-                            <span class="meta-tag duration-tag">5h</span>
-                        </div>
-                        <h3 class="formation-title">Pathologies & Situations Spécifiques</h3>
-                        <p class="formation-description">Accompagnement des troubles cognitifs, Alzheimer, maladies chroniques, perte de mobilité et fin de vie.</p>
-                        <div class="formation-features">
-                            <div class="feature-item">
-                                <span class="feature-icon">✓</span>
-                                <span>Troubles cognitifs</span>
-                            </div>
-                            <div class="feature-item">
-                                <span class="feature-icon">✓</span>
-                                <span>Maladies chroniques</span>
-                            </div>
-                            <div class="feature-item">
-                                <span class="feature-icon">✓</span>
-                                <span>Perte mobilité</span>
-                            </div>
-                            <div class="feature-item">
-                                <span class="feature-icon">✓</span>
-                                <span>Fin de vie</span>
-                            </div>
-                        </div>
-                        <div class="formation-footer">
-                            <div class="formation-price">
-                                <span class="price-current">89€</span>
-                            </div>
-                            <button class="formation-btn">Commencer</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="formation-card fade-in" data-level="intermediaire" data-duration="courte" data-price="payant" data-domain="communication">
-                    <div class="formation-header">
-                        <div class="formation-icon">⚖️</div>
-                        <div class="formation-badge">Professionnel</div>
-                    </div>
-                    <div class="formation-content">
-                        <div class="formation-meta">
-                            <span class="meta-tag modules-tag">3 modules</span>
-                            <span class="meta-tag level-tag">Intermédiaire</span>
-                            <span class="meta-tag duration-tag">3h</span>
-                        </div>
-                        <h3 class="formation-title">Bonnes Pratiques & Déontologie</h3>
-                        <p class="formation-description">Limites professionnelles, confidentialité, bonnes pratiques quotidiennes et gestion des situations délicates.</p>
-                        <div class="formation-features">
-                            <div class="feature-item">
-                                <span class="feature-icon">✓</span>
-                                <span>Limites pro</span>
-                            </div>
-                            <div class="feature-item">
-                                <span class="feature-icon">✓</span>
-                                <span>Confidentialité</span>
-                            </div>
-                            <div class="feature-item">
-                                <span class="feature-icon">✓</span>
-                                <span>Bonnes pratiques</span>
-                            </div>
-                            <div class="feature-item">
-                                <span class="feature-icon">✓</span>
-                                <span>Situations délicates</span>
-                            </div>
-                        </div>
-                        <div class="formation-footer">
-                            <div class="formation-price">
-                                <span class="price-current">45€</span>
-                            </div>
-                            <button class="formation-btn">Commencer</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="formation-card fade-in" data-level="avance" data-duration="courte" data-price="payant" data-domain="communication">
-                    <div class="formation-header">
-                        <div class="formation-icon">💪</div>
-                        <div class="formation-badge">Bien-être</div>
-                    </div>
-                    <div class="formation-content">
-                        <div class="formation-meta">
-                            <span class="meta-tag modules-tag">3 modules</span>
-                            <span class="meta-tag level-tag">Avancé</span>
-                            <span class="meta-tag duration-tag">3h</span>
-                        </div>
-                        <h3 class="formation-title">Professionnalisation & Bien-être</h3>
-                        <p class="formation-description">Gestion du stress, prévention de l'épuisement, organisation du temps et formation continue.</p>
-                        <div class="formation-features">
-                            <div class="feature-item">
-                                <span class="feature-icon">✓</span>
-                                <span>Gestion stress</span>
-                            </div>
-                            <div class="feature-item">
-                                <span class="feature-icon">✓</span>
-                                <span>Anti-épuisement</span>
-                            </div>
-                            <div class="feature-item">
-                                <span class="feature-icon">✓</span>
-                                <span>Organisation temps</span>
-                            </div>
-                            <div class="feature-item">
-                                <span class="feature-icon">✓</span>
-                                <span>Formation continue</span>
-                            </div>
-                        </div>
-                        <div class="formation-footer">
-                            <div class="formation-price">
-                                <span class="price-current">39€</span>
-                            </div>
-                            <button class="formation-btn">Commencer</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="formation-card fade-in" data-level="debutant" data-duration="courte" data-price="payant" data-domain="communication">
-                    <div class="formation-header">
-                        <div class="formation-icon">📱</div>
-                        <div class="formation-badge">Digital</div>
-                    </div>
-                    <div class="formation-content">
-                        <div class="formation-meta">
-                            <span class="meta-tag modules-tag">3 modules</span>
-                            <span class="meta-tag level-tag">Débutant</span>
-                            <span class="meta-tag duration-tag">2h</span>
-                        </div>
-                        <h3 class="formation-title">Outils Numériques & Communication</h3>
-                        <p class="formation-description">Cahiers de liaison numériques, applications professionnelles, outils vidéo et maintien du lien avec les familles.</p>
-                        <div class="formation-features">
-                            <div class="feature-item">
-                                <span class="feature-icon">✓</span>
-                                <span>Cahiers numériques</span>
-                            </div>
-                            <div class="feature-item">
-                                <span class="feature-icon">✓</span>
-                                <span>Apps professionnelles</span>
-                            </div>
-                            <div class="feature-item">
-                                <span class="feature-icon">✓</span>
-                                <span>Outils vidéo</span>
-                            </div>
-                            <div class="feature-item">
-                                <span class="feature-icon">✓</span>
-                                <span>Lien famille</span>
-                            </div>
-                        </div>
-                        <div class="formation-footer">
-                            <div class="formation-price">
-                                <span class="price-current">35€</span>
-                            </div>
-                            <button class="formation-btn">Commencer</button>
-                        </div>
-                    </div>
-                </div>
+                <% }); %>
             </div>
 
             <!-- Pagination -->
+            <% if (pagination.totalPages > 1) { %>
             <div class="pagination">
-                <button disabled>‹ Précédent</button>
-                <button class="active">1</button>
-                <button>2</button>
-                <button>3</button>
-                <button>4</button>
-                <button>Suivant ›</button>
+                <% if (pagination.page > 1) { %>
+                <a href="/formations?page=<%= pagination.page - 1 %><%= Object.keys(filtres).map(key => filtres[key] && key !== 'page' ? `&${key}=${filtres[key]}` : '').join('') %>" class="pagination-btn">‹ Précédent</a>
+                <% } %>
+                
+                <% for (let i = Math.max(1, pagination.page - 2); i <= Math.min(pagination.totalPages, pagination.page + 2); i++) { %>
+                <a href="/formations?page=<%= i %><%= Object.keys(filtres).map(key => filtres[key] && key !== 'page' ? `&${key}=${filtres[key]}` : '').join('') %>" 
+                   class="pagination-btn <%= i === pagination.page ? 'active' : '' %>"><%= i %></a>
+                <% } %>
+                
+                <% if (pagination.page < pagination.totalPages) { %>
+                <a href="/formations?page=<%= pagination.page + 1 %><%= Object.keys(filtres).map(key => filtres[key] && key !== 'page' ? `&${key}=${filtres[key]}` : '').join('') %>" class="pagination-btn">Suivant ›</a>
+                <% } %>
             </div>
+            <% } %>
         </section>
     </main>
 
-    <!-- Footer -->
     <%- include('../partials/footer') %>
-
-    <!-- Chat Widget -->
-    <div class="chat-widget">
-        <div class="chat-button" title="Besoin d'aide pour choisir ?">💬</div>
-    </div>
+    <%- include('../partials/chat-widget') %>
 
     <script>
-        // Gestion des filtres
-        const filterButtons = document.querySelectorAll('.filter-tag');
-        const formationCards = document.querySelectorAll('.formation-card');
-        const searchInput = document.querySelector('.search-input');
-        const levelFilter = document.getElementById('levelFilter');
-        const durationFilter = document.getElementById('durationFilter');
-        const priceFilter = document.getElementById('priceFilter');
-        const domainFilter = document.getElementById('domainFilter');
-
         // Animation au scroll
         const observerOptions = {
             threshold: 0.1,
@@ -553,215 +204,8 @@
             observer.observe(el);
         });
 
-        // Gestion des tags de filtre
-        filterButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                filterButtons.forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-                
-                const filterType = button.textContent.toLowerCase();
-                filterFormations(filterType);
-            });
-        });
-
-        // Fonction de filtrage
-        function filterFormations(filterType) {
-            formationCards.forEach(card => {
-                let show = true;
-
-                if (filterType.includes('gratuites')) {
-                    show = card.dataset.price === 'gratuit';
-                } else if (filterType.includes('populaires')) {
-                    // Logique pour les populaires (exemple)
-                    show = ['communication', 'hygiene', 'urgences'].includes(card.dataset.domain);
-                } else if (filterType.includes('nouveautés')) {
-                    // Logique pour les nouveautés
-                    show = ['pathologies', 'ergonomie'].includes(card.dataset.domain);
-                } else if (filterType.includes('certifiantes')) {
-                    // Logique pour les certifiantes
-                    show = ['urgences', 'pathologies', 'hygiene'].includes(card.dataset.domain);
-                }
-
-                if (show) {
-                    card.style.display = 'block';
-                    card.style.animation = 'fadeInUp 0.5s ease forwards';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-
-            updateResultsCount();
-        }
-
-        // Recherche textuelle
-        searchInput.addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase();
-            
-            formationCards.forEach(card => {
-                const title = card.querySelector('.formation-title').textContent.toLowerCase();
-                const description = card.querySelector('.formation-description').textContent.toLowerCase();
-                
-                if (title.includes(searchTerm) || description.includes(searchTerm) || searchTerm === '') {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-
-            updateResultsCount();
-        });
-
-        // Filtres select
-        [levelFilter, durationFilter, priceFilter, domainFilter].forEach(select => {
-            select.addEventListener('change', applyFilters);
-        });
-
-        function applyFilters() {
-            const levelValue = levelFilter.value;
-            const durationValue = durationFilter.value;
-            const priceValue = priceFilter.value;
-            const domainValue = domainFilter.value;
-
-            formationCards.forEach(card => {
-                let show = true;
-
-                if (levelValue && card.dataset.level !== levelValue) show = false;
-                if (durationValue && card.dataset.duration !== durationValue) show = false;
-                if (priceValue && card.dataset.price !== priceValue) show = false;
-                if (domainValue && card.dataset.domain !== domainValue) show = false;
-
-                card.style.display = show ? 'block' : 'none';
-            });
-
-            updateResultsCount();
-        }
-
-        // Mettre à jour le compteur de résultats
-        function updateResultsCount() {
-            const visibleCards = Array.from(formationCards).filter(card => 
-                card.style.display !== 'none'
-            );
-            document.querySelector('.results-count').textContent = 
-                `${visibleCards.length} formation${visibleCards.length > 1 ? 's' : ''} trouvée${visibleCards.length > 1 ? 's' : ''}`;
-        }
-
-        // Boutons d'action des filtres
-        document.querySelector('.btn-primary').addEventListener('click', applyFilters);
-        
-        document.querySelector('.btn-secondary').addEventListener('click', () => {
-            // Réinitialiser tous les filtres
-            levelFilter.value = '';
-            durationFilter.value = '';
-            priceFilter.value = '';
-            domainFilter.value = '';
-            searchInput.value = '';
-            
-            filterButtons.forEach(btn => btn.classList.remove('active'));
-            filterButtons[0].classList.add('active');
-            
-            formationCards.forEach(card => {
-                card.style.display = 'block';
-            });
-            
-            updateResultsCount();
-        });
-
-        // Gestion des cartes de formation
-        formationCards.forEach(card => {
-            card.addEventListener('click', (e) => {
-                if (!e.target.classList.contains('formation-btn')) {
-                    const title = card.querySelector('.formation-title').textContent;
-                    window.location.href = `formation-detail.html?course=${encodeURIComponent(title)}`;
-                }
-            });
-        });
-
-        // Boutons d'inscription
-        document.querySelectorAll('.formation-btn').forEach(button => {
-            button.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const card = e.target.closest('.formation-card');
-                const title = card.querySelector('.formation-title').textContent;
-                const price = card.querySelector('.price-current').textContent;
-                
-                if (price === 'Gratuit') {
-                    alert(`🎉 Accès immédiat à la formation :\n"${title}"\n\n✅ Formation gratuite\n🚀 Commencez maintenant !`);
-                } else {
-                    alert(`💳 Formation : ${title}\n💰 Prix : ${price}\n\n🛒 Redirection vers le panier...`);
-                }
-            });
-        });
-
-        // Gestion de la vue (grille/liste)
-        document.querySelectorAll('.view-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                
-                // Ici vous pourriez implémenter la vue liste vs grille
-                if (btn.textContent === '☰') {
-                    alert('Vue liste - À implémenter');
-                }
-            });
-        });
-
-        // Chat widget
-        document.querySelector('.chat-button').addEventListener('click', () => {
-            alert('💬 Aide personnalisée\n\n🎯 Besoin d\'aide pour choisir votre formation ?\n\n👨‍🎓 Nos conseillers pédagogiques vous accompagnent :\n\n✅ Analyse de vos besoins\n✅ Recommandations personnalisées\n✅ Information sur les financements\n✅ Support technique\n\nContactez-nous maintenant !');
-        });
-
-        // Pagination
-        document.querySelectorAll('.pagination button').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                if (!btn.disabled) {
-                    document.querySelectorAll('.pagination button').forEach(b => b.classList.remove('active'));
-                    if (!isNaN(btn.textContent)) {
-                        btn.classList.add('active');
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }
-                }
-            });
-        });
-
-        // Tri des formations
-        document.querySelector('.sort-select').addEventListener('change', (e) => {
-            const sortType = e.target.value;
-            const grid = document.getElementById('formationsGrid');
-            const cards = Array.from(grid.children);
-            
-            cards.sort((a, b) => {
-                if (sortType === 'Prix croissant') {
-                    const priceA = a.querySelector('.price-current').textContent;
-                    const priceB = b.querySelector('.price-current').textContent;
-                    return parsePrice(priceA) - parsePrice(priceB);
-                } else if (sortType === 'Prix décroissant') {
-                    const priceA = a.querySelector('.price-current').textContent;
-                    const priceB = b.querySelector('.price-current').textContent;
-                    return parsePrice(priceB) - parsePrice(priceA);
-                }
-                return 0;
-            });
-            
-            cards.forEach(card => grid.appendChild(card));
-        });
-
-        function parsePrice(priceText) {
-            if (priceText === 'Gratuit') return 0;
-            return parseInt(priceText.replace('€', '')) || 0;
-        }
-
-        // Smooth scroll pour les liens
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            });
-        });
-
-        console.log('📚 Catalogue ADSIAM chargé - 9 formations affichées sur 36 disponibles');
+        console.log('📚 Catalogue formations chargé');
+        console.log(`🔍 <%= pagination.totalFormations %> formations trouvées`);
     </script>
 </body>
 </html>

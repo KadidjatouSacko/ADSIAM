@@ -1,0 +1,34 @@
+<!-- views/partials/chat-widget.ejs -->
+<div class="chat-widget">
+    <div class="chat-button" title="Besoin d'aide ? Chattez avec nous !" onclick="openChat()">
+        💬
+        <div class="chat-notification" id="chatNotification">1</div>
+    </div>
+</div>
+
+<script>
+    function openChat() {
+        // Supprimer la notification
+        const notification = document.getElementById('chatNotification');
+        if (notification) {
+            notification.remove();
+        }
+        
+        // Message de chat
+        alert('💬 Chat en direct avec ADSIAM\n\n👋 Bonjour ! Comment pouvons-nous vous aider ?\n\n✅ Questions sur les formations\n✅ Support technique\n✅ Informations tarifaires\n✅ Conseils personnalisés\n\nNotre équipe répond en quelques minutes !');
+    }
+
+    // Menu mobile toggle
+    document.addEventListener('DOMContentLoaded', function() {
+        const mobileToggle = document.querySelector('.mobile-menu-toggle');
+        const navLinks = document.querySelector('.nav-links');
+        
+        if (mobileToggle && window.innerWidth <= 768) {
+            mobileToggle.style.display = 'flex';
+            mobileToggle.addEventListener('click', function() {
+                navLinks.classList.toggle('show');
+                this.classList.toggle('active');
+            });
+        }
+    });
+</script>

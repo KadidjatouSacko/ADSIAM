@@ -1,17 +1,41 @@
- <header>
-        <nav>
-            <a href="/" class="logo">
-                <div class="logo-icon">A+</div>
-                <div class="logo-text">
-                    <span class="forma">ADS</span><span class="pro">IAM</span>
-                </div>
-            </a>
-            <ul class="nav-links">
-                <li><a href="./formations">Formations</a></li>
-                <li><a href="#financements">Financements</a></li>
-                <li><a href="#evenements">Événements</a></li>
-                <li><a href="#blog">Blog</a></li>
-                <li><a href="./contact" class="nav-cta active">Contact</a></li>
-            </ul>
-        </nav>
-    </header>
+<!-- views/partials/header.ejs -->
+<!-- Top Bar -->
+ <div class="top-bar">
+        <div class="top-bar-content">
+            <div class="contact-info">
+                <a href="tel:0650848175">📞 06 50 84 81 75</a>
+                <a href="mailto:adsiam@gmail.com">✉️ adsiam@gmail.com</a>
+            </div>
+            <div class="social-links">
+                <a href="#" title="Facebook">📘</a>
+                <a href="#" title="Instagram">📷</a>
+                <a href="#" title="LinkedIn">💼</a>
+            </div>
+        </div>
+    </div>
+
+<!-- Header -->
+<header>
+    <nav>
+        <a href="/" class="logo">
+            <div class="logo-icon">A+</div>
+            <div class="logo-text">
+                <span class="forma">ADS</span><span class="pro">IAM</span>
+            </div>
+        </a>
+        <ul class="nav-links">
+            <li><a href="/formations" <%= (typeof currentPage !== 'undefined' && currentPage === 'formations') ? 'class="active"' : '' %>>Formations</a></li>
+            <li><a href="/financements">Financements</a></li>
+            <li><a href="/evenements">Événements</a></li>
+            <li><a href="/blog">Blog</a></li>
+            <li><a href="/contact" class="nav-cta <%= (typeof currentPage !== 'undefined' && currentPage === 'contact') ? 'active' : '' %>">Contact</a></li>
+        </ul>
+        
+        <!-- Menu mobile hamburger -->
+        <div class="mobile-menu-toggle" style="display: none;">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </nav>
+</header>

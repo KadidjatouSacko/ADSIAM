@@ -1,0 +1,18 @@
+<!-- views/partials/breadcrumb.ejs -->
+<% if (typeof breadcrumb !== 'undefined' && breadcrumb) { %>
+<div class="breadcrumb">
+    <div class="breadcrumb-container">
+        <nav class="breadcrumb-nav">
+            <a href="/">🏠 Accueil</a>
+            <% breadcrumb.forEach((item, index) => { %>
+            <span class="breadcrumb-separator">›</span>
+            <% if (index === breadcrumb.length - 1) { %>
+            <span class="breadcrumb-current"><%= item.name %></span>
+            <% } else { %>
+            <a href="<%= item.url %>"><%= item.name %></a>
+            <% } %>
+            <% }); %>
+        </nav>
+    </div>
+</div>
+<% } %>
