@@ -38,6 +38,8 @@
             color: var(--text-dark);
             background: var(--soft-gray);
         }
+        
+        
 
         /* Header */
         header {
@@ -158,6 +160,31 @@
             margin: 0 auto;
             padding: 3rem 2rem;
         }
+
+        .sidebar {
+    background: var(--white);
+    border-right: 1px solid var(--primary-blue);
+    width: 260px;
+    min-height: 100vh;
+    padding: 2rem 1rem;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    position: sticky;
+    top: 0;
+}
+
+.dashboard-layout {
+    display: flex;
+    min-height: 100vh;
+    align-items: flex-start;
+}
+.main-content {
+    flex: 1;
+    padding: 3rem 2rem;
+    min-width: 0;
+}
 
         /* Page Header */
         .page-header {
@@ -624,8 +651,6 @@
                 </div>
             </nav>
         </aside>
-
-
        
          <main class="main-content">
         <!-- Page Header -->
@@ -791,6 +816,11 @@
             </div>
         </section>
 
+        <section id="support-details" class="fade-in" style="margin-bottom:2rem; display:none;">
+    <div id="support-details-content" style="background:var(--white);border-radius:20px;padding:2rem;box-shadow:0 10px 30px rgba(0,0,0,0.08);"></div>
+</section>
+
+
         <!-- FAQ Section -->
         <section class="faq-section fade-in">
             <h2 class="section-title">
@@ -881,6 +911,7 @@
                 <button class="chat-send" onclick="sendMessage()">➤</button>
             </div>
         </div>
+    </div>
     </div>
 
     <script>
@@ -1193,6 +1224,6 @@
         `;
         document.head.appendChild(styles);
     </script>
-    </div>
+    
 </body>
 </html>
