@@ -1224,6 +1224,217 @@
         `;
         document.head.appendChild(styles);
     </script>
-    
+    <!-- ...existing code... -->
+<!-- Remplace les alert() et showToast par des affichages dans une vraie zone dédiée -->
+<!-- Ajoute ce bloc juste avant la FAQ section dans <main class="main-content"> -->
+<section id="support-details" class="fade-in" style="margin-bottom:2rem; display:none;">
+    <div id="support-details-content" style="background:var(--white);border-radius:20px;padding:2rem;box-shadow:0 10px 30px rgba(0,0,0,0.08);"></div>
+</section>
+<!-- ...existing code... -->
+
+<script>
+    // Affiche le contenu dans la zone support-details au lieu d'une popup
+    function showSupportDetails(html) {
+        document.getElementById('support-details-content').innerHTML = html;
+        document.getElementById('support-details').style.display = 'block';
+        window.scrollTo({ top: document.getElementById('support-details').offsetTop - 80, behavior: 'smooth' });
+    }
+
+    function openPriorityChat() {
+        showSupportDetails(`
+            <h2>💬 Chat support prioritaire</h2>
+            <p>Discutez en direct avec notre équipe support dédiée aux entreprises.<br>
+            Réponse garantie sous 15 minutes pendant les heures d'ouverture.</p>
+            <ul>
+                <li>Disponible 9h-18h</li>
+                <li>Support technique inclus</li>
+                <li>Assistance pédagogique</li>
+            </ul>
+            <div style="margin-top:1.5rem;">
+                <label for="chat-message">Votre message :</label><br>
+                <textarea id="chat-message" rows="3" style="width:100%;margin-bottom:1rem;"></textarea>
+                <button class="btn btn-primary" onclick="sendSupportChat()">Envoyer</button>
+            </div>
+        `);
+    }
+    function sendSupportChat() {
+        const msg = document.getElementById('chat-message').value;
+        if(msg.trim()) {
+            showSupportDetails(`<h2>💬 Chat envoyé</h2><p>Votre message a bien été transmis au support.<br>Réponse sous 15 minutes.</p><div style="margin-top:1rem;"><b>Message :</b><br>${msg}</div>`);
+        }
+    }
+
+    function scheduleCall() {
+        showSupportDetails(`
+            <h2>📞 Programmer un appel</h2>
+            <p>Votre contact dédié : <b>Amélie Durand</b><br>
+            Email : amelie.durand@formapro-plus.org<br>
+            Téléphone : 06 50 84 81 75</p>
+            <p>Créneaux disponibles cette semaine :</p>
+            <ul>
+                <li>Lundi 14h-16h</li>
+                <li>Mardi 10h-12h</li>
+                <li>Mercredi 14h-17h</li>
+                <li>Jeudi 9h-11h</li>
+                <li>Vendredi 14h-16h</li>
+            </ul>
+            <div style="margin-top:1.5rem;">
+                <label for="call-slot">Choisissez un créneau :</label>
+                <select id="call-slot" style="margin-bottom:1rem;">
+                    <option>Lundi 14h-16h</option>
+                    <option>Mardi 10h-12h</option>
+                    <option>Mercredi 14h-17h</option>
+                    <option>Jeudi 9h-11h</option>
+                    <option>Vendredi 14h-16h</option>
+                </select><br>
+                <button class="btn btn-primary" onclick="confirmCall()">Confirmer la réservation</button>
+            </div>
+        `);
+    }
+    function confirmCall() {
+        const slot = document.getElementById('call-slot').value;
+        showSupportDetails(`<h2>📞 Appel réservé</h2><p>Votre appel avec Amélie Durand est réservé pour : <b>${slot}</b><br>Vous recevrez un email de confirmation.</p>`);
+    }
+
+    function emergencyContact() {
+        showSupportDetails(`
+            <h2>🚨 Contact d'urgence</h2>
+            <p>Ligne directe : <b>06 50 84 81 75</b><br>
+            Email urgence : <b>urgent@formapro-plus.org</b></p>
+            <p>Disponibilité :<br>
+            Lundi-Vendredi : 8h-20h<br>
+            Weekend : 10h-18h<br>
+            Jours fériés : Sur appel</p>
+            <p>Types d'urgences prises en charge :</p>
+            <ul>
+                <li>Panne technique majeure</li>
+                <li>Problème d'accès critique</li>
+                <li>Questions de sécurité/conformité</li>
+                <li>Support pour audit/contrôle</li>
+            </ul>
+        `);
+    }
+
+    // Configuration functions
+    function editCompanyInfo() {
+        showSupportDetails(`
+            <h2>🏢 Modifier les informations entreprise</h2>
+            <form onsubmit="event.preventDefault();saveCompanyInfo();">
+                <label>Raison sociale :</label><br>
+                <input type="text" value="Services Habitat" style="width:100%;margin-bottom:1rem;"><br>
+                <label>Adresse :</label><br>
+                <input type="text" value="12 rue des Lilas, Paris" style="width:100%;margin-bottom:1rem;"><br>
+                <label>Logo :</label><br>
+                <input type="file" style="margin-bottom:1rem;"><br>
+                <button class="btn btn-primary" type="submit">💾 Enregistrer</button>
+            </form>
+        `);
+    }
+    function saveCompanyInfo() {
+        showSupportDetails(`<h2>✅ Informations enregistrées</h2><p>Les informations de votre entreprise ont été mises à jour.</p>`);
+    }
+
+    function manageUsers() {
+        showSupportDetails(`
+            <h2>👥 Gestion des utilisateurs</h2>
+            <p>Rôles disponibles : Administrateur, Gestionnaire, Formateur, Salarié</p>
+            <ul>
+                <li>1 Administrateur principal</li>
+                <li>2 Gestionnaires par service</li>
+                <li>24 Salariés actifs</li>
+            </ul>
+            <div style="margin-top:1.5rem;">
+                <button class="btn btn-primary" onclick="addUser()">➕ Ajouter un utilisateur</button>
+            </div>
+        `);
+    }
+    function addUser() {
+        showSupportDetails(`
+            <h2>➕ Ajouter un utilisateur</h2>
+            <form onsubmit="event.preventDefault();userAdded();">
+                <label>Nom :</label><br>
+                <input type="text" style="width:100%;margin-bottom:1rem;"><br>
+                <label>Email :</label><br>
+                <input type="email" style="width:100%;margin-bottom:1rem;"><br>
+                <label>Rôle :</label><br>
+                <select style="width:100%;margin-bottom:1rem;">
+                    <option>Administrateur</option>
+                    <option>Gestionnaire</option>
+                    <option>Formateur</option>
+                    <option>Salarié</option>
+                </select><br>
+                <button class="btn btn-primary" type="submit">Ajouter</button>
+            </form>
+        `);
+    }
+    function userAdded() {
+        showSupportDetails(`<h2>✅ Utilisateur ajouté</h2><p>Le nouvel utilisateur a été ajouté à votre organisation.</p>`);
+    }
+
+    function configureNotifications() {
+        showSupportDetails(`
+            <h2>🔔 Configuration des notifications</h2>
+            <form onsubmit="event.preventDefault();notificationsSaved();">
+                <label>Fréquence des rapports :</label><br>
+                <select style="width:100%;margin-bottom:1rem;">
+                    <option>Hebdomadaire</option>
+                    <option>Mensuelle</option>
+                </select><br>
+                <label>Recevoir alertes de fin de formation :</label>
+                <input type="checkbox" checked style="margin-left:1rem;"><br>
+                <button class="btn btn-primary" type="submit">Enregistrer</button>
+            </form>
+        `);
+    }
+    function notificationsSaved() {
+        showSupportDetails(`<h2>✅ Notifications enregistrées</h2><p>Les paramètres de notifications ont été mis à jour.</p>`);
+    }
+
+    function setupIntegrations() {
+        showSupportDetails(`
+            <h2>🔗 Intégrations</h2>
+            <p>Connectez FormaPro+ à vos outils RH, SIRH ou systèmes de gestion existants.</p>
+            <button class="btn btn-primary" onclick="integrationConfigured()">Configurer une intégration</button>
+        `);
+    }
+    function integrationConfigured() {
+        showSupportDetails(`<h2>✅ Intégration configurée</h2><p>Votre intégration a été enregistrée.</p>`);
+    }
+
+    function customizeInterface() {
+        showSupportDetails(`
+            <h2>🎨 Personnalisation de l'interface</h2>
+            <form onsubmit="event.preventDefault();customizationSaved();">
+                <label>Couleur principale :</label><br>
+                <input type="color" value="#a5c9d4" style="margin-bottom:1rem;"><br>
+                <label>Message de bienvenue :</label><br>
+                <input type="text" style="width:100%;margin-bottom:1rem;"><br>
+                <button class="btn btn-primary" type="submit">Enregistrer</button>
+            </form>
+        `);
+    }
+    function customizationSaved() {
+        showSupportDetails(`<h2>✅ Personnalisation enregistrée</h2><p>Les paramètres de personnalisation ont été mis à jour.</p>`);
+    }
+
+    function configureReports() {
+        showSupportDetails(`
+            <h2>📊 Rapports automatiques</h2>
+            <form onsubmit="event.preventDefault();reportsConfigured();">
+                <label>Fréquence d'envoi :</label><br>
+                <select style="width:100%;margin-bottom:1rem;">
+                    <option>Hebdomadaire</option>
+                    <option>Mensuelle</option>
+                </select><br>
+                <button class="btn btn-primary" type="submit">Enregistrer</button>
+            </form>
+        `);
+    }
+    function reportsConfigured() {
+        showSupportDetails(`<h2>✅ Rapports programmés</h2><p>La génération automatique des rapports est activée.</p>`);
+    }
+</script>
+
+
 </body>
 </html>
