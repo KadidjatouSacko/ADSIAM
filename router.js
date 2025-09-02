@@ -133,6 +133,14 @@ router.get('/entreprise/centre-aide', (req, res) => {
     res.render('entreprises/centre-aide');
 });
 
+router.get('/etudiant/progression', (req, res) => {
+    res.render('etudiants/progression-etudiant');
+});
+
+router.get('/etudiant/messagerie', (req, res) => {
+    res.render('etudiants/messagerie-etudiant');
+});
+
 // ----- SALARIÉS -----
 router.get('/salarie/dashboard', (req, res) => {
     res.render('salaries/dashboard-salarie', {

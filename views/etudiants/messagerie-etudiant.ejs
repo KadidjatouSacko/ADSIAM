@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messagerie | ADSIAM Étudiant</title>
+    <link rel="stylesheet" href="/css/messagerie-etudiant.css">
+</head>
+<body>
+    <!-- Header -->
+    <%- include('../partials/header-etudiant') %>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Page Header -->
+        <section class="page-header fade-in">
+            <h1 class="page-title">Messagerie 💬</h1>
+            <p class="page-subtitle">Communiquez avec vos formateurs et la communauté ADSIAM</p>
+            
+            <div class="messaging-stats">
+                <div class="stat-item">
+                    <span class="stat-number">3</span>
+                    <span class="stat-label">Messages non lus</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">2</span>
+                    <span class="stat-label">Formateurs actifs</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">15</span>
+                    <span class="stat-label">Conversations</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">24h</span>
+                    <span class="stat-label">Réponse moyenne</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Messaging Interface -->
+        <div class="messaging-container fade-in">
+            <!-- Sidebar with conversations -->
+            <aside class="conversations-sidebar">
+                <div class="sidebar-header">
+                    <h2>Conversations</h2>
+                    <button class="new-message-btn" onclick="startNewConversation()">✏️</button>
+                </div>
+                
+                <div class="search-conversations">
+                    <input type="text" class="search-input" placeholder="🔍 Rechercher conversations..." onkeyup="searchConversations(this.value)">
+                </div>
+                
+                <div class="conversation-filters">
+                    <button class="filter-btn active" onclick="filterConversations('all')">Toutes</button>
+                    <button class="filter-btn" onclick="filterConversations('unread')">Non lues (3)</button>
+                    <button class="filter-btn" onclick="filterConversations('formateurs')">Formateurs</button>
+                    <button class="filter-btn" onclick="filterConversations('support')">Support</button>
+                </div>
+                
+                <div class="conversations-list">
+                    <!-- Conversation 1 - Unread -->
+                    <div class="conversation-item unread active" data-conversation="rousseau" data-type="formateur">
+                        <div class="conversation-avatar">
+                            <img src="/images/avatar-rousseau.jpg" alt="Dr. Rousseau" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="avatar-fallback">DR</div>
+                        </div>
+                        <div class="conversation-content">
+                            <div class="conversation-header">
+                                <span class="conversation-name">Dr. Rousseau</span>
+                                <span class="conversation-time">14:30</span>
+                            </div>
+                            <div class="conversation-preview">Excellents résultats sur le dernier quiz ! Continuez...</div>
+                            <div class="conversation-meta">
+                                <span class="conversation-badge formateur">Formateur</span>
+                                <span class="unread-count">2</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Conversation 2 - Unread -->
+                    <div class="conversation-item unread" data-conversation="support" data-type="support">
+                        <div class="conversation-avatar">
+                            <div class="avatar-fallback support">🎧</div>
+                        </div>
+                        <div class="conversation-content">
+                            <div class="conversation-header">
+                                <span class="conversation-name">Support Technique</span>
+                                <span class="conversation-time">12:15</span>
+                            </div>
+                            <div class="conversation-preview">Votre problème de connexion a été résolu...</div>
+                            <div class="conversation-meta">
+                                <span class="conversation-badge support">Support</span>
+                                <span class="unread-count">1</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Conversation 3 - Read -->
+                    <div class="conversation-item" data-conversation="martin" data-type="formateur">
+                        <div class="conversation-avatar">
+                            <img src="/images/avatar-martin.jpg" alt="Dr. Martin" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="avatar-fallback">DM</div>
+                        </div>
+                        <div class="conversation-content">
+                            <div class="conversation-header">
+                                <span class="conversation-name">Dr. Martin</span>
+                                <span class="conversation-time">Hier</span>
+                            </div>
+                            <div class="conversation-preview">Merci pour votre participation au webinaire...</div>
+                            <div class="conversation-meta">
+                                <span class="conversation-badge formateur">Formateur</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Conversation 4 - Group -->
+                    <div class="conversation-item" data-conversation="groupe-hygiene" data-type="groupe">
+                        <div class="conversation-avatar">
+                            <div class="avatar-fallback groupe">👥</div>
+                        </div>
+                        <div class="conversation-content">
+                            <div class="conversation-header">
+                                <span class="conversation-name">Groupe Hygiène & Sécurité</span>
+                                <span class="conversation-time">2 jours</span>
+                            </div>
+                            <div class="conversation-preview">Marie L. : J'ai une question sur les protocoles...</div>
+                            <div class="conversation-meta">
+                                <span class="conversation-badge groupe">Groupe (8)</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Conversation 5 - Admin -->
+                    <div class="conversation-item" data-conversation="admin" data-type="admin">
+                        <div class="conversation-avatar">
+                            <div class="avatar-fallback admin">🏢</div>
+                        </div>
+                        <div class="conversation-content">
+                            <div class="conversation-header">
+                                <span class="conversation-name">Administration ADSIAM</span>
+                                <span class="conversation-time">3 jours</span>
+                            </div>
+                            <div class="conversation-preview">Nouvelle certification disponible...</div>
+                            <div class="conversation-meta">
+                                <span class="conversation-badge admin">Administration</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Chat Area -->
+            <main class="chat-main">
+                <!-- Chat Header -->
+                <div class="chat-header">
+                    <div class="chat-contact-info">
+                        <div class="contact-avatar">
+                            <img src="/images/avatar-rousseau.jpg" alt="Dr. Rousseau" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="avatar-fallback">DR</div>
+                            <div class="online-indicator"></div>
+                        </div>
+                        <div class="contact-details">
+                            <h3>Dr. Rousseau</h3>
+                            <span class="contact-status">Formateur Principal • En ligne</span>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-actions">
+                        <button class="chat-action-btn" onclick="toggleChatInfo()" title="Informations">ℹ️</button>
+                        <button class="chat-action-btn" onclick="searchInChat()" title="Rechercher">🔍</button>
+                        <button class="chat-action-btn" onclick="chatOptions()" title="Options">⋮</button>
+                    </div>
+                </div>
+
+                <!-- Chat Messages -->
+                <div class="chat-messages" id="chatMessages">
+                    <!-- Message 1 - Received -->
+                    <div class="message received">
+                        <div class="message-avatar">
+                            <img src="/images/avatar-rousseau.jpg" alt="Dr. Rousseau" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="avatar-fallback">DR</div>
+                        </div>
+                        <div class="message-content">
+                            <div class="message-header">
+                                <span class="message-sender">Dr. Rousseau</span>
+                                <span class="message-time">Aujourd'hui 14:30</span>
+                            </div>
+                            <div class="message-body">
+                                <p>Bonjour Sophie ! 👋</p>
+                                <p>Je voulais vous féliciter pour vos excellents résultats sur le quiz de communication. 95% c'est remarquable !</p>
+                                <p>Avez-vous des questions sur le module suivant ?</p>
+                            </div>
+                            <div class="message-reactions">
+                                <button class="reaction-btn" onclick="addReaction(this, '👍')">👍</button>
+                                <button class="reaction-btn" onclick="addReaction(this, '❤️')">❤️</button>
+                                <button class="reaction-btn" onclick="addReaction(this, '🙏')">🙏</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Message 2 - Sent -->
+                    <div class="message sent">
+                        <div class="message-content">
+                            <div class="message-header">
+                                <span class="message-time">Aujourd'hui 14:45</span>
+                            </div>
+                            <div class="message-body">
+                                <p>Merci beaucoup Dr. Rousseau ! 😊</p>
+                                <p>J'ai effectivement une question sur le module "Gestion des conflits". Comment gérer une situation où la famille n'est pas d'accord avec les soins proposés ?</p>
+                            </div>
+                            <div class="message-status">
+                                <span class="status-icon">✓✓</span>
+                                <span class="status-text">Lu</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Message 3 - Received with attachment -->
+                    <div class="message received">
+                        <div class="message-avatar">
+                            <img src="/images/avatar-rousseau.jpg" alt="Dr. Rousseau" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="avatar-fallback">DR</div>
+                        </div>
+                        <div class="message-content">
+                            <div class="message-header">
+                                <span class="message-sender">Dr. Rousseau</span>
+                                <span class="message-time">Aujourd'hui 15:10</span>
+                            </div>
+                            <div class="message-body">
+                                <p>Excellente question ! 🎯</p>
+                                <p>C'est exactement le type de situation qu'on aborde dans le module. La clé est l'écoute active et la médiation.</p>
+                                
+                                <div class="message-attachment">
+                                    <div class="attachment-icon">📄</div>
+                                    <div class="attachment-content">
+                                        <span class="attachment-name">Guide_Gestion_Conflits_Familles.pdf</span>
+                                        <span class="attachment-size">2.3 MB</span>
+                                    </div>
+                                    <button class="attachment-download" onclick="downloadAttachment('guide-conflits')">📥</button>
+                                </div>
+                                
+                                <p>Je vous envoie un guide complémentaire. N'hésitez pas si vous avez d'autres questions !</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Message 4 - System message -->
+                    <div class="message system">
+                        <div class="system-content">
+                            <span class="system-icon">🎓</span>
+                            <span class="system-text">Vous avez obtenu votre certification "Communication & Relationnel"</span>
+                            <span class="system-time">Hier 16:20</span>
+                        </div>
+                    </div>
+
+                    <!-- Message 5 - Sent -->
+                    <div class="message sent">
+                        <div class="message-content">
+                            <div class="message-header">
+                                <span class="message-time">Hier 16:25</span>
+                            </div>
+                            <div class="message-body">
+                                <p>Merci pour le document ! 📚</p>
+                                <p>Et merci pour votre accompagnement pendant toute cette formation. Vos conseils m'ont beaucoup aidée.</p>
+                                <p>J'ai hâte de commencer le module suivant ! 🚀</p>
+                            </div>
+                            <div class="message-reactions">
+                                <span class="reaction active" onclick="removeReaction(this)">❤️ 1</span>
+                            </div>
+                            <div class="message-status">
+                                <span class="status-icon">✓✓</span>
+                                <span class="status-text">Lu</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Input -->
+                <div class="chat-input-container">
+                    <div class="chat-input-area">
+                        <button class="attachment-btn" onclick="addAttachment()" title="Joindre un fichier">📎</button>
+                        <textarea class="chat-input" placeholder="Tapez votre message..." rows="1" onkeypress="handleKeyPress(event)" oninput="autoResize(this)"></textarea>
+                        <button class="emoji-btn" onclick="toggleEmojiPicker()" title="Émojis">😊</button>
+                        <button class="send-btn" onclick="sendMessage()" title="Envoyer">📤</button>
+                    </div>
+                    
+                    <div class="input-actions">
+                        <div class="typing-indicator" id="typingIndicator">
+                            <span>Dr. Rousseau est en train d'écrire...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Emoji Picker (Hidden by default) -->
+                <div class="emoji-picker" id="emojiPicker">
+                    <div class="emoji-categories">
+                        <button class="emoji-category active" onclick="showEmojiCategory('smileys')">😊</button>
+                        <button class="emoji-category" onclick="showEmojiCategory('gestures')">👋</button>
+                        <button class="emoji-category" onclick="showEmojiCategory('objects')">📚</button>
+                        <button class="emoji-category" onclick="showEmojiCategory('symbols')">✅</button>
+                    </div>
+                    <div class="emoji-grid" id="emojiGrid">
+                        <span class="emoji" onclick="insertEmoji('😊')">😊</span>
+                        <span class="emoji" onclick="insertEmoji('😄')">😄</span>
+                        <span class="emoji" onclick="insertEmoji('😍')">😍</span>
+                        <span class="emoji" onclick="insertEmoji('🤔')">🤔</span>
+                        <span class="emoji" onclick="insertEmoji('😅')">😅</span>
+                        <span class="emoji" onclick="insertEmoji('🙂')">🙂</span>
+                        <span class="emoji" onclick="insertEmoji('😉')">😉</span>
+                        <span class="emoji" onclick="insertEmoji('🥰')">🥰</span>
+                        <span class="emoji" onclick="insertEmoji('👍')">👍</span>
+                        <span class="emoji" onclick="insertEmoji('👏')">👏</span>
+                        <span class="emoji" onclick="insertEmoji('🙏')">🙏</span>
+                        <span class="emoji" onclick="insertEmoji('❤️')">❤️</span>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Chat Info Panel (Initially Hidden) -->
+            <aside class="chat-info-panel" id="chatInfoPanel">
+                <div class="info-header">
+                    <h3>Informations</h3>
+                    <button class="close-info-btn" onclick="toggleChatInfo()">✕</button>
+                </div>
+                
+                <div class="contact-profile">
+                    <div class="profile-avatar">
+                        <img src="/images/avatar-rousseau.jpg" alt="Dr. Rousseau" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="avatar-fallback">DR</div>
+                    </div>
+                    <div class="profile-info">
+                        <h4>Dr. Anne Rousseau</h4>
+                        <span class="profile-role">Formateur Principal</span>
+                        <span class="profile-specialization">Spécialiste en Premiers Secours & Urgences</span>
+                    </div>
+                </div>
+                
+                <div class="contact-details">
+                    <div class="detail-item">
+                        <span class="detail-label">📧 Email</span>
+                        <span class="detail-value">a.rousseau@adsiam.fr</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">📱 Disponibilité</span>
+                        <span class="detail-value">Lun-Ven 9h-18h</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">🎓 Formations</span>
+                        <span class="detail-value">Premiers Secours, Urgences</span>
+                    </div>
+                </div>
+                
+                <div class="conversation-actions">
+                    <button class="action-btn" onclick="scheduleCall()">📞 Planifier un appel</button>
+                    <button class="action-btn" onclick="reportIssue()">⚠️ Signaler un problème</button>
+                    <button class="action-btn danger" onclick="muteConversation()">🔕 Désactiver notifications</button>
+                </div>
+                
+                <div class="shared-files">
+                    <h4>Fichiers partagés</h4>
+                    <div class="file-item">
+                        <span class="file-icon">📄</span>
+                        <span class="file-name">Guide_Gestion_Conflits_Familles.pdf</span>
+                        <button class="file-download" onclick="downloadFile('guide-conflits')">📥</button>
+                    </div>
+                    <div class="file-item">
+                        <span class="file-icon">📊</span>
+                        <span class="file-name">Tableau_Scores_Formation.xlsx</span>
+                        <button class="file-download" onclick="downloadFile('scores')">📥</button>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        <!-- Notifications Panel -->
+        <section class="notifications-panel fade-in">
+            <div class="notifications-header">
+                <h2>Notifications récentes 🔔</h2>
+                <button class="mark-all-read" onclick="markAllNotificationsRead()">Tout marquer lu</button>
+            </div>
+            
+            <div class="notifications-list">
+                <div class="notification-item unread">
+                    <div class="notification-icon success">✅</div>
+                    <div class="notification-content">
+                        <span class="notification-title">Quiz réussi avec brio !</span>
+                        <span class="notification-description">Communication bienveillante - Score: 95%</span>
+                        <span class="notification-time">Il y a 2 heures</span>
+                    </div>
+                    <button class="notification-action" onclick="viewQuizResults()">📊 Voir</button>
+                </div>
+                
+                <div class="notification-item">
+                    <div class="notification-icon info">💬</div>
+                    <div class="notification-content">
+                        <span class="notification-title">Nouveau message de Dr. Martin</span>
+                        <span class="notification-description">Merci pour votre participation au webinaire</span>
+                        <span class="notification-time">Hier 16:45</span>
+                    </div>
+                    <button class="notification-action" onclick="openConversation('martin')">💬 Lire</button>
+                </div>
+                
+                <div class="notification-item">
+                    <div class="notification-icon warning">⚠️</div>
+                    <div class="notification-content">
+                        <span class="notification-title">Échéance importante</span>
+                        <span class="notification-description">Évaluation Hygiène & Sécurité - 18 janvier</span>
+                        <span class="notification-time">Il y a 1 jour</span>
+                    </div>
+                    <button class="notification-action" onclick="goToEvaluation()">📋 Réviser</button>
+                </div>
+                
+                <div class="notification-item">
+                    <div class="notification-icon formation">🎓</div>
+                    <div class="notification-content">
+                        <span class="notification-title">Certification disponible</span>
+                        <span class="notification-description">Communication & Relationnel - Certificat prêt</span>
+                        <span class="notification-time">Il y a 2 jours</span>
+                    </div>
+                    <button class="notification-action" onclick="downloadCertificate()">📥 Télécharger</button>
+                </div>
+                
+                <div class="notification-item">
+                    <div class="notification-icon webinaire">📹</div>
+                    <div class="notification-content">
+                        <span class="notification-title">Webinaire programmé</span>
+                        <span class="notification-description">Gestion du stress - Demain 14h</span>
+                        <span class="notification-time">Il y a 3 jours</span>
+                    </div>
+                    <button class="notification-action" onclick="joinWebinar()">🔗 Rejoindre</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Help -->
+        <section class="quick-help fade-in">
+            <div class="help-card">
+                <h3>Aide rapide 💡</h3>
+                <div class="help-items">
+                    <div class="help-item">
+                        <span class="help-icon">❓</span>
+                        <span class="help-text">Comment contacter un formateur ?</span>
+                        <button class="help-btn" onclick="showHelp('contact-formateur')">Voir</button>
+                    </div>
+                    <div class="help-item">
+                        <span class="help-icon">📱</span>
+                        <span class="help-text">Notifications push sur mobile</span>
+                        <button class="help-btn" onclick="showHelp('notifications')">Config</button>
+                    </div>
+                    <div class="help-item">
+                        <span class="help-icon">🔒</span>
+                        <span class="help-text">Confidentialité des messages</span>
+                        <button class="help-btn" onclick="showHelp('confidentialite')">Info</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <%- include('../partials/footer') %>
+
+    <script>
+        let currentConversation = 'rousseau';
+        let isEmojiPickerOpen = false;
+        let isChatInfoOpen = false;
+
+        // Conversation management
+        function selectConversation(conversationId) {
+            // Remove active class from all conversations
+            document.querySelectorAll('.conversation-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Add active class to selected conversation
+            document.querySelector(`[data-conversation="${conversationId}"]`).classList.add('active');
+            
+            // Update chat header and messages
+            currentConversation = conversationId;
+            loadConversationMessages(conversationId);
+        }
+
+        function loadConversationMessages(conversationId) {
+            const chatMessages = document.getElementById('chatMessages');
+            const chatHeader = document.querySelector('.chat-header');
+            
+            // Simulate loading different conversations
+            if (conversationId === 'support') {
+                updateChatHeader('Support Technique', 'Équipe Support • En ligne', '🎧');
+                loadSupportMessages();
+            } else if (conversationId === 'martin') {
+                updateChatHeader('Dr. Martin', 'Formateur • Hors ligne', 'DM');
+                loadMartinMessages();
+            } else if (conversationId === 'groupe-hygiene') {
+                updateChatHeader('Groupe Hygiène & Sécurité', '8 participants • 3 en ligne', '👥');
+                loadGroupMessages();
+            }
+            // Default conversation (Dr. Rousseau) is already loaded
+        }
+
+        function updateChatHeader(name, status, avatar) {
+            const nameElement = document.querySelector('.contact-details h3');
+            const statusElement = document.querySelector('.contact-status');
+            const avatarElement = document.querySelector('.contact-avatar .avatar-fallback');
+            
+            nameElement.textContent = name;
+            statusElement.textContent = status;
+            avatarElement.textContent = avatar;
+        }
+
+        function loadSupportMessages() {
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML = `
+                <div class="message received">
+                    <div class="message-avatar">
+                        <div class="avatar-fallback support">🎧</div>
+                    </div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="message-sender">Support Technique</span>
+                            <span class="message-time">Aujourd'hui 12:15</span>
+                        </div>
+                        <div class="message-body">
+                            <p>Bonjour Sophie,</p>
+                            <p>Votre problème de connexion à la plateforme a été résolu. Le serveur avait une maintenance programmée.</p>
+                            <p>Vous devriez maintenant pouvoir accéder à tous vos modules sans difficulté.</p>
+                            <p>N'hésitez pas à nous recontacter si vous rencontrez d'autres problèmes !</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="message sent">
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="message-time">Aujourd'hui 12:20</span>
+                        </div>
+                        <div class="message-body">
+                            <p>Parfait, merci beaucoup ! 😊</p>
+                            <p>Tout fonctionne bien maintenant. Votre réactivité est impressionnante !</p>
+                        </div>
+                        <div class="message-status">
+                            <span class="status-icon">✓✓</span>
+                            <span class="status-text">Lu</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function loadMartinMessages() {
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML = `
+                <div class="message received">
+                    <div class="message-avatar">
+                        <div class="avatar-fallback">DM</div>
+                    </div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="message-sender">Dr. Martin</span>
+                            <span class="message-time">Hier 16:30</span>
+                        </div>
+                        <div class="message-body">
+                            <p>Bonjour Sophie,</p>
+                            <p>Merci pour votre excellente participation au webinaire sur la gestion du stress.</p>
+                            <p>Vos questions étaient très pertinentes et ont enrichi la discussion pour tous les participants.</p>
+                            <p>Le prochain webinaire aura lieu demain à 14h. J'espère vous y retrouver ! 😊</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="message sent">
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="message-time">Hier 17:00</span>
+                        </div>
+                        <div class="message-body">
+                            <p>Merci Dr. Martin ! 🙏</p>
+                            <p>C'était très enrichissant. Je serai présente demain sans faute.</p>
+                            <p>Pouvez-vous m'envoyer les slides de la présentation ?</p>
+                        </div>
+                        <div class="message-status">
+                            <span class="status-icon">✓✓</span>
+                            <span class="status-text">Lu</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function loadGroupMessages() {
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML = `
+                <div class="message received group">
+                    <div class="message-avatar">
+                        <div class="avatar-fallback">ML</div>
+                    </div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="message-sender">Marie L.</span>
+                            <span class="message-time">Il y a 2 jours</span>
+                        </div>
+                        <div class="message-body">
+                            <p>Salut tout le monde ! 👋</p>
+                            <p>J'ai une question sur les protocoles de désinfection. Est-ce qu'on utilise le même produit pour toutes les surfaces ?</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="message received group">
+                    <div class="message-avatar">
+                        <div class="avatar-fallback">JD</div>
+                    </div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="message-sender">Jean D.</span>
+                            <span class="message-time">Il y a 2 jours</span>
+                        </div>
+                        <div class="message-body">
+                            <p>Excellente question Marie ! 🤔</p>
+                            <p>D'après ce que j'ai compris dans le module 2, il faut adapter selon le type de surface et le niveau de contamination.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="message sent group">
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="message-time">Il y a 2 jours</span>
+                        </div>
+                        <div class="message-body">
+                            <p>Je suis d'accord avec Jean ! 👍</p>
+                            <p>Le tableau de la page 15 du module explique bien les différents protocoles selon les zones (WC, cuisine, chambre...).</p>
+                        </div>
+                        <div class="message-status">
+                            <span class="status-icon">✓✓</span>
+                            <span class="status-text">Lu par 5</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Click handlers for conversation items
+        document.querySelectorAll('.conversation-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const conversationId = this.dataset.conversation;
+                selectConversation(conversationId);
+                
+                // Mark as read
+                this.classList.remove('unread');
+                const unreadCount = this.querySelector('.unread-count');
+                if (unreadCount) {
+                    unreadCount.remove();
+                }
+            });
+        });
+
+        // Message input functionality
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
+        }
+
+        function sendMessage() {
+            const input = document.querySelector('.chat-input');
+            const messageText = input.value.trim();
+            
+            if (messageText === '') return;
+            
+            // Create new message element
+            const messagesContainer = document.getElementById('chatMessages');
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            
+            const messageHTML = `
+                <div class="message sent">
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="message-time">Aujourd'hui ${timeString}</span>
+                        </div>
+                        <div class="message-body">
+                            <p>${messageText}</p>
+                        </div>
+                        <div class="message-status">
+                            <span class="status-icon">✓</span>
+                            <span class="status-text">Envoyé</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            messagesContainer.insertAdjacentHTML('beforeend', messageHTML);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            input.value = '';
+            input.style.height = 'auto';
+            
+            // Simulate response
+            setTimeout(() => {
+                simulateResponse();
+            }, 2000);
+        }
+
+        function simulateResponse() {
+            const messagesContainer = document.getElementById('chatMessages');
+            const responses = [
+                "Merci pour votre message ! Je vais regarder cela et vous répondre dans les plus brefs délais.",
+                "Excellente question ! Cela mérite une réponse détaillée que je vais préparer.",
+                "Je vous remercie pour votre retour. C'est toujours un plaisir d'accompagner des étudiants motivés comme vous !"
+            ];
+            
+            const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            
+            const responseHTML = `
+                <div class="message received">
+                    <div class="message-avatar">
+                        <div class="avatar-fallback">DR</div>
+                    </div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="message-sender">Dr. Rousseau</span>
+                            <span class="message-time">Aujourd'hui ${timeString}</span>
+                        </div>
+                        <div class="message-body">
+                            <p>${randomResponse}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            messagesContainer.insertAdjacentHTML('beforeend', responseHTML);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Emoji functionality
+        function toggleEmojiPicker() {
+            const emojiPicker = document.getElementById('emojiPicker');
+            isEmojiPickerOpen = !isEmojiPickerOpen;
+            emojiPicker.style.display = isEmojiPickerOpen ? 'block' : 'none';
+        }
+
+        function insertEmoji(emoji) {
+            const input = document.querySelector('.chat-input');
+            const cursorPos = input.selectionStart;
+            const textBefore = input.value.substring(0, cursorPos);
+            const textAfter = input.value.substring(cursorPos);
+            
+            input.value = textBefore + emoji + textAfter;
+            input.focus();
+            input.setSelectionRange(cursorPos + emoji.length, cursorPos + emoji.length);
+            
+            toggleEmojiPicker();
+        }
+
+        function showEmojiCategory(category) {
+            const buttons = document.querySelectorAll('.emoji-category');
+            const emojiGrid = document.getElementById('emojiGrid');
+            
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const emojiCategories = {
+                'smileys': ['😊', '😄', '😍', '🤔', '😅', '🙂', '😉', '🥰', '😇', '🤗', '😋', '😎'],
+                'gestures': ['👍', '👏', '🙏', '👋', '✋', '👌', '✌️', '🤝', '💪', '🤲', '👐', '🙌'],
+                'objects': ['📚', '📖', '📝', '📊', '📅', '💻', '📱', '🎓', '📋', '📄', '📁', '✏️'],
+                'symbols': ['✅', '❌', '⚠️', '❓', '❗', '🔔', '⭐', '🎯', '💡', '🔥', '⚡', '🚀']
+            };
+            
+            emojiGrid.innerHTML = emojiCategories[category].map(emoji => 
+                `<span class="emoji" onclick="insertEmoji('${emoji}')">${emoji}</span>`
+            ).join('');
+        }
+
+        // Chat info panel
+        function toggleChatInfo() {
+            const infoPanel = document.getElementById('chatInfoPanel');
+            isChatInfoOpen = !isChatInfoOpen;
+            infoPanel.classList.toggle('active');
+        }
+
+        // Filter conversations
+        function filterConversations(filter) {
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const conversations = document.querySelectorAll('.conversation-item');
+            
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            conversations.forEach(conv => {
+                conv.style.display = 'flex';
+                
+                if (filter === 'unread' && !conv.classList.contains('unread')) {
+                    conv.style.display = 'none';
+                } else if (filter === 'formateurs' && conv.dataset.type !== 'formateur') {
+                    conv.style.display = 'none';
+                } else if (filter === 'support' && conv.dataset.type !== 'support') {
+                    conv.style.display = 'none';
+                }
+            });
+        }
+
+        // Search functionality
+        function searchConversations(query) {
+            const conversations = document.querySelectorAll('.conversation-item');
+            
+            conversations.forEach(conv => {
+                const name = conv.querySelector('.conversation-name').textContent.toLowerCase();
+                const preview = conv.querySelector('.conversation-preview').textContent.toLowerCase();
+                
+                if (name.includes(query.toLowerCase()) || preview.includes(query.toLowerCase())) {
+                    conv.style.display = 'flex';
+                } else {
+                    conv.style.display = query === '' ? 'flex' : 'none';
+                }
+            });
+        }
+
+        // Action functions
+        function startNewConversation() {
+            alert('✏️ Nouvelle conversation\n\n👨‍🏫 Contacter un formateur\n🎧 Support technique\n👥 Créer un groupe d\'étude\n🏢 Administration\n\n📝 Choisissez le type de conversation à démarrer');
+        }
+
+        function addAttachment() {
+            alert('📎 Joindre un fichier\n\n📄 Documents (PDF, Word, Excel)\n🖼️ Images (JPG, PNG, GIF)\n🎥 Vidéos (MP4, AVI)\n📊 Présentations (PowerPoint)\n\nTaille max: 10MB\n\n📤 Sélectionner le fichier à joindre');
+        }
+
+        function downloadAttachment(attachmentId) {
+            alert('📥 Téléchargement en cours...\n\nFichier: Guide_Gestion_Conflits_Familles.pdf\nTaille: 2.3 MB\n\n💾 Le fichier sera téléchargé dans votre dossier "Téléchargements"\n📚 Document ajouté à votre bibliothèque de ressources');
+        }
+
+        function addReaction(button, emoji) {
+            const reactionsContainer = button.parentElement;
+            const existingReaction = reactionsContainer.querySelector('.reaction.active');
+            
+            if (existingReaction) {
+                existingReaction.remove();
+            }
+            
+            const reactionElement = document.createElement('span');
+            reactionElement.className = 'reaction active';
+            reactionElement.textContent = `${emoji} 1`;
+            reactionElement.onclick = () => removeReaction(reactionElement);
+            
+            reactionsContainer.appendChild(reactionElement);
+        }
+
+        function removeReaction(reactionElement) {
+            reactionElement.remove();
+        }
+
+        // Notification functions
+        function markAllNotificationsRead() {
+            document.querySelectorAll('.notification-item.unread').forEach(notification => {
+                notification.classList.remove('unread');
+            });
+            alert('✅ Toutes les notifications ont été marquées comme lues');
+        }
+
+        function viewQuizResults() {
+            alert('📊 Résultats du quiz\n\nFormation: Communication bienveillante\nScore: 95% (19/20)\nTemps: 12 minutes\nRang: 2e/45 étudiants\n\n🎯 Excellente performance !\n📚 Accéder au module suivant');
+        }
+
+        function openConversation(conversationId) {
+            selectConversation(conversationId);
+            alert('💬 Ouverture de la conversation...\n\nConversation chargée avec succès');
+        }
+
+        function scheduleCall() {
+            alert('📞 Planifier un appel\n\n📅 Choisir un créneau\n⏰ Durée (15min, 30min, 1h)\n💬 Sujet de l\'appel\n📧 Confirmation par email\n\n✅ Demande d\'appel envoyée au formateur');
+        }
+
+        function reportIssue() {
+            alert('⚠️ Signaler un problème\n\n📝 Type de problème\n📄 Description détaillée\n📎 Joindre des captures\n🏷️ Priorité\n\n📧 Votre signalement sera traité sous 24h');
+        }
+
+        function muteConversation() {
+            alert('🔕 Désactiver les notifications\n\n⏰ Durée (1h, 8h, 24h, permanent)\n📱 Type (push, email, SMS)\n🔔 Exceptions (urgences)\n\n✅ Notifications désactivées pour cette conversation');
+        }
+
+        // Animation functions
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'fadeInUp 0.6s ease forwards';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Auto-scroll chat to bottom
+        function scrollChatToBottom() {
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Simulate typing indicator
+        function showTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            indicator.style.display = 'block';
+            
+            setTimeout(() => {
+                indicator.style.display = 'none';
+            }, 3000);
+        }
+
+        // Initialize
+        window.addEventListener('load', () => {
+            scrollChatToBottom();
+            console.log('💬 Page Messagerie ADSIAM chargée');
+            console.log('👥 15 conversations actives');
+            console.log('📧 3 messages non lus');
+            console.log('🔔 Notifications en temps réel activées');
+            
+            // Simulate typing indicator occasionally
+            setInterval(() => {
+                if (Math.random() < 0.1) { // 10% chance every 30 seconds
+                    showTypingIndicator();
+                }
+            }, 30000);
+        });
+
+        // Close emoji picker when clicking outside
+        document.addEventListener('click', function(event) {
+            const emojiPicker = document.getElementById('emojiPicker');
+            const emojiBtn = document.querySelector('.emoji-btn');
+            
+            if (!emojiPicker.contains(event.target) && !emojiBtn.contains(event.target)) {
+                emojiPicker.style.display = 'none';
+                isEmojiPickerOpen = false;
+            }
+        });
+
+        // Help functions
+        function showHelp(helpType) {
+            const helpTexts = {
+                'contact-formateur': 'Pour contacter un formateur:\n\n1. Cliquez sur "✏️ Nouvelle conversation"\n2. Sélectionnez "👨‍🏫 Contacter un formateur"\n3. Choisissez le formateur selon votre formation\n4. Rédigez votre message\n\n⏰ Réponse sous 24h en moyenne',
+                'notifications': 'Configuration des notifications:\n\n📱 Notifications push sur mobile\n📧 Alertes par email\n💬 Messages en temps réel\n⚠️ Échéances importantes\n\n⚙️ Personnalisez dans Paramètres > Notifications',
+                'confidentialite': 'Confidentialité et sécurité:\n\n🔒 Messages chiffrés de bout en bout\n👀 Seuls vous et le destinataire peuvent lire\n🗑️ Suppression automatique après 1 an\n🛡️ Données conformes RGPD\n\n✅ Vos échanges sont parfaitement sécurisés'
+            };
+            
+            alert(helpTexts[helpType]);
+        }
+    </script>
+</body>
+</html>

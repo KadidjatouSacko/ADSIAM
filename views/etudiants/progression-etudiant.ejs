@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ma Progression | ADSIAM Étudiant</title>
+    <link rel="stylesheet" href="/css/progression-etudiant.css">
+</head>
+<body>
+    <!-- Header -->
+    <%- include('../partials/header-etudiant') %>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Page Header -->
+        <section class="page-header fade-in">
+            <h1 class="page-title">Ma Progression 📊</h1>
+            <p class="page-subtitle">Suivez vos progrès et analysez vos performances de formation ADSIAM</p>
+            
+            <div class="global-stats">
+                <div class="global-stat-card primary">
+                    <div class="stat-content">
+                        <span class="stat-number">78%</span>
+                        <span class="stat-label">Progression globale</span>
+                    </div>
+                    <div class="stat-icon">📈</div>
+                </div>
+                <div class="global-stat-card success">
+                    <div class="stat-content">
+                        <span class="stat-number">92%</span>
+                        <span class="stat-label">Score moyen</span>
+                    </div>
+                    <div class="stat-icon">⭐</div>
+                </div>
+                <div class="global-stat-card info">
+                    <div class="stat-content">
+                        <span class="stat-number">47h</span>
+                        <span class="stat-label">Temps total</span>
+                    </div>
+                    <div class="stat-icon">⏱️</div>
+                </div>
+                <div class="global-stat-card warning">
+                    <div class="stat-content">
+                        <span class="stat-number">3</span>
+                        <span class="stat-label">Certifications</span>
+                    </div>
+                    <div class="stat-icon">🎓</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Progress Overview -->
+        <section class="progress-overview fade-in">
+            <div class="overview-header">
+                <h2>Vue d'ensemble</h2>
+                <div class="period-selector">
+                    <button class="period-btn active" onclick="changePeriod('month')">Ce mois</button>
+                    <button class="period-btn" onclick="changePeriod('quarter')">3 mois</button>
+                    <button class="period-btn" onclick="changePeriod('year')">Année</button>
+                </div>
+            </div>
+            
+            <div class="overview-grid">
+                <!-- Chart Container -->
+                <div class="chart-container">
+                    <h3>Progression temporelle</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="progressChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Performance Radar -->
+                <div class="performance-container">
+                    <h3>Performance par domaine</h3>
+                    <div class="radar-wrapper">
+                        <div class="competency-item">
+                            <span class="competency-label">Communication</span>
+                            <div class="competency-bar">
+                                <div class="competency-fill" style="width: 95%"></div>
+                            </div>
+                            <span class="competency-score">95%</span>
+                        </div>
+                        <div class="competency-item">
+                            <span class="competency-label">Hygiène & Sécurité</span>
+                            <div class="competency-bar">
+                                <div class="competency-fill" style="width: 88%"></div>
+                            </div>
+                            <span class="competency-score">88%</span>
+                        </div>
+                        <div class="competency-item">
+                            <span class="competency-label">Premiers Secours</span>
+                            <div class="competency-bar">
+                                <div class="competency-fill" style="width: 72%"></div>
+                            </div>
+                            <span class="competency-score">72%</span>
+                        </div>
+                        <div class="competency-item">
+                            <span class="competency-label">Pathologies</span>
+                            <div class="competency-bar">
+                                <div class="competency-fill" style="width: 91%"></div>
+                            </div>
+                            <span class="competency-score">91%</span>
+                        </div>
+                        <div class="competency-item">
+                            <span class="competency-label">Ergonomie</span>
+                            <div class="competency-bar">
+                                <div class="competency-fill" style="width: 87%"></div>
+                            </div>
+                            <span class="competency-score">87%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Detailed Progress -->
+        <section class="detailed-progress fade-in">
+            <h2>Progression détaillée par formation</h2>
+            
+            <!-- Formation Progress Card 1 -->
+            <div class="formation-progress-card">
+                <div class="formation-progress-header">
+                    <div class="formation-info">
+                        <div class="formation-icon" style="background: var(--gradient-pink);">🗣️</div>
+                        <div>
+                            <h3>Communication & Relationnel</h3>
+                            <span class="formation-status completed">Terminée • Score: 95%</span>
+                        </div>
+                    </div>
+                    <div class="formation-badge completed">✅ Certifiée</div>
+                </div>
+                
+                <div class="formation-progress-body">
+                    <div class="modules-progress">
+                        <div class="module-item completed">
+                            <span class="module-number">1</span>
+                            <span class="module-title">Introduction à la communication</span>
+                            <span class="module-score">98%</span>
+                            <span class="module-time">45min</span>
+                        </div>
+                        <div class="module-item completed">
+                            <span class="module-number">2</span>
+                            <span class="module-title">Écoute active et empathie</span>
+                            <span class="module-score">92%</span>
+                            <span class="module-time">1h15</span>
+                        </div>
+                        <div class="module-item completed">
+                            <span class="module-number">3</span>
+                            <span class="module-title">Gestion des conflits</span>
+                            <span class="module-score">94%</span>
+                            <span class="module-time">50min</span>
+                        </div>
+                        <div class="module-item completed">
+                            <span class="module-number">4</span>
+                            <span class="module-title">Communication avec les familles</span>
+                            <span class="module-score">96%</span>
+                            <span class="module-time">40min</span>
+                        </div>
+                        <div class="module-item completed">
+                            <span class="module-number">5</span>
+                            <span class="module-title">Mise en pratique</span>
+                            <span class="module-score">95%</span>
+                            <span class="module-time">30min</span>
+                        </div>
+                    </div>
+                    
+                    <div class="formation-achievements">
+                        <h4>Réalisations</h4>
+                        <div class="achievements">
+                            <span class="achievement">🏆 Excellence</span>
+                            <span class="achievement">⚡ Rapidité</span>
+                            <span class="achievement">🎯 Précision</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formation Progress Card 2 -->
+            <div class="formation-progress-card">
+                <div class="formation-progress-header">
+                    <div class="formation-info">
+                        <div class="formation-icon" style="background: var(--gradient-blue);">🛡️</div>
+                        <div>
+                            <h3>Hygiène, Sécurité & Prévention</h3>
+                            <span class="formation-status in-progress">En cours • Score actuel: 88%</span>
+                        </div>
+                    </div>
+                    <div class="formation-badge in-progress">67% complété</div>
+                </div>
+                
+                <div class="formation-progress-body">
+                    <div class="modules-progress">
+                        <div class="module-item completed">
+                            <span class="module-number">1</span>
+                            <span class="module-title">Principes d'hygiène</span>
+                            <span class="module-score">90%</span>
+                            <span class="module-time">1h</span>
+                        </div>
+                        <div class="module-item completed">
+                            <span class="module-number">2</span>
+                            <span class="module-title">Désinfection et stérilisation</span>
+                            <span class="module-score">85%</span>
+                            <span class="module-time">1h20</span>
+                        </div>
+                        <div class="module-item completed">
+                            <span class="module-number">3</span>
+                            <span class="module-title">Équipements de protection</span>
+                            <span class="module-score">92%</span>
+                            <span class="module-time">45min</span>
+                        </div>
+                        <div class="module-item completed">
+                            <span class="module-number">4</span>
+                            <span class="module-title">Prévention des infections</span>
+                            <span class="module-score">86%</span>
+                            <span class="module-time">55min</span>
+                        </div>
+                        <div class="module-item current">
+                            <span class="module-number">5</span>
+                            <span class="module-title">Gestion des déchets médicaux</span>
+                            <span class="module-score">En cours</span>
+                            <span class="module-time">1h</span>
+                        </div>
+                        <div class="module-item pending">
+                            <span class="module-number">6</span>
+                            <span class="module-title">Évaluation finale</span>
+                            <span class="module-score">-</span>
+                            <span class="module-time">30min</span>
+                        </div>
+                    </div>
+                    
+                    <div class="next-deadline">
+                        <div class="deadline-icon">⚠️</div>
+                        <div class="deadline-content">
+                            <span class="deadline-title">Prochaine échéance</span>
+                            <span class="deadline-date">Évaluation finale - 18 janvier 2025</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formation Progress Card 3 -->
+            <div class="formation-progress-card">
+                <div class="formation-progress-header">
+                    <div class="formation-info">
+                        <div class="formation-icon" style="background: var(--gradient-red);">🚨</div>
+                        <div>
+                            <h3>Gestion des Urgences & Premiers Secours</h3>
+                            <span class="formation-status in-progress">En cours • Score actuel: 92%</span>
+                        </div>
+                    </div>
+                    <div class="formation-badge in-progress">25% complété</div>
+                </div>
+                
+                <div class="formation-progress-body">
+                    <div class="modules-progress">
+                        <div class="module-item completed">
+                            <span class="module-number">1</span>
+                            <span class="module-title">Évaluation de l'urgence</span>
+                            <span class="module-score">94%</span>
+                            <span class="module-time">45min</span>
+                        </div>
+                        <div class="module-item completed">
+                            <span class="module-number">2</span>
+                            <span class="module-title">Alerte et protection</span>
+                            <span class="module-score">90%</span>
+                            <span class="module-time">30min</span>
+                        </div>
+                        <div class="module-item current">
+                            <span class="module-number">3</span>
+                            <span class="module-title">Réanimation cardio-pulmonaire</span>
+                            <span class="module-score">En cours</span>
+                            <span class="module-time">1h30</span>
+                        </div>
+                        <div class="module-item pending">
+                            <span class="module-number">4</span>
+                            <span class="module-title">Défibrillateur automatisé</span>
+                            <span class="module-score">-</span>
+                            <span class="module-time">1h</span>
+                        </div>
+                        <div class="module-item pending">
+                            <span class="module-number">5</span>
+                            <span class="module-title">Hémorragies et traumatismes</span>
+                            <span class="module-score">-</span>
+                            <span class="module-time">1h15</span>
+                        </div>
+                        <div class="module-item pending">
+                            <span class="module-number">6</span>
+                            <span class="module-title">Malaises et pertes de conscience</span>
+                            <span class="module-score">-</span>
+                            <span class="module-time">45min</span>
+                        </div>
+                        <div class="module-item pending">
+                            <span class="module-number">7</span>
+                            <span class="module-title">Situations spéciales</span>
+                            <span class="module-score">-</span>
+                            <span class="module-time">1h</span>
+                        </div>
+                        <div class="module-item pending">
+                            <span class="module-number">8</span>
+                            <span class="module-title">Évaluation pratique</span>
+                            <span class="module-score">-</span>
+                            <span class="module-time">2h</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Performance Analytics -->
+        <section class="analytics-section fade-in">
+            <div class="analytics-header">
+                <h2>Analyse de performance</h2>
+                <div class="export-options">
+                    <button class="export-btn" onclick="exportProgress('pdf')">📄 PDF</button>
+                    <button class="export-btn" onclick="exportProgress('excel')">📊 Excel</button>
+                </div>
+            </div>
+            
+            <div class="analytics-grid">
+                <!-- Learning Path Progress -->
+                <div class="analytics-card">
+                    <h3>Parcours d'apprentissage</h3>
+                    <div class="learning-path">
+                        <div class="path-step completed">
+                            <div class="step-icon">✅</div>
+                            <div class="step-content">
+                                <span class="step-title">Communication & Relationnel</span>
+                                <span class="step-date">Terminé le 12 jan 2025</span>
+                            </div>
+                        </div>
+                        <div class="path-step completed">
+                            <div class="step-icon">✅</div>
+                            <div class="step-content">
+                                <span class="step-title">Pathologies & Situations Spécifiques</span>
+                                <span class="step-date">Terminé le 28 déc 2024</span>
+                            </div>
+                        </div>
+                        <div class="path-step completed">
+                            <div class="step-icon">✅</div>
+                            <div class="step-content">
+                                <span class="step-title">Ergonomie & Gestes Professionnels</span>
+                                <span class="step-date">Terminé le 15 déc 2024</span>
+                            </div>
+                        </div>
+                        <div class="path-step current">
+                            <div class="step-icon">🔄</div>
+                            <div class="step-content">
+                                <span class="step-title">Hygiène, Sécurité & Prévention</span>
+                                <span class="step-date">En cours • 67% complété</span>
+                            </div>
+                        </div>
+                        <div class="path-step current">
+                            <div class="step-icon">🔄</div>
+                            <div class="step-content">
+                                <span class="step-title">Gestion des Urgences</span>
+                                <span class="step-date">En cours • 25% complété</span>
+                            </div>
+                        </div>
+                        <div class="path-step pending">
+                            <div class="step-icon">⏳</div>
+                            <div class="step-content">
+                                <span class="step-title">Préparation des Repas</span>
+                                <span class="step-date">À venir</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Study Time Analytics -->
+                <div class="analytics-card">
+                    <h3>Temps d'étude</h3>
+                    <div class="study-time-chart">
+                        <div class="time-breakdown">
+                            <div class="time-item">
+                                <span class="time-label">Cette semaine</span>
+                                <span class="time-value">5h 30min</span>
+                                <div class="time-bar">
+                                    <div class="time-fill" style="width: 85%"></div>
+                                </div>
+                            </div>
+                            <div class="time-item">
+                                <span class="time-label">Semaine dernière</span>
+                                <span class="time-value">8h 15min</span>
+                                <div class="time-bar">
+                                    <div class="time-fill" style="width: 100%"></div>
+                                </div>
+                            </div>
+                            <div class="time-item">
+                                <span class="time-label">Moyenne hebdomadaire</span>
+                                <span class="time-value">6h 45min</span>
+                                <div class="time-bar">
+                                    <div class="time-fill" style="width: 70%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="study-insights">
+                            <div class="insight-item">
+                                <span class="insight-icon">📈</span>
+                                <span class="insight-text">Progression constante cette semaine</span>
+                            </div>
+                            <div class="insight-item">
+                                <span class="insight-icon">🎯</span>
+                                <span class="insight-text">Objectif hebdomadaire atteint</span>
+                            </div>
+                            <div class="insight-item">
+                                <span class="insight-icon">⭐</span>
+                                <span class="insight-text">Très bons résultats aux quiz</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Achievements Section -->
+        <section class="achievements-section fade-in">
+            <h2>Récompenses et badges 🏆</h2>
+            <div class="achievements-grid">
+                <div class="achievement-card earned">
+                    <div class="achievement-icon">🥇</div>
+                    <div class="achievement-content">
+                        <h3>Expert Communication</h3>
+                        <p>Score supérieur à 95% en Communication</p>
+                        <span class="achievement-date">Obtenu le 12 jan 2025</span>
+                    </div>
+                </div>
+                
+                <div class="achievement-card earned">
+                    <div class="achievement-icon">⚡</div>
+                    <div class="achievement-content">
+                        <h3>Apprenant Rapide</h3>
+                        <p>3 formations terminées en moins de 2 mois</p>
+                        <span class="achievement-date">Obtenu le 28 déc 2024</span>
+                    </div>
+                </div>
+                
+                <div class="achievement-card earned">
+                    <div class="achievement-icon">🎯</div>
+                    <div class="achievement-content">
+                        <h3>Régularité</h3>
+                        <p>Connexion quotidienne pendant 2 semaines</p>
+                        <span class="achievement-date">Obtenu le 20 déc 2024</span>
+                    </div>
+                </div>
+                
+                <div class="achievement-card progress">
+                    <div class="achievement-icon">🔥</div>
+                    <div class="achievement-content">
+                        <h3>Série d'Excellence</h3>
+                        <p>5 quiz consécutifs avec +90%</p>
+                        <div class="achievement-progress">
+                            <span>3/5 réalisés</span>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 60%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="achievement-card locked">
+                    <div class="achievement-icon">🎓</div>
+                    <div class="achievement-content">
+                        <h3>Maître ADSIAM</h3>
+                        <p>Toutes les formations terminées avec excellence</p>
+                        <span class="achievement-requirement">3/6 formations terminées</span>
+                    </div>
+                </div>
+                
+                <div class="achievement-card locked">
+                    <div class="achievement-icon">👑</div>
+                    <div class="achievement-content">
+                        <h3>Perfectionniste</h3>
+                        <p>Score moyen supérieur à 95%</p>
+                        <span class="achievement-requirement">Score actuel: 92%</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Goals and Recommendations -->
+        <section class="recommendations-section fade-in">
+            <div class="recommendations-grid">
+                <!-- Personal Goals -->
+                <div class="recommendations-card">
+                    <h3>Mes objectifs 🎯</h3>
+                    <div class="goal-item">
+                        <div class="goal-header">
+                            <span class="goal-title">Terminer Hygiène & Sécurité</span>
+                            <span class="goal-date">Avant le 18 jan</span>
+                        </div>
+                        <div class="goal-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 67%"></div>
+                            </div>
+                            <span class="goal-percentage">67%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="goal-item">
+                        <div class="goal-header">
+                            <span class="goal-title">Obtenir 3 certifications</span>
+                            <span class="goal-date">Avant fin janvier</span>
+                        </div>
+                        <div class="goal-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 66%"></div>
+                            </div>
+                            <span class="goal-percentage">2/3</span>
+                        </div>
+                    </div>
+                    
+                    <div class="goal-item">
+                        <div class="goal-header">
+                            <span class="goal-title">Score moyen >95%</span>
+                            <span class="goal-date">Objectif trimestriel</span>
+                        </div>
+                        <div class="goal-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 92%"></div>
+                            </div>
+                            <span class="goal-percentage">92%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recommendations -->
+                <div class="recommendations-card">
+                    <h3>Recommandations personnalisées 💡</h3>
+                    <div class="recommendation-item">
+                        <div class="recommendation-icon">📚</div>
+                        <div class="recommendation-content">
+                            <span class="recommendation-title">Révision suggérée</span>
+                            <span class="recommendation-description">Revoir le module "Prévention des infections" avant l'évaluation</span>
+                        </div>
+                    </div>
+                    
+                    <div class="recommendation-item">
+                        <div class="recommendation-icon">⏰</div>
+                        <div class="recommendation-content">
+                            <span class="recommendation-title">Planning optimal</span>
+                            <span class="recommendation-description">Planifier 2h cette semaine pour terminer Hygiène & Sécurité</span>
+                        </div>
+                    </div>
+                    
+                    <div class="recommendation-item">
+                        <div class="recommendation-icon">🎯</div>
+                        <div class="recommendation-content">
+                            <span class="recommendation-title">Focus amélioration</span>
+                            <span class="recommendation-description">Renforcer les connaissances en gestion des déchets médicaux</span>
+                        </div>
+                    </div>
+                    
+                    <div class="recommendation-item">
+                        <div class="recommendation-icon">👥</div>
+                        <div class="recommendation-content">
+                            <span class="recommendation-title">Session de groupe</span>
+                            <span class="recommendation-description">Participer au webinaire "Gestion du stress" demain 14h</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <%- include('../partials/footer') %>
+
+    <script>
+        // Period selector functionality
+        function changePeriod(period) {
+            const buttons = document.querySelectorAll('.period-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Simulate chart update
+            console.log(`📊 Changement de période: ${period}`);
+            updateChart(period);
+        }
+
+        // Simulate chart update
+        function updateChart(period) {
+            const canvas = document.getElementById('progressChart');
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw simple progress line
+            ctx.strokeStyle = '#4F46E5';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            const data = period === 'month' ? [20, 35, 45, 60, 75, 78] : 
+                        period === 'quarter' ? [10, 25, 40, 55, 70, 78] : 
+                        [0, 15, 30, 45, 65, 78];
+            
+            data.forEach((value, index) => {
+                const x = (canvas.width / (data.length - 1)) * index;
+                const y = canvas.height - (value / 100) * canvas.height;
+                
+                if (index === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            });
+            
+            ctx.stroke();
+            
+            // Draw points
+            ctx.fillStyle = '#4F46E5';
+            data.forEach((value, index) => {
+                const x = (canvas.width / (data.length - 1)) * index;
+                const y = canvas.height - (value / 100) * canvas.height;
+                
+                ctx.beginPath();
+                ctx.arc(x, y, 4, 0, 2 * Math.PI);
+                ctx.fill();
+            });
+        }
+
+        // Export functionality
+        function exportProgress(format) {
+            alert(`📊 Export de progression\n\nFormat: ${format.toUpperCase()}\n\nInclut:\n• Progression détaillée par formation\n• Scores et temps de formation\n• Graphiques de performance\n• Certificats obtenus\n\n📧 Le fichier sera envoyé par email`);
+        }
+
+        // Module interactions
+        document.querySelectorAll('.module-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const moduleTitle = this.querySelector('.module-title').textContent;
+                const moduleScore = this.querySelector('.module-score').textContent;
+                const status = this.classList.contains('completed') ? 'terminé' : 
+                             this.classList.contains('current') ? 'en cours' : 'à venir';
+                
+                if (this.classList.contains('earned')) {
+                    const date = this.querySelector('.achievement-date').textContent;
+                    alert(`🏆 Badge: ${title}\n\n${description}\n\n${date}\n\n🎉 Félicitations pour cette réussite!`);
+                } else if (this.classList.contains('progress')) {
+                    const progress = this.querySelector('.achievement-progress span').textContent;
+                    alert(`🔄 Badge en cours: ${title}\n\n${description}\n\nProgression: ${progress}\n\n💪 Continuez vos efforts!`);
+                } else {
+                    const requirement = this.querySelector('.achievement-requirement').textContent;
+                    alert(`🔒 Badge verrouillé: ${title}\n\n${description}\n\nCondition: ${requirement}\n\n🎯 Continuez pour débloquer ce badge!`);
+                }
+            });
+        });
+
+        // Formation progress card interactions
+        document.querySelectorAll('.formation-progress-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                if (e.target.classList.contains('module-item') || e.target.closest('.module-item')) {
+                    return; // Let module click handler take care of it
+                }
+                
+                const title = this.querySelector('h3').textContent;
+                const status = this.querySelector('.formation-status').textContent;
+                
+                alert(`📚 Formation: ${title}\n\n${status}\n\n📊 Voir les détails complets\n📈 Analyser la progression\n📥 Accéder aux ressources`);
+            });
+        });
+
+        // Goal interactions
+        document.querySelectorAll('.goal-item').forEach(goal => {
+            goal.addEventListener('click', function() {
+                const title = this.querySelector('.goal-title').textContent;
+                const date = this.querySelector('.goal-date').textContent;
+                const percentage = this.querySelector('.goal-percentage').textContent;
+                
+                alert(`🎯 Objectif: ${title}\n\nÉchéance: ${date}\nProgression: ${percentage}\n\n📝 Modifier l'objectif\n⏰ Ajuster l'échéance\n🔔 Configurer les rappels`);
+            });
+        });
+
+        // Animation functions
+        function animateProgressBars() {
+            const progressBars = document.querySelectorAll('.progress-fill, .competency-fill, .time-fill');
+            progressBars.forEach((bar, index) => {
+                setTimeout(() => {
+                    bar.style.transform = 'scaleX(1)';
+                }, index * 50);
+            });
+        }
+
+        // Scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'fadeInUp 0.6s ease forwards';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Initialize
+        window.addEventListener('load', () => {
+            animateProgressBars();
+            updateChart('month');
+            console.log('📊 Page Progression ADSIAM chargée');
+            console.log('📈 Progression globale: 78%');
+            console.log('🎯 3 formations terminées, 2 en cours, 1 à venir');
+            console.log('🏆 3 badges obtenus, 3 en progression/verrouillés');
+        });
+    </script>
+</body>
+</html>
