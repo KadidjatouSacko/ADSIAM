@@ -1,4 +1,4 @@
-import { User, ProgressionModule } from '../models/index.js';
+import { User, Formation, Inscription, ProgressionModule, Evenement  } from '../models/index.js';
 
 // Afficher profil existant
 export const showProfil = async (req, res) => {
@@ -75,3 +75,59 @@ export const deleteProfil = async (req, res) => {
         res.status(500).send("Erreur lors de la suppression du profil");
     }
 };
+
+export async function showDashboard(req, res) {
+    try {
+        // Étudiant connecté
+        const userId = req.user?.id;
+        if (!userId) return res.status(401).send('Utilisateur introuvable');
+
+        // Récupérer l'utilisateur et ses données liées
+        const user = await User.findByPk(userId, {
+            include: [
+                { 
+                    model: Inscription, 
+                    as: 'inscriptions',
+                    include: [{ model: Formation, as: 'formation' }]
+                },
+                { model: Evenement, as: 'evenements' },
+                { model: ProgressionModule, as: 'progressions' }
+            ]
+        });
+
+        if (!user) return res.status(404).send('Utilisateur introuvable');
+
+        // Construire les données dynamiques pour le dashboard
+        const progressions = user.progressions.map(p => ({
+            titre: p.moduleNom,
+            progression_pourcentage: p.pourcentage,
+            moduleActuel: p.moduleActuel,
+            modulesTotal: p.modulesTotal,
+            tempsRestant: p.tempsRestant
+        }));
+
+        const stats = [
+            { label: 'Formations terminées', value: user.inscriptions.length },
+            { label: 'Progression globale', value: Math.round(user.progressions.reduce((a,b)=>a+b.pourcentage,0)/user.progressions.length || 0) }
+        ];
+
+        const activites = user.activites || []; // exemple : si tu as une table activité
+        const actionsRapides = user.actionsRapides || [];
+        const evenements = user.evenements.map(evt => ({
+            titre: evt.titre,
+            jour: evt.date.getDate(),
+            mois: evt.date.toLocaleString('fr-FR', { month: 'short' }),
+            heure: evt.date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+            lieu: evt.lieu
+        }));
+
+        res.render('etudiants/dashboard-etudiant',{
+        user: { ...user.dataValues, stats, activites, actionsRapides, evenements }, 
+            progressions 
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Erreur serveur');
+    }
+}

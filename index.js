@@ -4,11 +4,14 @@ import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import formationRoutes from './routes/formationRoutes.js';
 import { sequelize } from './models/index.js';
+import session from 'express-session';
 import etudiantsRoutes from './routes/etudiantsRoutes.js';
 
 // Configuration ES6 pour __dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+
 
 // Charger les variables d'environnement
 dotenv.config();
@@ -24,6 +27,14 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Configuration de la session
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'default_secret',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: process.env.NODE_ENV === 'production' }
+}));
 
 // Headers de sécurité basiques
 app.use((req, res, next) => {

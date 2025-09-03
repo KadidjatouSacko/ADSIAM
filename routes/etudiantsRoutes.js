@@ -1,5 +1,6 @@
 import { Router } from 'express';
-import { showProfil, updateProfil, deleteProfil, createProfil } from '../controllers/EtudiantsController.js';
+import { showProfil, updateProfil, deleteProfil, createProfil, showDashboard } from '../controllers/EtudiantsController.js';
+import { isStudent } from '../middleware/auth.js';
 
 const router = Router();
 
@@ -11,16 +12,19 @@ const isAuthenticated = (req, res, next) => {
 };
 
 // Routes CRUD profil
-router.get('/etudiants/profil', isAuthenticated, showProfil);
-router.post('/etudiants/profil/modifier', isAuthenticated, updateProfil);
-router.post('/etudiants/profil/supprimer', isAuthenticated, deleteProfil);
+router.get('/etudiants/profil', isStudent, showProfil);
+router.post('/etudiants/profil/modifier', isStudent, updateProfil);
+router.post('/etudiants/profil/supprimer', isStudent, deleteProfil);
 
 // Route pour afficher le formulaire de création
-router.get('/etudiant/profil/nouveau', (req, res) => {
+router.get('/etudiant/profil/nouveau', isStudent, (req, res) => {
   res.render('etudiants/nouveauProfil', { user: null, successMessage: null });
 });
 
 // Route pour traiter la création
-router.post('/etudiant/profil/nouveau', createProfil);
+router.post('/etudiant/profil/nouveau', isStudent, createProfil);
 
+
+//dashboard Etudiant //
+router.get('/etudiant/dashboard',  showDashboard);
 export default router;

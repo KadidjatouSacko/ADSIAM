@@ -4,13 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tableau de Bord | ADSIAM Formations</title>
-<link rel="stylesheet" href="/css/dashboard-etudiant.css">
+    <link rel="stylesheet" href="/css/dashboard-etudiant.css">
 </head>
 <body>
     <!-- Header -->
-   <%- include('../partials/header-etudiant') %>
+    <%- include('../partials/header-etudiant') %>
 
-    <!-- Main Container -->
     <div class="main-container">
         <!-- Sidebar -->
         <aside class="sidebar slide-in">
@@ -26,7 +25,7 @@
                     <li><a href="#"><span class="icon">👥</span> Communauté</a></li>
                 </ul>
             </div>
-            
+
             <div class="sidebar-section">
                 <h3 class="sidebar-title">Support</h3>
                 <ul class="sidebar-menu">
@@ -35,9 +34,9 @@
                     <li><a href="../Visiteurs/contact"><span class="icon">📞</span> Contact</a></li>
                 </ul>
             </div>
-            
+
             <div class="quick-stats">
-                <span class="stat-number">78%</span>
+                <span class="stat-number"><%= user.progressionGlobale || 0 %>%</span>
                 <span class="stat-label">Progression globale</span>
             </div>
         </aside>
@@ -47,209 +46,102 @@
             <!-- Welcome Banner -->
             <section class="welcome-banner fade-in">
                 <div class="welcome-content">
-                    <h1 class="welcome-title">Bonjour Sophie ! 👋</h1>
+                    <h1 class="welcome-title">Bonjour <%= user.prenom %> ! 👋</h1>
                     <p class="welcome-subtitle">Bienvenue sur votre espace de formation ADSIAM. Continuez votre parcours d'excellence.</p>
                     
                     <div class="welcome-stats">
+                        <% user.stats.forEach(stat => { %>
                         <div class="welcome-stat">
-                            <span class="welcome-stat-number">5</span>
-                            <span class="welcome-stat-label">Formations en cours</span>
+                            <span class="welcome-stat-number"><%= stat.value %></span>
+                            <span class="welcome-stat-label"><%= stat.label %></span>
                         </div>
-                        <div class="welcome-stat">
-                            <span class="welcome-stat-number">2</span>
-                            <span class="welcome-stat-label">Certifications obtenues</span>
-                        </div>
-                        <div class="welcome-stat">
-                            <span class="welcome-stat-number">47h</span>
-                            <span class="welcome-stat-label">Temps de formation</span>
-                        </div>
-                        <div class="welcome-stat">
-                            <span class="welcome-stat-number">92%</span>
-                            <span class="welcome-stat-label">Score moyen</span>
-                        </div>
+                        <% }) %>
                     </div>
                 </div>
             </section>
 
             <!-- Dashboard Grid -->
             <div class="dashboard-grid">
+
                 <!-- Formations en cours -->
                 <div class="dashboard-card fade-in">
                     <div class="card-header">
-                        <h2 class="card-title">
-                            <span class="card-icon">📚</span>
-                            Formations en cours
-                        </h2>
+                        <h2 class="card-title"><span class="card-icon">📚</span> Formations en cours</h2>
                         <a href="#" class="card-action">Voir tout →</a>
                     </div>
-                    
+
+                    <% progressions.forEach(progress => { %>
                     <div class="progress-item">
                         <div class="progress-header">
-                            <span class="progress-title">Communication & Relationnel</span>
-                            <span class="progress-percentage">85%</span>
+                            <span class="progress-title"><%= progress.titre %></span>
+                            <span class="progress-percentage"><%= progress.progression_pourcentage %>%</span>
                         </div>
                         <div class="progress-bar">
-                            <div class="progress-fill" style="width: 85%"></div>
+                            <div class="progress-fill" style="width: <%= progress.progression_pourcentage %>%"></div>
                         </div>
                         <div class="progress-meta">
-                            <span>Module 4/5</span>
-                            <span>Reste 1h30</span>
+                            <span>Module <%= progress.moduleActuel %>/<%= progress.modulesTotal %></span>
+                            <span>Reste <%= progress.tempsRestant %></span>
                         </div>
                     </div>
-                    
-                    <div class="progress-item">
-                        <div class="progress-header">
-                            <span class="progress-title">Hygiène & Sécurité</span>
-                            <span class="progress-percentage">60%</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: 60%"></div>
-                        </div>
-                        <div class="progress-meta">
-                            <span>Module 3/5</span>
-                            <span>Reste 3h15</span>
-                        </div>
-                    </div>
-                    
-                    <div class="progress-item">
-                        <div class="progress-header">
-                            <span class="progress-title">Premiers Secours</span>
-                            <span class="progress-percentage">25%</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: 25%"></div>
-                        </div>
-                        <div class="progress-meta">
-                            <span>Module 1/4</span>
-                            <span>Reste 5h45</span>
-                        </div>
-                    </div>
+                    <% }) %>
                 </div>
 
                 <!-- Activité récente -->
                 <div class="dashboard-card fade-in">
                     <div class="card-header">
-                        <h2 class="card-title">
-                            <span class="card-icon">🕐</span>
-                            Activité récente
-                        </h2>
+                        <h2 class="card-title"><span class="card-icon">🕐</span> Activité récente</h2>
                     </div>
-                    
+                    <% user.activites.forEach(act => { %>
                     <div class="activity-item">
-                        <div class="activity-icon">✅</div>
+                        <div class="activity-icon"><%= act.icon %></div>
                         <div class="activity-content">
-                            <div class="activity-title">Module terminé</div>
-                            <div class="activity-description">Communication bienveillante - Quiz réussi avec 95%</div>
-                            <div class="activity-time">Il y a 2 heures</div>
+                            <div class="activity-title"><%= act.titre %></div>
+                            <div class="activity-description"><%= act.description %></div>
+                            <div class="activity-time"><%= act.date %></div>
                         </div>
                     </div>
-                    
-                    <div class="activity-item">
-                        <div class="activity-icon">🎓</div>
-                        <div class="activity-content">
-                            <div class="activity-title">Certification obtenue</div>
-                            <div class="activity-description">Communication & Relationnel - Certificat téléchargeable</div>
-                            <div class="activity-time">Hier</div>
-                        </div>
-                    </div>
-                    
-                    <div class="activity-item">
-                        <div class="activity-icon">💬</div>
-                        <div class="activity-content">
-                            <div class="activity-title">Nouveau message</div>
-                            <div class="activity-description">Dr. Rousseau : "Excellents résultats sur le dernier quiz !"</div>
-                            <div class="activity-time">Il y a 2 jours</div>
-                        </div>
-                    </div>
-                    
-                    <div class="activity-item">
-                        <div class="activity-icon">📅</div>
-                        <div class="activity-content">
-                            <div class="activity-title">Session planifiée</div>
-                            <div class="activity-description">Webinaire "Gestion du stress" - Demain 14h</div>
-                            <div class="activity-time">Il y a 3 jours</div>
-                        </div>
-                    </div>
+                    <% }) %>
                 </div>
 
                 <!-- Actions rapides -->
                 <div class="dashboard-card fade-in">
                     <div class="card-header">
-                        <h2 class="card-title">
-                            <span class="card-icon">⚡</span>
-                            Actions rapides
-                        </h2>
+                        <h2 class="card-title"><span class="card-icon">⚡</span> Actions rapides</h2>
                     </div>
-                    
-                    <div class="quick-actions">
-                        <a href="#" class="quick-action">
-                            <span class="quick-action-icon">▶️</span>
-                            <span class="quick-action-title">Reprendre la formation</span>
-                        </a>
-                        <a href="#" class="quick-action">
-                            <span class="quick-action-icon">📋</span>
-                            <span class="quick-action-title">Passer un quiz</span>
-                        </a>
-                        <a href="#" class="quick-action">
-                            <span class="quick-action-icon">📥</span>
-                            <span class="quick-action-title">Télécharger ressources</span>
-                        </a>
-                        <a href="#" class="quick-action">
-                            <span class="quick-action-icon">👨‍🏫</span>
-                            <span class="quick-action-title">Contacter formateur</span>
-                        </a>
-                    </div>
+                    <% user.actionsRapides.forEach(action => { %>
+                    <a href="<%= action.url %>" class="quick-action">
+                        <span class="quick-action-icon"><%= action.icon %></span>
+                        <span class="quick-action-title"><%= action.label %></span>
+                    </a>
+                    <% }) %>
                 </div>
 
                 <!-- Prochains événements -->
                 <div class="dashboard-card fade-in">
                     <div class="card-header">
-                        <h2 class="card-title">
-                            <span class="card-icon">📅</span>
-                            Prochains événements
-                        </h2>
+                        <h2 class="card-title"><span class="card-icon">📅</span> Prochains événements</h2>
                         <a href="/etudiant/planning" class="card-action">Planning complet →</a>
                     </div>
-                    
+                    <% user.evenements.forEach(evt => { %>
                     <div class="event-item">
                         <div class="event-date">
-                            <span class="event-day">15</span>
-                            <span class="event-month">Jan</span>
+                            <span class="event-day"><%= evt.jour %></span>
+                            <span class="event-month"><%= evt.mois %></span>
                         </div>
                         <div class="event-content">
-                            <div class="event-title">Webinaire : Gestion du stress professionnel</div>
-                            <div class="event-time">14h00 - 15h30 • En ligne</div>
+                            <div class="event-title"><%= evt.titre %></div>
+                            <div class="event-time"><%= evt.heure %> • <%= evt.lieu %></div>
                         </div>
                     </div>
-                    
-                    <div class="event-item">
-                        <div class="event-date">
-                            <span class="event-day">18</span>
-                            <span class="event-month">Jan</span>
-                        </div>
-                        <div class="event-content">
-                            <div class="event-title">Évaluation : Hygiène & Sécurité</div>
-                            <div class="event-time">À faire avant 23h59</div>
-                        </div>
-                    </div>
-                    
-                    <div class="event-item">
-                        <div class="event-date">
-                            <span class="event-day">22</span>
-                            <span class="event-month">Jan</span>
-                        </div>
-                        <div class="event-content">
-                            <div class="event-title">Session de groupe : Premiers secours pratiques</div>
-                            <div class="event-time">10h00 - 12h00 • Paris 15e</div>
-                        </div>
-                    </div>
+                    <% }) %>
                 </div>
+
             </div>
         </main>
     </div>
 
-       <%- include('../partials/footer') %>
-
+    <%- include('../partials/footer') %>
     <script>
         // Toggle profile dropdown
         function toggleProfileDropdown() {

@@ -17,4 +17,9 @@ router.get('/api/recherche', FormationController.recherche.bind(FormationControl
 router.get('/formations/catalogue', (req, res) => res.redirect('/formations'));
 router.get('/formation/:id', (req, res) => res.redirect(`/formations/${req.params.id}`));
 
+
+
+// Dashboard etudiant//
+
+
 export default router;
