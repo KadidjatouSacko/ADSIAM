@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title || 'Inscription - ADSIAM' %></title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary-pink: #e7a6b7;
+            --primary-blue: #a5bfd4;
+            --light-pink: #fce8ec;
+            --light-blue: #e8f3f8;
+            --soft-gray: #f5f5f7;
+            --text-dark: #2f2f2f;
+            --text-light: #6f6f6f;
+            --white: #ffffff;
+            --gradient-contact: linear-gradient(135deg, #e7a6b7, #a5bfd4);
+            --gradient-blue: linear-gradient(135deg, #e8f3f8, #a5bfd4);
+            --error-color: #dc3545;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--gradient-blue);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .auth-container {
+            background: var(--white);
+            border-radius: 25px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.15);
+            overflow: hidden;
+            max-width: 1200px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: 700px;
+        }
+
+        .auth-form {
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow-y: auto;
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .form-title {
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-subtitle {
+            color: var(--text-light);
+        }
+
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+        }
+
+        .form-label.required::after {
+            content: ' *';
+            color: var(--error-color);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1.2rem 1.5rem;
+            border: 2px solid var(--soft-gray);
+            border-radius: 15px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background: var(--soft-gray);
+            font-family: inherit;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            background: var(--white);
+            box-shadow: 0 5px 15px rgba(165, 191, 212, 0.2);
+        }
+
+        .form-input.error {
+            border-color: var(--error-color);
+            background: #fff5f5;
+        }
+
+        .error-message {
+            color: var(--error-color);
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            display: block;
+        }
+
+        .password-strength {
+            margin-top: 0.5rem;
+        }
+
+        .strength-bar {
+            height: 4px;
+            background: var(--soft-gray);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .strength-fill {
+            height: 100%;
+            width: 0%;
+            transition: all 0.3s;
+            border-radius: 2px;
+        }
+
+        .strength-weak { background: #dc3545; width: 25%; }
+        .strength-fair { background: #ffc107; width: 50%; }
+        .strength-good { background: #28a745; width: 75%; }
+        .strength-strong { background: #28a745; width: 100%; }
+
+        .strength-text {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .register-btn {
+            width: 100%;
+            padding: 1.3rem;
+            background: var(--gradient-contact);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            box-shadow: 0 10px 30px rgba(231, 166, 183, 0.3);
+            margin-top: 1rem;
+        }
+
+        .register-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(231, 166, 183, 0.4);
+        }
+
+        .register-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--soft-gray);
+        }
+
+        .login-link {
+            color: var(--text-light);
+        }
+
+        .login-link a {
+            color: var(--primary-blue);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .login-link a:hover {
+            color: var(--primary-pink);
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .auth-visual {
+            background: linear-gradient(135deg, #fce8ec, #e7a6b7);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 3rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-visual::before {
+            content: '';
+            position: absolute;
+            top: -30%;
+            left: -20%;
+            width: 60%;
+            height: 160%;
+            background: var(--gradient-blue);
+            border-radius: 50%;
+            opacity: 0.3;
+            transform: rotate(15deg);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+            z-index: 2;
+            text-decoration: none;
+            color: white;
+        }
+
+        .logo-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--gradient-contact);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            color: white;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .logo-text {
+            font-size: 2rem;
+            font-weight: 300;
+            letter-spacing: 0.1em;
+        }
+
+        .visual-content {
+            z-index: 2;
+            color: white;
+        }
+
+        .visual-title {
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .visual-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+
+        .visual-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .auth-container {
+                grid-template-columns: 1fr;
+                max-width: 500px;
+            }
+
+            .auth-visual {
+                display: none;
+            }
+
+            .auth-form {
+                padding: 2rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .form-title {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <!-- Formulaire d'inscription -->
+        <div class="auth-form">
+            <div class="form-header">
+                <h2 class="form-title">Créer un compte</h2>
+                <p class="form-subtitle">Rejoignez la communauté ADSIAM</p>
+            </div>
+
+            <!-- Messages d'alerte -->
+            <% if (typeof error !== 'undefined' && error) { %>
+                <div class="alert alert-error">
+                    <%= error %>
+                </div>
+            <% } %>
+
+            <form action="/auth/register" method="POST" id="registerForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="prenom" class="form-label required">Prénom</label>
+                        <input 
+                            type="text" 
+                            id="prenom" 
+                            name="prenom" 
+                            class="form-input <%= typeof errors !== 'undefined' && errors.prenom ? 'error' : '' %>" 
+                            value="<%= typeof formData !== 'undefined' && formData.prenom ? formData.prenom : '' %>"
+                            required
+                            autocomplete="given-name"
+                        >
+                        <% if (typeof errors !== 'undefined' && errors.prenom) { %>
+                            <span class="error-message"><%= errors.prenom %></span>
+                        <% } %>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="nom" class="form-label required">Nom</label>
+                        <input 
+                            type="text" 
+                            id="nom" 
+                            name="nom" 
+                            class="form-input <%= typeof errors !== 'undefined' && errors.nom ? 'error' : '' %>" 
+                            value="<%= typeof formData !== 'undefined' && formData.nom ? formData.nom : '' %>"
+                            required
+                            autocomplete="family-name"
+                        >
+                        <% if (typeof errors !== 'undefined' && errors.nom) { %>
+                            <span class="error-message"><%= errors.nom %></span>
+                        <% } %>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email" class="form-label required">Adresse email</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        class="form-input <%= typeof errors !== 'undefined' && errors.email ? 'error' : '' %>" 
+                        value="<%= typeof formData !== 'undefined' && formData.email ? formData.email : '' %>"
+                        required
+                        autocomplete="email"
+                    >
+                    <% if (typeof errors !== 'undefined' && errors.email) { %>
+                        <span class="error-message"><%= errors.email %></span>
+                    <% } %>
+                </div>
+
+                <div class="form-group">
+                    <label for="telephone" class="form-label">Téléphone</label>
+                    <input 
+                        type="tel" 
+                        id="telephone" 
+                        name="telephone" 
+                        class="form-input <%= typeof errors !== 'undefined' && errors.telephone ? 'error' : '' %>" 
+                        value="<%= typeof formData !== 'undefined' && formData.telephone ? formData.telephone : '' %>"
+                        placeholder="06 12 34 56 78"
+                        autocomplete="tel"
+                    >
+                    <% if (typeof errors !== 'undefined' && errors.telephone) { %>
+                        <span class="error-message"><%= errors.telephone %></span>
+                    <% } %>
+                </div>
+
+                <div class="form-group">
+                    <label for="societe" class="form-label">Société / Établissement</label>
+                    <input 
+                        type="text" 
+                        id="societe" 
+                        name="societe_rattachee" 
+                        class="form-input <%= typeof errors !== 'undefined' && errors.societe_rattachee ? 'error' : '' %>" 
+                        value="<%= typeof formData !== 'undefined' && formData.societe_rattachee ? formData.societe_rattachee : '' %>"
+                        placeholder="EHPAD Saint-Martin"
+                        autocomplete="organization"
+                    >
+                    <% if (typeof errors !== 'undefined' && errors.societe_rattachee) { %>
+                        <span class="error-message"><%= errors.societe_rattachee %></span>
+                    <% } %>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label required">Mot de passe</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="mot_de_passe" 
+                        class="form-input <%= typeof errors !== 'undefined' && errors.mot_de_passe ? 'error' : '' %>" 
+                        required
+                        autocomplete="new-password"
+                    >
+                    <div class="password-strength">
+                        <div class="strength-bar">
+                            <div class="strength-fill" id="strengthFill"></div>
+                        </div>
+                        <div class="strength-text" id="strengthText">8 caractères minimum</div>
+                    </div>
+                    <% if (typeof errors !== 'undefined' && errors.mot_de_passe) { %>
+                        <span class="error-message"><%= errors.mot_de_passe %></span>
+                    <% } %>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword" class="form-label required">Confirmer le mot de passe</label>
+                    <input 
+                        type="password" 
+                        id="confirmPassword" 
+                        name="confirm_password" 
+                        class="form-input <%= typeof errors !== 'undefined' && errors.confirm_password ? 'error' : '' %>" 
+                        required
+                        autocomplete="new-password"
+                    >
+                    <% if (typeof errors !== 'undefined' && errors.confirm_password) { %>
+                        <span class="error-message"><%= errors.confirm_password %></span>
+                    <% } %>
+                </div>
+
+                <button type="submit" class="register-btn" id="registerBtn">
+                    <span class="loading-spinner" id="loadingSpinner"></span>
+                    <span id="btnText">Créer mon compte</span>
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                <p class="login-link">
+                    Déjà un compte ? <a href="/auth/login">Se connecter</a>
+                </p>
+            </div>
+        </div>
+
+        <!-- Partie visuelle -->
+        <div class="auth-visual">
+            <a href="/" class="logo">
+                <div class="logo-icon">A+</div>
+                <div class="logo-text">ADSIAM</div>
+            </a>
+            
+            <div class="visual-content">
+                <h1 class="visual-title">Rejoignez ADSIAM</h1>
+                <p class="visual-subtitle">La formation professionnelle qui vous fait grandir</p>
+                
+                <div class="visual-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">2,500+</span>
+                        <span class="stat-label">Professionnels formés</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">36</span>
+                        <span class="stat-label">Modules disponibles</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">97%</span>
+                        <span class="stat-label">Taux de satisfaction</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">24/7</span>
+                        <span class="stat-label">Support expert</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 📝 Amélioration UX du formulaire d'inscription
+        const registerForm = document.getElementById('registerForm');
+        const registerBtn = document.getElementById('registerBtn');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const btnText = document.getElementById('btnText');
+        const strengthFill = document.getElementById('strengthFill');
+        const strengthText = document.getElementById('strengthText');
+
+        // Validation de la force du mot de passe
+        function checkPasswordStrength(password) {
+            let strength = 0;
+            let text = '';
+            let className = '';
+
+            if (password.length >= 8) strength++;
+            if (/[a-z]/.test(password)) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+            switch (strength) {
+                case 0:
+                case 1:
+                    text = 'Très faible';
+                    className = 'strength-weak';
+                    break;
+                case 2:
+                    text = 'Faible';
+                    className = 'strength-weak';
+                    break;
+                case 3:
+                    text = 'Correct';
+                    className = 'strength-fair';
+                    break;
+                case 4:
+                    text = 'Fort';
+                    className = 'strength-good';
+                    break;
+                case 5:
+                    text = 'Très fort';
+                    className = 'strength-strong';
+                    break;
+            }
+
+            strengthFill.className = `strength-fill ${className}`;
+            strengthText.textContent = text;
+
+            return strength >= 2;
+        }
+
+        // Écouter les changements du mot de passe
+        document.getElementById('password').addEventListener('input', function(e) {
+            checkPasswordStrength(e.target.value);
+        });
+
+        // Validation côté client
+        function validateForm() {
+            const prenom = document.getElementById('prenom').value.trim();
+            const nom = document.getElementById('nom').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            // Validation de base
+            if (!prenom || prenom.length < 2) {
+                alert('Le prénom doit contenir au moins 2 caractères');
+                return false;
+            }
+
+            if (!nom || nom.length < 2) {
+                alert('Le nom doit contenir au moins 2 caractères');
+                return false;
+            }
+
+            if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                alert('Adresse email invalide');
+                return false;
+            }
+
+            if (!password || password.length < 8) {
+                alert('Le mot de passe doit contenir au moins 8 caractères');
+                return false;
+            }
+
+            if (password !== confirmPassword) {
+                alert('Les mots de passe ne correspondent pas');
+                return false;
+            }
+
+            return true;
+        }
+
+        // Gestion de la soumission du formulaire
+        registerForm.addEventListener('submit', function(e) {
+            if (!validateForm()) {
+                e.preventDefault();
+                return false;
+            }
+
+            // Interface de chargement
+            registerBtn.disabled = true;
+            loadingSpinner.style.display = 'inline-block';
+            btnText.textContent = 'Création en cours...';
+        });
+
+        // Formatage automatique du téléphone
+        document.getElementById('telephone').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 0) {
+                if (value.length <= 2) {
+                    value = value;
+                } else if (value.length <= 4) {
+                    value = value.slice(0, 2) + ' ' + value.slice(2);
+                } else if (value.length <= 6) {
+                    value = value.slice(0, 2) + ' ' + value.slice(2, 4) + ' ' + value.slice(4);
+                } else if (value.length <= 8) {
+                    value = value.slice(0, 2) + ' ' + value.slice(2, 4) + ' ' + value.slice(4, 6) + ' ' + value.slice(6);
+                } else {
+                    value = value.slice(0, 2) + ' ' + value.slice(2, 4) + ' ' + value.slice(4, 6) + ' ' + value.slice(6, 8) + ' ' + value.slice(8, 10);
+                }
+            }
+            e.target.value = value;
+        });
+
+        // Nettoyage des erreurs lors de la saisie
+        const fields = ['prenom', 'nom', 'email', 'telephone', 'societe', 'password', 'confirmPassword'];
+        fields.forEach(fieldName => {
+            const field = document.getElementById(fieldName);
+            if (field) {
+                field.addEventListener('input', function() {
+                    this.classList.remove('error');
+                    const errorSpan = this.parentNode.querySelector('.error-message');
+                    if (errorSpan) {
+                        errorSpan.style.display = 'none';
+                    }
+                });
+            }
+        });
+
+        // Auto-focus sur le premier champ avec erreur ou le premier champ
+        window.addEventListener('load', function() {
+            const firstErrorField = document.querySelector('.form-input.error');
+            if (firstErrorField) {
+                firstErrorField.focus();
+            } else {
+                document.getElementById('prenom').focus();
+            }
+        });
+
+        console.log('📝 Page d\'inscription ADSIAM chargée');
+    </script>
+</body>
+</html>

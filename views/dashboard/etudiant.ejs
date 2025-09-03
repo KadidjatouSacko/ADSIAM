@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - ADSIAM</title>
+    <style>
+        body {
+            font-family: Inter, sans-serif;
+            background: #f5f5f7;
+            margin: 0;
+            padding: 2rem;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .welcome {
+            font-size: 2rem;
+            color: #e7a6b7;
+            margin-bottom: 2rem;
+        }
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .nav-links a {
+            background: linear-gradient(135deg, #e7a6b7, #a5bfd4);
+            color: white;
+            padding: 1rem 2rem;
+            text-decoration: none;
+            border-radius: 15px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="welcome">Tableau de Bord Étudiant</h1>
+        <p>Bienvenue sur votre espace personnel ADSIAM !</p>
+        
+        <% if (typeof user !== 'undefined' && user) { %>
+            <p>Connecté en tant que : <strong>Utilisateur ID <%= user.id %></strong></p>
+        <% } %>
+
+        <div class="nav-links">
+            <a href="/auth/profile">Mon Profil</a>
+            <a href="/formations">Formations</a>
+            <a href="/auth/logout">Déconnexion</a>
+        </div>
+    </div>
+</body>
+</html>
