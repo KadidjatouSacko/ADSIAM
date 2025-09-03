@@ -1,5 +1,6 @@
 import { User, Formation, Inscription, ProgressionModule, Evenement  } from '../models/index.js';
-
+import Conversation from '../models/Conversation.js';
+import Message from '../models/Message.js';
 // Afficher profil existant
 export const showProfil = async (req, res) => {
     try {
@@ -130,4 +131,108 @@ export async function showDashboard(req, res) {
         console.error(err);
         res.status(500).send('Erreur serveur');
     }
-}
+};
+
+export async function showFormations(req, res) {
+    try {
+        // Vérifier que l'utilisateur est connecté
+        const userId = req.user?.id;
+        if (!userId) return res.status(401).send('Utilisateur introuvable');
+
+        // Récupérer l'étudiant avec ses inscriptions et progressions
+        const user = await User.findByPk(userId, {
+            include: [
+                { 
+                    model: Inscription, 
+                    as: 'inscriptions',
+                    include: [{ model: Formation, as: 'formation' }]
+                },
+                { model: ProgressionModule, as: 'progressions' }
+            ]
+        });
+
+        if (!user) return res.status(404).send('Utilisateur introuvable');
+
+        // Construire les données dynamiques pour chaque formation
+        const formations = user.inscriptions.map(ins => {
+            const f = ins.formation;
+            const prog = user.progressions.find(p => p.formationId === f.id) || {};
+            return {
+                id: f.id,
+                titre: f.titre,
+                description: f.description,
+                categorie: f.categorie,
+                niveau: f.niveau,
+                modulesTotal: f.modulesTotal,
+                tempsTotal: f.tempsTotal,
+                progressionPourcentage: prog.pourcentage || 0,
+                moduleActuel: prog.moduleActuel || 0,
+                dernierAcces: ins.dernierAcces,
+                statut: ins.statut, // "completed", "in-progress", "not-started"
+                certificat: ins.certificatDisponible || false
+            };
+        });
+
+        // Calcul des stats globales
+        const stats = {
+            total: formations.length,
+            terminees: formations.filter(f => f.statut === 'completed').length,
+            enCours: formations.filter(f => f.statut === 'in-progress').length,
+            progressionMoyenne: formations.length
+                ? Math.round(formations.reduce((sum, f) => sum + f.progressionPourcentage, 0) / formations.length)
+                : 0
+        };
+
+        // Renvoyer toutes les données à la vue
+        res.render('etudiants/formations-etudiant', {
+            user,
+            formations,
+            stats
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Erreur serveur');
+    }
+};
+
+export async function showMessagerie(req, res) {
+    try {
+        const userId = req.user?.id;
+        if (!userId) return res.status(401).send('Utilisateur introuvable');
+
+        // Récupérer l'utilisateur avec ses conversations et messages
+        const user = await User.findByPk(userId, {
+            include: [
+                {
+                    model: Conversation,
+                    as: 'conversations',
+                    include: [
+                        { model: Message, as: 'messages', order: [['createdAt', 'ASC']] }
+                    ]
+                }
+            ]
+        });
+
+        if (!user) return res.status(404).send('Utilisateur introuvable');
+
+        // Calculer les stats
+        const stats = {
+            unreadMessages: user.conversations.reduce(
+                (sum, c) => sum + c.messages.filter(m => !m.lu && m.receiverId === userId).length, 0
+            ),
+            activeFormateurs: [...new Set(user.conversations
+                .filter(c => c.type === 'formateur')
+                .map(c => c.participants.filter(p => p.role === 'formateur').map(f => f.id))
+                .flat()
+            )].length,
+            totalConversations: user.conversations.length,
+            avgResponseTime: '24h' // exemple, tu peux calculer depuis timestamps
+        };
+
+        res.render('etudiants/messagerie-etudiant', { user, conversations: user.conversations, stats });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Erreur serveur');
+    }
+};

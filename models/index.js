@@ -11,6 +11,7 @@ import EvenementModel from './Evenement.js';
 import ParticipationEvenementModel from './ParticipationEvenement.js';
 import ProgressionModuleModel from './ProgressionModule.js';
 import NotificationModel from './Notification.js';
+import ConversationModel from './Conversation.js';
 
 // Charger les variables d'environnement
 dotenv.config();
@@ -44,6 +45,7 @@ const Formation = FormationModel(sequelize);
 const Module = ModuleModel(sequelize);
 const Caracteristique = CaracteristiqueModel(sequelize);
 const Avis = AvisModel(sequelize);
+const { Conversation, ConversationParticipant } = ConversationModel(sequelize);
 const User = UserModel(sequelize);
 const Inscription = InscriptionModel(sequelize);
 const Message = MessageModel(sequelize);
@@ -68,10 +70,6 @@ Inscription.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 Formation.hasMany(Inscription, { foreignKey: 'formation_id', as: 'inscriptions' });
 Inscription.belongsTo(Formation, { foreignKey: 'formation_id', as: 'formation' });
 
-User.hasMany(Message, { foreignKey: 'expediteur_id', as: 'messagesEnvoyes' });
-User.hasMany(Message, { foreignKey: 'destinataire_id', as: 'messagesRecus' });
-Message.belongsTo(User, { foreignKey: 'expediteur_id', as: 'expediteur' });
-Message.belongsTo(User, { foreignKey: 'destinataire_id', as: 'destinataire' });
 
 Formation.hasMany(Message, { foreignKey: 'formation_id', as: 'messages' });
 Message.belongsTo(Formation, { foreignKey: 'formation_id', as: 'formation' });
@@ -99,6 +97,16 @@ ProgressionModule.belongsTo(Inscription, { foreignKey: 'inscription_id', as: 'in
 User.hasMany(Notification, { foreignKey: 'user_id', as: 'notifications' });
 Notification.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 
+// Associations messagerie
+Conversation.belongsToMany(User, { through: ConversationParticipant, as: 'participants', foreignKey: 'conversation_id' });
+User.belongsToMany(Conversation, { through: ConversationParticipant, as: 'conversations', foreignKey: 'user_id' });
+
+Conversation.hasMany(Message, { as: 'messages', foreignKey: 'conversation_id' });
+Message.belongsTo(Conversation, { foreignKey: 'conversation_id' });
+Message.belongsTo(User, { as: 'sender', foreignKey: 'sender_id' });
+Message.belongsTo(User, { as: 'receiver', foreignKey: 'receiver_id' });
+User.hasMany(Message, { as: 'messagesEnvoyes', foreignKey: 'sender_id' });
+User.hasMany(Message, { as: 'messagesRecus', foreignKey: 'receiver_id' });
 // Connexion test
 (async () => {
   try {

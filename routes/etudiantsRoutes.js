@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { showProfil, updateProfil, deleteProfil, createProfil, showDashboard } from '../controllers/EtudiantsController.js';
-import { isStudent } from '../middleware/auth.js';
+import { showProfil, updateProfil, deleteProfil, createProfil, showDashboard, showFormations, showMessagerie } from '../controllers/EtudiantsController.js';
+import { isStudent, ensureAuth } from '../middleware/auth.js';
 
 const router = Router();
 
@@ -26,5 +26,8 @@ router.post('/etudiant/profil/nouveau', isStudent, createProfil);
 
 
 //dashboard Etudiant //
-router.get('/etudiant/dashboard',  showDashboard);
+router.get('/etudiant/dashboard', isStudent, showDashboard);
+router.get('/etudiant/formations', isStudent, showFormations);
+router.get('/messagerie', ensureAuth, showMessagerie);
+
 export default router;

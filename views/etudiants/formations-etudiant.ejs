@@ -16,25 +16,26 @@
         <section class="page-header fade-in">
             <h1 class="page-title">Mes Formations 📚</h1>
             <p class="page-subtitle">Suivez votre progression et continuez votre parcours d'apprentissage ADSIAM</p>
-            
-            <div class="page-stats">
-                <div class="stat-card">
-                    <span class="stat-number">6</span>
-                    <span class="stat-label">Formations inscrites</span>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-number">3</span>
-                    <span class="stat-label">Formations terminées</span>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-number">2</span>
-                    <span class="stat-label">En cours</span>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-number">78%</span>
-                    <span class="stat-label">Progression moyenne</span>
-                </div>
-            </div>
+           <!-- Statistiques -->
+<div class="page-stats">
+    <div class="stat-card">
+        <span class="stat-number"><%= stats.total %></span>
+        <span class="stat-label">Formations inscrites</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-number"><%= stats.terminees %></span>
+        <span class="stat-label">Formations terminées</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-number"><%= stats.enCours %></span>
+        <span class="stat-label">En cours</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-number"><%= stats.progressionMoyenne %>%</span>
+        <span class="stat-label">Progression moyenne</span>
+    </div>
+</div> 
+           
         </section>
 
         <!-- Filters Section -->
@@ -100,370 +101,134 @@
         </section>
 
         <!-- Formations Grid View -->
-        <section class="formations-container" id="gridView">
-            <!-- Formation Card 1 -->
-            <div class="formation-card fade-in" data-status="completed" data-category="communication" data-level="debutant">
-                <div class="formation-header">
-                    <div class="formation-icon">🗣️</div>
-                    <div class="formation-status status-completed">Terminée ✓</div>
+       <section class="formations-container" id="gridView">
+    <% formations.forEach(f => { %>
+        <div class="formation-card fade-in" data-status="<%= f.statut %>" data-category="<%= f.categorie %>" data-level="<%= f.niveau %>">
+            <div class="formation-header">
+                <div class="formation-icon">📘</div>
+                <div class="formation-status status-<%= f.statut %>">
+                    <% if(f.statut === 'completed'){ %>
+                        Terminée ✓
+                    <% } else if(f.statut === 'in-progress'){ %>
+                        En cours
+                    <% } else { %>
+                        Non commencée
+                    <% } %>
                 </div>
-                <div class="formation-content">
-                    <div class="formation-meta">
-                        <span class="meta-tag level-tag">Débutant</span>
-                        <span class="meta-tag duration-tag">3h</span>
-                        <span class="meta-tag modules-tag">5 modules</span>
+            </div>
+            <div class="formation-content">
+                <div class="formation-meta">
+                    <span class="meta-tag level-tag"><%= f.niveau %></span>
+                    <span class="meta-tag duration-tag"><%= f.tempsTotal %>h</span>
+                    <span class="meta-tag modules-tag"><%= f.modulesTotal %> modules</span>
+                </div>
+                <h3 class="formation-title"><%= f.titre %></h3>
+                <p class="formation-description"><%= f.description %></p>
+                
+                <div class="formation-progress">
+                    <div class="progress-header">
+                        <span class="progress-label">Progression</span>
+                        <span class="progress-percentage"><%= f.progressionPourcentage %>%</span>
                     </div>
-                    <h3 class="formation-title">Communication & Relationnel</h3>
-                    <p class="formation-description">Maîtrisez l'art de la communication bienveillante avec les résidents et leurs familles. Formation essentielle pour développer vos compétences relationnelles.</p>
-                    
-                    <div class="formation-progress">
-                        <div class="progress-header">
-                            <span class="progress-label">Progression</span>
-                            <span class="progress-percentage">100%</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: 100%"></div>
-                        </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: <%= f.progressionPourcentage %>%"></div>
                     </div>
-                    
-                    <div class="formation-stats">
-                        <div class="formation-stat">
-                            <span class="formation-stat-number">95%</span>
-                            <span class="formation-stat-label">Score final</span>
-                        </div>
-                        <div class="formation-stat">
-                            <span class="formation-stat-number">2h45</span>
-                            <span class="formation-stat-label">Temps passé</span>
-                        </div>
-                        <div class="formation-stat">
-                            <span class="formation-stat-number">🏆</span>
-                            <span class="formation-stat-label">Certifié</span>
-                        </div>
-                    </div>
-                    
-                    <div class="formation-footer">
-                        <span class="last-activity">Terminée il y a 3 jours</span>
-                        <div class="formation-actions">
+                </div>
+                
+                <div class="formation-footer">
+                    <span class="last-activity">
+                        <% if(f.dernierAcces){ %>
+                            Dernière activité: <%= f.dernierAcces.toLocaleDateString('fr-FR') %>
+                        <% } %>
+                    </span>
+                    <div class="formation-actions">
+                        <% if(f.certificat){ %>
                             <a href="#" class="btn btn-success">🎓 Certificat</a>
+                        <% } %>
+                        <% if(f.statut !== 'not-started'){ %>
                             <a href="#" class="btn btn-secondary">📋 Revoir</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Formation Card 2 -->
-            <div class="formation-card fade-in" data-status="in-progress" data-category="hygiene" data-level="intermediaire">
-                <div class="formation-header">
-                    <div class="formation-icon">🛡️</div>
-                    <div class="formation-status status-in-progress">En cours</div>
-                </div>
-                <div class="formation-content">
-                    <div class="formation-meta">
-                        <span class="meta-tag level-tag">Intermédiaire</span>
-                        <span class="meta-tag duration-tag">4h</span>
-                        <span class="meta-tag modules-tag">6 modules</span>
-                    </div>
-                    <h3 class="formation-title">Hygiène, Sécurité & Prévention</h3>
-                    <p class="formation-description">Protocoles d'hygiène professionnelle, sécurité avec les produits ménagers, prévention des risques domestiques et des infections.</p>
-                    
-                    <div class="formation-progress">
-                        <div class="progress-header">
-                            <span class="progress-label">Progression</span>
-                            <span class="progress-percentage">67%</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: 67%"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="formation-stats">
-                        <div class="formation-stat">
-                            <span class="formation-stat-number">4/6</span>
-                            <span class="formation-stat-label">Modules</span>
-                        </div>
-                        <div class="formation-stat">
-                            <span class="formation-stat-number">2h30</span>
-                            <span class="formation-stat-label">Temps passé</span>
-                        </div>
-                        <div class="formation-stat">
-                            <span class="formation-stat-number">88%</span>
-                            <span class="formation-stat-label">Score moyen</span>
-                        </div>
-                    </div>
-                    
-                    <div class="formation-footer">
-                        <span class="last-activity">Dernière activité: hier</span>
-                        <div class="formation-actions">
-                            <a href="#" class="btn btn-primary">▶️ Continuer</a>
-                            <a href="#" class="btn btn-secondary">📊 Détails</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Formation Card 3 -->
-            <div class="formation-card fade-in" data-status="in-progress" data-category="urgences" data-level="avance">
-                <div class="formation-header">
-                    <div class="formation-icon">🚨</div>
-                    <div class="formation-status status-in-progress">En cours</div>
-                </div>
-                <div class="formation-content">
-                    <div class="formation-meta">
-                        <span class="meta-tag level-tag">Avancé</span>
-                        <span class="meta-tag duration-tag">6h</span>
-                        <span class="meta-tag modules-tag">8 modules</span>
-                    </div>
-                    <h3 class="formation-title">Gestion des Urgences & Premiers Secours</h3>
-                    <p class="formation-description">Formation complète aux gestes qui sauvent : RCP, défibrillateur, position latérale de sécurité, gestion des blessures et situations critiques.</p>
-                    
-                    <div class="formation-progress">
-                        <div class="progress-header">
-                            <span class="progress-label">Progression</span>
-                            <span class="progress-percentage">25%</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: 25%"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="formation-stats">
-                        <div class="formation-stat">
-                            <span class="formation-stat-number">2/8</span>
-                            <span class="formation-stat-label">Modules</span>
-                        </div>
-                        <div class="formation-stat">
-                            <span class="formation-stat-number">1h15</span>
-                            <span class="formation-stat-label">Temps passé</span>
-                        </div>
-                        <div class="formation-stat">
-                            <span class="formation-stat-number">92%</span>
-                            <span class="formation-stat-label">Score moyen</span>
-                        </div>
-                    </div>
-                    
-                    <div class="formation-footer">
-                        <span class="last-activity">Dernière activité: il y a 2 jours</span>
-                        <div class="formation-actions">
-                            <a href="#" class="btn btn-primary">▶️ Continuer</a>
-                            <a href="#" class="btn btn-secondary">📊 Détails</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Formation Card 4 -->
-            <div class="formation-card fade-in" data-status="completed" data-category="pathologies" data-level="avance">
-                <div class="formation-header">
-                    <div class="formation-icon">🧠</div>
-                    <div class="formation-status status-completed">Terminée ✓</div>
-                </div>
-                <div class="formation-content">
-                    <div class="formation-meta">
-                        <span class="meta-tag level-tag">Avancé</span>
-                        <span class="meta-tag duration-tag">5h</span>
-                        <span class="meta-tag modules-tag">7 modules</span>
-                    </div>
-                    <h3 class="formation-title">Pathologies & Situations Spécifiques</h3>
-                    <p class="formation-description">Accompagnement des troubles cognitifs, Alzheimer, maladies chroniques, perte de mobilité et accompagnement en fin de vie.</p>
-                    
-                    <div class="formation-progress">
-                        <div class="progress-header">
-                            <span class="progress-label">Progression</span>
-                            <span class="progress-percentage">100%</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: 100%"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="formation-stats">
-                        <div class="formation-stat">
-                            <span class="formation-stat-number">91%</span>
-                            <span class="formation-stat-label">Score final</span>
-                        </div>
-                        <div class="formation-stat">
-                            <span class="formation-stat-number">4h20</span>
-                            <span class="formation-stat-label">Temps passé</span>
-                        </div>
-                        <div class="formation-stat">
-                            <span class="formation-stat-number">🏆</span>
-                            <span class="formation-stat-label">Certifié</span>
-                        </div>
-                    </div>
-                    
-                    <div class="formation-footer">
-                        <span class="last-activity">Terminée il y a 1 semaine</span>
-                        <div class="formation-actions">
-                            <a href="#" class="btn btn-success">🎓 Certificat</a>
-                            <a href="#" class="btn btn-secondary">📋 Revoir</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Formation Card 5 -->
-            <div class="formation-card fade-in" data-status="not-started" data-category="nutrition" data-level="intermediaire">
-                <div class="formation-header">
-                    <div class="formation-icon">🍽️</div>
-                    <div class="formation-status status-not-started">Non commencée</div>
-                </div>
-                <div class="formation-content">
-                    <div class="formation-meta">
-                        <span class="meta-tag level-tag">Intermédiaire</span>
-                        <span class="meta-tag duration-tag">4h</span>
-                        <span class="meta-tag modules-tag">5 modules</span>
-                    </div>
-                    <h3 class="formation-title">Préparation des Repas & Alimentation</h3>
-                    <p class="formation-description">Hygiène alimentaire, repas équilibrés adaptés, gestion des textures pour éviter les fausses routes, techniques d'hydratation.</p>
-                    
-                    <div class="formation-progress">
-                        <div class="progress-header">
-                            <span class="progress-label">Progression</span>
-                            <span class="progress-percentage">0%</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: 0%"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="formation-stats">
-                        <div class="formation-stat">
-                            <span class="formation-stat-number">0/5</span>
-                            <span class="formation-stat-label">Modules</span>
-                        </div>
-                        <div class="formation-stat">
-                            <span class="formation-stat-number">0h</span>
-                            <span class="formation-stat-label">Temps passé</span>
-                        </div>
-                        <div class="formation-stat">
-                            <span class="formation-stat-number">-</span>
-                            <span class="formation-stat-label">Score</span>
-                        </div>
-                    </div>
-                    
-                    <div class="formation-footer">
-                        <span class="last-activity">Inscrite il y a 2 jours</span>
-                        <div class="formation-actions">
+                        <% } else { %>
                             <a href="#" class="btn btn-primary">🚀 Commencer</a>
-                            <a href="#" class="btn btn-secondary">📊 Détails</a>
-                        </div>
+                        <% } %>
                     </div>
                 </div>
             </div>
-
-            <!-- Formation Card 6 -->
-            <div class="formation-card fade-in" data-status="completed" data-category="ergonomie" data-level="avance">
-                <div class="formation-header">
-                    <div class="formation-icon">🏥</div>
-                    <div class="formation-status status-completed">Terminée ✓</div>
-                </div>
-                <div class="formation-content">
-                    <div class="formation-meta">
-                        <span class="meta-tag level-tag">Avancé</span>
-                        <span class="meta-tag duration-tag">5h</span>
-                        <span class="meta-tag modules-tag">6 modules</span>
-                    </div>
-                    <h3 class="formation-title">Ergonomie & Gestes Professionnels</h3>
-                    <p class="formation-description">Techniques de manutention, prévention des TMS, utilisation du matériel médical et accompagnement sécurisé des transferts.</p>
-                    
-                    <div class="formation-progress">
-                        <div class="progress-header">
-                            <span class="progress-label">Progression</span>
-                            <span class="progress-percentage">100%</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: 100%"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="formation-stats">
-                        <div class="formation-stat">
-                            <span class="formation-stat-number">87%</span>
-                            <span class="formation-stat-label">Score final</span>
-                        </div>
-                        <div class="formation-stat">
-                            <span class="formation-stat-number">4h55</span>
-                            <span class="formation-stat-label">Temps passé</span>
-                        </div>
-                        <div class="formation-stat">
-                            <span class="formation-stat-number">🏆</span>
-                            <span class="formation-stat-label">Certifié</span>
-                        </div>
-                    </div>
-                    
-                    <div class="formation-footer">
-                        <span class="last-activity">Terminée il y a 2 semaines</span>
-                        <div class="formation-actions">
-                            <a href="#" class="btn btn-success">🎓 Certificat</a>
-                            <a href="#" class="btn btn-secondary">📋 Revoir</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+        </div>
+    <% }) %>
+</section>
 
         <!-- List View (Initially Hidden) -->
-        <section class="formations-list" id="listView">
-            <!-- Formation List Item 1 -->
-            <div class="formation-list-item">
-                <div class="list-icon" style="background: var(--gradient-pink);">🗣️</div>
-                <div class="list-content">
-                    <div class="list-info">
-                        <h3>Communication & Relationnel</h3>
-                        <p>Formation terminée • 5 modules • Niveau débutant</p>
-                    </div>
-                    <div class="list-progress">
-                        <div class="progress-header">
-                            <span class="progress-label">100%</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: 100%"></div>
-                        </div>
-                        <span style="font-size: 0.8rem; color: var(--text-light);">Score: 95%</span>
-                    </div>
-                    <div class="list-stats">
-                        <span>✅ Terminée il y a 3 jours</span>
-                        <span>⏱️ 2h45 de formation</span>
-                        <span>🎓 Certificat disponible</span>
-                    </div>
-                </div>
-                <div class="list-actions">
-                    <a href="#" class="btn btn-success">🎓 Certificat</a>
-                    <a href="#" class="btn btn-secondary">📋 Revoir</a>
-                </div>
+  <section class="formations-list" id="listView">
+    <% formations.forEach(f => { %>
+    <div class="formation-list-item">
+        <div class="list-icon" 
+             style="background: <% 
+                if(f.categorie === 'communication'){ %>var(--gradient-pink)<% } 
+                else if(f.categorie === 'hygiene'){ %>var(--gradient-blue)<% } 
+                else if(f.categorie === 'urgences'){ %>var(--gradient-red)<% } 
+                else if(f.categorie === 'pathologies'){ %>var(--gradient-purple)<% } 
+                else { %>var(--gradient-grey)<% } %>;">
+            <% 
+                if(f.categorie === 'communication'){ %>🗣️<% } 
+                else if(f.categorie === 'hygiene'){ %>🛡️<% } 
+                else if(f.categorie === 'urgences'){ %>🚨<% } 
+                else if(f.categorie === 'pathologies'){ %>🧠<% } 
+                else { %>📘<% } %>
+        </div>
+
+        <div class="list-content">
+            <div class="list-info">
+                <h3><%= f.titre %></h3>
+                <p>
+                    <% if(f.statut === 'completed'){ %>Formation terminée<% } %>
+                    <% if(f.statut === 'in-progress'){ %>En cours<% } %>
+                    <% if(f.statut === 'not-started'){ %>Non commencée<% } %> • 
+                    <%= f.modulesTotal %> modules • Niveau <%= f.niveau %>
+                </p>
             </div>
 
-            <!-- Formation List Item 2 -->
-            <div class="formation-list-item">
-                <div class="list-icon" style="background: var(--gradient-blue);">🛡️</div>
-                <div class="list-content">
-                    <div class="list-info">
-                        <h3>Hygiène, Sécurité & Prévention</h3>
-                        <p>En cours • 6 modules • Niveau intermédiaire</p>
-                    </div>
-                    <div class="list-progress">
-                        <div class="progress-header">
-                            <span class="progress-label">67%</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: 67%"></div>
-                        </div>
-                        <span style="font-size: 0.8rem; color: var(--text-light);">Score: 88%</span>
-                    </div>
-                    <div class="list-stats">
-                        <span>📚 Module 4/6</span>
-                        <span>⏱️ 2h30 de formation</span>
-                        <span>🕐 Dernière activité: hier</span>
-                    </div>
+            <div class="list-progress">
+                <div class="progress-header">
+                    <span class="progress-label"><%= f.progressionPourcentage %>%</span>
                 </div>
-                <div class="list-actions">
-                    <a href="#" class="btn btn-primary">▶️ Continuer</a>
-                    <a href="#" class="btn btn-secondary">📊 Détails</a>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: <%= f.progressionPourcentage %>%"></div>
                 </div>
+                <% if(f.statut !== 'not-started'){ %>
+                <span style="font-size: 0.8rem; color: var(--text-light);">
+                    Score: <%= f.score || '-' %>%
+                </span>
+                <% } %>
             </div>
 
-            <!-- Plus d'éléments de liste peuvent être ajoutés ici -->
-        </section>
+            <div class="list-stats">
+                <% if(f.statut === 'completed'){ %>
+                    <span>✅ Terminée <%= f.dernierAcces ? `il y a ${f.dernierAcces}` : '' %></span>
+                <% } else if(f.statut === 'in-progress'){ %>
+                    <span>📚 Module <%= f.moduleActuel %>/<%= f.modulesTotal %></span>
+                    <span>⏱️ <%= f.tempsTotal %> de formation</span>
+                    <span>🕐 Dernière activité: <%= f.dernierAcces %></span>
+                <% } else { %>
+                    <span>Inscrite <%= f.dernierAcces ? `il y a ${f.dernierAcces}` : '' %></span>
+                <% } %>
+            </div>
+        </div>
+
+        <div class="list-actions">
+            <% if(f.certificat && f.statut === 'completed'){ %>
+                <a href="#" class="btn btn-success">🎓 Certificat</a>
+            <% } %>
+            <% if(f.statut !== 'not-started'){ %>
+                <a href="#" class="btn btn-secondary">📋 Revoir</a>
+            <% } else { %>
+                <a href="#" class="btn btn-primary">🚀 Commencer</a>
+            <% } %>
+        </div>
+    </div>
+    <% }) %>
+</section>
+
+
     </div>
 
     <%- include('../partials/footer') %>

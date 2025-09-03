@@ -17,24 +17,25 @@
             <h1 class="page-title">Messagerie 💬</h1>
             <p class="page-subtitle">Communiquez avec vos formateurs et la communauté ADSIAM</p>
             
-            <div class="messaging-stats">
-                <div class="stat-item">
-                    <span class="stat-number">3</span>
-                    <span class="stat-label">Messages non lus</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number">2</span>
-                    <span class="stat-label">Formateurs actifs</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number">15</span>
-                    <span class="stat-label">Conversations</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number">24h</span>
-                    <span class="stat-label">Réponse moyenne</span>
-                </div>
-            </div>
+           <div class="messaging-stats">
+    <div class="stat-item">
+        <span class="stat-number"><%= stats.unreadMessages %></span>
+        <span class="stat-label">Messages non lus</span>
+    </div>
+    <div class="stat-item">
+        <span class="stat-number"><%= stats.activeFormateurs %></span>
+        <span class="stat-label">Formateurs actifs</span>
+    </div>
+    <div class="stat-item">
+        <span class="stat-number"><%= stats.totalConversations %></span>
+        <span class="stat-label">Conversations</span>
+    </div>
+    <div class="stat-item">
+        <span class="stat-number"><%= stats.avgResponseTime %></span>
+        <span class="stat-label">Réponse moyenne</span>
+    </div>
+</div>
+
         </section>
 
         <!-- Messaging Interface -->
@@ -57,96 +58,39 @@
                     <button class="filter-btn" onclick="filterConversations('support')">Support</button>
                 </div>
                 
-                <div class="conversations-list">
-                    <!-- Conversation 1 - Unread -->
-                    <div class="conversation-item unread active" data-conversation="rousseau" data-type="formateur">
-                        <div class="conversation-avatar">
-                            <img src="/images/avatar-rousseau.jpg" alt="Dr. Rousseau" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                            <div class="avatar-fallback">DR</div>
-                        </div>
-                        <div class="conversation-content">
-                            <div class="conversation-header">
-                                <span class="conversation-name">Dr. Rousseau</span>
-                                <span class="conversation-time">14:30</span>
-                            </div>
-                            <div class="conversation-preview">Excellents résultats sur le dernier quiz ! Continuez...</div>
-                            <div class="conversation-meta">
-                                <span class="conversation-badge formateur">Formateur</span>
-                                <span class="unread-count">2</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Conversation 2 - Unread -->
-                    <div class="conversation-item unread" data-conversation="support" data-type="support">
-                        <div class="conversation-avatar">
-                            <div class="avatar-fallback support">🎧</div>
-                        </div>
-                        <div class="conversation-content">
-                            <div class="conversation-header">
-                                <span class="conversation-name">Support Technique</span>
-                                <span class="conversation-time">12:15</span>
-                            </div>
-                            <div class="conversation-preview">Votre problème de connexion a été résolu...</div>
-                            <div class="conversation-meta">
-                                <span class="conversation-badge support">Support</span>
-                                <span class="unread-count">1</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Conversation 3 - Read -->
-                    <div class="conversation-item" data-conversation="martin" data-type="formateur">
-                        <div class="conversation-avatar">
-                            <img src="/images/avatar-martin.jpg" alt="Dr. Martin" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                            <div class="avatar-fallback">DM</div>
-                        </div>
-                        <div class="conversation-content">
-                            <div class="conversation-header">
-                                <span class="conversation-name">Dr. Martin</span>
-                                <span class="conversation-time">Hier</span>
-                            </div>
-                            <div class="conversation-preview">Merci pour votre participation au webinaire...</div>
-                            <div class="conversation-meta">
-                                <span class="conversation-badge formateur">Formateur</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Conversation 4 - Group -->
-                    <div class="conversation-item" data-conversation="groupe-hygiene" data-type="groupe">
-                        <div class="conversation-avatar">
-                            <div class="avatar-fallback groupe">👥</div>
-                        </div>
-                        <div class="conversation-content">
-                            <div class="conversation-header">
-                                <span class="conversation-name">Groupe Hygiène & Sécurité</span>
-                                <span class="conversation-time">2 jours</span>
-                            </div>
-                            <div class="conversation-preview">Marie L. : J'ai une question sur les protocoles...</div>
-                            <div class="conversation-meta">
-                                <span class="conversation-badge groupe">Groupe (8)</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Conversation 5 - Admin -->
-                    <div class="conversation-item" data-conversation="admin" data-type="admin">
-                        <div class="conversation-avatar">
-                            <div class="avatar-fallback admin">🏢</div>
-                        </div>
-                        <div class="conversation-content">
-                            <div class="conversation-header">
-                                <span class="conversation-name">Administration ADSIAM</span>
-                                <span class="conversation-time">3 jours</span>
-                            </div>
-                            <div class="conversation-preview">Nouvelle certification disponible...</div>
-                            <div class="conversation-meta">
-                                <span class="conversation-badge admin">Administration</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+               <div class="conversations-list">
+    <% conversations.forEach(c => { %>
+    <div class="conversation-item <%= c.messages.some(m => !m.lu && m.receiverId === user.id) ? 'unread' : '' %>" 
+         data-conversation="<%= c.id %>" data-type="<%= c.type %>">
+         
+        <div class="conversation-avatar">
+            <% if(c.avatar){ %>
+                <img src="<%= c.avatar %>" alt="<%= c.nom %>" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <% } %>
+            <div class="avatar-fallback"><%= c.nom.split(' ').map(n => n[0]).join('').toUpperCase() %></div>
+        </div>
+
+        <div class="conversation-content">
+            <div class="conversation-header">
+                <span class="conversation-name"><%= c.nom %></span>
+                <span class="conversation-time">
+                    <%= c.messages.length ? c.messages[c.messages.length-1].createdAt.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'}) : '' %>
+                </span>
+            </div>
+            <div class="conversation-preview">
+                <%= c.messages.length ? c.messages[c.messages.length-1].contenu.substring(0,50) + '...' : 'Aucun message' %>
+            </div>
+            <div class="conversation-meta">
+                <span class="conversation-badge <%= c.type %>"><%= c.type.charAt(0).toUpperCase() + c.type.slice(1) %></span>
+                <% if(c.messages.some(m => !m.lu && m.receiverId === user.id)){ %>
+                    <span class="unread-count"><%= c.messages.filter(m => !m.lu && m.receiverId === user.id).length %></span>
+                <% } %>
+            </div>
+        </div>
+    </div>
+    <% }) %>
+</div>
+
             </aside>
 
             <!-- Main Chat Area -->
@@ -173,107 +117,34 @@
                 </div>
 
                 <!-- Chat Messages -->
-                <div class="chat-messages" id="chatMessages">
-                    <!-- Message 1 - Received -->
-                    <div class="message received">
-                        <div class="message-avatar">
-                            <img src="/images/avatar-rousseau.jpg" alt="Dr. Rousseau" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                            <div class="avatar-fallback">DR</div>
-                        </div>
-                        <div class="message-content">
-                            <div class="message-header">
-                                <span class="message-sender">Dr. Rousseau</span>
-                                <span class="message-time">Aujourd'hui 14:30</span>
-                            </div>
-                            <div class="message-body">
-                                <p>Bonjour Sophie ! 👋</p>
-                                <p>Je voulais vous féliciter pour vos excellents résultats sur le quiz de communication. 95% c'est remarquable !</p>
-                                <p>Avez-vous des questions sur le module suivant ?</p>
-                            </div>
-                            <div class="message-reactions">
-                                <button class="reaction-btn" onclick="addReaction(this, '👍')">👍</button>
-                                <button class="reaction-btn" onclick="addReaction(this, '❤️')">❤️</button>
-                                <button class="reaction-btn" onclick="addReaction(this, '🙏')">🙏</button>
-                            </div>
-                        </div>
+              <div class="chat-messages" id="chatMessages">
+    <% let selectedConversation = conversations[0]; %> <!-- par défaut -->
+    <% if(selectedConversation){ %>
+        <% selectedConversation.messages.forEach(m => { %>
+            <div class="message <%= m.senderId === user.id ? 'sent' : 'received' %>">
+                <div class="message-avatar">
+                    <% if(m.sender.avatar){ %>
+                        <img src="<%= m.sender.avatar %>" alt="<%= m.sender.nom %>">
+                    <% } else { %>
+                        <div class="avatar-fallback"><%= m.sender.nom.split(' ').map(n => n[0]).join('').toUpperCase() %></div>
+                    <% } %>
+                </div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <% if(m.senderId !== user.id){ %>
+                            <span class="message-sender"><%= m.sender.nom %></span>
+                        <% } %>
+                        <span class="message-time"><%= m.createdAt.toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' }) %></span>
                     </div>
-
-                    <!-- Message 2 - Sent -->
-                    <div class="message sent">
-                        <div class="message-content">
-                            <div class="message-header">
-                                <span class="message-time">Aujourd'hui 14:45</span>
-                            </div>
-                            <div class="message-body">
-                                <p>Merci beaucoup Dr. Rousseau ! 😊</p>
-                                <p>J'ai effectivement une question sur le module "Gestion des conflits". Comment gérer une situation où la famille n'est pas d'accord avec les soins proposés ?</p>
-                            </div>
-                            <div class="message-status">
-                                <span class="status-icon">✓✓</span>
-                                <span class="status-text">Lu</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Message 3 - Received with attachment -->
-                    <div class="message received">
-                        <div class="message-avatar">
-                            <img src="/images/avatar-rousseau.jpg" alt="Dr. Rousseau" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                            <div class="avatar-fallback">DR</div>
-                        </div>
-                        <div class="message-content">
-                            <div class="message-header">
-                                <span class="message-sender">Dr. Rousseau</span>
-                                <span class="message-time">Aujourd'hui 15:10</span>
-                            </div>
-                            <div class="message-body">
-                                <p>Excellente question ! 🎯</p>
-                                <p>C'est exactement le type de situation qu'on aborde dans le module. La clé est l'écoute active et la médiation.</p>
-                                
-                                <div class="message-attachment">
-                                    <div class="attachment-icon">📄</div>
-                                    <div class="attachment-content">
-                                        <span class="attachment-name">Guide_Gestion_Conflits_Familles.pdf</span>
-                                        <span class="attachment-size">2.3 MB</span>
-                                    </div>
-                                    <button class="attachment-download" onclick="downloadAttachment('guide-conflits')">📥</button>
-                                </div>
-                                
-                                <p>Je vous envoie un guide complémentaire. N'hésitez pas si vous avez d'autres questions !</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Message 4 - System message -->
-                    <div class="message system">
-                        <div class="system-content">
-                            <span class="system-icon">🎓</span>
-                            <span class="system-text">Vous avez obtenu votre certification "Communication & Relationnel"</span>
-                            <span class="system-time">Hier 16:20</span>
-                        </div>
-                    </div>
-
-                    <!-- Message 5 - Sent -->
-                    <div class="message sent">
-                        <div class="message-content">
-                            <div class="message-header">
-                                <span class="message-time">Hier 16:25</span>
-                            </div>
-                            <div class="message-body">
-                                <p>Merci pour le document ! 📚</p>
-                                <p>Et merci pour votre accompagnement pendant toute cette formation. Vos conseils m'ont beaucoup aidée.</p>
-                                <p>J'ai hâte de commencer le module suivant ! 🚀</p>
-                            </div>
-                            <div class="message-reactions">
-                                <span class="reaction active" onclick="removeReaction(this)">❤️ 1</span>
-                            </div>
-                            <div class="message-status">
-                                <span class="status-icon">✓✓</span>
-                                <span class="status-text">Lu</span>
-                            </div>
-                        </div>
+                    <div class="message-body">
+                        <p><%= m.contenu %></p>
                     </div>
                 </div>
+            </div>
+        <% }) %>
+    <% } %>
+</div>
+ 
 
                 <!-- Chat Input -->
                 <div class="chat-input-container">

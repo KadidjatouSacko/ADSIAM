@@ -11,3 +11,9 @@ export function isStudent(req, res, next) {
     next();
 }
 
+export function ensureAuth(req, res, next) {
+    if (req.isAuthenticated && req.isAuthenticated()) return next();
+    if (req.user) return next();
+    res.redirect('/login'); // ou 401 selon ton app
+}
+
