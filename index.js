@@ -13,8 +13,6 @@ import etudiantsRoutes from './routes/etudiantsRoutes.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-
-
 // Charger les variables d'environnement
 dotenv.config();
 
@@ -46,37 +44,115 @@ app.use((req, res, next) => {
   next();
 });
 
-// Logs des requêtes en développement
-if (process.env.NODE_ENV !== 'production') {
-  app.use((req, res, next) => {
-    console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
-    next();
+// MIDDLEWARE DE DEBUG - Logs détaillés des requêtes
+app.use((req, res, next) => {
+  const timestamp = new Date().toISOString();
+  console.log(`\n🔍 [${timestamp}] ${req.method} ${req.url}`);
+  
+  // Log des headers importants
+  if (req.headers['content-type']) {
+    console.log(`📄 Content-Type: ${req.headers['content-type']}`);
+  }
+  
+  // Log du body pour les POST
+  if (req.method === 'POST' && req.body) {
+    console.log(`📝 Body:`, req.body);
+  }
+  
+  // Log des query parameters
+  if (Object.keys(req.query).length > 0) {
+    console.log(`🔍 Query:`, req.query);
+  }
+  
+  next();
+});
+
+// ROUTE DE TEST SIMPLE
+app.get('/test-server', (req, res) => {
+  console.log('✅ Route /test-server appelée');
+  res.json({ 
+    message: 'Serveur ADSIAM OK', 
+    timestamp: new Date(),
+    nodeEnv: process.env.NODE_ENV 
   });
-}
+});
+
+// ROUTE DE TEST AUTH API
+app.post('/test-auth', (req, res) => {
+  console.log('✅ Route POST /test-auth appelée');
+  console.log('Body reçu:', req.body);
+  res.json({
+    success: true,
+    message: 'Test auth API OK',
+    receivedData: req.body
+  });
+});
+
+console.log('🔧 Chargement des routes...');
 
 // Routes principales
+console.log('📋 Montage de formationRoutes sur /');
 app.use('/', formationRoutes);
+
+console.log('👥 Montage de etudiantsRoutes sur /');
 app.use('/', etudiantsRoutes);
+
+console.log('🔐 Montage de authRouter sur /');
 app.use('/', authRouter);
+
+console.log('🔌 Montage de apiRouter sur /api');
 app.use('/api', apiRouter);
 
-// Middleware 404
+// MIDDLEWARE DE DEBUG - Afficher toutes les routes montées
+app._router.stack.forEach((middleware) => {
+  if (middleware.route) { // Route directe
+    console.log(`📍 Route directe: ${Object.keys(middleware.route.methods).join(', ').toUpperCase()} ${middleware.route.path}`);
+  } else if (middleware.name === 'router') { // Router
+    middleware.handle.stack.forEach((handler) => {
+      if (handler.route) {
+        const methods = Object.keys(handler.route.methods).join(', ').toUpperCase();
+        const fullPath = middleware.regexp.source.replace('\\/?(?=\\/|$)', '') + handler.route.path;
+        console.log(`📍 Route montée: ${methods} ${fullPath}`);
+      }
+    });
+  }
+});
+
+// Middleware 404 avec debug
 app.use((req, res) => {
-  res.status(404).render('error', {
-    message: 'Page non trouvée',
-    error: {
-      status: 404,
-      stack: process.env.NODE_ENV === 'production' ? '' : 'Route non définie'
+  console.log(`❌ 404 - Route non trouvée: ${req.method} ${req.url}`);
+  
+  // Lister les routes disponibles dans la réponse 404
+  const availableRoutes = [];
+  app._router.stack.forEach((middleware) => {
+    if (middleware.route) {
+      availableRoutes.push(`${Object.keys(middleware.route.methods).join(', ').toUpperCase()} ${middleware.route.path}`);
+    } else if (middleware.name === 'router') {
+      middleware.handle.stack.forEach((handler) => {
+        if (handler.route) {
+          const methods = Object.keys(handler.route.methods).join(', ').toUpperCase();
+          const fullPath = middleware.regexp.source.replace('\\/?(?=\\/|$)', '') + handler.route.path;
+          availableRoutes.push(`${methods} ${fullPath}`);
+        }
+      });
     }
+  });
+
+  res.status(404).json({
+    success: false,
+    message: `Route non trouvée: ${req.method} ${req.url}`,
+    availableRoutes: availableRoutes,
+    timestamp: new Date()
   });
 });
 
 // Middleware gestion des erreurs
 app.use((err, req, res, next) => {
-  console.error('Erreur serveur:', err);
-  res.status(err.status || 500).render('error', {
+  console.error('💥 Erreur serveur:', err);
+  res.status(err.status || 500).json({
+    success: false,
     message: err.message || 'Erreur interne du serveur',
-    error: process.env.NODE_ENV === 'production' ? {} : err
+    error: process.env.NODE_ENV === 'production' ? {} : err.stack
   });
 });
 
@@ -97,8 +173,21 @@ async function startServer() {
 
     // Démarrage serveur
     app.listen(PORT, () => {
-      console.log(`🚀 Serveur ADSIAM démarré sur le port ${PORT}`);
+      console.log(`\n🚀 Serveur ADSIAM démarré sur le port ${PORT}`);
       console.log(`🌐 Accédez à l'application : http://localhost:${PORT}`);
+      console.log(`🧪 Test serveur: http://localhost:${PORT}/test-server`);
+      console.log(`🔐 Test auth: POST http://localhost:${PORT}/test-auth`);
+      
+      console.log('\n📋 Routes probablement disponibles:');
+      console.log('  GET  /test-server           - Test serveur');
+      console.log('  POST /test-auth             - Test auth API');
+      console.log('  GET  /connexion             - Page connexion (si dans authRouter)');
+      console.log('  POST /auth/api/connexion    - API connexion (si dans authRouter)');
+      console.log('  GET  /auth/api/verifier-auth - Vérifier auth (si dans authRouter)');
+      
+      console.log('\n🔍 Testez ces commandes dans la console du navigateur:');
+      console.log('  fetch("/test-server").then(r => r.json()).then(console.log)');
+      console.log('  fetch("/test-auth", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({test:true})}).then(r => r.json()).then(console.log)');
     });
 
   } catch (error) {
