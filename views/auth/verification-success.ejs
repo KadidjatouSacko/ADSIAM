@@ -1,0 +1,280 @@
+<!-- views/auth/verification-success.ejs -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | Email vérifié</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-pink: #e7a6b7;
+            --primary-blue: #a5bfd4;
+            --light-pink: #fce8ec;
+            --light-blue: #e8f3f8;
+            --soft-gray: #f5f5f7;
+            --text-dark: #2f2f2f;
+            --text-light: #6f6f6f;
+            --white: #ffffff;
+            --gradient-contact: linear-gradient(135deg, #e7a6b7, #a5bfd4);
+            --gradient-green: linear-gradient(135deg, #e2f8ee, #9dd6b5);
+            --success: #28a745;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--soft-gray);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        .success-container {
+            width: 100%;
+            max-width: 500px;
+            background: var(--white);
+            border-radius: 25px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .success-header {
+            background: var(--gradient-green);
+            padding: 4rem 2rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .success-icon {
+            width: 100px;
+            height: 100px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            font-size: 3rem;
+            backdrop-filter: blur(10px);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .success-title {
+            font-size: 2rem;
+            font-weight: 300;
+            margin-bottom: 1rem;
+        }
+
+        .success-subtitle {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .success-content {
+            padding: 3rem 2rem;
+        }
+
+        .welcome-message {
+            background: var(--light-blue);
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            color: var(--text-dark);
+        }
+
+        .welcome-message h3 {
+            color: var(--primary-blue);
+            margin-bottom: 1rem;
+        }
+
+        .continue-btn {
+            width: 100%;
+            background: var(--gradient-contact);
+            color: white;
+            padding: 1.3rem 2rem;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .continue-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(231, 166, 183, 0.4);
+        }
+
+        .features-list {
+            text-align: left;
+            margin: 2rem 0;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--soft-gray);
+        }
+
+        .feature-item:last-child {
+            border-bottom: none;
+        }
+
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--light-pink);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: var(--primary-pink);
+        }
+
+        .feature-text {
+            flex: 1;
+        }
+
+        .feature-title {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.3rem;
+        }
+
+        .feature-desc {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .redirect-info {
+            background: var(--soft-gray);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 2rem;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .success-container {
+                margin: 1rem;
+            }
+            
+            .success-header {
+                padding: 3rem 1.5rem;
+            }
+            
+            .success-content {
+                padding: 2rem 1.5rem;
+            }
+            
+            .success-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="success-container">
+        <div class="success-header">
+            <div class="success-icon">✅</div>
+            <h1 class="success-title">Email vérifié !</h1>
+            <p class="success-subtitle">Votre compte ADSIAM est maintenant actif</p>
+        </div>
+
+        <div class="success-content">
+            <div class="welcome-message">
+                <h3>Bienvenue <%= user.prenom %> <%= user.nom %> !</h3>
+                <p>Votre compte a été créé avec succès. Vous pouvez maintenant accéder à toutes nos formations professionnelles.</p>
+            </div>
+
+            <div class="features-list">
+                <div class="feature-item">
+                    <div class="feature-icon">🎓</div>
+                    <div class="feature-text">
+                        <div class="feature-title">36 modules de formation</div>
+                        <div class="feature-desc">Accès à tout notre catalogue professionnel</div>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📱</div>
+                    <div class="feature-text">
+                        <div class="feature-title">Plateforme moderne</div>
+                        <div class="feature-desc">Interface intuitive et responsive</div>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🏆</div>
+                    <div class="feature-text">
+                        <div class="feature-title">Certifications</div>
+                        <div class="feature-desc">Obtenez vos certificats professionnels</div>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">💬</div>
+                    <div class="feature-text">
+                        <div class="feature-title">Support expert</div>
+                        <div class="feature-desc">Aide disponible 24h/7j</div>
+                    </div>
+                </div>
+            </div>
+
+            <a href="<%= redirectUrl || '/dashboard' %>" class="continue-btn">
+                🚀 Accéder à mon espace
+            </a>
+
+            <div class="redirect-info">
+                Redirection automatique dans <span id="countdown">5</span> secondes...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Countdown and redirect
+        let countdown = 5;
+        const countdownEl = document.getElementById('countdown');
+        const redirectUrl = '<%= redirectUrl || "/dashboard" %>';
+
+        const interval = setInterval(() => {
+            countdown--;
+            countdownEl.textContent = countdown;
+            
+            if (countdown <= 0) {
+                clearInterval(interval);
+                window.location.href = redirectUrl;
+            }
+        }, 1000);
+
+        // Allow immediate redirect
+        document.querySelector('.continue-btn').addEventListener('click', (e) => {
+            e.preventDefault();
+            clearInterval(interval);
+            window.location.href = redirectUrl;
+        });
+    </script>
+</body>
+</html>

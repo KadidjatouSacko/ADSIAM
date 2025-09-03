@@ -628,7 +628,7 @@
             <!-- Forms Container -->
             <div class="auth-forms">
                 <!-- Login Form -->
-                <form class="auth-form active" id="loginForm" data-form="login">
+                    <form class="auth-form active" id="loginForm" data-form="login" method="POST" action="/api/connexion">
                     <div class="form-header">
                         <h2 class="form-title">Bon retour !</h2>
                         <p class="form-subtitle">Connectez-vous pour accéder à vos formations</p>
@@ -649,7 +649,7 @@
                             <div class="checkbox" data-checkbox></div>
                             <span>Se souvenir de moi</span>
                         </label>
-                        <a href="#" class="forgot-password">Mot de passe oublié ?</a>
+                        <a href="/mot-de-passe-oublie" class="forgot-password">Mot de passe oublié ?</a>
                     </div>
                     <button type="submit" class="btn btn-primary">Se connecter</button>
                     <div class="social-divider">
@@ -666,13 +666,13 @@
                         </button>
                     </div>
                     <div class="register-link">
-                        Pas encore de compte ? <a href="#" data-switch="register">Créez votre compte</a>
+                        Pas encore de compte ? <a href="/inscription" data-switch="register">Créez votre compte</a>
                     </div>
                 </form>
 
                 <!-- Register Form -->
-                <form class="auth-form" id="registerForm" data-form="register">
-                    <div class="form-header">
+                <form class="auth-form" id="registerForm" data-form="register" method="POST" action="/api/inscription">
+                <div class="form-header">
                         <h2 class="form-title">Rejoignez-nous !</h2>
                         <p class="form-subtitle">Créez votre compte pour commencer votre formation</p>
                     </div>
@@ -723,7 +723,7 @@
                         </button>
                     </div>
                     <div class="register-link">
-                        Déjà un compte ? <a href="#" data-switch="login">Connectez-vous</a>
+                        Déjà un compte ? <a href="/connexion" data-switch="login">Connectez-vous</a>
                     </div>
                 </form>
             </div>

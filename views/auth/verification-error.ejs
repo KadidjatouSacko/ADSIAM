@@ -1,0 +1,353 @@
+<!-- views/auth/verification-error.ejs -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | Erreur de vérification</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-pink: #e7a6b7;
+            --primary-blue: #a5bfd4;
+            --light-pink: #fce8ec;
+            --light-blue: #e8f3f8;
+            --soft-gray: #f5f5f7;
+            --text-dark: #2f2f2f;
+            --text-light: #6f6f6f;
+            --white: #ffffff;
+            --gradient-contact: linear-gradient(135deg, #e7a6b7, #a5bfd4);
+            --error: #dc3545;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--soft-gray);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        .error-container {
+            width: 100%;
+            max-width: 500px;
+            background: var(--white);
+            border-radius: 25px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .error-header {
+            background: linear-gradient(135deg, #f8d7da, #dc3545);
+            padding: 4rem 2rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .error-icon {
+            width: 100px;
+            height: 100px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            font-size: 3rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .error-title {
+            font-size: 2rem;
+            font-weight: 300;
+            margin-bottom: 1rem;
+        }
+
+        .error-subtitle {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .error-content {
+            padding: 3rem 2rem;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: var(--error);
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            border: 1px solid var(--error);
+        }
+
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 1.3rem 2rem;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: var(--gradient-contact);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(231, 166, 183, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary-blue);
+            border: 2px solid var(--primary-blue);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .error-container {
+                margin: 1rem;
+            }
+            
+            .error-header {
+                padding: 3rem 1.5rem;
+            }
+            
+            .error-content {
+                padding: 2rem 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-header">
+            <div class="error-icon">❌</div>
+            <h1 class="error-title">Erreur de vérification</h1>
+            <p class="error-subtitle">Impossible de vérifier votre email</p>
+        </div>
+
+        <div class="error-content">
+            <div class="error-message">
+                <%= message %>
+            </div>
+
+            <div class="actions">
+                <a href="/inscription" class="btn btn-primary">
+                    🔄 Créer un nouveau compte
+                </a>
+                <a href="/connexion" class="btn btn-secondary">
+                    ← Retour à la connexion
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+<!-- views/auth/reset-error.ejs -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | Erreur de réinitialisation</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-pink: #e7a6b7;
+            --primary-blue: #a5bfd4;
+            --light-pink: #fce8ec;
+            --light-blue: #e8f3f8;
+            --soft-gray: #f5f5f7;
+            --text-dark: #2f2f2f;
+            --text-light: #6f6f6f;
+            --white: #ffffff;
+            --gradient-contact: linear-gradient(135deg, #e7a6b7, #a5bfd4);
+            --error: #dc3545;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--soft-gray);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        .error-container {
+            width: 100%;
+            max-width: 500px;
+            background: var(--white);
+            border-radius: 25px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .error-header {
+            background: linear-gradient(135deg, #f8d7da, #dc3545);
+            padding: 4rem 2rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .error-icon {
+            width: 100px;
+            height: 100px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            font-size: 3rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .error-title {
+            font-size: 2rem;
+            font-weight: 300;
+            margin-bottom: 1rem;
+        }
+
+        .error-subtitle {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .error-content {
+            padding: 3rem 2rem;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: var(--error);
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            border: 1px solid var(--error);
+        }
+
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 1.3rem 2rem;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: var(--gradient-contact);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(231, 166, 183, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary-blue);
+            border: 2px solid var(--primary-blue);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .error-container {
+                margin: 1rem;
+            }
+            
+            .error-header {
+                padding: 3rem 1.5rem;
+            }
+            
+            .error-content {
+                padding: 2rem 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-header">
+            <div class="error-icon">⚠️</div>
+            <h1 class="error-title">Lien expiré</h1>
+            <p class="error-subtitle">Le lien de réinitialisation n'est plus valide</p>
+        </div>
+
+        <div class="error-content">
+            <div class="error-message">
+                <%= message %>
+            </div>
+
+            <div class="actions">
+                <a href="/mot-de-passe-oublie" class="btn btn-primary">
+                    🔄 Demander un nouveau lien
+                </a>
+                <a href="/connexion" class="btn btn-secondary">
+                    ← Retour à la connexion
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

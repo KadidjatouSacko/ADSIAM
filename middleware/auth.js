@@ -1,19 +1,44 @@
-import User from '../models/User.js';
+// middleware/auth.js
+import { authMiddleware, roleMiddleware, permissionMiddleware, optionalAuthMiddleware, emailVerifiedMiddleware, activeAccountMiddleware } from './authMiddleware.js';
 
-// middlewares/auth.js
-export function isStudent(req, res, next) {
-    if (!req.user) {
-        return res.status(401).send('Vous devez être connecté pour accéder à cette page');
-    }
-    if (req.user.role !== 'etudiant') {
-        return res.status(403).send('Accès interdit : étudiants uniquement');
-    }
-    next();
-}
+// Vérifie que l'utilisateur est connecté et actif
+export const ensureAuth = authMiddleware;
 
-export function ensureAuth(req, res, next) {
-    if (req.isAuthenticated && req.isAuthenticated()) return next();
-    if (req.user) return next();
-    res.redirect('/login'); // ou 401 selon ton app
-}
+// Vérifie que l'utilisateur est un étudiant
+export const isStudent = [
+    authMiddleware,
+    roleMiddleware('student')
+];
 
+// Vérifie que l'utilisateur est un administrateur
+export const isAdmin = [
+    authMiddleware,
+    roleMiddleware('admin')
+];
+
+// Vérifie que l'utilisateur est un instructeur
+export const isInstructor = [
+    authMiddleware,
+    roleMiddleware('instructor')
+];
+
+// Vérifie un rôle spécifique
+export const hasRole = (role) => [
+    authMiddleware,
+    roleMiddleware(role)
+];
+
+// Vérifie une permission spécifique
+export const hasPermission = (permission) => [
+    authMiddleware,
+    permissionMiddleware(permission)
+];
+
+// Vérification optionnelle (user ajouté si connecté)
+export const optionalAuth = optionalAuthMiddleware;
+
+// Vérifie que l'email est confirmé
+export const emailVerified = emailVerifiedMiddleware;
+
+// Vérifie que le compte est actif
+export const activeAccount = activeAccountMiddleware;

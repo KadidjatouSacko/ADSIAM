@@ -1,0 +1,572 @@
+<!-- views/auth/register.ejs -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | Créer un compte</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Couleurs principales */
+            --primary-pink: #e7a6b7;      /* Rose gold doux */
+            --primary-blue: #a5bfd4;      /* Bleu poudré */
+            
+            /* Couleurs secondaires */
+            --light-pink: #fce8ec;        /* Rose très clair */
+            --light-blue: #e8f3f8;        /* Bleu très clair */
+            --soft-gray: #f5f5f7;         /* Gris clair neutre */
+            
+            /* Texte */
+            --text-dark: #2f2f2f;         /* Gris anthracite lisible */
+            --text-light: #6f6f6f;        /* Gris doux */
+            --white: #ffffff;
+
+            /* Dégradés */
+            --gradient-pink: linear-gradient(135deg, #fce8ec, #e7a6b7);
+            --gradient-blue: linear-gradient(135deg, #e8f3f8, #a5bfd4);
+            --gradient-contact: linear-gradient(135deg, #e7a6b7, #a5bfd4);
+            --gradient-purple: linear-gradient(135deg, #f0e1ff, #c7a3ff);
+            --gradient-green: linear-gradient(135deg, #e2f8ee, #9dd6b5);
+            --gradient-orange: linear-gradient(135deg, #ffe9dc, #ff9f80);
+
+            /* États */
+            --success: #28a745;
+            --error: #dc3545;
+            --warning: #ffc107;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--soft-gray);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 500px;
+            background: var(--white);
+            border-radius: 25px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .auth-header {
+            background: var(--gradient-contact);
+            padding: 3rem 2rem 2rem;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 40%;
+            height: 200%;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            transform: rotate(-15deg);
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .logo-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.5rem;
+            backdrop-filter: blur(10px);
+            font-weight: 700;
+        }
+
+        .logo-text {
+            font-size: 2rem;
+            font-weight: 300;
+            letter-spacing: 0.1em;
+        }
+
+        .auth-title {
+            font-size: 1.8rem;
+            font-weight: 300;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .auth-subtitle {
+            opacity: 0.9;
+            position: relative;
+            z-index: 2;
+        }
+
+        .auth-form {
+            padding: 3rem 2rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+        }
+
+        .form-label.required::after {
+            content: ' *';
+            color: var(--error);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1.2rem 1.5rem;
+            border: 2px solid var(--soft-gray);
+            border-radius: 15px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background: var(--soft-gray);
+            font-family: inherit;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            background: var(--white);
+            box-shadow: 0 5px 15px rgba(165, 191, 212, 0.2);
+        }
+
+        .form-input.error {
+            border-color: var(--error);
+            background: #fff5f5;
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 1.2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-light);
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0.2rem;
+        }
+
+        .password-strength {
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .strength-bar {
+            width: 100%;
+            height: 4px;
+            background: var(--soft-gray);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .strength-fill {
+            height: 100%;
+            transition: all 0.3s;
+            border-radius: 2px;
+        }
+
+        .strength-weak { width: 25%; background: var(--error); }
+        .strength-fair { width: 50%; background: var(--warning); }
+        .strength-good { width: 75%; background: #17a2b8; }
+        .strength-strong { width: 100%; background: var(--success); }
+
+        .submit-btn {
+            width: 100%;
+            background: var(--gradient-contact);
+            color: white;
+            padding: 1.3rem 2rem;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 2rem;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(231, 166, 183, 0.4);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .auth-footer {
+            text-align: center;
+            padding: 2rem;
+            background: var(--soft-gray);
+            color: var(--text-light);
+        }
+
+        .auth-footer a {
+            color: var(--primary-blue);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: var(--light-blue);
+            color: var(--primary-blue);
+            border: 1px solid var(--primary-blue);
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: var(--error);
+            border: 1px solid var(--error);
+        }
+
+        .field-error {
+            color: var(--error);
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .auth-container {
+                margin: 1rem;
+            }
+            
+            .auth-header {
+                padding: 2rem 1.5rem 1.5rem;
+            }
+            
+            .auth-form {
+                padding: 2rem 1.5rem;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+            
+            .logo-text {
+                font-size: 1.5rem;
+            }
+            
+            .auth-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <!-- Header -->
+        <div class="auth-header">
+            <div class="logo">
+                <div class="logo-icon">A+</div>
+                <div class="logo-text">ADSIAM</div>
+            </div>
+            <h1 class="auth-title">Créer un compte</h1>
+            <p class="auth-subtitle">Rejoignez la communauté des professionnels</p>
+        </div>
+
+        <!-- Form -->
+        <div class="auth-form">
+            <div id="alertContainer"></div>
+
+            <form id="registerForm" method="POST" action="/auth/register">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label required" for="prenom">Prénom</label>
+                        <input type="text" id="prenom" name="prenom" class="form-input" required>
+                        <div class="field-error" id="prenomError"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required" for="nom">Nom</label>
+                        <input type="text" id="nom" name="nom" class="form-input" required>
+                        <div class="field-error" id="nomError"></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required" for="email">Adresse email</label>
+                    <input type="email" id="email" name="email" class="form-input" required>
+                    <div class="field-error" id="emailError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="telephone">Téléphone</label>
+                    <input type="tel" id="telephone" name="telephone" class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required" for="mot_de_passe">Mot de passe</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="mot_de_passe" name="mot_de_passe" class="form-input" required>
+                        <button type="button" class="password-toggle" onclick="togglePassword('mot_de_passe')">👁️</button>
+                    </div>
+                    <div class="password-strength">
+                        <div class="strength-bar">
+                            <div class="strength-fill" id="strengthBar"></div>
+                        </div>
+                        <div id="strengthText"></div>
+                    </div>
+                    <div class="field-error" id="passwordError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required" for="confirm_password">Confirmer le mot de passe</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="confirm_password" name="confirm_password" class="form-input" required>
+                        <button type="button" class="password-toggle" onclick="togglePassword('confirm_password')">👁️</button>
+                    </div>
+                    <div class="field-error" id="confirmPasswordError"></div>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <span id="btnText">Créer mon compte</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Footer -->
+        <div class="auth-footer">
+            <p>Vous avez déjà un compte ? <a href="/connexion">Se connecter</a></p>
+        </div>
+    </div>
+
+    <script>
+        // Toggle password visibility
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const toggle = input.nextElementSibling;
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                toggle.textContent = '🙈';
+            } else {
+                input.type = 'password';
+                toggle.textContent = '👁️';
+            }
+        }
+
+        // Password strength checker
+        function checkPasswordStrength(password) {
+            let strength = 0;
+            const checks = {
+                length: password.length >= 8,
+                lowercase: /[a-z]/.test(password),
+                uppercase: /[A-Z]/.test(password),
+                numbers: /\d/.test(password),
+                symbols: /[^A-Za-z0-9]/.test(password)
+            };
+
+            strength = Object.values(checks).filter(Boolean).length;
+
+            const strengthBar = document.getElementById('strengthBar');
+            const strengthText = document.getElementById('strengthText');
+
+            strengthBar.className = 'strength-fill';
+            
+            switch(strength) {
+                case 0:
+                case 1:
+                    strengthBar.classList.add('strength-weak');
+                    strengthText.textContent = 'Mot de passe faible';
+                    break;
+                case 2:
+                    strengthBar.classList.add('strength-fair');
+                    strengthText.textContent = 'Mot de passe moyen';
+                    break;
+                case 3:
+                case 4:
+                    strengthBar.classList.add('strength-good');
+                    strengthText.textContent = 'Mot de passe fort';
+                    break;
+                case 5:
+                    strengthBar.classList.add('strength-strong');
+                    strengthText.textContent = 'Mot de passe très fort';
+                    break;
+            }
+
+            return strength >= 3;
+        }
+
+        // Form validation and submission
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+            
+            // Clear previous errors
+            document.querySelectorAll('.field-error').forEach(el => el.textContent = '');
+            document.querySelectorAll('.form-input').forEach(el => el.classList.remove('error'));
+            
+            let isValid = true;
+            
+            // Validation
+            if (!data.prenom.trim()) {
+                showFieldError('prenomError', 'Le prénom est requis');
+                isValid = false;
+            }
+            
+            if (!data.nom.trim()) {
+                showFieldError('nomError', 'Le nom est requis');
+                isValid = false;
+            }
+            
+            if (!data.email.trim() || !isValidEmail(data.email)) {
+                showFieldError('emailError', 'Email valide requis');
+                isValid = false;
+            }
+            
+            if (!data.mot_de_passe || !checkPasswordStrength(data.mot_de_passe)) {
+                showFieldError('passwordError', 'Mot de passe trop faible');
+                isValid = false;
+            }
+            
+            if (data.mot_de_passe !== data.confirm_password) {
+                showFieldError('confirmPasswordError', 'Les mots de passe ne correspondent pas');
+                isValid = false;
+            }
+            
+            if (!isValid) return;
+            
+            // Submit form
+            const submitBtn = document.getElementById('submitBtn');
+            const btnText = document.getElementById('btnText');
+            
+            submitBtn.disabled = true;
+            btnText.innerHTML = '<span class="loading-spinner"></span>Création en cours...';
+            
+            try {
+                const response = await fetch('/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert('success', result.message);
+                    setTimeout(() => window.location.href = '/connexion?message=check_email', 2000);
+                } else {
+                    showAlert('error', result.message);
+                }
+            } catch (error) {
+                showAlert('error', 'Une erreur est survenue. Veuillez réessayer.');
+            } finally {
+                submitBtn.disabled = false;
+                btnText.textContent = 'Créer mon compte';
+            }
+        });
+
+        // Event listeners
+        document.getElementById('mot_de_passe').addEventListener('input', (e) => {
+            checkPasswordStrength(e.target.value);
+        });
+
+        // Utility functions
+        function showFieldError(elementId, message) {
+            const errorEl = document.getElementById(elementId);
+            const inputEl = errorEl.previousElementSibling.querySelector('.form-input') || 
+                           errorEl.previousElementSibling;
+            
+            errorEl.textContent = message;
+            inputEl.classList.add('error');
+        }
+
+        function showAlert(type, message) {
+            const container = document.getElementById('alertContainer');
+            const alertClass = type === 'success' ? 'alert-success' : 'alert-error';
+            
+            container.innerHTML = `<div class="alert ${alertClass}">${message}</div>`;
+            
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 5000);
+        }
+
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+    </script>
+</body>
+</html>

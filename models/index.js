@@ -1,10 +1,11 @@
-import { Sequelize } from 'sequelize';
+import { Sequelize, Op } from 'sequelize';
 import dotenv from 'dotenv';
+
 import FormationModel from './Formation.js';
 import ModuleModel from './Module.js';
 import CaracteristiqueModel from './Caracteristique.js';
 import AvisModel from './Avis.js';
-import UserModel from './User.js';
+import { User } from './User.js';
 import InscriptionModel from './Inscription.js';
 import MessageModel from './Message.js';
 import EvenementModel from './Evenement.js';
@@ -16,7 +17,6 @@ import ConversationModel from './Conversation.js';
 // Charger les variables d'environnement
 dotenv.config();
 
-// Vérification des variables
 const requiredVars = ['DB_NAME', 'DB_USER', 'DB_PASSWORD', 'DB_HOST'];
 const missingVars = requiredVars.filter(v => !process.env[v]);
 if (missingVars.length > 0) {
@@ -25,20 +25,24 @@ if (missingVars.length > 0) {
 }
 
 // Configuration Sequelize
-const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
-  host: process.env.DB_HOST,
-  dialect: 'postgres',
-  port: process.env.DB_PORT || 5432,
-  logging: process.env.NODE_ENV === 'development' ? console.log : false,
-  define: {
-    timestamps: true,
-    createdAt: 'createdat', // utilise ta colonne existante
-    updatedAt: 'updatedat',
-    underscored: false
-  },
-  pool: { max: 5, min: 0, acquire: 30000, idle: 10000 }
-});
-
+const sequelize = new Sequelize(
+  process.env.DB_NAME,
+  process.env.DB_USER,
+  process.env.DB_PASSWORD,
+  {
+    host: process.env.DB_HOST,
+    dialect: 'postgres',
+    port: process.env.DB_PORT || 5432,
+    logging: process.env.NODE_ENV === 'development' ? console.log : false,
+    define: {
+      timestamps: true,
+      createdAt: 'createdat',
+      updatedAt: 'updatedat',
+      underscored: false,
+    },
+    pool: { max: 5, min: 0, acquire: 30000, idle: 10000 },
+  }
+);
 
 // Initialiser les modèles
 const Formation = FormationModel(sequelize);
@@ -46,7 +50,6 @@ const Module = ModuleModel(sequelize);
 const Caracteristique = CaracteristiqueModel(sequelize);
 const Avis = AvisModel(sequelize);
 const { Conversation, ConversationParticipant } = ConversationModel(sequelize);
-const User = UserModel(sequelize);
 const Inscription = InscriptionModel(sequelize);
 const Message = MessageModel(sequelize);
 const Evenement = EvenementModel(sequelize);
@@ -69,7 +72,6 @@ Inscription.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 
 Formation.hasMany(Inscription, { foreignKey: 'formation_id', as: 'inscriptions' });
 Inscription.belongsTo(Formation, { foreignKey: 'formation_id', as: 'formation' });
-
 
 Formation.hasMany(Message, { foreignKey: 'formation_id', as: 'messages' });
 Message.belongsTo(Formation, { foreignKey: 'formation_id', as: 'formation' });
@@ -97,7 +99,7 @@ ProgressionModule.belongsTo(Inscription, { foreignKey: 'inscription_id', as: 'in
 User.hasMany(Notification, { foreignKey: 'user_id', as: 'notifications' });
 Notification.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 
-// Associations messagerie
+// Messagerie
 Conversation.belongsToMany(User, { through: ConversationParticipant, as: 'participants', foreignKey: 'conversation_id' });
 User.belongsToMany(Conversation, { through: ConversationParticipant, as: 'conversations', foreignKey: 'user_id' });
 
@@ -107,7 +109,8 @@ Message.belongsTo(User, { as: 'sender', foreignKey: 'sender_id' });
 Message.belongsTo(User, { as: 'receiver', foreignKey: 'receiver_id' });
 User.hasMany(Message, { as: 'messagesEnvoyes', foreignKey: 'sender_id' });
 User.hasMany(Message, { as: 'messagesRecus', foreignKey: 'receiver_id' });
-// Connexion test
+
+// Test de connexion
 (async () => {
   try {
     console.log('🔌 Test connexion DB...');
@@ -121,6 +124,7 @@ User.hasMany(Message, { as: 'messagesRecus', foreignKey: 'receiver_id' });
 
 export {
   sequelize,
+  Op,
   Formation,
   Module,
   Caracteristique,
@@ -131,5 +135,7 @@ export {
   Evenement,
   ParticipationEvenement,
   ProgressionModule,
-  Notification
+  Notification,
+  Conversation,
+  ConversationParticipant
 };
