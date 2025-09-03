@@ -4,7 +4,6 @@ import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import formationRoutes from './routes/formationRoutes.js';
 import { sequelize } from './models/index.js';
-import authRouter from './routes/authRoutes.js';
 import apiRouter from './routes/apiRoutes.js';
 import session from 'express-session';
 import etudiantsRoutes from './routes/etudiantsRoutes.js';
@@ -97,8 +96,7 @@ app.use('/', formationRoutes);
 console.log('👥 Montage de etudiantsRoutes sur /');
 app.use('/', etudiantsRoutes);
 
-console.log('🔐 Montage de authRouter sur /');
-app.use('/', authRouter);
+
 
 console.log('🔌 Montage de apiRouter sur /api');
 app.use('/api', apiRouter);
