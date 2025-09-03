@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import formationRoutes from './routes/formationRoutes.js';
 import { sequelize } from './models/index.js';
+import etudiantsRoutes from './routes/etudiantsRoutes.js';
 
 // Configuration ES6 pour __dirname
 const __filename = fileURLToPath(import.meta.url);
@@ -42,6 +43,8 @@ if (process.env.NODE_ENV !== 'production') {
 
 // Routes principales
 app.use('/', formationRoutes);
+app.use('/', etudiantsRoutes);
+
 
 // Middleware 404
 app.use((req, res) => {

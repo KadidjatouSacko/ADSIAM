@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Créer un Profil | ADSIAM Étudiant</title>
+    <link rel="stylesheet" href="/css/profil.css">
+</head>
+<body>
+    <!-- Header -->
+    <%- include('../partials/header-etudiant') %>
+
+    <main class="profile-content fade-in">
+        <!-- Success Message -->
+        <% if (successMessage) { %>
+            <div class="success-message" id="successMessage">
+                <span>✅</span>
+                <span><%= successMessage %></span>
+            </div>
+        <% } %>
+
+        <!-- Section: Nouveau Profil -->
+        <section class="content-section active" id="new-profile">
+            <div class="section-header">
+                <h1 class="section-title">Créer un nouveau profil</h1>
+                <p class="section-subtitle">Remplissez vos informations personnelles et professionnelles</p>
+            </div>
+
+            <form action="/etudiant/profil/nouveau" method="POST" id="newProfileForm">
+                <div class="form-grid">
+                    <div>
+                        <div class="form-group">
+                            <label class="form-label">Prénom *</label>
+                            <input type="text" name="prenom" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Nom *</label>
+                            <input type="text" name="nom" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email *</label>
+                            <input type="email" name="email" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Téléphone</label>
+                            <input type="tel" name="telephone" class="form-input">
+                        </div>
+                    </div>
+                    <div>
+                        <div class="form-group">
+                            <label class="form-label">Date de naissance</label>
+                            <input type="date" name="date_naissance" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Adresse</label>
+                            <input type="text" name="adresse" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Ville</label>
+                            <input type="text" name="ville" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Code postal</label>
+                            <input type="text" name="code_postal" class="form-input">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Statut professionnel</label>
+                    <select name="statut_professionnel" class="form-select">
+                        <option>Aide à domicile</option>
+                        <option>Auxiliaire de vie</option>
+                        <option>Aide-soignant EHPAD</option>
+                        <option>Infirmier à domicile</option>
+                        <option>Autre</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Expérience professionnelle</label>
+                    <select name="experience" class="form-select">
+                        <option>Moins d'1 an</option>
+                        <option>1-2 ans</option>
+                        <option>3-5 ans</option>
+                        <option>5-10 ans</option>
+                        <option>Plus de 10 ans</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Présentation</label>
+                    <textarea name="presentation" class="form-textarea" placeholder="Parlez-nous de votre parcours et de vos motivations..."></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="reset" class="btn btn-secondary">↶ Annuler</button>
+                    <button type="submit" class="btn btn-primary">💾 Créer le profil</button>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <%- include('../partials/footer') %>
+</body>
+</html>

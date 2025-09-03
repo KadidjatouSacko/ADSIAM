@@ -69,9 +69,13 @@ export default (sequelize) => {
       defaultValue: true
     }
   }, {
-    tableName: 'formations',
-    timestamps: true
-  });
+  tableName: 'formations',
+  timestamps: true,
+  underscored: false,  // garde le camelCase
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+});
+
 
   return Formation;
 };

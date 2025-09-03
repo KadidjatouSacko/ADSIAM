@@ -4,11 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mon Profil | ADSIAM Étudiant</title>
-  <link rel="stylesheet" href="/css/profil.css">
+    <link rel="stylesheet" href="/css/profil.css">
 </head>
 <body>
     <!-- Header -->
-   <%- include('../partials/header-etudiant') %>
+    <header>
+        <div class="header-container">
+            <h1>ADSIAM Étudiant</h1>
+            <nav>
+                <a href="/">Accueil</a>
+                <a href="/formations">Formations</a>
+                <a href="/profil">Profil</a>
+                <a href="/logout">Déconnexion</a>
+            </nav>
+        </div>
+    </header>
 
     <!-- Main Container -->
     <div class="main-container">
@@ -16,11 +26,11 @@
         <aside class="profile-sidebar fade-in">
             <div class="profile-header">
                 <div class="profile-picture" onclick="changePhoto()">
-                    SM
+                    <%= user.initiales %>
                     <div class="photo-upload">📷</div>
                 </div>
-                <h2 class="profile-name">Sophie Martin</h2>
-                <p class="profile-role">Aide à domicile • Paris 15e</p>
+                <h2 class="profile-name"><%= user.prenom %> <%= user.nom %></h2>
+                <p class="profile-role"><%= user.statut %> • <%= user.ville %></p>
             </div>
             
             <ul class="profile-menu">
@@ -58,10 +68,12 @@
         <!-- Content -->
         <main class="profile-content fade-in">
             <!-- Success Message -->
+            <% if (successMessage) { %>
             <div class="success-message" id="successMessage">
                 <span>✅</span>
-                <span>Modifications sauvegardées avec succès !</span>
+                <span><%= successMessage %></span>
             </div>
+            <% } %>
 
             <!-- Section: Informations générales -->
             <section class="content-section active" id="general">
@@ -70,83 +82,79 @@
                     <p class="section-subtitle">Gérez vos informations personnelles et professionnelles</p>
                 </div>
                 
-                <form id="generalForm">
+                <form id="generalForm" method="POST" action="/profil/update">
                     <div class="form-grid">
                         <div>
                             <div class="form-group">
                                 <label class="form-label">Prénom *</label>
-                                <input type="text" class="form-input" value="Sophie" required>
+                                <input type="text" name="prenom" class="form-input" value="<%= user.prenom %>" required>
                             </div>
                             
                             <div class="form-group">
                                 <label class="form-label">Nom *</label>
-                                <input type="text" class="form-input" value="Martin" required>
+                                <input type="text" name="nom" class="form-input" value="<%= user.nom %>" required>
                             </div>
                             
                             <div class="form-group">
                                 <label class="form-label">Email *</label>
-                                <input type="email" class="form-input" value="sophie.martin@email.com" required>
+                                <input type="email" name="email" class="form-input" value="<%= user.email %>" required>
                                 <div class="form-help">Utilisé pour la connexion et les communications importantes</div>
                             </div>
                             
                             <div class="form-group">
                                 <label class="form-label">Téléphone</label>
-                                <input type="tel" class="form-input" value="06 45 78 92 34">
+                                <input type="tel" name="telephone" class="form-input" value="<%= user.telephone %>">
                             </div>
                         </div>
                         
                         <div>
                             <div class="form-group">
                                 <label class="form-label">Date de naissance</label>
-                                <input type="date" class="form-input" value="1985-03-15">
+                                <input type="date" name="date_naissance" class="form-input" value="<%= user.date_naissance %>">
                             </div>
                             
                             <div class="form-group">
                                 <label class="form-label">Adresse</label>
-                                <input type="text" class="form-input" value="25 rue de la Paix">
+                                <input type="text" name="adresse" class="form-input" value="<%= user.adresse %>">
                             </div>
                             
                             <div class="form-group">
                                 <label class="form-label">Ville</label>
-                                <input type="text" class="form-input" value="Paris">
+                                <input type="text" name="ville" class="form-input" value="<%= user.ville %>">
                             </div>
                             
                             <div class="form-group">
                                 <label class="form-label">Code postal</label>
-                                <input type="text" class="form-input" value="75015">
+                                <input type="text" name="code_postal" class="form-input" value="<%= user.code_postal %>">
                             </div>
                         </div>
                     </div>
                     
                     <div class="form-group">
                         <label class="form-label">Statut professionnel</label>
-                        <select class="form-select">
-                            <option selected>Aide à domicile</option>
-                            <option>Auxiliaire de vie</option>
-                            <option>Aide-soignant EHPAD</option>
-                            <option>Infirmier à domicile</option>
-                            <option>Autre</option>
+                        <select name="statut" class="form-select">
+                            <% ["Aide à domicile","Auxiliaire de vie","Aide-soignant EHPAD","Infirmier à domicile","Autre"].forEach(function(option) { %>
+                                <option value="<%= option %>" <%= user.statut === option ? "selected" : "" %>><%= option %></option>
+                            <% }) %>
                         </select>
                     </div>
                     
                     <div class="form-group">
                         <label class="form-label">Expérience professionnelle</label>
-                        <select class="form-select">
-                            <option>Moins d'1 an</option>
-                            <option>1-2 ans</option>
-                            <option selected>3-5 ans</option>
-                            <option>5-10 ans</option>
-                            <option>Plus de 10 ans</option>
+                        <select name="experience" class="form-select">
+                            <% ["Moins d'1 an","1-2 ans","3-5 ans","5-10 ans","Plus de 10 ans"].forEach(function(option) { %>
+                                <option value="<%= option %>" <%= user.experience === option ? "selected" : "" %>><%= option %></option>
+                            <% }) %>
                         </select>
                     </div>
                     
                     <div class="form-group">
                         <label class="form-label">Présentation</label>
-                        <textarea class="form-textarea" placeholder="Parlez-nous de votre parcours et de vos motivations...">Aide à domicile passionnée avec 4 ans d'expérience. Je me spécialise dans l'accompagnement des personnes âgées et j'ai à cœur de maintenir leur autonomie et leur dignité au quotidien.</textarea>
+                        <textarea name="presentation" class="form-textarea" placeholder="Parlez-nous de votre parcours et de vos motivations..."><%= user.presentation %></textarea>
                     </div>
                     
                     <div class="form-actions">
-                        <button type="button" class="btn btn-secondary">↶ Annuler</button>
+                        <button type="reset" class="btn btn-secondary">↶ Annuler</button>
                         <button type="submit" class="btn btn-primary">💾 Sauvegarder</button>
                     </div>
                 </form>
@@ -160,67 +168,12 @@
                 </div>
                 
                 <div class="stats-grid">
-                    <div class="stat-card">
-                        <span class="stat-number">47h</span>
-                        <span class="stat-label">Temps de formation total</span>
-                    </div>
-                    <div class="stat-card">
-                        <span class="stat-number">6</span>
-                        <span class="stat-label">Formations suivies</span>
-                    </div>
-                    <div class="stat-card">
-                        <span class="stat-number">3</span>
-                        <span class="stat-label">Certifications obtenues</span>
-                    </div>
-                    <div class="stat-card">
-                        <span class="stat-number">91%</span>
-                        <span class="stat-label">Score moyen</span>
-                    </div>
-                </div>
-                
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-top: 2rem;">
-                    <div style="background: var(--soft-gray); padding: 2rem; border-radius: 15px;">
-                        <h3 style="margin-bottom: 1rem; color: var(--text-dark);">📅 Activité mensuelle</h3>
-                        <div style="height: 200px; background: var(--white); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--text-light);">
-                            Graphique d'activité
-                            <br><small>À implémenter avec Chart.js</small>
+                    <% stats.forEach(function(stat) { %>
+                        <div class="stat-card">
+                            <span class="stat-number"><%= stat.value %></span>
+                            <span class="stat-label"><%= stat.label %></span>
                         </div>
-                    </div>
-                    
-                    <div style="background: var(--soft-gray); padding: 2rem; border-radius: 15px;">
-                        <h3 style="margin-bottom: 1rem; color: var(--text-dark);">🎯 Domaines de compétence</h3>
-                        <div style="height: 200px; background: var(--white); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--text-light);">
-                            Radar des compétences
-                            <br><small>À implémenter avec Chart.js</small>
-                        </div>
-                    </div>
-                </div>
-                
-                <div style="margin-top: 2rem;">
-                    <h3 style="margin-bottom: 1rem; color: var(--text-dark);">🏆 Derniers accomplissements</h3>
-                    <div style="background: var(--soft-gray); padding: 1.5rem; border-radius: 15px;">
-                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
-                            <span style="font-size: 2rem;">🎓</span>
-                            <div>
-                                <div style="font-weight: 600; color: var(--text-dark);">Certification Communication & Relationnel</div>
-                                <div style="color: var(--text-light); font-size: 0.9rem;">Obtenue le 10 janvier 2025 • Score: 95%</div>
-                            </div>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
-                            <span style="font-size: 2rem;">⭐</span>
-                            <div>
-                                <div style="font-weight: 600; color: var(--text-dark);">Score parfait en Hygiène & Sécurité</div>
-                                <div style="color: var(--text-light); font-size: 0.9rem;">Module terminé avec 100% • Il y a 2 jours</div>
-                            </div>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 1rem;">
-                            <span style="font-size: 2rem;">🔥</span>
-                            <div>
-                                <div style="font-weight: 600; color: var(--text-dark);">Série de 5 jours consécutifs</div>
-                                <div style="color: var(--text-light); font-size: 0.9rem;">Félicitations pour votre assiduité !</div>
-                            </div>
-                        </div>
-                    </div>
+                    <% }) %>
                 </div>
             </section>
 
@@ -231,78 +184,28 @@
                     <p class="section-subtitle">Suivez votre avancement dans chaque formation</p>
                 </div>
                 
-                <div style="margin-bottom: 2rem;">
+                <% progressions.forEach(function(progress) { %>
                     <div class="progress-item">
                         <div class="progress-info">
-                            <div class="progress-title">Communication & Relationnel</div>
-                            <div class="progress-meta">Terminée • 5 modules • Certifiée</div>
+                            <div class="progress-title"><%= progress.titre %></div>
+                            <div class="progress-meta"><%= progress.meta %></div>
                         </div>
                         <div class="progress-value">
-                            <span class="progress-percentage">100%</span>
+                            <span class="progress-percentage"><%= progress.percentage %>%</span>
                             <div class="progress-bar">
-                                <div class="progress-fill" style="width: 100%"></div>
+                                <div class="progress-fill" style="width: <%= progress.percentage %>%"></div>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="progress-item">
-                        <div class="progress-info">
-                            <div class="progress-title">Hygiène, Sécurité & Prévention</div>
-                            <div class="progress-meta">En cours • 4/6 modules • Score actuel: 88%</div>
-                        </div>
-                        <div class="progress-value">
-                            <span class="progress-percentage">67%</span>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 67%"></div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="progress-item">
-                        <div class="progress-info">
-                            <div class="progress-title">Gestion des Urgences</div>
-                            <div class="progress-meta">En cours • 2/8 modules • Score actuel: 92%</div>
-                        </div>
-                        <div class="progress-value">
-                            <span class="progress-percentage">25%</span>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 25%"></div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="progress-item">
-                        <div class="progress-info">
-                            <div class="progress-title">Pathologies & Situations Spécifiques</div>
-                            <div class="progress-meta">Terminée • 7 modules • Certifiée</div>
-                        </div>
-                        <div class="progress-value">
-                            <span class="progress-percentage">100%</span>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 100%"></div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="progress-item">
-                        <div class="progress-info">
-                            <div class="progress-title">Ergonomie & Gestes Professionnels</div>
-                            <div class="progress-meta">Terminée • 6 modules • Certifiée</div>
-                        </div>
-                        <div class="progress-value">
-                            <span class="progress-percentage">100%</span>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 100%"></div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="progress-item">
-                        <div class="progress-info">
-                            <div class="progress-title">Préparation des Repas & Alimentation</div>
-                            <div class="progress-meta">Non commencée • 5 modules</div>
-                        </div>
+                <% }) %>
+            </section>
 
+            <!-- Section: Certifications, Notifications, Sécurité, Préférences, etc. à compléter -->
+        </main>
+    </div>
 
-
-                        <%- include('../partials/footer') %>
+    <footer>
+        <p>&copy; 2025 ADSIAM Étudiant</p>
+    </footer>
+</body>
+</html>
