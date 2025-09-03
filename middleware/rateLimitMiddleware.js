@@ -1,5 +1,4 @@
-import redisService from '../services/RedisService.js'; // import l'instance
-
+import { redisService } from '../services/RedisService.js';
 // Service Redis pour le cache
 // const redisService = new RedisService();
 

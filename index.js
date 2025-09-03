@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 import formationRoutes from './routes/formationRoutes.js';
 import { sequelize } from './models/index.js';
 import authRouter from './routes/authRoutes.js';
-
+import apiRouter from './routes/apiRoutes.js';
 import session from 'express-session';
 import etudiantsRoutes from './routes/etudiantsRoutes.js';
 
@@ -58,7 +58,7 @@ if (process.env.NODE_ENV !== 'production') {
 app.use('/', formationRoutes);
 app.use('/', etudiantsRoutes);
 app.use('/', authRouter);
-
+app.use('/api', apiRouter);
 
 // Middleware 404
 app.use((req, res) => {
