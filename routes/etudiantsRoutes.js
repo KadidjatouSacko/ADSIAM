@@ -30,4 +30,6 @@ router.get('/etudiant/dashboard', isStudent, showDashboard);
 router.get('/etudiant/formations', isStudent, showFormations);
 router.get('/messagerie', ensureAuth, showMessagerie);
 
+
+
 export default router;

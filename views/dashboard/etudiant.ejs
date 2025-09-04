@@ -3,56 +3,1660 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - ADSIAM</title>
-    <style>
-        body {
-            font-family: Inter, sans-serif;
-            background: #f5f5f7;
-            margin: 0;
-            padding: 2rem;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            padding: 3rem;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-        .welcome {
-            font-size: 2rem;
-            color: #e7a6b7;
-            margin-bottom: 2rem;
-        }
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-        .nav-links a {
-            background: linear-gradient(135deg, #e7a6b7, #a5bfd4);
-            color: white;
-            padding: 1rem 2rem;
-            text-decoration: none;
-            border-radius: 15px;
-            font-weight: 600;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1 class="welcome">Tableau de Bord Étudiant</h1>
-        <p>Bienvenue sur votre espace personnel ADSIAM !</p>
-        
-        <% if (typeof user !== 'undefined' && user) { %>
-            <p>Connecté en tant que : <strong>Utilisateur ID <%= user.id %></strong></p>
-        <% } %>
+    <title>Mon Dashboard | ADSIAM - Espace Étudiant</title>
 
-        <div class="nav-links">
-            <a href="/auth/profile">Mon Profil</a>
-            <a href="/formations">Formations</a>
-            <a href="/auth/logout">Déconnexion</a>
+    <% if (typeof contentFor !== 'undefined') { %>
+  <%- contentFor('head') %>
+<% } %>
+
+<style>
+    :root {
+        /* Vos couleurs ADSIAM exactes */
+        --primary-pink: #e7a6b7;
+        --primary-blue: #a5bfd4;
+        --light-pink: #fce8ec;
+        --light-blue: #e8f3f8;
+        --soft-gray: #f5f5f7;
+        --text-dark: #2f2f2f;
+        --text-light: #6f6f6f;
+        --white: #ffffff;
+        --success: #28a745;
+        --warning: #ffc107;
+        --info: #17a2b8;
+        --danger: #dc3545;
+
+        /* Dégradés ADSIAM */
+        --gradient-pink: linear-gradient(135deg, #fce8ec, #e7a6b7);
+        --gradient-blue: linear-gradient(135deg, #e8f3f8, #a5bfd4);
+        --gradient-contact: linear-gradient(135deg, #e7a6b7, #a5bfd4);
+        --gradient-purple: linear-gradient(135deg, #f0e1ff, #c7a3ff);
+        --gradient-green: linear-gradient(135deg, #e2f8ee, #9dd6b5);
+        --gradient-orange: linear-gradient(135deg, #ffe9dc, #ff9f80);
+        
+        --sidebar-width: 280px;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        line-height: 1.6;
+        color: var(--text-dark);
+        background: var(--soft-gray);
+    }
+
+    /* Layout Principal */
+    .dashboard-layout {
+        display: flex;
+        min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+        width: var(--sidebar-width);
+        background: var(--white);
+        box-shadow: 4px 0 20px rgba(0,0,0,0.08);
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        overflow-y: auto;
+        z-index: 1000;
+        transition: all 0.3s ease;
+    }
+
+    .sidebar.collapsed {
+        width: 80px;
+    }
+
+    .sidebar-header {
+        padding: 2rem;
+        border-bottom: 1px solid var(--soft-gray);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .logo-mini {
+        width: 45px;
+        height: 45px;
+        background: var(--gradient-contact);
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+
+    .logo-text {
+        font-size: 1.4rem;
+        font-weight: 300;
+        color: var(--text-dark);
+        transition: opacity 0.3s;
+    }
+
+    .sidebar.collapsed .logo-text {
+        opacity: 0;
+        width: 0;
+        overflow: hidden;
+    }
+
+    .sidebar-toggle {
+        position: absolute;
+        top: 2rem;
+        right: -12px;
+        width: 24px;
+        height: 24px;
+        background: var(--primary-blue);
+        border: none;
+        border-radius: 50%;
+        color: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        z-index: 1001;
+    }
+
+    /* User Info Card */
+    .user-info {
+        padding: 1.5rem 2rem;
+        background: var(--gradient-pink);
+        margin: 1rem;
+        border-radius: 20px;
+        text-align: center;
+        color: white;
+    }
+
+    .user-avatar {
+        width: 60px;
+        height: 60px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 1.8rem;
+        border: 3px solid rgba(255,255,255,0.3);
+    }
+
+    .user-name {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 0.3rem;
+    }
+
+    .user-role {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    .sidebar.collapsed .user-info .user-name,
+    .sidebar.collapsed .user-info .user-role {
+        display: none;
+    }
+
+    /* Navigation */
+    .sidebar-nav {
+        padding: 1rem 0;
+    }
+
+    .nav-section {
+        margin-bottom: 2rem;
+    }
+
+    .nav-section-title {
+        padding: 0 2rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--text-light);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.8rem;
+        transition: opacity 0.3s;
+    }
+
+    .sidebar.collapsed .nav-section-title {
+        opacity: 0;
+        height: 0;
+        margin: 0;
+        overflow: hidden;
+    }
+
+    .nav-item {
+        display: flex;
+        align-items: center;
+        padding: 0.8rem 2rem;
+        color: var(--text-light);
+        text-decoration: none;
+        transition: all 0.3s;
+        font-size: 0.95rem;
+        gap: 1rem;
+        position: relative;
+    }
+
+    .nav-item:hover {
+        background: var(--light-blue);
+        color: var(--primary-blue);
+    }
+
+    .nav-item.active {
+        background: var(--gradient-blue);
+        color: white;
+        font-weight: 600;
+    }
+
+    .nav-item.active::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: var(--primary-blue);
+    }
+
+    .nav-icon {
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+
+    .nav-text {
+        transition: opacity 0.3s;
+    }
+
+    .sidebar.collapsed .nav-text {
+        opacity: 0;
+        width: 0;
+        overflow: hidden;
+    }
+
+    .nav-badge {
+        background: var(--danger);
+        color: white;
+        padding: 0.2rem 0.6rem;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        margin-left: auto;
+    }
+
+    /* Main Content */
+    .main-content {
+        flex: 1;
+        margin-left: var(--sidebar-width);
+        transition: margin-left 0.3s ease;
+    }
+
+    .sidebar.collapsed + .main-content {
+        margin-left: 80px;
+    }
+
+    /* Header */
+    .dashboard-header {
+        background: var(--white);
+        padding: 1.5rem 2rem;
+        box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .header-title {
+        font-size: 2rem;
+        font-weight: 300;
+        color: var(--text-dark);
+    }
+
+    .header-subtitle {
+        color: var(--text-light);
+        margin-top: -0.5rem;
+    }
+
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .header-search {
+        position: relative;
+    }
+
+    .search-input {
+        width: 300px;
+        padding: 0.8rem 3rem 0.8rem 1rem;
+        border: 2px solid var(--soft-gray);
+        border-radius: 25px;
+        font-size: 0.9rem;
+        transition: all 0.3s;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: var(--primary-blue);
+        box-shadow: 0 5px 15px rgba(165, 191, 212, 0.2);
+    }
+
+    .search-icon {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-light);
+    }
+
+    .notification-btn {
+        position: relative;
+        background: none;
+        border: none;
+        font-size: 1.3rem;
+        color: var(--text-light);
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 50%;
+        transition: all 0.3s;
+    }
+
+    .notification-btn:hover {
+        background: var(--light-blue);
+        color: var(--primary-blue);
+    }
+
+    .notification-badge {
+        position: absolute;
+        top: 0;
+        right: 0;
+        background: var(--danger);
+        color: white;
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        font-size: 0.7rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+    }
+
+    /* Dashboard Content */
+    .dashboard-content {
+        padding: 2rem;
+        max-width: 1600px;
+    }
+
+    /* Stats Cards */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .stat-card {
+        background: var(--white);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        transition: all 0.3s;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 50px rgba(0,0,0,0.12);
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+    }
+
+    .stat-card.progress-card::before { background: var(--gradient-contact); }
+    .stat-card.time-card::before { background: var(--gradient-blue); }
+    .stat-card.cert-card::before { background: var(--gradient-green); }
+    .stat-card.next-card::before { background: var(--gradient-orange); }
+
+    .stat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-light);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    .progress-card .stat-icon { background: var(--gradient-contact); }
+    .time-card .stat-icon { background: var(--gradient-blue); }
+    .cert-card .stat-icon { background: var(--gradient-green); }
+    .next-card .stat-icon { background: var(--gradient-orange); }
+
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        color: var(--text-light);
+        font-size: 0.95rem;
+    }
+
+    .stat-trend {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--soft-gray);
+    }
+
+    .trend-positive { color: var(--success); }
+    .trend-neutral { color: var(--info); }
+
+    /* Progress Ring */
+    .progress-ring {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto;
+        position: relative;
+    }
+
+    .progress-ring svg {
+        width: 100%;
+        height: 100%;
+        transform: rotate(-90deg);
+    }
+
+    .progress-ring-bg {
+        fill: none;
+        stroke: var(--soft-gray);
+        stroke-width: 8;
+    }
+
+    .progress-ring-progress {
+        fill: none;
+        stroke: var(--primary-pink);
+        stroke-width: 8;
+        stroke-linecap: round;
+        stroke-dasharray: 220;
+        stroke-dashoffset: 55;
+        transition: stroke-dashoffset 1s ease;
+    }
+
+    .progress-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--text-dark);
+    }
+
+    /* Dashboard Grid */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    /* Formation en cours */
+    .current-formation {
+        background: var(--white);
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .section-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--gradient-contact);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+    }
+
+    .formation-current {
+        background: var(--gradient-pink);
+        border-radius: 20px;
+        padding: 2rem;
+        color: white;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .formation-current::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -30%;
+        width: 60%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+        animation: pulse 4s ease-in-out infinite;
+    }
+
+    .formation-badge {
+        background: rgba(255,255,255,0.2);
+        color: white;
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: inline-block;
+        margin-bottom: 1rem;
+        backdrop-filter: blur(10px);
+    }
+
+    .formation-title {
+        font-size: 1.4rem;
+        font-weight: 600;
+        margin-bottom: 0.8rem;
+    }
+
+    .formation-meta {
+        display: flex;
+        gap: 2rem;
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    .formation-progress-bar {
+        background: rgba(255,255,255,0.2);
+        height: 8px;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 1rem;
+    }
+
+    .progress-fill {
+        background: white;
+        height: 100%;
+        border-radius: 4px;
+        transition: width 1s ease;
+    }
+
+    .formation-actions {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .btn {
+        padding: 0.8rem 1.8rem;
+        border: none;
+        border-radius: 25px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .btn-primary {
+        background: white;
+        color: var(--primary-pink);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(255,255,255,0.3);
+    }
+
+    .btn-secondary {
+        background: rgba(255,255,255,0.2);
+        color: white;
+        border: 2px solid rgba(255,255,255,0.3);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255,255,255,0.3);
+    }
+
+    /* Modules */
+    .modules-progress {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .module-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        background: var(--soft-gray);
+        border-radius: 15px;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+
+    .module-item:hover {
+        background: var(--light-blue);
+        transform: translateY(-2px);
+    }
+
+    .module-number {
+        width: 35px;
+        height: 35px;
+        background: var(--gradient-contact);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 0.9rem;
+        margin-right: 1rem;
+    }
+
+    .module-info {
+        flex: 1;
+    }
+
+    .module-title {
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 0.3rem;
+    }
+
+    .module-duration {
+        font-size: 0.85rem;
+        color: var(--text-light);
+    }
+
+    .module-status {
+        padding: 0.3rem 0.8rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .status-completed {
+        background: var(--gradient-green);
+        color: white;
+    }
+
+    .status-current {
+        background: var(--gradient-contact);
+        color: white;
+    }
+
+    .status-locked {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    /* Activity Feed */
+    .activity-feed {
+        background: var(--white);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        height: fit-content;
+    }
+
+    .activity-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .activity-item {
+        display: flex;
+        gap: 1rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--soft-gray);
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .activity-item:hover {
+        background: var(--light-pink);
+        margin: 0 -1rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        border-radius: 10px;
+    }
+
+    .activity-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        color: white;
+        flex-shrink: 0;
+    }
+
+    .activity-completion { background: var(--gradient-green); }
+    .activity-start { background: var(--gradient-blue); }
+    .activity-certificate { background: var(--gradient-orange); }
+    .activity-message { background: var(--gradient-contact); }
+
+    .activity-content {
+        flex: 1;
+    }
+
+    .activity-title {
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 0.3rem;
+        font-size: 0.95rem;
+    }
+
+    .activity-description {
+        color: var(--text-light);
+        font-size: 0.85rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .activity-time {
+        color: var(--text-light);
+        font-size: 0.8rem;
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .action-card {
+        background: var(--white);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .action-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    }
+
+    .action-icon {
+        width: 70px;
+        height: 70px;
+        margin: 0 auto 1.5rem;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: white;
+    }
+
+    .action-card:nth-child(1) .action-icon { background: var(--gradient-contact); }
+    .action-card:nth-child(2) .action-icon { background: var(--gradient-green); }
+    .action-card:nth-child(3) .action-icon { background: var(--gradient-blue); }
+    .action-card:nth-child(4) .action-icon { background: var(--gradient-orange); }
+
+    .action-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 0.8rem;
+    }
+
+    .action-description {
+        color: var(--text-light);
+        font-size: 0.9rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+        .sidebar {
+            transform: translateX(-100%);
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+        }
+
+        .main-content {
+            margin-left: 0;
+        }
+
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-content {
+            padding: 1rem;
+        }
+
+        .dashboard-header {
+            padding: 1rem;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .header-search .search-input {
+            width: 100%;
+        }
+
+        .quick-actions {
+            grid-template-columns: 1fr;
+        }
+
+        .stat-card {
+            padding: 1.5rem;
+        }
+
+        .formation-current {
+            padding: 1.5rem;
+        }
+
+        .formation-meta {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+    }
+
+    /* Animations */
+    @keyframes pulse {
+        0%, 100% { opacity: 0.7; }
+        50% { opacity: 1; }
+    }
+
+    .fade-in {
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 0.8s ease forwards;
+    }
+
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* États vides */
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        background: var(--light-pink);
+        border-radius: 20px;
+        color: var(--text-dark);
+    }
+
+    .empty-state-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state h3 {
+        margin-bottom: 1rem;
+    }
+
+    .empty-state p {
+        margin-bottom: 2rem;
+        color: var(--text-light);
+    }
+</style>
+
+<div class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <button class="sidebar-toggle" id="sidebarToggle">‹</button>
+        
+        <div class="sidebar-header">
+            <div class="logo-mini">A+</div>
+            <div class="logo-text">ADSIAM</div>
         </div>
-    </div>
-</body>
-</html>
+
+        <div class="user-info">
+            <div class="user-avatar">
+                <% if (user && user.avatar) { %>
+                    <img src="<%= user.avatar %>" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                <% } else { %>
+                    <%= user && user.prenom ? user.prenom.charAt(0).toUpperCase() : '👤' %>
+                <% } %>
+            </div>
+            <div class="user-name">
+                <%= user && user.prenom ? user.prenom : 'Utilisateur' %> 
+                <%= user && user.nom ? user.nom : '' %>
+            </div>
+            <div class="user-role">
+                <% if (user && user.type_display) { %>
+                    <%= user.type_display %>
+                <% } else if (user && user.type_utilisateur === 'aide_domicile') { %>
+                    Aide à domicile
+                <% } else if (user && user.type_utilisateur === 'aide_soignant') { %>
+                    Aide-soignant
+                <% } else if (user && user.type_utilisateur === 'formateur') { %>
+                    Formateur
+                <% } else { %>
+                    Étudiant
+                <% } %>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <div class="nav-section-title">Navigation</div>
+                <a href="/dashboard" class="nav-item active">
+                    <span class="nav-icon">🏠</span>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+                <a href="/mes-formations" class="nav-item">
+                    <span class="nav-icon">📚</span>
+                    <span class="nav-text">Mes Formations</span>
+                </a>
+                <a href="/ma-progression" class="nav-item">
+                    <span class="nav-icon">📈</span>
+                    <span class="nav-text">Progression</span>
+                </a>
+                <a href="/mes-certifications" class="nav-item">
+                    <span class="nav-icon">🏆</span>
+                    <span class="nav-text">Certifications</span>
+                </a>
+                <a href="/evenements" class="nav-item">
+                    <span class="nav-icon">📅</span>
+                    <span class="nav-text">Événements</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Communication</div>
+                <a href="/mes-messages" class="nav-item">
+                    <span class="nav-icon">💬</span>
+                    <span class="nav-text">Messages</span>
+                    <% if (typeof messagesNonLus !== 'undefined' && messagesNonLus > 0) { %>
+                        <span class="nav-badge"><%= messagesNonLus %></span>
+                    <% } %>
+                </a>
+                <a href="/support" class="nav-item">
+                    <span class="nav-icon">🎧</span>
+                    <span class="nav-text">Support</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Mon Compte</div>
+                <a href="/mon-profil" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-text">Paramètres</span>
+                </a>
+                <a href="/mes-statistiques" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">Statistiques</span>
+                </a>
+                <a href="/auth/logout" class="nav-item">
+                    <span class="nav-icon">🚪</span>
+                    <span class="nav-text">Déconnexion</span>
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-left">
+                <h1 class="header-title">Dashboard</h1>
+                <p class="header-subtitle">
+                    Bonjour <%= user && user.prenom ? user.prenom : 'Utilisateur' %>, continuez votre apprentissage !
+                </p>
+            </div>
+            <div class="header-actions">
+                <div class="header-search">
+                    <input type="text" class="search-input" placeholder="Rechercher une formation, un module...">
+                    <span class="search-icon">🔍</span>
+                </div>
+                <button class="notification-btn" title="Notifications">
+                    🔔
+                    <% if (typeof notificationsNonLues !== 'undefined' && notificationsNonLues > 0) { %>
+                        <span class="notification-badge"><%= notificationsNonLues %></span>
+                    <% } %>
+                </button>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-content">
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card progress-card fade-in">
+                    <div class="stat-header">
+                        <span class="stat-title">Progression Globale</span>
+                        <div class="stat-icon">📈</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 2rem;">
+                        <div>
+                            <div class="stat-value" id="progressionGlobale">
+                                <% if (typeof stats !== 'undefined' && stats.progressionGlobale) { %>
+                                    <%= Math.round(stats.progressionGlobale) %>%
+                                <% } else { %>
+                                    0%
+                                <% } %>
+                            </div>
+                            <div class="stat-label">Formations complétées</div>
+                        </div>
+                        <div class="progress-ring">
+                            <svg width="80" height="80">
+                                <circle class="progress-ring-bg" cx="40" cy="40" r="35"/>
+                                <circle class="progress-ring-progress" cx="40" cy="40" r="35" 
+                                    data-progress="<%= typeof stats !== 'undefined' && stats.progressionGlobale ? Math.round(stats.progressionGlobale) : 0 %>"/>
+                            </svg>
+                            <div class="progress-text">
+                                <%= typeof stats !== 'undefined' && stats.progressionGlobale ? Math.round(stats.progressionGlobale) : 0 %>%
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-trend">
+                        <span class="trend-positive">↗ +12%</span>
+                        <span>ce mois</span>
+                    </div>
+                </div>
+
+                <div class="stat-card time-card fade-in">
+                    <div class="stat-header">
+                        <span class="stat-title">Temps d'étude</span>
+                        <div class="stat-icon">⏱️</div>
+                    </div>
+                    <div class="stat-value">
+                        <% if (typeof stats !== 'undefined' && stats.tempsTotalSemaine) { %>
+                            <%= typeof formatDuration !== 'undefined' ? formatDuration(stats.tempsTotalSemaine) : Math.round(stats.tempsTotalSemaine / 60) + 'h' %>
+                        <% } else { %>
+                            0h
+                        <% } %>
+                    </div>
+                    <div class="stat-label">Cette semaine</div>
+                    <div class="stat-trend">
+                        <span class="trend-positive">↗ +5h</span>
+                        <span>vs semaine dernière</span>
+                    </div>
+                </div>
+
+                <div class="stat-card cert-card fade-in">
+                    <div class="stat-header">
+                        <span class="stat-title">Certifications</span>
+                        <div class="stat-icon">🏆</div>
+                    </div>
+                    <div class="stat-value">
+                        <%= typeof certificationsCount !== 'undefined' ? certificationsCount : 0 %>
+                    </div>
+                    <div class="stat-label">Certificats obtenus</div>
+                    <div class="stat-trend">
+                        <span class="trend-neutral">→</span>
+                        <span>
+                            <%= typeof inscriptionsActives !== 'undefined' ? inscriptionsActives : 0 %> en cours
+                        </span>
+                    </div>
+                </div>
+
+                <div class="stat-card next-card fade-in">
+                    <div class="stat-header">
+                        <span class="stat-title">Prochain Événement</span>
+                        <div class="stat-icon">📅</div>
+                    </div>
+                    <div class="stat-value">
+                        <% if (typeof prochainEvenement !== 'undefined' && prochainEvenement) { %>
+                            <%= Math.ceil((new Date(prochainEvenement.date_debut) - new Date()) / (1000 * 60 * 60 * 24)) %>j
+                        <% } else { %>
+                            --
+                        <% } %>
+                    </div>
+                    <div class="stat-label">
+                        <% if (typeof prochainEvenement !== 'undefined' && prochainEvenement) { %>
+                            <%= typeof truncateText !== 'undefined' ? truncateText(prochainEvenement.titre, 30) : prochainEvenement.titre %>
+                        <% } else { %>
+                            Aucun événement
+                        <% } %>
+                    </div>
+                    <div class="stat-trend">
+                        <span class="trend-neutral">📍</span>
+                        <span>
+                            <% if (typeof prochainEvenement !== 'undefined' && prochainEvenement) { %>
+                                <%= typeof formatDate !== 'undefined' ? formatDate(prochainEvenement.date_debut) : new Date(prochainEvenement.date_debut).toLocaleDateString('fr-FR') %>
+                            <% } else { %>
+                                --
+                            <% } %>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Grid -->
+            <div class="dashboard-grid">
+                <!-- Formation en cours -->
+                <div class="current-formation fade-in">
+                    <h2 class="section-title">
+                        <div class="section-icon">🎯</div>
+                        Formation en cours
+                    </h2>
+
+                    <% if (typeof formationEnCours !== 'undefined' && formationEnCours) { %>
+                        <div class="formation-current">
+                            <div class="formation-badge">En cours</div>
+                            <h3 class="formation-title"><%= formationEnCours.formation.titre %></h3>
+                            <div class="formation-meta">
+                                <span>📚 Module <%= formationEnCours.module_actuel || 1 %>/<%= formationEnCours.formation.nombre_modules %></span>
+                                <span>⏱️ <%= (formationEnCours.formation.duree_heures || 0) - Math.floor((formationEnCours.temps_total_minutes || 0) / 60) %>h restantes</span>
+                                <span>🎯 <%= formationEnCours.progression_pourcentage || 0 %>% complété</span>
+                            </div>
+                            <div class="formation-progress-bar">
+                                <div class="progress-fill" style="width: <%= formationEnCours.progression_pourcentage || 0 %>%;"></div>
+                            </div>
+                            <div class="formation-actions">
+                                <a href="/formation/<%= formationEnCours.formation.id %>/module/<%= formationEnCours.module_actuel || 1 %>" class="btn btn-primary">
+                                    ▶️ Continuer
+                                </a>
+                                <a href="/formation/<%= formationEnCours.formation.id %>" class="btn btn-secondary">
+                                    📋 Voir le programme
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="modules-progress">
+                            <% if (typeof modulesProgression !== 'undefined' && modulesProgression.length > 0) { %>
+                                <% modulesProgression.forEach((module, index) => { %>
+                                    <div class="module-item" data-module-id="<%= module.id %>">
+                                        <div class="module-number"><%= index + 1 %></div>
+                                        <div class="module-info">
+                                            <div class="module-title"><%= module.titre %></div>
+                                            <div class="module-duration">
+                                                <%= typeof formatDuration !== 'undefined' ? formatDuration(module.duree_minutes) : module.duree_minutes + ' minutes' %>
+                                            </div>
+                                        </div>
+                                        <div class="module-status <%= module.statut === 'termine' ? 'status-completed' : (module.statut === 'en_cours' ? 'status-current' : 'status-locked') %>">
+                                            <% if (module.statut === 'termine') { %>
+                                                ✓ Terminé
+                                            <% } else if (module.statut === 'en_cours') { %>
+                                                🎯 En cours
+                                            <% } else { %>
+                                                🔒 Verrouillé
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                <% }) %>
+                            <% } else { %>
+                                <p style="text-align: center; color: var(--text-light); padding: 2rem;">
+                                    Aucun module disponible pour le moment
+                                </p>
+                            <% } %>
+                        </div>
+                    <% } else { %>
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📚</div>
+                            <h3>Aucune formation en cours</h3>
+                            <p>Commencez une nouvelle formation pour débuter votre apprentissage</p>
+                            <a href="/mes-formations" class="btn" style="background: var(--gradient-contact); color: white;">
+                                🚀 Découvrir les formations
+                            </a>
+                        </div>
+                    <% } %>
+                </div>
+
+                <!-- Activity Feed -->
+                <div class="activity-feed fade-in">
+                    <h2 class="section-title">
+                        <div class="section-icon">📋</div>
+                        Activité récente
+                    </h2>
+
+                    <div class="activity-list">
+                        <% if (typeof activites !== 'undefined' && activites.length > 0) { %>
+                            <% activites.forEach(activite => { %>
+                                <div class="activity-item" data-activity-id="<%= activite.id %>">
+                                    <div class="activity-icon <%= activite.type === 'module_complete' ? 'activity-completion' : (activite.type === 'certification' ? 'activity-certificate' : (activite.type === 'formation_started' ? 'activity-start' : 'activity-message')) %>">
+                                        <% if (activite.type === 'module_complete') { %>
+                                            ✓
+                                        <% } else if (activite.type === 'certification') { %>
+                                            🏆
+                                        <% } else if (activite.type === 'formation_started') { %>
+                                            ▶️
+                                        <% } else { %>
+                                            💬
+                                        <% } %>
+                                    </div>
+                                    <div class="activity-content">
+                                        <div class="activity-title"><%= activite.titre %></div>
+                                        <div class="activity-description"><%= activite.description %></div>
+                                        <div class="activity-time">
+                                            <%= typeof formatDate !== 'undefined' ? formatDate(activite.createdat) : new Date(activite.createdat).toLocaleDateString('fr-FR') %>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        <% } else { %>
+                            <div class="activity-item">
+                                <div class="activity-icon activity-start">▶️</div>
+                                <div class="activity-content">
+                                    <div class="activity-title">Bienvenue sur ADSIAM</div>
+                                    <div class="activity-description">Votre compte a été créé avec succès</div>
+                                    <div class="activity-time">
+                                        <%= typeof formatDate !== 'undefined' ? formatDate(user.cree_le || user.createdAt || Date.now()) : new Date().toLocaleDateString('fr-FR') %>
+                                    </div>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <a href="/mes-formations" class="action-card fade-in">
+                    <div class="action-icon">🆕</div>
+                    <div class="action-title">Nouvelle Formation</div>
+                    <div class="action-description">Découvrez nos dernières formations disponibles</div>
+                </a>
+                
+                <a href="/mes-certifications" class="action-card fade-in">
+                    <div class="action-icon">📑</div>
+                    <div class="action-title">Mes Certificats</div>
+                    <div class="action-description">Téléchargez et partagez vos certificats</div>
+                </a>
+                
+                <a href="/support" class="action-card fade-in">
+                    <div class="action-icon">📞</div>
+                    <div class="action-title">Contacter Support</div>
+                    <div class="action-description">Besoin d'aide ? Notre équipe vous répond</div>
+                </a>
+                
+                <a href="/mes-statistiques" class="action-card fade-in">
+                    <div class="action-icon">📊</div>
+                    <div class="action-title">Mes Statistiques</div>
+                    <div class="action-description">Analysez votre progression détaillée</div>
+                </a>
+            </div>
+
+            <!-- Certifications Section -->
+            <% if (typeof certifications !== 'undefined' && certifications.length > 0) { %>
+                <div class="current-formation fade-in">
+                    <h2 class="section-title">
+                        <div class="section-icon">🏆</div>
+                        Mes Certifications
+                    </h2>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem;">
+                        <% certifications.forEach((cert, index) => { %>
+                            <div class="cert-card" style="background: <%= index % 3 === 0 ? 'var(--gradient-green)' : (index % 3 === 1 ? 'var(--gradient-blue)' : 'var(--gradient-orange)') %>; border-radius: 20px; padding: 2rem; color: white; position: relative; overflow: hidden;">
+                                <div class="cert-badge" style="background: rgba(255,255,255,0.2); padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; display: inline-block; margin-bottom: 1rem;">✅ Certifié</div>
+                                <h3 style="font-size: 1.3rem; font-weight: 600; margin-bottom: 0.5rem;"><%= cert.formation_titre %></h3>
+                                <div style="opacity: 0.9; margin-bottom: 1.5rem;">
+                                    Obtenu le <%= typeof formatDate !== 'undefined' ? formatDate(cert.date_certification) : new Date(cert.date_certification).toLocaleDateString('fr-FR') %>
+                                </div>
+                                <div style="display: flex; gap: 1rem;">
+                                    <a href="/certificat/<%= cert.id %>/download" class="btn" style="background: white; color: var(--success);">📄 Télécharger</a>
+                                    <a href="#" class="btn" style="background: rgba(255,255,255,0.2); color: white; border: 2px solid rgba(255,255,255,0.3);" onclick="partagerCertificat('<%= cert.id %>')">📤 Partager</a>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                </div>
+            <% } %>
+
+            <!-- Événements à venir -->
+            <% if (typeof evenementsProchains !== 'undefined' && evenementsProchains.length > 0) { %>
+                <div class="current-formation fade-in" style="margin-bottom: 2rem;">
+                    <h2 class="section-title">
+                        <div class="section-icon">📅</div>
+                        Événements à venir
+                    </h2>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                        <% evenementsProchains.forEach((event, index) => { %>
+                            <div style="border-radius: 15px; padding: 1.5rem; color: white; position: relative; overflow: hidden; background: <%= index % 3 === 0 ? 'var(--gradient-blue)' : (index % 3 === 1 ? 'var(--gradient-orange)' : 'var(--gradient-contact)') %>; cursor: pointer;" onclick="rejoindreEvenement('<%= event.id %>')">
+                                <div style="background: rgba(255,255,255,0.2); padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.8rem; font-weight: 600; display: inline-block; margin-bottom: 1rem;">
+                                    <%= event.type_evenement === 'webinaire' ? 'Webinaire' : (event.type_evenement === 'atelier' ? 'Atelier Pratique' : 'Conférence') %>
+                                </div>
+                                <h4 style="margin-bottom: 0.5rem; font-weight: 600;"><%= event.titre %></h4>
+                                <p style="opacity: 0.9; margin-bottom: 1rem; font-size: 0.9rem;">
+                                    <%= typeof truncateText !== 'undefined' ? truncateText(event.description, 100) : event.description %>
+                                </p>
+                                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem;">
+                                    <span>📅 <%= typeof formatDate !== 'undefined' ? formatDate(event.date_debut) : new Date(event.date_debut).toLocaleDateString('fr-FR') %></span>
+                                    <span>👥 <%= event.participants_count || 0 %> inscrits</span>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                </div>
+            <% } %>
+
+            <!-- Messages récents -->
+            <% if (typeof messagesRecents !== 'undefined' && messagesRecents.length > 0) { %>
+                <div class="current-formation fade-in">
+                    <h2 class="section-title">
+                        <div class="section-icon">💬</div>
+                        Messages récents
+                    </h2>
+
+                    <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        <% messagesRecents.forEach(message => { %>
+                            <div style="background: var(--white); padding: 1.5rem; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); cursor: pointer; transition: all 0.3s;" 
+                                 onclick="ouvrirMessage('<%= message.id %>')"
+                                 onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 10px 25px rgba(0,0,0,0.12)'"
+                                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 5px 15px rgba(0,0,0,0.08)'">
+                                <div style="display: flex; justify-content: between; align-items: start; margin-bottom: 0.5rem;">
+                                    <h4 style="color: var(--text-dark); font-weight: 600; flex: 1;"><%= message.sujet %></h4>
+                                    <span style="color: var(--text-light); font-size: 0.85rem;">
+                                        <%= typeof formatDate !== 'undefined' ? formatDate(message.createdat) : new Date(message.createdat).toLocaleDateString('fr-FR') %>
+                                    </span>
+                                </div>
+                                <p style="color: var(--text-light); margin-bottom: 1rem; line-height: 1.6;">
+                                    <%= typeof truncateText !== 'undefined' ? truncateText(message.contenu, 100) : (message.contenu.length > 100 ? message.contenu.substring(0, 100) + '...' : message.contenu) %>
+                                </p>
+                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                    <span style="background: <%= message.lu ? 'var(--light-green)' : 'var(--light-pink)' %>; color: <%= message.lu ? 'var(--success)' : 'var(--primary-pink)' %>; padding: 0.3rem 0.8rem; border-radius: 12px; font-size: 0.8rem; font-weight: 600;">
+                                        <%= message.lu ? '📖 Lu' : '📬 Non lu' %>
+                                    </span>
+                                    <span style="color: var(--text-light); font-size: 0.85rem;">
+                                        <%= message.type_message || 'Message' %>
+                                    </span>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+    </main>
+</div>
+
+<% if (typeof contentFor !== 'undefined') { %>
+  <%- contentFor('scripts') %>
+<% } %>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🎓 Dashboard ADSIAM chargé avec succès !');
+    console.log('👤 Utilisateur:', '<%= user && user.prenom ? user.prenom : "Utilisateur" %> <%= user && user.nom ? user.nom : "" %>');
+    
+    // Sidebar Toggle
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+
+    sidebarToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('collapsed');
+        sidebarToggle.textContent = sidebar.classList.contains('collapsed') ? '›' : '‹';
+        localStorage.setItem('adsiam_sidebar_collapsed', sidebar.classList.contains('collapsed'));
+    });
+
+    // Charger l'état du sidebar
+    if (localStorage.getItem('adsiam_sidebar_collapsed') === 'true') {
+        sidebar.classList.add('collapsed');
+        sidebarToggle.textContent = '›';
+    }
+
+    // Mobile Sidebar
+    if (window.innerWidth <= 1024) {
+        sidebar.classList.add('collapsed');
+        
+        const mobileToggle = document.createElement('button');
+        mobileToggle.style.cssText = `
+            position: fixed;
+            top: 1.5rem;
+            left: 1rem;
+            z-index: 1100;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem;
+            cursor: pointer;
+            font-size: 1.2rem;
+        `;
+        mobileToggle.innerHTML = '☰';
+        document.body.appendChild(mobileToggle);
+
+        mobileToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!sidebar.contains(e.target) && !mobileToggle.contains(e.target)) {
+                sidebar.classList.remove('open');
+            }
+        });
+    }
+
+    // Animations au scroll
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry, index) => {
+            if (entry.isIntersecting) {
+                setTimeout(() => {
+                    entry.target.style.animation = 'fadeInUp 0.6s ease forwards';
+                }, index * 100);
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.fade-in').forEach(el => {
+        observer.observe(el);
+    });
+
+    // Animation du ring de progression
+    const progressRing = document.querySelector('.progress-ring-progress');
+    if (progressRing) {
+        const progressValue = parseInt(progressRing.getAttribute('data-progress')) || 0;
+        const circumference = 2 * Math.PI * 35;
+        const offset = circumference - (progressValue / 100) * circumference;
+        
+        setTimeout(() => {
+            progressRing.style.strokeDashoffset = offset;
+        }, 500);
+    }
+
+    // Recherche
+    const searchInput = document.querySelector('.search-input');
+    if (searchInput) {
+        let searchTimeout;
+        searchInput.addEventListener('input', function(e) {
+            clearTimeout(searchTimeout);
+            const searchTerm = e.target.value.toLowerCase();
+            
+            if (searchTerm.length > 2) {
+                searchTimeout = setTimeout(() => {
+                    fetch(`/api/search?q=${encodeURIComponent(searchTerm)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                console.log(`🔍 Recherche "${searchTerm}": ${data.results.length} résultats`);
+                            }
+                        })
+                        .catch(error => console.error('Erreur recherche:', error));
+                }, 300);
+            }
+        });
+    }
+
+    // Interactions modules
+    document.querySelectorAll('.module-item').forEach(module => {
+        module.addEventListener('click', function() {
+            const moduleId = this.getAttribute('data-module-id');
+            const status = this.querySelector('.module-status').textContent;
+            
+            if (status.includes('En cours') || status.includes('Terminé')) {
+                window.location.href = `/module/${moduleId}`;
+            } else {
+                showNotification('⚠️ Ce module n\'est pas encore disponible. Terminez d\'abord les modules précédents.', 'warning');
+            }
+        });
+    });
+
+    // Interactions activités
+    document.querySelectorAll('.activity-item').forEach(item => {
+        item.addEventListener('click', function() {
+            const activityId = this.getAttribute('data-activity-id');
+            console.log('Activity clicked:', activityId);
+        });
+    });
+
+    // Notifications
+    const notificationBtn = document.querySelector('.notification-btn');
+    if (notificationBtn) {
+        notificationBtn.addEventListener('click', function() {
+            window.location.href = '/notifications';
+        });
+    }
+
+    // Rafraîchissement automatique des stats
+    setInterval(function() {
+        refreshStats();
+    }, 300000); // 5 minutes
+
+    function refreshStats() {
+        fetch('/api/dashboard/stats')
+            .then(response => response.json())
+            .then(data => {
+                const progressElement = document.getElementById('progressionGlobale');
+                if (progressElement && data.progressionGlobale !== undefined) {
+                    progressElement.textContent = Math.round(data.progressionGlobale) + '%';
+                }
+            })
+            .catch(error => console.error('Erreur refresh stats:', error));
+    }
+
+    // Server-Sent Events pour notifications temps réel
+    if (typeof EventSource !== 'undefined') {
+        const eventSource = new EventSource('/api/sse/notifications');
+        
+        eventSource.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            if (data.type === 'notification_count') {
+                const badge = document.querySelector('.notification-badge');
+                if (badge) {
+                    badge.textContent = data.count;
+                    badge.style.display = data.count > 0 ? 'flex' : 'none';
+                }
+            }
+        };
+
+        eventSource.onerror = function(error) {
+            console.log('SSE error, reconnecting...');
+            setTimeout(() => {
+                eventSource.close();
+            }, 5000);
+        };
+    }
+});
+
+// Fonctions utilitaires
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 2rem;
+        right: 2rem;
+        background: ${type === 'success' ? 'var(--success)' : (type === 'warning' ? 'var(--warning)' : 'var(--info)')};
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 10px;
+        z-index: 10000;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        animation: slideInRight 0.3s ease;
+    `;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.animation = 'slideOutRight 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 4000);
+}
+
+function partagerCertificat(certId) {
+    if (navigator.share) {
+        navigator.share({
+            title: 'Mon certificat ADSIAM',
+            text: 'Découvrez mon certificat de formation professionnelle',
+            url: window.location.origin + '/certificat/' + certId + '/public'
+        });
+    } else {
+        const url = window.location.origin + '/certificat/' + certId + '/public';
+        navigator.clipboard.writeText(url).then(() => {
+            showNotification('📋 Lien de partage copié !', 'success');
+        });
+    }
+}
+
+function rejoindreEvenement(eventId) {
+    if (confirm('Voulez-vous vous inscrire à cet événement ?')) {
+        fetch('/api/evenements/' + eventId + '/inscription', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('✅ Inscription confirmée !', 'success');
+            } else {
+                showNotification('❌ ' + data.message, 'warning');
+            }
+        })
+        .catch(error => {
+            showNotification('❌ Erreur de connexion', 'warning');
+        });
+    }
+}
+
+function ouvrirMessage(messageId) {
+    window.location.href = '/mes-messages/' + messageId;
+}
+
+// Animations CSS
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideInRight {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    
+    @keyframes slideOutRight {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+`;
+document.head.appendChild(style);
+</script>
+
+</bo

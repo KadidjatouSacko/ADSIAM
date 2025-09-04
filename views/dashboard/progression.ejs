@@ -1,0 +1,795 @@
+<%# views/dashboard/progression.ejs %>
+
+<% if (typeof contentFor !== 'undefined') { %>
+  <%- contentFor('head') %>
+<% } %>
+
+<style>
+    :root {
+        --primary-pink: #e7a6b7;
+        --primary-blue: #a5bfd4;
+        --light-pink: #fce8ec;
+        --light-blue: #e8f3f8;
+        --soft-gray: #f5f5f7;
+        --text-dark: #2f2f2f;
+        --text-light: #6f6f6f;
+        --white: #ffffff;
+        --success: #28a745;
+        --warning: #ffc107;
+        --info: #17a2b8;
+        --gradient-pink: linear-gradient(135deg, #fce8ec, #e7a6b7);
+        --gradient-blue: linear-gradient(135deg, #e8f3f8, #a5bfd4);
+        --gradient-contact: linear-gradient(135deg, #e7a6b7, #a5bfd4);
+        --gradient-green: linear-gradient(135deg, #e2f8ee, #9dd6b5);
+        --gradient-orange: linear-gradient(135deg, #ffe9dc, #ff9f80);
+    }
+
+    .progression-container {
+        padding: 2rem;
+        max-width: 1600px;
+        margin: 0 auto;
+    }
+
+    .page-header {
+        background: var(--white);
+        border-radius: 20px;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: -30%;
+        right: -20%;
+        width: 40%;
+        height: 160%;
+        background: var(--gradient-green);
+        border-radius: 50%;
+        opacity: 0.1;
+        transform: rotate(-15deg);
+    }
+
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 300;
+        color: var(--text-dark);
+        margin-bottom: 1rem;
+        position: relative;
+        z-index: 2;
+    }
+
+    .page-subtitle {
+        font-size: 1.1rem;
+        color: var(--text-light);
+        position: relative;
+        z-index: 2;
+    }
+
+    /* Stats globales */
+    .global-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .stat-card {
+        background: var(--white);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+    }
+
+    .stat-card:nth-child(1)::before { background: var(--gradient-contact); }
+    .stat-card:nth-child(2)::before { background: var(--gradient-green); }
+    .stat-card:nth-child(3)::before { background: var(--gradient-blue); }
+    .stat-card:nth-child(4)::before { background: var(--gradient-orange); }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        margin: 0 auto 1rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        color: white;
+    }
+
+    .stat-card:nth-child(1) .stat-icon { background: var(--gradient-contact); }
+    .stat-card:nth-child(2) .stat-icon { background: var(--gradient-green); }
+    .stat-card:nth-child(3) .stat-icon { background: var(--gradient-blue); }
+    .stat-card:nth-child(4) .stat-icon { background: var(--gradient-orange); }
+
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        color: var(--text-light);
+        font-size: 0.95rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .stat-description {
+        color: var(--text-light);
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+    }
+
+    /* Progression par formation */
+    .formations-progress {
+        background: var(--white);
+        border-radius: 20px;
+        padding: 2.5rem;
+        margin-bottom: 3rem;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    }
+
+    .section-title {
+        font-size: 1.8rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .section-icon {
+        width: 45px;
+        height: 45px;
+        background: var(--gradient-contact);
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.3rem;
+    }
+
+    .formation-progress-item {
+        background: var(--soft-gray);
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+
+    .formation-progress-item:hover {
+        background: var(--light-blue);
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+
+    .formation-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .formation-info h3 {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .formation-meta {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.85rem;
+        color: var(--text-light);
+    }
+
+    .progress-circle {
+        width: 80px;
+        height: 80px;
+        position: relative;
+    }
+
+    .progress-circle svg {
+        width: 100%;
+        height: 100%;
+        transform: rotate(-90deg);
+    }
+
+    .progress-circle-bg {
+        fill: none;
+        stroke: var(--soft-gray);
+        stroke-width: 8;
+    }
+
+    .progress-circle-progress {
+        fill: none;
+        stroke: var(--primary-pink);
+        stroke-width: 8;
+        stroke-linecap: round;
+        stroke-dasharray: 188;
+        stroke-dashoffset: 188;
+        transition: stroke-dashoffset 1s ease;
+    }
+
+    .progress-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text-dark);
+    }
+
+    .modules-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .module-progress {
+        background: white;
+        border-radius: 10px;
+        padding: 1rem;
+        text-align: center;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+    }
+
+    .module-status {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin: 0 auto 0.8rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .module-completed { background: var(--success); }
+    .module-current { background: var(--warning); }
+    .module-locked { background: var(--soft-gray); color: var(--text-light); }
+
+    .module-title {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 0.3rem;
+    }
+
+    .module-time {
+        font-size: 0.75rem;
+        color: var(--text-light);
+    }
+
+    /* Graphique de temps */
+    .time-chart {
+        background: var(--white);
+        border-radius: 20px;
+        padding: 2.5rem;
+        margin-bottom: 3rem;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    }
+
+    .chart-container {
+        height: 300px;
+        display: flex;
+        align-items: end;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding: 0 1rem;
+    }
+
+    .chart-bar {
+        flex: 1;
+        background: var(--gradient-blue);
+        border-radius: 5px 5px 0 0;
+        transition: all 0.3s;
+        cursor: pointer;
+        position: relative;
+        display: flex;
+        align-items: end;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 0.8rem;
+        padding: 0.5rem;
+    }
+
+    .chart-bar:hover {
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .chart-labels {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+        padding: 0 1rem;
+    }
+
+    .chart-label {
+        flex: 1;
+        text-align: center;
+        font-size: 0.8rem;
+        color: var(--text-light);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    /* Badges et récompenses */
+    .achievements {
+        background: var(--white);
+        border-radius: 20px;
+        padding: 2.5rem;
+        margin-bottom: 3rem;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    }
+
+    .badges-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .badge-card {
+        text-align: center;
+        padding: 2rem;
+        border-radius: 15px;
+        background: var(--soft-gray);
+        transition: all 0.3s;
+    }
+
+    .badge-card.earned {
+        background: var(--gradient-green);
+        color: white;
+        transform: scale(1.05);
+    }
+
+    .badge-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.7;
+    }
+
+    .badge-card.earned .badge-icon {
+        opacity: 1;
+        animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+        40% { transform: translateY(-10px); }
+        60% { transform: translateY(-5px); }
+    }
+
+    .badge-title {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .badge-description {
+        font-size: 0.8rem;
+        opacity: 0.8;
+    }
+
+    /* Historique */
+    .history-section {
+        background: var(--white);
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    }
+
+    .history-timeline {
+        position: relative;
+        padding-left: 2rem;
+        margin-top: 2rem;
+    }
+
+    .history-timeline::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: var(--gradient-contact);
+        border-radius: 2px;
+    }
+
+    .history-item {
+        position: relative;
+        margin-bottom: 2rem;
+        padding-left: 2rem;
+    }
+
+    .history-item::before {
+        content: '';
+        position: absolute;
+        left: -1.5rem;
+        top: 0.5rem;
+        width: 12px;
+        height: 12px;
+        background: var(--primary-pink);
+        border-radius: 50%;
+        border: 3px solid white;
+        box-shadow: 0 0 0 3px var(--primary-pink);
+    }
+
+    .history-date {
+        font-size: 0.8rem;
+        color: var(--text-light);
+        margin-bottom: 0.3rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .history-title {
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .history-description {
+        color: var(--text-light);
+        line-height: 1.6;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .progression-container {
+            padding: 1rem;
+        }
+        
+        .global-stats {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .formation-header {
+            flex-direction: column;
+            align-items: start;
+            gap: 1rem;
+        }
+        
+        .modules-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .chart-container {
+            height: 200px;
+        }
+        
+        .badges-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    /* Animations */
+    .fade-in {
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 0.6s ease forwards;
+    }
+
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="progression-container">
+    <!-- Header -->
+    <div class="page-header fade-in">
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; font-size: 0.9rem; position: relative; z-index: 2;">
+            <a href="/dashboard" style="color: var(--text-light); text-decoration: none;">🏠 Dashboard</a>
+            <span style="color: var(--text-light);">›</span>
+            <span style="color: var(--primary-pink); font-weight: 500;">Ma Progression</span>
+        </div>
+        <h1 class="page-title">Ma Progression</h1>
+        <p class="page-subtitle">Suivez votre évolution et vos réussites</p>
+    </div>
+
+    <!-- Stats globales -->
+    <div class="global-stats">
+        <div class="stat-card fade-in">
+            <div class="stat-icon">📈</div>
+            <div class="stat-value">
+                <%= typeof stats !== 'undefined' ? Math.round(stats.progressionGlobale) : 0 %>%
+            </div>
+            <div class="stat-label">Progression Globale</div>
+            <div class="stat-description">Moyenne de toutes vos formations</div>
+        </div>
+
+        <div class="stat-card fade-in">
+            <div class="stat-icon">⏱️</div>
+            <div class="stat-value">
+                <%= typeof stats !== 'undefined' ? Math.round((stats.tempsTotalMinutes || 0) / 60) : 0 %>h
+            </div>
+            <div class="stat-label">Temps Total</div>
+            <div class="stat-description">Temps d'étude cumulé</div>
+        </div>
+
+        <div class="stat-card fade-in">
+            <div class="stat-icon">🏆</div>
+            <div class="stat-value">
+                <%= typeof stats !== 'undefined' ? stats.certificationsObtenues : 0 %>
+            </div>
+            <div class="stat-label">Certifications</div>
+            <div class="stat-description">Formations certifiées</div>
+        </div>
+
+        <div class="stat-card fade-in">
+            <div class="stat-icon">🔥</div>
+            <div class="stat-value">
+                <%= typeof streakDays !== 'undefined' ? streakDays : 0 %>
+            </div>
+            <div class="stat-label">Série</div>
+            <div class="stat-description">Jours consécutifs d'étude</div>
+        </div>
+    </div>
+
+    <!-- Progression par formation -->
+    <div class="formations-progress fade-in">
+        <h2 class="section-title">
+            <div class="section-icon">📚</div>
+            Progression par formation
+        </h2>
+
+        <% if (typeof formations !== 'undefined' && formations.length > 0) { %>
+            <% formations.forEach((formation, index) => { %>
+                <div class="formation-progress-item" onclick="window.location.href='/formation/<%= formation.id %>'">
+                    <div class="formation-header">
+                        <div class="formation-info">
+                            <h3><%= formation.titre %></h3>
+                            <div class="formation-meta">
+                                <span>📚 <%= formation.nombre_modules %> modules</span>
+                                <span>⏱️ <%= formation.duree_heures %>h</span>
+                                <span>📊 <%= formation.niveau %></span>
+                            </div>
+                        </div>
+                        <div class="progress-circle">
+                            <svg width="80" height="80">
+                                <circle class="progress-circle-bg" cx="40" cy="40" r="30"/>
+                                <circle class="progress-circle-progress" cx="40" cy="40" r="30" 
+                                    data-progress="<%= formation.progression_pourcentage || 0 %>"/>
+                            </svg>
+                            <div class="progress-text"><%= Math.round(formation.progression_pourcentage || 0) %>%</div>
+                        </div>
+                    </div>
+
+                    <% if (typeof formation.modules !== 'undefined' && formation.modules.length > 0) { %>
+                        <div class="modules-grid">
+                            <% formation.modules.forEach((module, moduleIndex) => { %>
+                                <div class="module-progress">
+                                    <div class="module-status <%= module.statut === 'termine' ? 'module-completed' : (module.statut === 'en_cours' ? 'module-current' : 'module-locked') %>">
+                                        <% if (module.statut === 'termine') { %>
+                                            ✓
+                                        <% } else if (module.statut === 'en_cours') { %>
+                                            <%= moduleIndex + 1 %>
+                                        <% } else { %>
+                                            🔒
+                                        <% } %>
+                                    </div>
+                                    <div class="module-title"><%= module.titre %></div>
+                                    <div class="module-time">
+                                        <%= typeof formatDuration !== 'undefined' ? formatDuration(module.duree_minutes) : module.duree_minutes + 'min' %>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        </div>
+                    <% } %>
+                </div>
+            <% }) %>
+        <% } else { %>
+            <div style="text-align: center; padding: 3rem; background: var(--light-pink); border-radius: 15px; color: var(--text-dark);">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">📚</div>
+                <h3 style="margin-bottom: 1rem;">Aucune formation en cours</h3>
+                <p style="margin-bottom: 2rem; color: var(--text-light);">Commencez une formation pour voir votre progression</p>
+                <a href="/mes-formations" style="background: var(--gradient-contact); color: white; padding: 1rem 2rem; border-radius: 25px; text-decoration: none; font-weight: 600;">
+                    🚀 Découvrir les formations
+                </a>
+            </div>
+        <% } %>
+    </div>
+
+    <!-- Graphique de temps hebdomadaire -->
+    <div class="time-chart fade-in">
+        <h2 class="section-title">
+            <div class="section-icon">📊</div>
+            Temps d'étude cette semaine
+        </h2>
+
+        <div class="chart-container">
+            <% 
+            const weeklyData = typeof weeklyStats !== 'undefined' ? weeklyStats : [
+                {day: 'Lun', time: 45}, {day: 'Mar', time: 30}, {day: 'Mer', time: 60}, 
+                {day: 'Jeu', time: 40}, {day: 'Ven', time: 55}, {day: 'Sam', time: 20}, {day: 'Dim', time: 35}
+            ];
+            const maxTime = Math.max(...weeklyData.map(d => d.time), 60);
+            %>
+            <% weeklyData.forEach((data, index) => { %>
+                <div class="chart-bar" 
+                     style="height: <%= Math.max((data.time / maxTime) * 250, 20) %>px;"
+                     title="<%= data.day %>: <%= data.time %>min">
+                    <%= data.time %>min
+                </div>
+            <% }) %>
+        </div>
+
+        <div class="chart-labels">
+            <% weeklyData.forEach(data => { %>
+                <div class="chart-label"><%= data.day %></div>
+            <% }) %>
+        </div>
+    </div>
+
+    <!-- Badges et récompenses -->
+    <div class="achievements fade-in">
+        <h2 class="section-title">
+            <div class="section-icon">🏆</div>
+            Badges et récompenses
+        </h2>
+
+        <div class="badges-grid">
+            <%
+            const badges = [
+                {id: 'premier_pas', title: 'Premier Pas', description: 'Première formation commencée', icon: '🚀', earned: true},
+                {id: 'assidu', title: 'Assidu', description: '7 jours consécutifs d\'étude', icon: '📅', earned: typeof streakDays !== 'undefined' && streakDays >= 7},
+                {id: 'expert', title: 'Expert', description: '3 formations certifiées', icon: '🎓', earned: typeof stats !== 'undefined' && stats.certificationsObtenues >= 3},
+                {id: 'marathonien', title: 'Marathonien', description: '50h d\'étude cumulées', icon: '⚡', earned: typeof stats !== 'undefined' && (stats.tempsTotalMinutes || 0) >= 3000},
+                {id: 'perfectionniste', title: 'Perfectionniste', description: 'Formation terminée à 100%', icon: '💯', earned: typeof stats !== 'undefined' && stats.progressionGlobale >= 100},
+                {id: 'communicateur', title: 'Communicateur', description: 'Formation Communication réussie', icon: '🗣️', earned: false}
+            ];
+            %>
+            
+            <% badges.forEach(badge => { %>
+                <div class="badge-card <%= badge.earned ? 'earned' : '' %>">
+                    <div class="badge-icon"><%= badge.icon %></div>
+                    <div class="badge-title"><%= badge.title %></div>
+                    <div class="badge-description"><%= badge.description %></div>
+                </div>
+            <% }) %>
+        </div>
+    </div>
+
+    <!-- Historique -->
+    <div class="history-section fade-in">
+        <h2 class="section-title">
+            <div class="section-icon">📜</div>
+            Historique récent
+        </h2>
+
+        <div class="history-timeline">
+            <% if (typeof activites !== 'undefined' && activites.length > 0) { %>
+                <% activites.forEach(activite => { %>
+                    <div class="history-item">
+                        <div class="history-date">
+                            <%= typeof formatDate !== 'undefined' ? formatDate(activite.createdat) : new Date(activite.createdat).toLocaleDateString('fr-FR') %>
+                        </div>
+                        <div class="history-title"><%= activite.titre %></div>
+                        <div class="history-description"><%= activite.description %></div>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <div class="history-item">
+                    <div class="history-date">
+                        <%= typeof formatDate !== 'undefined' ? formatDate(Date.now()) : new Date().toLocaleDateString('fr-FR') %>
+                    </div>
+                    <div class="history-title">Bienvenue sur ADSIAM</div>
+                    <div class="history-description">Votre parcours de formation commence maintenant !</div>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('📈 Page Ma Progression chargée');
+    
+    // Animation des cercles de progression
+    const progressCircles = document.querySelectorAll('.progress-circle-progress');
+    progressCircles.forEach(circle => {
+        const progress = parseInt(circle.getAttribute('data-progress')) || 0;
+        const circumference = 2 * Math.PI * 30;
+        const offset = circumference - (progress / 100) * circumference;
+        
+        setTimeout(() => {
+            circle.style.strokeDashoffset = offset;
+        }, 500);
+    });
+
+    // Animation des barres du graphique
+    const chartBars = document.querySelectorAll('.chart-bar');
+    chartBars.forEach((bar, index) => {
+        const height = bar.style.height;
+        bar.style.height = '20px';
+        
+        setTimeout(() => {
+            bar.style.height = height;
+        }, 1000 + (index * 100));
+    });
+
+    // Animation au scroll
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry, index) => {
+            if (entry.isIntersecting) {
+                setTimeout(() => {
+                    entry.target.style.animation = 'fadeInUp 0.6s ease forwards';
+                }, index * 100);
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.fade-in').forEach(el => {
+        observer.observe(el);
+    });
+
+    // Interaction avec les barres du graphique
+    chartBars.forEach(bar => {
+        bar.addEventListener('mouseover', function() {
+            this.style.filter = 'brightness(1.2)';
+        });
+        
+        bar.addEventListener('mouseout', function() {
+            this.style.filter = 'brightness(1)';
+        });
+    });
+
+    // Confettis pour les badges obtenus
+    const earnedBadges = document.querySelectorAll('.badge-card.earned');
+    earnedBadges.forEach(badge => {
+        badge.addEventListener('click', function() {
+            // Animation de célébration
+            this.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                this.style.transform = 'scale(1.05)';
+            }, 200);
+            
+            console.log('🎉 Badge obtenu !');
+        });
+    });
+
+    // Mise à jour en temps réel
+    setInterval(() => {
+        // Simuler une mise à jour des données
+        console.log('📊 Mise à jour des données de progression...');
+    }, 60000); // Toutes les minutes
+});
+</script>

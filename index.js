@@ -11,6 +11,9 @@ import cookieParser from 'cookie-parser';
 import formationRoutes from './routes/formationRoutes.js';
 import etudiantsRoutes from './routes/etudiantsRoutes.js';
 
+import dashboardRoutes from './routes/dashboardRoutes.js';
+import DashboardController from './controllers/DashboardController.js';
+
 // Import des nouvelles routes d'authentification
 import authRoutes from './routes/authRoutes.js';
 
@@ -213,32 +216,58 @@ app.use('/', formationRoutes);
 console.log('👥 Montage de etudiantsRoutes sur /');
 app.use('/', etudiantsRoutes);
 
+// 🔐 Routes d'authentification (PRIORITÉ) - GARDEZ CELLE-CI
+console.log('🔐 Montage des routes d\'authentification sur /auth');
+app.use('/auth', authRoutes);
+
+// 📊 Routes Dashboard (NOUVELLES) - AJOUTEZ CETTE LIGNE
+console.log('📊 Montage des routes Dashboard');
+app.use('/', dashboardRoutes);
+
+// 📋 Routes de formation existantes - GARDEZ CELLE-CI
+console.log('📋 Montage de formationRoutes sur /');
+app.use('/', formationRoutes);
+
+// 👥 Routes étudiants existantes - GARDEZ CELLE-CI
+console.log('👥 Montage de etudiantsRoutes sur /');
+app.use('/', etudiantsRoutes);
+
 // ========================================
 // 🏠 ROUTES PRINCIPALES
 // ========================================
 
 // Page d'accueil
 app.get('/', (req, res) => {
-    res.render('home', {
-        title: 'ADSIAM - Formation Excellence Aide à Domicile & EHPAD',
-        layout: 'layouts/main'
-    });
+    // Si connecté, proposer d'aller au dashboard
+    if (req.session?.userId) {
+        res.render('home', {
+            title: 'ADSIAM - Formation Excellence Aide à Domicile & EHPAD',
+            layout: 'layouts/main',
+            showDashboardLink: true // Nouvelle variable pour afficher un lien vers le dashboard
+        });
+    } else {
+        res.render('home', {
+            title: 'ADSIAM - Formation Excellence Aide à Domicile & EHPAD',
+            layout: 'layouts/main',
+            showDashboardLink: false
+        });
+    }
 });
 
 // Dashboard avec redirection selon authentification
-app.get('/dashboard', (req, res) => {
-    // Si non connecté, rediriger vers la connexion
+app.get('/dashboard', async (req, res, next) => {
+    // Rediriger vers la route complète du dashboard
     if (!req.session?.userId) {
         req.flash('info', 'Veuillez vous connecter pour accéder au tableau de bord.');
         return res.redirect('/auth/login');
     }
     
-    // Si connecté, afficher le dashboard
-    res.render('dashboard/etudiant', {
-        title: 'Tableau de Bord - ADSIAM',
-        layout: 'layouts/main',
-        user: req.session.user || { id: req.session.userId }
-    });
+    // Utiliser le contrôleur complet
+    try {
+        await DashboardController.dashboard(req, res);
+    } catch (error) {
+        next(error);
+    }
 });
 
 // Route de déconnexion rapide (GET pour les liens)
@@ -251,6 +280,153 @@ app.get('/logout', (req, res) => {
         res.clearCookie('rememberToken');
         res.redirect('/auth/login');
     });
+});
+
+// API pour les statistiques temps réel
+app.get('/api/dashboard/quick-stats', async (req, res) => {
+    if (!req.session?.userId) {
+        return res.status(401).json({ error: 'Non authentifié' });
+    }
+    
+    try {
+        const userId = req.session.userId;
+        const stats = await DashboardController.getStats(userId);
+        
+        res.json({
+            success: true,
+            stats: {
+                progression: Math.round(stats.progressionGlobale),
+                formations: stats.inscriptionsActives,
+                certifications: stats.certificationsObtenues,
+                tempsEtude: Math.round(stats.tempsTotalSemaine / 60) // en heures
+            }
+        });
+    } catch (error) {
+        console.error('💥 Erreur quick-stats:', error);
+        res.status(500).json({ success: false, error: 'Erreur serveur' });
+    }
+});
+
+// ========================================
+// 🎯 MIDDLEWARE GLOBAL ENRICHI POUR DASHBOARD
+// ========================================
+
+// ENRICHISSEZ votre middleware global existant avec ces ajouts :
+app.use(async (req, res, next) => {
+    // Flash messages - GARDEZ CETTE PARTIE
+    res.locals.success = req.flash('success');
+    res.locals.error = req.flash('error');
+    res.locals.warning = req.flash('warning');
+    res.locals.info = req.flash('info');
+    
+    // Helpers globaux - GARDEZ CETTE PARTIE
+    res.locals.formatDate = (date) => {
+        return new Date(date).toLocaleDateString('fr-FR', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    };
+    
+    res.locals.formatTime = (date) => {
+        return new Date(date).toLocaleTimeString('fr-FR', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
+    
+    res.locals.capitalize = (str) => {
+        return str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
+    };
+
+    // AJOUTEZ ces nouveaux helpers pour le dashboard :
+    res.locals.formatDuration = (minutes) => {
+        if (!minutes) return '0min';
+        const hours = Math.floor(minutes / 60);
+        const mins = minutes % 60;
+        if (hours > 0) {
+            return `${hours}h${mins > 0 ? ` ${mins}min` : ''}`;
+        }
+        return `${mins}min`;
+    };
+
+    res.locals.getProgressColor = (percentage) => {
+        if (percentage >= 80) return 'var(--success)';
+        if (percentage >= 50) return 'var(--warning)';
+        return 'var(--info)';
+    };
+
+    res.locals.getStatusBadgeClass = (status) => {
+        const badges = {
+            'en_cours': 'status-current',
+            'termine': 'status-completed',
+            'non_commence': 'status-locked',
+            'suspendu': 'status-locked'
+        };
+        return badges[status] || 'status-locked';
+    };
+
+    res.locals.truncateText = (text, length = 100) => {
+        if (!text) return '';
+        return text.length > length ? text.substring(0, length) + '...' : text;
+    };
+
+    // Variables d'authentification - GARDEZ CETTE PARTIE MAIS ENRICHISSEZ-LA
+    res.locals.isAuthenticated = !!req.session?.userId;
+    res.locals.currentUser = null;
+    
+    // AJOUTEZ cette partie pour enrichir les données utilisateur
+    if (req.session?.userId) {
+        try {
+            // Récupérer les données utilisateur enrichies si pas déjà fait
+            if (!req.session.user || !req.session.user.type_display) {
+                const { sequelize } = await import('./models/index.js');
+                const { QueryTypes } = await import('sequelize');
+                
+                const userData = await sequelize.query(`
+                    SELECT 
+                        u.*,
+                        CASE 
+                            WHEN u.type_utilisateur = 'aide_domicile' THEN 'Aide à domicile'
+                            WHEN u.type_utilisateur = 'aide_soignant' THEN 'Aide-soignant'
+                            WHEN u.type_utilisateur = 'formateur' THEN 'Formateur'
+                            ELSE 'Étudiant'
+                        END as type_display
+                    FROM utilisateurs u 
+                    WHERE u.id = :userId
+                `, {
+                    type: QueryTypes.SELECT,
+                    replacements: { userId: req.session.userId }
+                });
+                
+                if (userData[0]) {
+                    req.session.user = userData[0];
+                }
+            }
+            
+            res.locals.currentUser = req.session.user;
+            res.locals.hasRole = (role) => req.session.user?.type_utilisateur === role;
+            res.locals.isActive = () => req.session.user?.statut === 'actif';
+            
+        } catch (error) {
+            console.error('💥 Erreur enrichissement utilisateur global:', error);
+        }
+    }
+    
+    // Helpers pour les rôles - GARDEZ CETTE PARTIE
+    res.locals.hasRole = res.locals.hasRole || (() => false);
+    res.locals.isActive = res.locals.isActive || (() => false);
+    res.locals.getStatusBadge = (status) => {
+        const badges = {
+            'actif': 'badge-success',
+            'en_attente': 'badge-warning', 
+            'inactif': 'badge-secondary',
+            'suspendu': 'badge-danger'
+        };
+        return badges[status] || 'badge-secondary';
+    };
+
+    next();
 });
 
 // ========================================
@@ -348,28 +524,40 @@ const PORT = process.env.PORT || 3000;
 
 async function startServer() {
     try {
-        // Test connexion DB
+        // Test connexion DB - GARDEZ CETTE PARTIE
         await sequelize.authenticate();
         console.log('✅ Connexion à la base de données réussie');
 
-        // Synchronisation des modèles en dev
+        // Synchronisation des modèles en dev - GARDEZ CETTE PARTIE
         if (process.env.NODE_ENV !== 'production') {
             await sequelize.sync({ alter: true });
             console.log('✅ Modèles synchronisés');
         }
 
-        // Démarrage serveur
+        // Démarrage serveur - GARDEZ CETTE PARTIE
         app.listen(PORT, () => {
             console.log(`\n🚀 Serveur ADSIAM avec Authentification démarré sur le port ${PORT}`);
             console.log(`🌐 Accédez à l'application : http://localhost:${PORT}`);
             console.log(`🏠 Page d'accueil: http://localhost:${PORT}/`);
             console.log(`🔐 Connexion: http://localhost:${PORT}/auth/login`);
             console.log(`📝 Inscription: http://localhost:${PORT}/auth/register`);
+            
+            // AJOUTEZ ces nouvelles routes dans les logs :
             console.log(`📊 Dashboard: http://localhost:${PORT}/dashboard`);
+            console.log(`📚 Mes Formations: http://localhost:${PORT}/mes-formations`);
+            console.log(`📈 Ma Progression: http://localhost:${PORT}/ma-progression`);
+            console.log(`🏆 Mes Certifications: http://localhost:${PORT}/mes-certifications`);
             
             console.log('\n🧪 Routes de test:');
             console.log(`  GET  http://localhost:${PORT}/test-server - Test serveur`);
             console.log(`  POST http://localhost:${PORT}/test-auth - Test auth API`);
+            
+            // AJOUTEZ ces nouvelles routes API dans les logs :
+            console.log('\n📊 Nouvelles API Dashboard:');
+            console.log('  GET  /api/dashboard/stats           - Statistiques temps réel');
+            console.log('  GET  /api/dashboard/quick-stats     - Stats rapides');
+            console.log('  POST /api/evenements/:id/inscription - Inscription événement');
+            console.log('  GET  /api/sse/notifications         - Stream notifications');
             
             console.log('\n🔐 Routes d\'authentification principales:');
             console.log('  GET  /auth/login                - Page de connexion');
@@ -383,9 +571,12 @@ async function startServer() {
             console.log('\n🔍 Testez ces commandes dans la console du navigateur:');
             console.log('  fetch("/test-server").then(r => r.json()).then(console.log)');
             console.log('  fetch("/auth/api/check").then(r => r.json()).then(console.log)');
+            console.log('  fetch("/api/dashboard/quick-stats").then(r => r.json()).then(console.log)');
             
             if (process.env.NODE_ENV !== 'production') {
                 console.log('\n🚨 Mode développement activé - Logs détaillés disponibles');
+                console.log('📊 Dashboard avec données réelles de la base PostgreSQL');
+                console.log('🎨 Interface avec vos couleurs ADSIAM (#e7a6b7, #a5bfd4)');
             }
         });
 
