@@ -1,0 +1,759 @@
+<% contentFor('head') -%>
+<title>Mes Messages | ADSIAM</title>
+<% contentFor('scripts') -%>
+
+<style>
+.messages-container {
+    padding: 2rem;
+    max-width: 1600px;
+    margin: 0 auto;
+    height: calc(100vh - 100px);
+    display: flex;
+    gap: 2rem;
+}
+
+.messages-sidebar {
+    width: 350px;
+    background: var(--white);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.messages-header {
+    padding: 2rem;
+    border-bottom: 1px solid var(--soft-gray);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.messages-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.new-message-btn {
+    background: var(--gradient-contact);
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 0.9rem;
+}
+
+.new-message-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(231, 166, 183, 0.4);
+}
+
+.messages-search {
+    padding: 1rem 2rem;
+    border-bottom: 1px solid var(--soft-gray);
+}
+
+.search-messages {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 2px solid var(--soft-gray);
+    border-radius: var(--border-radius);
+    font-size: 0.9rem;
+    transition: var(--transition);
+}
+
+.search-messages:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(165, 191, 212, 0.2);
+}
+
+.messages-filters {
+    padding: 1rem 2rem;
+    border-bottom: 1px solid var(--soft-gray);
+    display: flex;
+    gap: 0.5rem;
+}
+
+.filter-message-btn {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--soft-gray);
+    background: var(--white);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 0.8rem;
+    color: var(--text-dark);
+}
+
+.filter-message-btn.active {
+    background: var(--gradient-blue);
+    color: white;
+    border-color: transparent;
+}
+
+.messages-list {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.message-item {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--soft-gray);
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.message-item:hover {
+    background: var(--light-blue);
+}
+
+.message-item.active {
+    background: var(--gradient-pink);
+    color: white;
+}
+
+.message-item.unread {
+    background: var(--light-pink);
+    border-left: 4px solid var(--primary-pink);
+}
+
+.message-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: var(--gradient-contact);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.message-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.message-sender {
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 0.95rem;
+}
+
+.message-item.active .message-sender {
+    color: white;
+}
+
+.message-time {
+    font-size: 0.8rem;
+    color: var(--text-light);
+}
+
+.message-item.active .message-time {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.message-subject {
+    font-weight: 500;
+    margin-bottom: 0.3rem;
+    font-size: 0.9rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.message-preview {
+    color: var(--text-light);
+    font-size: 0.85rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.message-item.active .message-preview {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.message-indicators {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.message-priority {
+    padding: 0.2rem 0.5rem;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.priority-high {
+    background: rgba(220, 53, 69, 0.1);
+    color: var(--danger);
+}
+
+.priority-medium {
+    background: rgba(255, 193, 7, 0.1);
+    color: #856404;
+}
+
+.message-type {
+    padding: 0.2rem 0.5rem;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    background: var(--light-blue);
+    color: var(--primary-blue);
+}
+
+.messages-main {
+    flex: 1;
+    background: var(--white);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.message-view-header {
+    padding: 2rem;
+    border-bottom: 1px solid var(--soft-gray);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+@media (max-width: 768px) {
+    .messages-container {
+        flex-direction: column;
+        height: auto;
+        padding: 1rem;
+    }
+    
+    .messages-sidebar {
+        width: 100%;
+        order: 2;
+        max-height: 400px;
+    }
+    
+    .messages-main {
+        order: 1;
+        min-height: 500px;
+    }
+    
+    .new-message-content {
+        margin: 1rem;
+    }
+}
+</style>
+
+<div class="dashboard-layout">
+    <%- include('partials/sidebar') %>
+    
+    <main class="main-content">
+        <%- include('partials/header', { 
+            pageTitle: 'Mes Messages', 
+            pageIcon: '💬',
+            pageSubtitle: 'Communication avec votre équipe pédagogique',
+            showSearch: false 
+        }) %>
+        
+        <div class="messages-container">
+            <!-- Messages Sidebar -->
+            <div class="messages-sidebar fade-in">
+                <div class="messages-header">
+                    <h2 class="messages-title">Messages</h2>
+                    <button class="new-message-btn" onclick="ouvrirNouveauMessage()">
+                        ✏️ Nouveau
+                    </button>
+                </div>
+                
+                <div class="messages-search">
+                    <input type="text" class="search-messages" placeholder="Rechercher dans les messages..." id="searchMessages">
+                </div>
+                
+                <div class="messages-filters">
+                    <button class="filter-message-btn active" data-filter="all">Tous</button>
+                    <button class="filter-message-btn" data-filter="unread">Non lus</button>
+                    <button class="filter-message-btn" data-filter="important">Important</button>
+                </div>
+                
+                <div class="messages-list" id="messagesList">
+                    <% if (messages && messages.length > 0) { %>
+                        <% messages.forEach((message, index) => { %>
+                            <div class="message-item <%= !message.lu ? 'unread' : '' %> <%= index === 0 ? 'active' : '' %>" 
+                                 data-message-id="<%= message.id %>"
+                                 data-read="<%= message.lu ? 'true' : 'false' %>"
+                                 data-priority="<%= message.priorite || 'normal' %>"
+                                 onclick="selectionnerMessage('<%= message.id %>')">
+                                
+                                <div class="message-avatar">
+                                    <% if (message.expediteur_nom) { %>
+                                        <%= message.expediteur_nom.charAt(0).toUpperCase() %>
+                                    <% } else { %>
+                                        🎓
+                                    <% } %>
+                                </div>
+                                
+                                <div class="message-content">
+                                    <div class="message-header">
+                                        <span class="message-sender">
+                                            <%= message.expediteur_nom || 'ADSIAM Support' %>
+                                        </span>
+                                        <span class="message-time">
+                                            <%= new Date(message.createdat).toLocaleDateString('fr-FR', {
+                                                day: '2-digit',
+                                                month: '2-digit',
+                                                hour: '2-digit',
+                                                minute: '2-digit'
+                                            }) %>
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="message-subject">
+                                        <%= message.sujet %>
+                                    </div>
+                                    
+                                    <div class="message-preview">
+                                        <%= message.contenu.length > 80 ? message.contenu.substring(0, 80) + '...' : message.contenu %>
+                                    </div>
+                                    
+                                    <div class="message-indicators">
+                                        <% if (message.priorite === 'high') { %>
+                                            <span class="message-priority priority-high">Urgent</span>
+                                        <% } else if (message.priorite === 'medium') { %>
+                                            <span class="message-priority priority-medium">Important</span>
+                                        <% } %>
+                                        
+                                        <% if (message.type_message) { %>
+                                            <span class="message-type">
+                                                <%= message.type_message === 'support' ? 'Support' : 
+                                                    (message.type_message === 'formation' ? 'Formation' : 
+                                                    (message.type_message === 'system' ? 'Système' : 'Général')) %>
+                                            </span>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }) %>
+                    <% } else { %>
+                        <div class="empty-messages">
+                            <div class="empty-messages-icon">📭</div>
+                            <div class="empty-messages-title">Aucun message</div>
+                            <div class="empty-messages-text">Votre boîte de réception est vide</div>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+            
+            <!-- Messages Main -->
+            <div class="messages-main fade-in">
+                <div class="message-view-header">
+                    <h2 class="message-view-title">
+                        <span id="messageViewTitle">
+                            <% if (messages && messages.length > 0) { %>
+                                <%= messages[0].sujet %>
+                            <% } else { %>
+                                Sélectionnez un message
+                            <% } %>
+                        </span>
+                    </h2>
+                    
+                    <div class="message-actions" id="messageActions" <%= messages && messages.length > 0 ? '' : 'style="display: none;"' %>>
+                        <button class="message-action-btn" onclick="marquerCommeLu()">
+                            <span id="readToggleIcon">📖</span>
+                            <span id="readToggleText">Marquer comme lu</span>
+                        </button>
+                        <button class="message-action-btn" onclick="archiverMessage()">
+                            📦 Archiver
+                        </button>
+                        <button class="message-action-btn danger" onclick="supprimerMessage()">
+                            🗑️ Supprimer
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="message-view-content" id="messageViewContent">
+                    <% if (messages && messages.length > 0) { %>
+                        <div class="current-message">
+                            <div class="current-message-header">
+                                <div class="current-message-sender">
+                                    <div class="sender-avatar">
+                                        <%= messages[0].expediteur_nom ? messages[0].expediteur_nom.charAt(0).toUpperCase() : '🎓' %>
+                                    </div>
+                                    <div class="sender-info">
+                                        <div class="sender-name">
+                                            <%= messages[0].expediteur_nom || 'ADSIAM Support' %>
+                                        </div>
+                                        <div class="sender-role">
+                                            <%= messages[0].expediteur_role || 'Équipe pédagogique' %>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="message-meta">
+                                    <div class="message-date">
+                                        <%= new Date(messages[0].createdat).toLocaleDateString('fr-FR', {
+                                            weekday: 'long',
+                                            year: 'numeric',
+                                            month: 'long',
+                                            day: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                        }) %>
+                                    </div>
+                                    <span class="message-status <%= messages[0].lu ? 'status-read' : 'status-unread' %>">
+                                        <%= messages[0].lu ? 'Lu' : 'Non lu' %>
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <h3 class="current-message-subject">
+                                <%= messages[0].sujet %>
+                            </h3>
+                            
+                            <div class="current-message-body">
+                                <%= messages[0].contenu.replace(/\n/g, '<br>') %>
+                            </div>
+                        </div>
+                        
+                        <!-- Réponse -->
+                        <div class="message-reply">
+                            <h4 class="reply-header">Répondre</h4>
+                            <form class="reply-form ajax-form" action="/api/messages/reply" method="POST">
+                                <input type="hidden" name="message_id" value="<%= messages[0].id %>" id="replyMessageId">
+                                <textarea class="reply-textarea" name="contenu" placeholder="Tapez votre réponse..." required></textarea>
+                                <div class="reply-actions">
+                                    <button type="button" class="btn btn-outline" onclick="annulerReponse()">
+                                        Annuler
+                                    </button>
+                                    <button type="submit" class="btn btn-primary">
+                                        📤 Envoyer
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    <% } else { %>
+                        <div class="empty-messages">
+                            <div class="empty-messages-icon">💬</div>
+                            <div class="empty-messages-title">Aucun message sélectionné</div>
+                            <div class="empty-messages-text">Sélectionnez un message dans la liste pour l'afficher ici</div>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Modal Nouveau Message -->
+<div class="new-message-modal" id="newMessageModal">
+    <div class="new-message-content">
+        <div class="new-message-header">
+            <h3 class="new-message-title">Nouveau message</h3>
+            <button class="close-modal" onclick="fermerNouveauMessage()">&times;</button>
+        </div>
+        
+        <form class="new-message-form ajax-form" action="/api/messages/send" method="POST">
+            <div class="form-group">
+                <label class="form-label" for="destinataire">Destinataire</label>
+                <select class="form-control" name="destinataire" id="destinataire" required>
+                    <option value="">Choisir un destinataire</option>
+                    <option value="support">Support technique</option>
+                    <option value="pedagogique">Équipe pédagogique</option>
+                    <option value="admin">Administration</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="sujetMessage">Sujet</label>
+                <input type="text" class="form-control" name="sujet" id="sujetMessage" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="prioriteMessage">Priorité</label>
+                <select class="form-control" name="priorite" id="prioriteMessage">
+                    <option value="normal">Normale</option>
+                    <option value="medium">Important</option>
+                    <option value="high">Urgent</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="contenuMessage">Message</label>
+                <textarea class="form-control form-textarea" name="contenu" id="contenuMessage" required 
+                          placeholder="Tapez votre message ici..."></textarea>
+            </div>
+            
+            <div class="reply-actions">
+                <button type="button" class="btn btn-outline" onclick="fermerNouveauMessage()">
+                    Annuler
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    📤 Envoyer le message
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+let messageActuel = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('💬 Page Messages chargée');
+    
+    // Recherche dans les messages
+    const searchMessages = document.getElementById('searchMessages');
+    if (searchMessages) {
+        searchMessages.addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase();
+            const messageItems = document.querySelectorAll('.message-item');
+            
+            messageItems.forEach(item => {
+                const sender = item.querySelector('.message-sender').textContent.toLowerCase();
+                const subject = item.querySelector('.message-subject').textContent.toLowerCase();
+                const preview = item.querySelector('.message-preview').textContent.toLowerCase();
+                
+                if (sender.includes(query) || subject.includes(query) || preview.includes(query)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    }
+    
+    // Filtres des messages
+    const filterButtons = document.querySelectorAll('.filter-message-btn');
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const filter = this.getAttribute('data-filter');
+            
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            
+            const messageItems = document.querySelectorAll('.message-item');
+            messageItems.forEach(item => {
+                const read = item.getAttribute('data-read') === 'true';
+                const priority = item.getAttribute('data-priority');
+                let show = true;
+                
+                if (filter === 'unread' && read) {
+                    show = false;
+                } else if (filter === 'important' && priority === 'normal') {
+                    show = false;
+                }
+                
+                item.style.display = show ? 'flex' : 'none';
+            });
+        });
+    });
+    
+    // Initialiser le premier message si disponible
+    const firstMessage = document.querySelector('.message-item.active');
+    if (firstMessage) {
+        messageActuel = firstMessage.getAttribute('data-message-id');
+    }
+});
+
+async function selectionnerMessage(messageId) {
+    try {
+        // Update UI
+        document.querySelectorAll('.message-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        
+        const messageItem = document.querySelector(`[data-message-id="${messageId}"]`);
+        if (messageItem) {
+            messageItem.classList.add('active');
+            messageItem.classList.remove('unread');
+            messageItem.setAttribute('data-read', 'true');
+        }
+        
+        // Charger le contenu du message
+        const response = await fetch(`/api/messages/${messageId}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            afficherMessage(data.message);
+            messageActuel = messageId;
+            
+            // Marquer comme lu automatiquement
+            if (!data.message.lu) {
+                marquerCommeLu(false);
+            }
+        }
+        
+        window.ADSIAM_APP.track('message_opened', { message_id: messageId });
+    } catch (error) {
+        console.error('Erreur chargement message:', error);
+        window.ADSIAM_APP.showToast('Erreur de chargement du message', 'error');
+    }
+}
+
+function afficherMessage(message) {
+    document.getElementById('messageViewTitle').textContent = message.sujet;
+    document.getElementById('messageActions').style.display = 'flex';
+    
+    const content = `
+        <div class="current-message">
+            <div class="current-message-header">
+                <div class="current-message-sender">
+                    <div class="sender-avatar">
+                        ${message.expediteur_nom ? message.expediteur_nom.charAt(0).toUpperCase() : '🎓'}
+                    </div>
+                    <div class="sender-info">
+                        <div class="sender-name">${message.expediteur_nom || 'ADSIAM Support'}</div>
+                        <div class="sender-role">${message.expediteur_role || 'Équipe pédagogique'}</div>
+                    </div>
+                </div>
+                
+                <div class="message-meta">
+                    <div class="message-date">
+                        ${new Date(message.createdat).toLocaleDateString('fr-FR', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        })}
+                    </div>
+                    <span class="message-status ${message.lu ? 'status-read' : 'status-unread'}">
+                        ${message.lu ? 'Lu' : 'Non lu'}
+                    </span>
+                </div>
+            </div>
+            
+            <h3 class="current-message-subject">${message.sujet}</h3>
+            <div class="current-message-body">${message.contenu.replace(/\n/g, '<br>')}</div>
+        </div>
+        
+        <div class="message-reply">
+            <h4 class="reply-header">Répondre</h4>
+            <form class="reply-form ajax-form" action="/api/messages/reply" method="POST">
+                <input type="hidden" name="message_id" value="${message.id}">
+                <textarea class="reply-textarea" name="contenu" placeholder="Tapez votre réponse..." required></textarea>
+                <div class="reply-actions">
+                    <button type="button" class="btn btn-outline" onclick="annulerReponse()">Annuler</button>
+                    <button type="submit" class="btn btn-primary">📤 Envoyer</button>
+                </div>
+            </form>
+        </div>
+    `;
+    
+    document.getElementById('messageViewContent').innerHTML = content;
+    
+    // Mettre à jour les boutons d'action
+    const readToggleIcon = document.getElementById('readToggleIcon');
+    const readToggleText = document.getElementById('readToggleText');
+    if (readToggleIcon && readToggleText) {
+        if (message.lu) {
+            readToggleIcon.textContent = '📬';
+            readToggleText.textContent = 'Marquer comme non lu';
+        } else {
+            readToggleIcon.textContent = '📖';
+            readToggleText.textContent = 'Marquer comme lu';
+        }
+    }
+}
+
+async function marquerCommeLu(showToast = true) {
+    if (!messageActuel) return;
+    
+    try {
+        const response = await fetch(`/api/messages/${messageActuel}/mark-read`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            // Update UI
+            const messageItem = document.querySelector(`[data-message-id="${messageActuel}"]`);
+            if (messageItem) {
+                messageItem.classList.remove('unread');
+                messageItem.setAttribute('data-read', 'true');
+            }
+            
+            // Update status in message view
+            const statusElement = document.querySelector('.message-status');
+            if (statusElement) {
+                statusElement.className = 'message-status status-read';
+                statusElement.textContent = 'Lu';
+            }
+            
+            if (showToast) {
+                window.ADSIAM_APP.showToast('Message marqué comme lu', 'success');
+            }
+        }
+    } catch (error) {
+        console.error('Erreur marquer comme lu:', error);
+        if (showToast) {
+            window.ADSIAM_APP.showToast('Erreur de mise à jour', 'error');
+        }
+    }
+}
+
+async function archiverMessage() {
+    if (!messageActuel) return;
+    
+    if (!confirm('Voulez-vous archiver ce message ?')) return;
+    
+    try {
+        const response = await fetch(`/api/messages/${messageActuel}/archive`, {
+            method: 'POST'
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            // Supprimer de la liste
+            const messageItem = document.querySelector(`[data-message-id="${messageActuel}"]`);
+            if (messageItem) {
+                messageItem.remove();
+            }
+            
+            // Afficher message vide
+            document.getElementById('messageViewContent').innerHTML = `
+                <div class="empty-messages">
+                    <div class="empty-messages-icon">📦</div>
+                    <div class="empty-messages-title">Message archivé</div>
+                    <div class="empty-messages-text">Le message a été déplacé dans les archives</div>
+                </div>
+            `;
+            
+            messageActuel = null;
+            window.ADSIAM_APP.showToast('Message archivé', 'success');
+        }
+    } catch (error) {
+        console.error('Erreur archivage:', error);
+        window.ADSIAM_APP.showToast('Erreur d\'archivage', 'error');
+    }
+}<% layout('layout') -%>
+
+</script>
+
+</body>
+</html>

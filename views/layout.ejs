@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof pageTitle !== 'undefined' ? pageTitle + ' | ' : '' %>ADSIAM - Formation Professionnelle</title>
+    
+    <!-- Meta -->
+    <meta name="description" content="<%= typeof pageDescription !== 'undefined' ? pageDescription : 'Plateforme de formation pour les professionnels de l\'aide à domicile et EHPAD' %>">
+    <meta name="author" content="ADSIAM">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <%- include('partials/styles') %>
+    
+    <!-- Page specific styles -->
+    <% if (typeof contentFor !== 'undefined') { %>
+        <%- contentFor('head') %>
+    <% } %>
+</head>
+<body class="<%= typeof bodyClass !== 'undefined' ? bodyClass : '' %>">
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="loading-spinner">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Main Content -->
+    <%- body %>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <%- include('partials/scripts') %>
+    
+    <!-- Page specific scripts -->
+    <% if (typeof contentFor !== 'undefined') { %>
+        <%- contentFor('scripts') %>
+    <% } %>
+    
+    <script>
+        // Global App Configuration
+        window.ADSIAM = {
+            user: <%- JSON.stringify(typeof user !== 'undefined' ? {
+                id: user.id,
+                prenom: user.prenom,
+                nom: user.nom,
+                email: user.email,
+                type: user.type_utilisateur,
+                role: user.role,
+                avatar: user.avatar
+            } : null) %>,
+            apiUrl: '/api',
+            socketUrl: '<%= typeof socketUrl !== 'undefined' ? socketUrl : '' %>',
+            environment: '<%= typeof environment !== 'undefined' ? environment : 'development' %>'
+        };
+
+        // Hide loading spinner when page loads
+        window.addEventListener('load', () => {
+            const spinner = document.getElementById('loadingSpinner');
+            if (spinner) {
+                spinner.style.opacity = '0';
+                setTimeout(() => spinner.style.display = 'none', 300);
+            }
+        });
+    </script>
+</body>
+</html>

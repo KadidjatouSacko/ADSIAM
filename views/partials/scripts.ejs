@@ -1,0 +1,612 @@
+<script>
+// ADSIAM Global JavaScript Library
+class ADSIAMApp {
+    constructor() {
+        this.apiUrl = window.ADSIAM?.apiUrl || '/api';
+        this.user = window.ADSIAM?.user || null;
+        this.toastContainer = document.getElementById('toastContainer');
+        this.init();
+    }
+
+    init() {
+        this.setupEventListeners();
+        this.setupFormValidation();
+        this.setupAjaxDefaults();
+        console.log('🎓 ADSIAM App initialisé');
+    }
+
+    // Event Listeners globaux
+    setupEventListeners() {
+        // Smooth scrolling pour les liens
+        document.addEventListener('click', (e) => {
+            const link = e.target.closest('a[href^="#"]');
+            if (link) {
+                e.preventDefault();
+                const target = document.querySelector(link.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+        });
+
+        // Gestion des formulaires AJAX
+        document.addEventListener('submit', (e) => {
+            const form = e.target;
+            if (form.classList.contains('ajax-form')) {
+                e.preventDefault();
+                this.handleAjaxForm(form);
+            }
+        });
+
+        // Auto-resize des textareas
+        document.addEventListener('input', (e) => {
+            if (e.target.tagName === 'TEXTAREA' && e.target.classList.contains('auto-resize')) {
+                e.target.style.height = 'auto';
+                e.target.style.height = e.target.scrollHeight + 'px';
+            }
+        });
+
+        // Fermeture des toasts
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('toast-close') || e.target.closest('.toast-close')) {
+                const toast = e.target.closest('.toast');
+                if (toast) this.removeToast(toast);
+            }
+        });
+
+        // Gestion des dropdowns
+        document.addEventListener('click', (e) => {
+            const dropdown = e.target.closest('.dropdown-toggle');
+            if (dropdown) {
+                e.preventDefault();
+                this.toggleDropdown(dropdown);
+            } else {
+                // Fermer tous les dropdowns ouverts
+                document.querySelectorAll('.dropdown.show').forEach(d => d.classList.remove('show'));
+            }
+        });
+
+        // Gestion des modales
+        document.addEventListener('click', (e) => {
+            const modalTrigger = e.target.closest('[data-modal-target]');
+            if (modalTrigger) {
+                e.preventDefault();
+                const modalId = modalTrigger.getAttribute('data-modal-target');
+                this.openModal(modalId);
+            }
+
+            const modalClose = e.target.closest('.modal-close, [data-modal-close]');
+            if (modalClose) {
+                const modal = modalClose.closest('.modal');
+                if (modal) this.closeModal(modal.id);
+            }
+
+            const modal = e.target.closest('.modal');
+            if (e.target === modal) {
+                this.closeModal(modal.id);
+            }
+        });
+
+        // Échap pour fermer les modales
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const openModal = document.querySelector('.modal.show');
+                if (openModal) {
+                    this.closeModal(openModal.id);
+                }
+            }
+        });
+    }
+
+    // Configuration AJAX
+    setupAjaxDefaults() {
+        // Ajout du token CSRF pour toutes les requêtes
+        const csrfToken = document.querySelector('meta[name="csrf-token"]');
+        if (csrfToken) {
+            this.csrfToken = csrfToken.getAttribute('content');
+        }
+    }
+
+    // Validation des formulaires
+    setupFormValidation() {
+        document.addEventListener('blur', (e) => {
+            if (e.target.classList.contains('form-control')) {
+                this.validateField(e.target);
+            }
+        }, true);
+    }
+
+    // Validation d'un champ
+    validateField(field) {
+        const value = field.value.trim();
+        const type = field.type;
+        const required = field.hasAttribute('required');
+        let isValid = true;
+        let message = '';
+
+        // Reset des classes
+        field.classList.remove('is-valid', 'is-invalid');
+        const feedback = field.parentNode.querySelector('.invalid-feedback');
+        if (feedback) feedback.remove();
+
+        // Validation required
+        if (required && !value) {
+            isValid = false;
+            message = 'Ce champ est obligatoire';
+        }
+
+        // Validation email
+        if (type === 'email' && value && !this.isValidEmail(value)) {
+            isValid = false;
+            message = 'Format email invalide';
+        }
+
+        // Validation téléphone
+        if (type === 'tel' && value && !this.isValidPhone(value)) {
+            isValid = false;
+            message = 'Format téléphone invalide';
+        }
+
+        // Validation mot de passe
+        if (type === 'password' && value && value.length < 8) {
+            isValid = false;
+            message = 'Le mot de passe doit faire au moins 8 caractères';
+        }
+
+        // Confirmation mot de passe
+        if (field.name === 'password_confirm') {
+            const passwordField = document.querySelector('input[name="password"]');
+            if (passwordField && value !== passwordField.value) {
+                isValid = false;
+                message = 'Les mots de passe ne correspondent pas';
+            }
+        }
+
+        // Application des styles
+        if (isValid) {
+            field.classList.add('is-valid');
+        } else {
+            field.classList.add('is-invalid');
+            if (message) {
+                const feedbackEl = document.createElement('div');
+                feedbackEl.className = 'invalid-feedback';
+                feedbackEl.textContent = message;
+                field.parentNode.appendChild(feedbackEl);
+            }
+        }
+
+        return isValid;
+    }
+
+    // Utilitaires de validation
+    isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+
+    isValidPhone(phone) {
+        const phoneRegex = /^(?:(?:\+|00)33[\s\-]?|0)[1-9](?:[\s\-]?\d{2}){4}$/;
+        return phoneRegex.test(phone.replace(/\s/g, ''));
+    }
+
+    // Gestion des formulaires AJAX
+    async handleAjaxForm(form) {
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn ? submitBtn.textContent : '';
+        
+        try {
+            // Validation du formulaire
+            let isValid = true;
+            const requiredFields = form.querySelectorAll('[required]');
+            requiredFields.forEach(field => {
+                if (!this.validateField(field)) {
+                    isValid = false;
+                }
+            });
+
+            if (!isValid) {
+                this.showToast('Veuillez corriger les erreurs du formulaire', 'warning');
+                return;
+            }
+
+            // Désactivation du bouton
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Envoi...';
+            }
+
+            // Préparation des données
+            const formData = new FormData(form);
+            
+            // Requête AJAX
+            const response = await fetch(form.action, {
+                method: form.method || 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    ...(this.csrfToken && { 'X-CSRF-Token': this.csrfToken })
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                this.showToast(data.message || 'Action réalisée avec succès', 'success');
+                
+                // Actions post-succès
+                if (data.redirect) {
+                    setTimeout(() => window.location.href = data.redirect, 1500);
+                } else if (data.reload) {
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    form.reset();
+                }
+            } else {
+                this.showToast(data.message || 'Une erreur est survenue', 'error');
+            }
+
+        } catch (error) {
+            console.error('Erreur formulaire AJAX:', error);
+            this.showToast('Erreur de connexion', 'error');
+        } finally {
+            // Réactivation du bouton
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalBtnText;
+            }
+        }
+    }
+
+    // Système de Toast
+    showToast(message, type = 'info', duration = 5000) {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `
+            ${message}
+            <button class="toast-close" style="position: absolute; top: 0.5rem; right: 0.5rem; background: none; border: none; color: inherit; cursor: pointer; opacity: 0.7;">&times;</button>
+        `;
+
+        this.toastContainer.appendChild(toast);
+
+        // Animation d'entrée
+        setTimeout(() => toast.classList.add('show'), 100);
+
+        // Suppression automatique
+        setTimeout(() => this.removeToast(toast), duration);
+
+        return toast;
+    }
+
+    removeToast(toast) {
+        toast.style.animation = 'slideOutRight 0.3s ease';
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 300);
+    }
+
+    // Gestion des modales
+    openModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+            
+            // Focus trap
+            const focusableElements = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+            if (focusableElements.length > 0) {
+                focusableElements[0].focus();
+            }
+        }
+    }
+
+    closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+    }
+
+    // Gestion des dropdowns
+    toggleDropdown(trigger) {
+        const dropdown = trigger.closest('.dropdown');
+        const isOpen = dropdown.classList.contains('show');
+        
+        // Fermer tous les autres dropdowns
+        document.querySelectorAll('.dropdown.show').forEach(d => d.classList.remove('show'));
+        
+        // Toggle le dropdown actuel
+        if (!isOpen) {
+            dropdown.classList.add('show');
+        }
+    }
+
+    // API Helpers
+    async apiRequest(endpoint, options = {}) {
+        const defaultOptions = {
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                ...(this.csrfToken && { 'X-CSRF-Token': this.csrfToken })
+            },
+            ...options
+        };
+
+        try {
+            const response = await fetch(`${this.apiUrl}${endpoint}`, defaultOptions);
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.message || 'Erreur API');
+            }
+            
+            return data;
+        } catch (error) {
+            console.error('API Error:', error);
+            this.showToast(error.message || 'Erreur de connexion', 'error');
+            throw error;
+        }
+    }
+
+    // Formatage des dates
+    formatDate(dateString, format = 'fr') {
+        const date = new Date(dateString);
+        if (format === 'fr') {
+            return date.toLocaleDateString('fr-FR', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+        }
+        return date.toLocaleDateString('fr-FR');
+    }
+
+    formatDateTime(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleString('fr-FR', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    formatDuration(minutes) {
+        const hours = Math.floor(minutes / 60);
+        const mins = minutes % 60;
+        
+        if (hours > 0) {
+            return `${hours}h${mins > 0 ? ` ${mins}min` : ''}`;
+        }
+        return `${mins}min`;
+    }
+
+    // Utilitaires de texte
+    truncateText(text, length = 100) {
+        if (!text || text.length <= length) return text;
+        return text.substring(0, length).trim() + '...';
+    }
+
+    // Gestion du localStorage
+    setStorage(key, value) {
+        try {
+            localStorage.setItem(`adsiam_${key}`, JSON.stringify(value));
+        } catch (error) {
+            console.warn('Storage non disponible:', error);
+        }
+    }
+
+    getStorage(key, defaultValue = null) {
+        try {
+            const value = localStorage.getItem(`adsiam_${key}`);
+            return value ? JSON.parse(value) : defaultValue;
+        } catch (error) {
+            console.warn('Storage non disponible:', error);
+            return defaultValue;
+        }
+    }
+
+    // Animation counter
+    animateCounter(element, target, duration = 1000) {
+        const start = parseInt(element.textContent) || 0;
+        const increment = (target - start) / (duration / 16);
+        let current = start;
+
+        const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+                element.textContent = target;
+                clearInterval(timer);
+            } else {
+                element.textContent = Math.floor(current);
+            }
+        }, 16);
+    }
+
+    // Debounce function
+    debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    // Copy to clipboard
+    async copyToClipboard(text) {
+        try {
+            await navigator.clipboard.writeText(text);
+            this.showToast('Copié dans le presse-papier', 'success');
+            return true;
+        } catch (error) {
+            console.error('Erreur copie:', error);
+            this.showToast('Impossible de copier', 'error');
+            return false;
+        }
+    }
+
+    // Share API
+    async share(data) {
+        if (navigator.share && navigator.canShare && navigator.canShare(data)) {
+            try {
+                await navigator.share(data);
+                return true;
+            } catch (error) {
+                if (error.name !== 'AbortError') {
+                    console.error('Erreur partage:', error);
+                }
+            }
+        }
+        
+        // Fallback: copy URL
+        if (data.url) {
+            return await this.copyToClipboard(data.url);
+        }
+        
+        return false;
+    }
+
+    // Analytics (simple tracking)
+    track(event, properties = {}) {
+        if (window.gtag) {
+            window.gtag('event', event, properties);
+        }
+        
+        // Fallback simple logging
+        console.log('Track:', event, properties);
+    }
+}
+
+// Animation observer
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const animationObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry, index) => {
+        if (entry.isIntersecting) {
+            setTimeout(() => {
+                entry.target.style.animation = 'fadeInUp 0.6s ease forwards';
+            }, index * 100);
+        }
+    });
+}, observerOptions);
+
+// Auto-initialisation
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialiser l'app principale
+    window.ADSIAM_APP = new ADSIAMApp();
+    
+    // Observer les éléments avec animation
+    document.querySelectorAll('.fade-in, .slide-in-left').forEach(el => {
+        animationObserver.observe(el);
+    });
+    
+    // Auto-focus sur le premier champ de formulaire
+    const firstInput = document.querySelector('.form-control');
+    if (firstInput && !firstInput.value) {
+        firstInput.focus();
+    }
+    
+    // Initialiser les tooltips
+    initTooltips();
+    
+    // Initialiser les compteurs
+    initCounters();
+});
+
+// Tooltips simples
+function initTooltips() {
+    document.querySelectorAll('[data-tooltip]').forEach(element => {
+        element.addEventListener('mouseenter', showTooltip);
+        element.addEventListener('mouseleave', hideTooltip);
+    });
+}
+
+function showTooltip(e) {
+    const text = e.target.getAttribute('data-tooltip');
+    const tooltip = document.createElement('div');
+    tooltip.className = 'tooltip';
+    tooltip.textContent = text;
+    tooltip.style.cssText = `
+        position: absolute;
+        background: var(--text-dark);
+        color: white;
+        padding: 0.5rem 0.8rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        z-index: 10000;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s;
+    `;
+    
+    document.body.appendChild(tooltip);
+    
+    const rect = e.target.getBoundingClientRect();
+    tooltip.style.left = rect.left + rect.width / 2 - tooltip.offsetWidth / 2 + 'px';
+    tooltip.style.top = rect.top - tooltip.offsetHeight - 5 + 'px';
+    
+    setTimeout(() => tooltip.style.opacity = '1', 10);
+    
+    e.target._tooltip = tooltip;
+}
+
+function hideTooltip(e) {
+    if (e.target._tooltip) {
+        e.target._tooltip.remove();
+        delete e.target._tooltip;
+    }
+}
+
+// Initialiser les compteurs animés
+function initCounters() {
+    document.querySelectorAll('[data-count]').forEach(counter => {
+        const target = parseInt(counter.getAttribute('data-count'));
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !counter._counted) {
+                    counter._counted = true;
+                    window.ADSIAM_APP.animateCounter(counter, target);
+                }
+            });
+        });
+        observer.observe(counter);
+    });
+}
+
+// Fonctions utilitaires globales
+window.ADSIAM_UTILS = {
+    formatDate: (date) => window.ADSIAM_APP.formatDate(date),
+    formatDateTime: (date) => window.ADSIAM_APP.formatDateTime(date),
+    formatDuration: (minutes) => window.ADSIAM_APP.formatDuration(minutes),
+    truncateText: (text, length) => window.ADSIAM_APP.truncateText(text, length),
+    showToast: (message, type, duration) => window.ADSIAM_APP.showToast(message, type, duration),
+    copyToClipboard: (text) => window.ADSIAM_APP.copyToClipboard(text),
+    share: (data) => window.ADSIAM_APP.share(data),
+    apiRequest: (endpoint, options) => window.ADSIAM_APP.apiRequest(endpoint, options)
+};
+
+// Error handling global
+window.addEventListener('error', (e) => {
+    console.error('Erreur JavaScript:', e.error);
+    if (window.ADSIAM_APP) {
+        window.ADSIAM_APP.showToast('Une erreur inattendue s\'est produite', 'error');
+    }
+});
+
+window.addEventListener('unhandledrejection', (e) => {
+    console.error('Promise rejetée:', e.reason);
+    if (window.ADSIAM_APP) {
+        window.ADSIAM_APP.showToast('Erreur de connexion', 'error');
+    }
+});
+</script>

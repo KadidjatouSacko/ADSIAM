@@ -1,0 +1,673 @@
+<% layout('layout') -%>
+<% contentFor('head') -%>
+<title>Mes Certifications | ADSIAM</title>
+<% contentFor('scripts') -%>
+
+<style>
+.certifications-container {
+    padding: 2rem;
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+.certifications-header {
+    background: var(--white);
+    padding: 3rem;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow);
+    text-align: center;
+    margin-bottom: 3rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.certifications-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 40%;
+    height: 200%;
+    background: var(--gradient-green);
+    border-radius: 50%;
+    opacity: 0.1;
+    transform: rotate(-15deg);
+}
+
+.header-content {
+    position: relative;
+    z-index: 2;
+}
+
+.header-title {
+    font-size: 3rem;
+    font-weight: 300;
+    color: var(--text-dark);
+    margin-bottom: 1rem;
+}
+
+.header-subtitle {
+    font-size: 1.2rem;
+    color: var(--text-light);
+    margin-bottom: 2rem;
+    line-height: 1.7;
+}
+
+.achievement-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8rem;
+    background: var(--gradient-green);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.certifications-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.cert-stat-card {
+    background: var(--white);
+    padding: 2rem;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow);
+    text-align: center;
+    transition: var(--transition);
+}
+
+.cert-stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.cert-stat-icon {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 1.5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    color: white;
+}
+
+.cert-stat-card:nth-child(1) .cert-stat-icon { background: var(--gradient-green); }
+.cert-stat-card:nth-child(2) .cert-stat-icon { background: var(--gradient-blue); }
+.cert-stat-card:nth-child(3) .cert-stat-icon { background: var(--gradient-orange); }
+.cert-stat-card:nth-child(4) .cert-stat-icon { background: var(--gradient-contact); }
+
+.cert-stat-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+}
+
+.cert-stat-label {
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+.certifications-filters {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.filter-cert-btn {
+    padding: 0.8rem 1.5rem;
+    border: 2px solid var(--soft-gray);
+    background: var(--white);
+    border-radius: 25px;
+    cursor: pointer;
+    transition: var(--transition);
+    font-weight: 500;
+    color: var(--text-dark);
+}
+
+.filter-cert-btn.active {
+    background: var(--gradient-green);
+    color: white;
+    border-color: transparent;
+}
+
+.certifications-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+}
+
+.certification-card {
+    background: var(--white);
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    position: relative;
+}
+
+.certification-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg);
+}
+
+.cert-header {
+    height: 200px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    color: white;
+}
+
+.certification-card:nth-child(4n+1) .cert-header { background: var(--gradient-green); }
+.certification-card:nth-child(4n+2) .cert-header { background: var(--gradient-blue); }
+.certification-card:nth-child(4n+3) .cert-header { background: var(--gradient-orange); }
+.certification-card:nth-child(4n+4) .cert-header { background: var(--gradient-contact); }
+
+.cert-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+    animation: certPulse 4s ease-in-out infinite;
+}
+
+@keyframes certPulse {
+    0%, 100% { opacity: 0.3; transform: scale(1) rotate(0deg); }
+    50% { opacity: 0.6; transform: scale(1.1) rotate(180deg); }
+}
+
+.cert-icon {
+    font-size: 4rem;
+    z-index: 2;
+}
+
+.cert-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--text-dark);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    backdrop-filter: blur(10px);
+}
+
+.cert-verification {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: rgba(40, 167, 69, 0.9);
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.cert-content {
+    padding: 2.5rem;
+}
+
+.cert-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 1rem;
+    line-height: 1.3;
+}
+
+.cert-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.cert-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.cert-detail-label {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+}
+
+.cert-detail-value {
+    font-size: 0.95rem;
+    color: var(--text-dark);
+    font-weight: 500;
+}
+
+.cert-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.cert-btn {
+    flex: 1;
+    padding: 1rem 1.5rem;
+    border: none;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: none;
+    text-align: center;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-download {
+    background: var(--gradient-green);
+    color: white;
+}
+
+.btn-download:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(157, 214, 181, 0.4);
+}
+
+.btn-share {
+    background: transparent;
+    color: var(--primary-blue);
+    border: 2px solid var(--primary-blue);
+}
+
+.btn-share:hover {
+    background: var(--primary-blue);
+    color: white;
+}
+
+.btn-verify {
+    background: transparent;
+    color: var(--success);
+    border: 2px solid var(--success);
+}
+
+.btn-verify:hover {
+    background: var(--success);
+    color: white;
+}
+
+.empty-certifications {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--white);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow);
+    grid-column: 1 / -1;
+}
+
+.empty-cert-icon {
+    font-size: 5rem;
+    margin-bottom: 2rem;
+    opacity: 0.3;
+}
+
+.empty-cert-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 1rem;
+}
+
+.empty-cert-description {
+    color: var(--text-light);
+    margin-bottom: 2.5rem;
+    line-height: 1.7;
+    font-size: 1.1rem;
+}
+
+.certification-preview {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s;
+}
+
+.certification-preview.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.cert-preview-content {
+    background: var(--white);
+    border-radius: var(--border-radius-lg);
+    max-width: 800px;
+    max-height: 90vh;
+    overflow: auto;
+    position: relative;
+    animation: zoomIn 0.3s ease;
+}
+
+@keyframes zoomIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.cert-preview-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(0,0,0,0.5);
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.2rem;
+    z-index: 1;
+}
+
+@media (max-width: 768px) {
+    .certifications-container {
+        padding: 1rem;
+    }
+    
+    .certifications-header {
+        padding: 2rem;
+    }
+    
+    .header-title {
+        font-size: 2rem;
+    }
+    
+    .certifications-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .certifications-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .cert-details {
+        grid-template-columns: 1fr;
+    }
+    
+    .cert-actions {
+        flex-direction: column;
+    }
+}
+</style>
+
+<div class="dashboard-layout">
+    <%- include('partials/sidebar') %>
+    
+    <main class="main-content">
+        <%- include('partials/header', { 
+            pageTitle: 'Mes Certifications', 
+            pageIcon: '🏆',
+            pageSubtitle: 'Vos accomplissements et certifications professionnelles',
+            showSearch: false 
+        }) %>
+        
+        <div class="certifications-container">
+            <!-- Header -->
+            <div class="certifications-header fade-in">
+                <div class="header-content">
+                    <h1 class="header-title">Mes Certifications</h1>
+                    <p class="header-subtitle">
+                        Vos certifications professionnelles ADSIAM reconnues par les employeurs du secteur.<br>
+                        Téléchargez, partagez et vérifiez l'authenticité de vos diplômes.
+                    </p>
+                    <% if (certifications && certifications.length > 0) { %>
+                        <div class="achievement-badge">
+                            🎖️ <%= certifications.length %> certification<%= certifications.length > 1 ? 's' : '' %> obtenue<%= certifications.length > 1 ? 's' : '' %>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="certifications-stats">
+                <div class="cert-stat-card fade-in">
+                    <div class="cert-stat-icon">🏆</div>
+                    <div class="cert-stat-value" data-count="<%= certifications ? certifications.length : 0 %>">0</div>
+                    <div class="cert-stat-label">Certifications obtenues</div>
+                </div>
+                <div class="cert-stat-card fade-in">
+                    <div class="cert-stat-icon">📈</div>
+                    <div class="cert-stat-value" data-count="<%= stats ? stats.enCours : 0 %>">0</div>
+                    <div class="cert-stat-label">En cours de validation</div>
+                </div>
+                <div class="cert-stat-card fade-in">
+                    <div class="cert-stat-icon">⭐</div>
+                    <div class="cert-stat-value" data-count="<%= stats ? stats.noteMovenne : 0 %>">0</div>
+                    <div class="cert-stat-label">Note moyenne</div>
+                </div>
+                <div class="cert-stat-card fade-in">
+                    <div class="cert-stat-icon">📅</div>
+                    <div class="cert-stat-value" data-count="<%= stats ? stats.cetteAnnee : 0 %>">0</div>
+                    <div class="cert-stat-label">Cette année</div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="certifications-filters">
+                <button class="filter-cert-btn active" data-filter="all">Toutes</button>
+                <button class="filter-cert-btn" data-filter="2024">2024</button>
+                <button class="filter-cert-btn" data-filter="2023">2023</button>
+                <button class="filter-cert-btn" data-filter="domaine">Par domaine</button>
+            </div>
+
+            <!-- Certifications Grid -->
+            <div class="certifications-grid">
+                <% if (certifications && certifications.length > 0) { %>
+                    <% certifications.forEach((cert, index) => { %>
+                        <div class="certification-card fade-in" data-year="<%= new Date(cert.date_certification).getFullYear() %>" data-domaine="<%= cert.formation ? cert.formation.domaine : '' %>">
+                            <div class="cert-header">
+                                <div class="cert-icon">🎖️</div>
+                                <div class="cert-badge">Certifié ADSIAM</div>
+                                <div class="cert-verification">
+                                    ✓ Vérifié
+                                </div>
+                            </div>
+                            
+                            <div class="cert-content">
+                                <h3 class="cert-title">
+                                    <%= cert.formation ? cert.formation.titre : 'Certification ADSIAM' %>
+                                </h3>
+                                
+                                <div class="cert-details">
+                                    <div class="cert-detail">
+                                        <span class="cert-detail-label">Date d'obtention</span>
+                                        <span class="cert-detail-value">
+                                            <%= new Date(cert.date_certification).toLocaleDateString('fr-FR', {
+                                                day: 'numeric',
+                                                month: 'long', 
+                                                year: 'numeric'
+                                            }) %>
+                                        </span>
+                                    </div>
+                                    <div class="cert-detail">
+                                        <span class="cert-detail-label">Note finale</span>
+                                        <span class="cert-detail-value">
+                                            <%= cert.note_finale ? cert.note_finale + '/20' : 'Validé' %>
+                                        </span>
+                                    </div>
+                                    <div class="cert-detail">
+                                        <span class="cert-detail-label">ID Certificat</span>
+                                        <span class="cert-detail-value">#ADSIAM-<%= cert.id.toString().padStart(6, '0') %></span>
+                                    </div>
+                                    <div class="cert-detail">
+                                        <span class="cert-detail-label">Validité</span>
+                                        <span class="cert-detail-value">Permanente</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="cert-actions">
+                                    <a href="/api/certificats/<%= cert.id %>/download" class="cert-btn btn-download" target="_blank">
+                                        📄 Télécharger
+                                    </a>
+                                    <button class="cert-btn btn-share" onclick="partagerCertificat('<%= cert.id %>')">
+                                        📤 Partager
+                                    </button>
+                                    <button class="cert-btn btn-verify" onclick="voirCertificat('<%= cert.id %>')">
+                                        👁️ Aperçu
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <div class="empty-certifications fade-in">
+                        <div class="empty-cert-icon">🏆</div>
+                        <h3 class="empty-cert-title">Aucune certification pour le moment</h3>
+                        <p class="empty-cert-description">
+                            Terminez vos formations pour obtenir vos premiers certificats.<br>
+                            Chaque formation validée vous donne droit à une certification reconnue.
+                        </p>
+                        <a href="/mes-formations" class="btn btn-primary btn-lg">
+                            📚 Voir mes formations
+                        </a>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Modal de prévisualisation -->
+<div class="certification-preview" id="certificationPreview">
+    <div class="cert-preview-content">
+        <button class="cert-preview-close" onclick="fermerPreview()">&times;</button>
+        <div id="certificationContent"></div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🏆 Page Certifications chargée');
+    
+    // Filtres
+    const filterButtons = document.querySelectorAll('.filter-cert-btn');
+    const certificationCards = document.querySelectorAll('.certification-card');
+    
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const filter = this.getAttribute('data-filter');
+            
+            // Update active button
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Filter cards
+            certificationCards.forEach(card => {
+                const year = card.getAttribute('data-year');
+                const domaine = card.getAttribute('data-domaine');
+                let show = true;
+                
+                if (filter !== 'all') {
+                    if (filter === 'domaine') {
+                        // Grouper par domaine - pour l'instant on affiche tout
+                        show = true;
+                    } else if (!isNaN(filter)) {
+                        // Filtrer par année
+                        show = year === filter;
+                    }
+                }
+                
+                if (show) {
+                    card.style.display = 'block';
+                    card.style.animation = 'fadeInUp 0.5s ease forwards';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            // Analytics
+            window.ADSIAM_APP.track('certifications_filter', { filter: filter });
+        });
+    });
+});
+
+async function partagerCertificat(certId) {
+    const url = `${window.location.origin}/certificat/${certId}/public`;
+    const shareData = {
+        title: 'Mon certificat ADSIAM',
+        text: 'Découvrez ma certification professionnelle ADSIAM',
+        url: url
+    };
+    
+    if (await window.ADSIAM_APP.share(shareData)) {
+        console.log('Certificat partagé');
+    }
+    
+    window.ADSIAM_APP.track('certificate_shared', { certificate_id: certId });
+}
+
+async function voirCertificat(certId) {
+    try {
+        const response = await fetch(`/api/certificats/${certId}/preview`);
+        const data = await response.json();
+        
+        if (data.success) {
+            document.getElementById('certificationContent').innerHTML = data.html;
+            document.getElementById('certificationPreview').classList.add('show');
+        } else {
+            window.ADSIAM_APP.showToast('Impossible de charger le certificat', 'error');
+        }
+        
+        window.ADSIAM_APP.track('certificate_previewed', { certificate_id: certId });
+    } catch (error) {
+        console.error('Erreur prévisualisation certificat:', error);
+        window.ADSIAM_APP.showToast('Erreur de chargement', 'error');
+    }
+}
+
+function fermerPreview() {
+    document.getElementById('certificationPreview').classList.remove('show');
+}
+
+// Fermeture modal avec Escape
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        fermerPreview();
+    }
+});
+
+// Fermeture modal en cliquant à l'extérieur
+document.getElementById('certificationPreview').addEventListener('click', function(e) {
+    if (e.target === this) {
+        fermerPreview();
+    }
+});
+</script>

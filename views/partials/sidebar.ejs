@@ -1,0 +1,669 @@
+<!-- Header -->
+<header class="dashboard-header">
+    <div class="header-left">
+        <% if (typeof showBreadcrumb !== 'undefined' && showBreadcrumb && typeof breadcrumb !== 'undefined') { %>
+            <nav class="breadcrumb">
+                <% breadcrumb.forEach((item, index) => { %>
+                    <% if (index > 0) { %>
+                        <span class="breadcrumb-separator">›</span>
+                    <% } %>
+                    <% if (item.url && index < breadcrumb.length - 1) { %>
+                        <a href="<%= item.url %>" class="breadcrumb-link"><%= item.title %></a>
+                    <% } else { %>
+                        <span class="breadcrumb-current"><%= item.title %></span>
+                    <% } %>
+                <% }) %>
+            </nav>
+        <% } %>
+        
+        <h1 class="header-title">
+            <% if (typeof pageIcon !== 'undefined') { %>
+                <span class="header-icon"><%= pageIcon %></span>
+            <% } %>
+            <%= typeof pageTitle !== 'undefined' ? pageTitle : 'Dashboard' %>
+        </h1>
+        
+        <% if (typeof pageSubtitle !== 'undefined') { %>
+            <p class="header-subtitle"><%= pageSubtitle %></p>
+        <% } else { %>
+            <p class="header-subtitle">
+                Bonjour <%= user && user.prenom ? user.prenom : 'Utilisateur' %>, 
+                <% if (typeof customGreeting !== 'undefined') { %>
+                    <%= customGreeting %>
+                <% } else { %>
+                    continuez votre apprentissage !
+                <% } %>
+            </p>
+        <% } %>
+    </div>
+    
+    <div class="header-actions">
+        <% if (typeof showSearch !== 'undefined' && showSearch) { %>
+            <div class="header-search">
+                <input type="text" class="search-input" placeholder="<%= typeof searchPlaceholder !== 'undefined' ? searchPlaceholder : 'Rechercher...' %>" id="globalSearch">
+                <span class="search-icon">🔍</span>
+                <div class="search-results" id="searchResults" style="display: none;"></div>
+            </div>
+        <% } %>
+        
+        <% if (typeof showQuickActions !== 'undefined' && showQuickActions) { %>
+            <div class="quick-actions-dropdown">
+                <button class="quick-action-btn" title="Actions rapides" id="quickActionsBtn">
+                    ⚡
+                </button>
+                <div class="quick-actions-menu" id="quickActionsMenu" style="display: none;">
+                    <a href="/nouvelle-formation" class="quick-action-item">
+                        <span class="action-icon">📚</span>
+                        <span class="action-text">Nouvelle formation</span>
+                    </a>
+                    <a href="/mes-messages/nouveau" class="quick-action-item">
+                        <span class="action-icon">✉️</span>
+                        <span class="action-text">Nouveau message</span>
+                    </a>
+                    <a href="/support" class="quick-action-item">
+                        <span class="action-icon">🆘</span>
+                        <span class="action-text">Aide</span>
+                    </a>
+                </div>
+            </div>
+        <% } %>
+        
+        <button class="notification-btn" title="Notifications" id="notificationBtn">
+            🔔
+            <% if (typeof notificationsNonLues !== 'undefined' && notificationsNonLues > 0) { %>
+                <span class="notification-badge"><%= notificationsNonLues %></span>
+            <% } %>
+        </button>
+        
+        <div class="user-menu">
+            <button class="user-menu-btn" id="userMenuBtn">
+                <div class="user-avatar-small">
+                    <% if (user && user.avatar) { %>
+                        <img src="<%= user.avatar %>" alt="Avatar">
+                    <% } else if (user && user.prenom) { %>
+                        <%= user.prenom.charAt(0).toUpperCase() %>
+                    <% } else { %>
+                        👤
+                    <% } %>
+                </div>
+                <span class="user-name-small">
+                    <%= user && user.prenom ? user.prenom : 'User' %>
+                </span>
+                <span class="dropdown-arrow">▼</span>
+            </button>
+            
+            <div class="user-menu-dropdown" id="userMenuDropdown" style="display: none;">
+                <div class="user-info-header">
+                    <div class="user-avatar-large">
+                        <% if (user && user.avatar) { %>
+                            <img src="<%= user.avatar %>" alt="Avatar">
+                        <% } else if (user && user.prenom) { %>
+                            <%= user.prenom.charAt(0).toUpperCase() %>
+                        <% } else { %>
+                            👤
+                        <% } %>
+                    </div>
+                    <div class="user-details">
+                        <div class="user-name">
+                            <%= user && user.prenom ? user.prenom : 'Utilisateur' %> 
+                            <%= user && user.nom ? user.nom : '' %>
+                        </div>
+                        <div class="user-email"><%= user && user.email ? user.email : '' %></div>
+                    </div>
+                </div>
+                
+                <div class="menu-divider"></div>
+                
+                <a href="/mon-profil" class="menu-item">
+                    <span class="menu-icon">👤</span>
+                    <span class="menu-text">Mon profil</span>
+                </a>
+                <a href="/mes-parametres" class="menu-item">
+                    <span class="menu-icon">⚙️</span>
+                    <span class="menu-text">Paramètres</span>
+                </a>
+                <a href="/mes-notifications" class="menu-item">
+                    <span class="menu-icon">🔔</span>
+                    <span class="menu-text">Notifications</span>
+                    <% if (typeof notificationsNonLues !== 'undefined' && notificationsNonLues > 0) { %>
+                        <span class="menu-badge"><%= notificationsNonLues %></span>
+                    <% } %>
+                </a>
+                
+                <div class="menu-divider"></div>
+                
+                <a href="/support" class="menu-item">
+                    <span class="menu-icon">🆘</span>
+                    <span class="menu-text">Support</span>
+                </a>
+                <a href="/feedback" class="menu-item">
+                    <span class="menu-icon">💭</span>
+                    <span class="menu-text">Feedback</span>
+                </a>
+                
+                <div class="menu-divider"></div>
+                
+                <a href="/auth/logout" class="menu-item logout" onclick="return confirm('Êtes-vous sûr de vouloir vous déconnecter ?')">
+                    <span class="menu-icon">🚪</span>
+                    <span class="menu-text">Déconnexion</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<style>
+.dashboard-header {
+    background: var(--white);
+    padding: 1.5rem 2rem;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    min-height: 80px;
+}
+
+.header-left {
+    flex: 1;
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.breadcrumb-link {
+    color: var(--text-light);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.breadcrumb-link:hover {
+    color: var(--primary-blue);
+}
+
+.breadcrumb-separator {
+    color: var(--text-light);
+    opacity: 0.5;
+}
+
+.breadcrumb-current {
+    color: var(--primary-pink);
+    font-weight: 500;
+}
+
+.header-title {
+    font-size: 2rem;
+    font-weight: 300;
+    color: var(--text-dark);
+    margin-bottom: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.header-icon {
+    font-size: 1.8rem;
+}
+
+.header-subtitle {
+    color: var(--text-light);
+    font-size: 1rem;
+    margin: 0;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.header-search {
+    position: relative;
+}
+
+.search-input {
+    width: 300px;
+    padding: 0.8rem 3rem 0.8rem 1rem;
+    border: 2px solid var(--soft-gray);
+    border-radius: 25px;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+    background: var(--soft-gray);
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    background: var(--white);
+    box-shadow: 0 5px 15px rgba(165, 191, 212, 0.2);
+}
+
+.search-icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-light);
+    cursor: pointer;
+}
+
+.search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-lg);
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    margin-top: 0.5rem;
+}
+
+.search-result-item {
+    padding: 1rem;
+    border-bottom: 1px solid var(--soft-gray);
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.search-result-item:hover {
+    background: var(--light-blue);
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
+
+.quick-actions-dropdown {
+    position: relative;
+}
+
+.quick-action-btn {
+    width: 45px;
+    height: 45px;
+    background: var(--gradient-orange);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.quick-action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 159, 128, 0.4);
+}
+
+.quick-actions-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-lg);
+    padding: 0.5rem 0;
+    min-width: 200px;
+    z-index: 1000;
+    margin-top: 0.5rem;
+}
+
+.quick-action-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    color: var(--text-dark);
+    text-decoration: none;
+    transition: background 0.3s;
+}
+
+.quick-action-item:hover {
+    background: var(--light-blue);
+}
+
+.action-icon {
+    font-size: 1.1rem;
+}
+
+.notification-btn {
+    position: relative;
+    width: 45px;
+    height: 45px;
+    background: var(--soft-gray);
+    border: none;
+    border-radius: 12px;
+    color: var(--text-light);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.notification-btn:hover {
+    background: var(--light-blue);
+    color: var(--primary-blue);
+}
+
+.notification-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    background: var(--danger);
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 0.7rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+}
+
+.user-menu {
+    position: relative;
+}
+
+.user-menu-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    transition: background 0.3s;
+}
+
+.user-menu-btn:hover {
+    background: var(--soft-gray);
+}
+
+.user-avatar-small {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: var(--gradient-contact);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 0.9rem;
+    overflow: hidden;
+}
+
+.user-avatar-small img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.user-name-small {
+    font-weight: 500;
+    color: var(--text-dark);
+}
+
+.dropdown-arrow {
+    font-size: 0.7rem;
+    color: var(--text-light);
+    transition: transform 0.3s;
+}
+
+.user-menu.open .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+.user-menu-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: var(--white);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-lg);
+    min-width: 280px;
+    z-index: 1000;
+    margin-top: 0.5rem;
+    overflow: hidden;
+}
+
+.user-info-header {
+    padding: 1.5rem;
+    background: var(--gradient-pink);
+    color: white;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.user-avatar-large {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 1.2rem;
+    overflow: hidden;
+}
+
+.user-avatar-large img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.user-details .user-name {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.user-details .user-email {
+    opacity: 0.9;
+    font-size: 0.9rem;
+}
+
+.menu-divider {
+    height: 1px;
+    background: var(--soft-gray);
+    margin: 0.5rem 0;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.5rem;
+    color: var(--text-dark);
+    text-decoration: none;
+    transition: background 0.3s;
+}
+
+.menu-item:hover {
+    background: var(--light-blue);
+}
+
+.menu-item.logout {
+    color: var(--danger);
+}
+
+.menu-item.logout:hover {
+    background: rgba(220, 53, 69, 0.1);
+}
+
+.menu-icon {
+    font-size: 1.1rem;
+}
+
+.menu-text {
+    flex: 1;
+}
+
+.menu-badge {
+    background: var(--danger);
+    color: white;
+    padding: 0.2rem 0.5rem;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .dashboard-header {
+        padding: 1rem;
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+    }
+    
+    .header-actions {
+        justify-content: space-between;
+    }
+    
+    .search-input {
+        width: 200px;
+    }
+    
+    .user-name-small {
+        display: none;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestion du menu utilisateur
+    const userMenuBtn = document.getElementById('userMenuBtn');
+    const userMenuDropdown = document.getElementById('userMenuDropdown');
+    const userMenu = document.querySelector('.user-menu');
+    
+    if (userMenuBtn && userMenuDropdown) {
+        userMenuBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const isOpen = userMenuDropdown.style.display === 'block';
+            
+            // Fermer tous les autres menus
+            closeAllDropdowns();
+            
+            if (!isOpen) {
+                userMenuDropdown.style.display = 'block';
+                userMenu.classList.add('open');
+            }
+        });
+    }
+    
+    // Gestion des actions rapides
+    const quickActionsBtn = document.getElementById('quickActionsBtn');
+    const quickActionsMenu = document.getElementById('quickActionsMenu');
+    
+    if (quickActionsBtn && quickActionsMenu) {
+        quickActionsBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const isOpen = quickActionsMenu.style.display === 'block';
+            
+            closeAllDropdowns();
+            
+            if (!isOpen) {
+                quickActionsMenu.style.display = 'block';
+            }
+        });
+    }
+    
+    // Gestion des notifications
+    const notificationBtn = document.getElementById('notificationBtn');
+    if (notificationBtn) {
+        notificationBtn.addEventListener('click', function() {
+            window.location.href = '/notifications';
+        });
+    }
+    
+    // Recherche globale
+    const searchInput = document.getElementById('globalSearch');
+    const searchResults = document.getElementById('searchResults');
+    
+    if (searchInput && searchResults) {
+        let searchTimeout;
+        
+        searchInput.addEventListener('input', function(e) {
+            clearTimeout(searchTimeout);
+            const query = e.target.value.trim();
+            
+            if (query.length < 2) {
+                searchResults.style.display = 'none';
+                return;
+            }
+            
+            searchTimeout = setTimeout(() => {
+                performSearch(query);
+            }, 300);
+        });
+        
+        searchInput.addEventListener('focus', function() {
+            if (this.value.length >= 2) {
+                searchResults.style.display = 'block';
+            }
+        });
+    }
+    
+    // Fermeture des dropdowns au clic extérieur
+    document.addEventListener('click', function() {
+        closeAllDropdowns();
+    });
+    
+    function closeAllDropdowns() {
+        if (userMenuDropdown) {
+            userMenuDropdown.style.display = 'none';
+            userMenu.classList.remove('open');
+        }
+        if (quickActionsMenu) {
+            quickActionsMenu.style.display = 'none';
+        }
+        if (searchResults) {
+            searchResults.style.display = 'none';
+        }
+    }
+    
+    async function performSearch(query) {
+        try {
+            const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+            const data = await response.json();
+            
+            if (data.success) {
+                displaySearchResults(data.results);
+            }
+        } catch (error) {
+            console.error('Erreur recherche:', error);
+        }
+    }
+    
+    function displaySearchResults(results) {
+        if (!searchResults) return;
+        
+        if (results.length === 0) {
+            searchResults.innerHTML = '<div class="search-result-item">Aucun résultat trouvé</div>';
+        } else {
+            searchResults.innerHTML = results.map(result => `
+                <div class="search-result-item" onclick="window.location.href='${result.url}'">
+                    <div style="font-weight: 600;">${result.title}</div>
+                    <div style="font-size: 0.9rem; color: var(--text-light);">${result.description}</div>
+                </div>
+            `).join('');
+        }
+        
+        searchResults.style.display = 'block';
+    }
+});
+</script>
