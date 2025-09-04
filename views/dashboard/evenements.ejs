@@ -1,4 +1,4 @@
-<% layout('layout') -%>
+
 <% contentFor('head') -%>
 <title>Événements | ADSIAM</title>
 <% contentFor('scripts') -%>
@@ -600,10 +600,10 @@
 </style>
 
 <div class="dashboard-layout">
-    <%- include('partials/sidebar') %>
+    <%- include('../partials/sidebar') %>
     
     <main class="main-content">
-        <%- include('partials/header', { 
+        <%- include('../partials/header', { 
             pageTitle: 'Événements', 
             pageIcon: '📅',
             pageSubtitle: 'Webinaires, ateliers et conférences ADSIAM',

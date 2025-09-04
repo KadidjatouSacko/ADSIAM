@@ -47,9 +47,9 @@ app.use(expressLayouts);
 app.set('layout', 'layout'); // Pointe vers views/layout.ejs
 
 // Configuration pour que contentFor fonctionne
-app.set('layout extractScripts', true);  // Pour contentFor('scripts')
-app.set('layout extractStyles', true);   // Pour contentFor('styles')
-app.set('layout extractMetas', true);    // Pour contentFor('head')
+// app.set('layout extractScripts', true);  // Pour contentFor('scripts')
+// app.set('layout extractStyles', true);   // Pour contentFor('styles')
+// app.set('layout extractMetas', true);    // Pour contentFor('head')
 
 
 // Middleware pour fichiers statiques et parsing JSON/URL

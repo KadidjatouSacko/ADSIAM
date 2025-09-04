@@ -1,4 +1,4 @@
-<% layout('layout') -%>
+
 <% contentFor('head') -%>
 <title>Mes Formations | ADSIAM</title>
 <% contentFor('scripts') -%>
@@ -333,11 +333,11 @@
 </style>
 
 <div class="dashboard-layout">
-    <%- include('partials/sidebar') %>
+    <%- include('../partials/sidebar') %>
     
     <main class="main-content">
-        <%- include('partials/header', { pageTitle: 'Mes Formations', showSearch: true }) %>
-        
+        <%- include('../partials/header', { pageTitle: 'Mes Formations', showSearch: true }) %>
+
         <div class="formations-container">
             <!-- Header -->
             <div class="formations-header fade-in">

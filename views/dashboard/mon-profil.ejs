@@ -1,4 +1,4 @@
-<% layout('layout') -%>
+
 <% contentFor('head') -%>
 <title>Mon Profil | ADSIAM</title>
 <% contentFor('scripts') -%>
@@ -544,10 +544,10 @@
 </style>
 
 <div class="dashboard-layout">
-    <%- include('partials/sidebar') %>
+    <%- include('../partials/sidebar') %>
     
     <main class="main-content">
-        <%- include('partials/header', { 
+        <%- include('../partials/header-etudiant', { 
             pageTitle: 'Mon Profil', 
             pageIcon: '👤',
             pageSubtitle: 'Gérez vos informations personnelles et préférences',
@@ -621,7 +621,7 @@
                             <span class="quick-action-icon">💬</span>
                             <span>Mes messages</span>
                         </a>
-                        <a href="/support" class="quick-action">
+                        <a href="/contact" class="quick-action">
                             <span class="quick-action-icon">🎧</span>
                             <span>Support</span>
                         </a>

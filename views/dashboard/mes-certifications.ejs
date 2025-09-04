@@ -1,4 +1,4 @@
-<% layout('layout') -%>
+
 <% contentFor('head') -%>
 <title>Mes Certifications | ADSIAM</title>
 <% contentFor('scripts') -%>
@@ -429,10 +429,10 @@
 </style>
 
 <div class="dashboard-layout">
-    <%- include('partials/sidebar') %>
+    <%- include('../partials/sidebar') %>
     
     <main class="main-content">
-        <%- include('partials/header', { 
+        <%- include('../partials/header', { 
             pageTitle: 'Mes Certifications', 
             pageIcon: '🏆',
             pageSubtitle: 'Vos accomplissements et certifications professionnelles',
