@@ -1,0 +1,17 @@
+<!-- filepath: c:\Users\Dalla\OneDrive\ADSIAM\views\layouts\layout.ejs -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title><%= title %></title>
+    <% if (typeof contentFor !== 'undefined') { %>
+      <%- contentFor('head') %>
+    <% } %>
+</head>
+<body>
+    <%- body %>
+    <% if (typeof contentFor !== 'undefined') { %>
+      <%- contentFor('scripts') %>
+    <% } %>
+</body>
+</html>
