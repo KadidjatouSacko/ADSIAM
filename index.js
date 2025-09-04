@@ -6,6 +6,7 @@ import session from 'express-session';
 import connectPgSimple from 'connect-pg-simple';
 import flash from 'connect-flash';
 import cookieParser from 'cookie-parser';
+import expressLayouts from 'express-ejs-layouts';
 
 // Import des routes existantes
 import formationRoutes from './routes/formationRoutes.js';
@@ -37,6 +38,19 @@ const app = express();
 // Configuration EJS
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+
+
+// Configuration express-ejs-layouts pour votre structure
+app.use(expressLayouts);
+
+// IMPORTANT : Configuration du layout pour pointer vers votre fichier layout.ejs
+app.set('layout', 'layout'); // Pointe vers views/layout.ejs
+
+// Configuration pour que contentFor fonctionne
+app.set('layout extractScripts', true);  // Pour contentFor('scripts')
+app.set('layout extractStyles', true);   // Pour contentFor('styles')
+app.set('layout extractMetas', true);    // Pour contentFor('head')
+
 
 // Middleware pour fichiers statiques et parsing JSON/URL
 app.use(express.static(path.join(__dirname, 'public')));
