@@ -1,0 +1,783 @@
+<!-- views/entreprises/create.ejs -->
+<%- contentFor('head') %>
+<style>
+    :root {
+        --primary-pink: #e7a6b7;
+        --primary-blue: #a5bfd4;
+        --light-pink: #fce8ec;
+        --light-blue: #e8f3f8;
+        --soft-gray: #f5f5f7;
+        --text-dark: #2f2f2f;
+        --text-light: #6f6f6f;
+        --white: #ffffff;
+        --gradient-contact: linear-gradient(135deg, #e7a6b7, #a5bfd4);
+        --danger: #ff6b6b;
+    }
+
+    .page-header {
+        background: var(--gradient-contact);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        border-radius: 0 0 25px 25px;
+    }
+
+    .form-container {
+        background: var(--white);
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        padding: 2rem;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .form-section {
+        margin-bottom: 3rem;
+        padding-bottom: 2rem;
+        border-bottom: 2px solid var(--soft-gray);
+    }
+
+    .form-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+
+    .section-title {
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: var(--primary-blue);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-row.single {
+        grid-template-columns: 1fr;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .form-label.required::after {
+        content: ' *';
+        color: var(--danger);
+    }
+
+    .form-control {
+        padding: 0.875rem 1rem;
+        border: 2px solid var(--soft-gray);
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: var(--white);
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 3px rgba(165, 191, 212, 0.1);
+    }
+
+    .form-control.error {
+        border-color: var(--danger);
+        background: #fff5f5;
+    }
+
+    .error-message {
+        color: var(--danger);
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .form-control textarea {
+        min-height: 100px;
+        resize: vertical;
+        font-family: inherit;
+    }
+
+    .form-help {
+        font-size: 0.85rem;
+        color: var(--text-light);
+        margin-top: 0.3rem;
+    }
+
+    .btn {
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1rem;
+    }
+
+    .btn-primary {
+        background: var(--gradient-contact);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(231, 166, 183, 0.3);
+    }
+
+    .btn-secondary {
+        background: var(--soft-gray);
+        color: var(--text-dark);
+    }
+
+    .btn-secondary:hover {
+        background: var(--light-blue);
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 2px solid var(--soft-gray);
+    }
+
+    .input-group {
+        position: relative;
+    }
+
+    .input-group-text {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-light);
+        font-size: 1.1rem;
+        pointer-events: none;
+    }
+
+    .input-group .form-control {
+        padding-left: 3rem;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+        
+        .form-container {
+            padding: 1.5rem;
+            margin: 0 1rem;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<div class="page-header">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="mb-2">Nouvelle Entreprise</h1>
+                <p class="mb-0 opacity-90">Ajouter une nouvelle entreprise cliente</p>
+            </div>
+            <a href="/entreprises" class="btn btn-light">
+                ← Retour à la liste
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <form action="/entreprises" method="POST" class="form-container" id="entrepriseForm">
+        
+        <!-- Informations générales -->
+        <div class="form-section">
+            <h3 class="section-title">
+                🏢 Informations générales
+            </h3>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="nom" class="form-label required">Nom de l'entreprise</label>
+                    <input type="text" id="nom" name="nom" class="form-control <%= errors?.nom ? 'error' : '' %>" 
+                           value="<%= entreprise.nom || '' %>" required maxlength="255">
+                    <% if (errors?.nom) { %>
+                        <div class="error-message">⚠️ <%= errors.nom %></div>
+                    <% } %>
+                </div>
+                
+                <div class="form-group">
+                    <label for="siret" class="form-label required">Numéro SIRET</label>
+                    <div class="input-group">
+                        <span class="input-group-text">🏛️</span>
+                        <input type="text" id="siret" name="siret" class="form-control <%= errors?.siret ? 'error' : '' %>" 
+                               value="<%= entreprise.siret || '' %>" required maxlength="14" pattern="[0-9]{14}">
+                    </div>
+                    <div class="form-help">14 chiffres sans espaces</div>
+                    <% if (errors?.siret) { %>
+                        <div class="error-message">⚠️ <%= errors.siret %></div>
+                    <% } %>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="secteur_activite" class="form-label required">Secteur d'activité</label>
+                    <select id="secteur_activite" name="secteur_activite" class="form-control" required>
+                        <option value="">Sélectionnez un secteur</option>
+                        <option value="aide_domicile" <%= entreprise.secteur_activite === 'aide_domicile' ? 'selected' : '' %>>Aide à domicile</option>
+                        <option value="ehpad" <%= entreprise.secteur_activite === 'ehpad' ? 'selected' : '' %>>EHPAD</option>
+                        <option value="hopital" <%= entreprise.secteur_activite === 'hopital' ? 'selected' : '' %>>Hôpital</option>
+                        <option value="clinique" <%= entreprise.secteur_activite === 'clinique' ? 'selected' : '' %>>Clinique</option>
+                        <option value="centre_soins" <%= entreprise.secteur_activite === 'centre_soins' ? 'selected' : '' %>>Centre de soins</option>
+                        <option value="autre" <%= entreprise.secteur_activite === 'autre' ? 'selected' : '' %>>Autre</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="nombre_employes" class="form-label">Nombre d'employés</label>
+                    <div class="input-group">
+                        <span class="input-group-text">👥</span>
+                        <input type="number" id="nombre_employes" name="nombre_employes" class="form-control" 
+                               value="<%= entreprise.nombre_employes || '' %>" min="1">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row single">
+                <div class="form-group">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea id="description" name="description" class="form-control" rows="3" 
+                              placeholder="Décrivez brièvement l'entreprise et ses activités..."><%= entreprise.description || '' %></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Adresse -->
+        <div class="form-section">
+            <h3 class="section-title">
+                📍 Adresse
+            </h3>
+            
+            <div class="form-row single">
+                <div class="form-group">
+                    <label for="adresse" class="form-label required">Adresse complète</label>
+                    <textarea id="adresse" name="adresse" class="form-control <%= errors?.adresse ? 'error' : '' %>" 
+                              rows="2" required placeholder="Numéro, rue, compléments d'adresse..."><%= entreprise.adresse || '' %></textarea>
+                    <% if (errors?.adresse) { %>
+                        <div class="error-message">⚠️ <%= errors.adresse %></div>
+                    <% } %>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="code_postal" class="form-label required">Code postal</label>
+                    <div class="input-group">
+                        <span class="input-group-text">📮</span>
+                        <input type="text" id="code_postal" name="code_postal" class="form-control <%= errors?.code_postal ? 'error' : '' %>" 
+                               value="<%= entreprise.code_postal || '' %>" required pattern="[0-9]{5}" maxlength="5">
+                    </div>
+                    <% if (errors?.code_postal) { %>
+                        <div class="error-message">⚠️ <%= errors.code_postal %></div>
+                    <% } %>
+                </div>
+                
+                <div class="form-group">
+                    <label for="ville" class="form-label required">Ville</label>
+                    <input type="text" id="ville" name="ville" class="form-control <%= errors?.ville ? 'error' : '' %>" 
+                           value="<%= entreprise.ville || '' %>" required maxlength="100">
+                    <% if (errors?.ville) { %>
+                        <div class="error-message">⚠️ <%= errors.ville %></div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact -->
+        <div class="form-section">
+            <h3 class="section-title">
+                📞 Informations de contact
+            </h3>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="email_contact" class="form-label required">Email de contact</label>
+                    <div class="input-group">
+                        <span class="input-group-text">📧</span>
+                        <input type="email" id="email_contact" name="email_contact" class="form-control <%= errors?.email_contact ? 'error' : '' %>" 
+                               value="<%= entreprise.email_contact || '' %>" required>
+                    </div>
+                    <% if (errors?.email_contact) { %>
+                        <div class="error-message">⚠️ <%= errors.email_contact %></div>
+                    <% } %>
+                </div>
+                
+                <div class="form-group">
+                    <label for="telephone" class="form-label">Téléphone</label>
+                    <div class="input-group">
+                        <span class="input-group-text">📱</span>
+                        <input type="tel" id="telephone" name="telephone" class="form-control" 
+                               value="<%= entreprise.telephone || '' %>" placeholder="0123456789">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row single">
+                <div class="form-group">
+                    <label for="site_web" class="form-label">Site web</label>
+                    <div class="input-group">
+                        <span class="input-group-text">🌐</span>
+                        <input type="url" id="site_web" name="site_web" class="form-control" 
+                               value="<%= entreprise.site_web || '' %>" placeholder="https://www.exemple.com">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Personne de contact -->
+        <div class="form-section">
+            <h3 class="section-title">
+                👤 Personne de contact
+            </h3>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="personne_contact_prenom" class="form-label required">Prénom</label>
+                    <input type="text" id="personne_contact_prenom" name="personne_contact_prenom" 
+                           class="form-control <%= errors?.personne_contact_prenom ? 'error' : '' %>" 
+                           value="<%= entreprise.personne_contact_prenom || '' %>" required maxlength="100">
+                    <% if (errors?.personne_contact_prenom) { %>
+                        <div class="error-message">⚠️ <%= errors.personne_contact_prenom %></div>
+                    <% } %>
+                </div>
+                
+                <div class="form-group">
+                    <label for="personne_contact_nom" class="form-label required">Nom</label>
+                    <input type="text" id="personne_contact_nom" name="personne_contact_nom" 
+                           class="form-control <%= errors?.personne_contact_nom ? 'error' : '' %>" 
+                           value="<%= entreprise.personne_contact_nom || '' %>" required maxlength="100">
+                    <% if (errors?.personne_contact_nom) { %>
+                        <div class="error-message">⚠️ <%= errors.personne_contact_nom %></div>
+                    <% } %>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="personne_contact_fonction" class="form-label">Fonction</label>
+                    <input type="text" id="personne_contact_fonction" name="personne_contact_fonction" 
+                           class="form-control" value="<%= entreprise.personne_contact_fonction || '' %>" 
+                           maxlength="100" placeholder="Ex: Directeur RH, Responsable formation...">
+                </div>
+                
+                <div class="form-group">
+                    <label for="personne_contact_telephone" class="form-label">Téléphone direct</label>
+                    <div class="input-group">
+                        <span class="input-group-text">📞</span>
+                        <input type="tel" id="personne_contact_telephone" name="personne_contact_telephone" 
+                               class="form-control" value="<%= entreprise.personne_contact_telephone || '' %>" 
+                               placeholder="0123456789">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row single">
+                <div class="form-group">
+                    <label for="personne_contact_email" class="form-label required">Email personnel</label>
+                    <div class="input-group">
+                        <span class="input-group-text">📧</span>
+                        <input type="email" id="personne_contact_email" name="personne_contact_email" 
+                               class="form-control <%= errors?.personne_contact_email ? 'error' : '' %>" 
+                               value="<%= entreprise.personne_contact_email || '' %>" required>
+                    </div>
+                    <% if (errors?.personne_contact_email) { %>
+                        <div class="error-message">⚠️ <%= errors.personne_contact_email %></div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+
+        <!-- Configuration contrat -->
+        <div class="form-section">
+            <h3 class="section-title">
+                📋 Configuration du contrat
+            </h3>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="type_contrat" class="form-label required">Type de contrat</label>
+                    <select id="type_contrat" name="type_contrat" class="form-control" required>
+                        <option value="">Sélectionnez un type</option>
+                        <option value="standard" <%= entreprise.type_contrat === 'standard' ? 'selected' : '' %>>Standard (10 licences)</option>
+                        <option value="premium" <%= entreprise.type_contrat === 'premium' ? 'selected' : '' %>>Premium (25 licences)</option>
+                        <option value="enterprise" <%= entreprise.type_contrat === 'enterprise' ? 'selected' : '' %>>Enterprise (100+ licences)</option>
+                        <option value="personnalise" <%= entreprise.type_contrat === 'personnalise' ? 'selected' : '' %>>Personnalisé</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="nombre_licences_max" class="form-label required">Nombre de licences</label>
+                    <div class="input-group">
+                        <span class="input-group-text">🎫</span>
+                        <input type="number" id="nombre_licences_max" name="nombre_licences_max" 
+                               class="form-control" value="<%= entreprise.nombre_licences_max || 10 %>" 
+                               required min="1" max="1000">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="tarif_mensuel" class="form-label">Tarif mensuel (€)</label>
+                    <div class="input-group">
+                        <span class="input-group-text">💰</span>
+                        <input type="number" id="tarif_mensuel" name="tarif_mensuel" class="form-control" 
+                               value="<%= entreprise.tarif_mensuel || '' %>" min="0" step="0.01">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="reduction_pourcentage" class="form-label">Réduction (%)</label>
+                    <div class="input-group">
+                        <span class="input-group-text">🏷️</span>
+                        <input type="number" id="reduction_pourcentage" name="reduction_pourcentage" 
+                               class="form-control" value="<%= entreprise.reduction_pourcentage || 0 %>" 
+                               min="0" max="100" step="0.01">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="date_debut_contrat" class="form-label">Date de début</label>
+                    <input type="date" id="date_debut_contrat" name="date_debut_contrat" class="form-control" 
+                           value="<%= entreprise.date_debut_contrat ? entreprise.date_debut_contrat.toISOString().split('T')[0] : '' %>">
+                </div>
+                
+                <div class="form-group">
+                    <label for="date_fin_contrat" class="form-label">Date de fin</label>
+                    <input type="date" id="date_fin_contrat" name="date_fin_contrat" class="form-control" 
+                           value="<%= entreprise.date_fin_contrat ? entreprise.date_fin_contrat.toISOString().split('T')[0] : '' %>">
+                    <div class="form-help">Laissez vide pour un contrat illimité</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+            <a href="/entreprises" class="btn btn-secondary">
+                ✖️ Annuler
+            </a>
+            <button type="submit" class="btn btn-primary">
+                ✅ Créer l'entreprise
+            </button>
+        </div>
+    </form>
+</div>
+
+<%- contentFor('scripts') %>
+<script>
+// Auto-formatage du SIRET
+document.getElementById('siret').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length > 14) {
+        value = value.substring(0, 14);
+    }
+    e.target.value = value;
+});
+
+// Auto-formatage des téléphones
+function formatTelephone(input) {
+    input.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 10) {
+            value = value.substring(0, 10);
+        }
+        e.target.value = value;
+    });
+}
+
+formatTelephone(document.getElementById('telephone'));
+formatTelephone(document.getElementById('personne_contact_telephone'));
+
+// Auto-formatage du code postal
+document.getElementById('code_postal').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length > 5) {
+        value = value.substring(0, 5);
+    }
+    e.target.value = value;
+});
+
+// Configuration automatique selon le type de contrat
+document.getElementById('type_contrat').addEventListener('change', function(e) {
+    const typeContrat = e.target.value;
+    const licencesInput = document.getElementById('nombre_licences_max');
+    const tarifInput = document.getElementById('tarif_mensuel');
+    
+    const configs = {
+        'standard': { licences: 10, tarif: 150 },
+        'premium': { licences: 25, tarif: 350 },
+        'enterprise': { licences: 100, tarif: 1200 },
+        'personnalise': { licences: '', tarif: '' }
+    };
+    
+    if (configs[typeContrat]) {
+        licencesInput.value = configs[typeContrat].licences;
+        tarifInput.value = configs[typeContrat].tarif;
+    }
+});
+
+// Validation en temps réel
+const form = document.getElementById('entrepriseForm');
+const inputs = form.querySelectorAll('input[required], select[required], textarea[required]');
+
+inputs.forEach(input => {
+    input.addEventListener('blur', validateField);
+    input.addEventListener('input', clearErrors);
+});
+
+function validateField(e) {
+    const field = e.target;
+    const value = field.value.trim();
+    
+    // Supprimer les anciens messages d'erreur
+    const existingError = field.parentNode.querySelector('.error-message');
+    if (existingError) existingError.remove();
+    field.classList.remove('error');
+    
+    // Validation spécifique par champ
+    let error = null;
+    
+    if (field.hasAttribute('required') && !value) {
+        error = 'Ce champ est obligatoire';
+    } else if (field.name === 'siret' && value && !/^\d{14}$/.test(value)) {
+        error = 'Le SIRET doit contenir exactement 14 chiffres';
+    } else if (field.name === 'code_postal' && value && !/^\d{5}$/.test(value)) {
+        error = 'Le code postal doit contenir 5 chiffres';
+    } else if (field.type === 'email' && value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+        error = 'Format d\'email invalide';
+    } else if (field.type === 'tel' && value && !/^(?:\+33|0)[1-9](?:[0-9]{8})$/.test(value.replace(/\s/g, ''))) {
+        error = 'Format de téléphone invalide';
+    }
+    
+    if (error) {
+        showFieldError(field, error);
+    }
+}
+
+function showFieldError(field, message) {
+    field.classList.add('error');
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    errorDiv.innerHTML = `⚠️ ${message}`;
+    field.parentNode.appendChild(errorDiv);
+}
+
+function clearErrors(e) {
+    const field = e.target;
+    const existingError = field.parentNode.querySelector('.error-message');
+    if (existingError) existingError.remove();
+    field.classList.remove('error');
+}
+
+// Vérification SIRET en temps réel
+let siretTimeout;
+document.getElementById('siret').addEventListener('input', function(e) {
+    const siret = e.target.value.replace(/\s/g, '');
+    
+    clearTimeout(siretTimeout);
+    
+    if (siret.length === 14) {
+        siretTimeout = setTimeout(async () => {
+            try {
+                const response = await fetch(`/api/entreprises/check-siret?siret=${siret}`);
+                const result = await response.json();
+                
+                if (!result.available) {
+                    showFieldError(e.target, 'Ce numéro SIRET est déjà enregistré');
+                }
+            } catch (error) {
+                console.error('Erreur vérification SIRET:', error);
+            }
+        }, 500);
+    }
+});
+
+// Auto-remplissage de la ville via l'API code postal
+document.getElementById('code_postal').addEventListener('blur', async function(e) {
+    const codePostal = e.target.value;
+    const villeInput = document.getElementById('ville');
+    
+    if (codePostal.length === 5 && !villeInput.value) {
+        try {
+            const response = await fetch(`https://api.zippopotam.us/fr/${codePostal}`);
+            if (response.ok) {
+                const data = await response.json();
+                if (data.places && data.places.length > 0) {
+                    villeInput.value = data.places[0]['place name'];
+                }
+            }
+        } catch (error) {
+            console.error('Erreur récupération ville:', error);
+        }
+    }
+});
+
+// Sauvegarde automatique en brouillon
+function saveDraft() {
+    const formData = new FormData(form);
+    const draftData = {};
+    
+    for (let [key, value] of formData.entries()) {
+        draftData[key] = value;
+    }
+    
+    localStorage.setItem('entrepriseFormDraft', JSON.stringify(draftData));
+}
+
+// Charger le brouillon au chargement de la page
+function loadDraft() {
+    const draft = localStorage.getItem('entrepriseFormDraft');
+    if (draft) {
+        const data = JSON.parse(draft);
+        Object.keys(data).forEach(key => {
+            const field = form.querySelector(`[name="${key}"]`);
+            if (field && !field.value) {
+                field.value = data[key];
+            }
+        });
+    }
+}
+
+// Sauvegarder le brouillon à chaque modification
+inputs.forEach(input => {
+    input.addEventListener('input', saveDraft);
+});
+
+// Confirmation avant de quitter la page
+let formModified = false;
+inputs.forEach(input => {
+    input.addEventListener('input', () => formModified = true);
+});
+
+window.addEventListener('beforeunload', function(e) {
+    if (formModified) {
+        e.preventDefault();
+        e.returnValue = '';
+    }
+});
+
+// Soumission du formulaire
+form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Validation complète
+    let hasErrors = false;
+    inputs.forEach(input => {
+        validateField({ target: input });
+        if (input.classList.contains('error')) {
+            hasErrors = true;
+        }
+    });
+    
+    if (hasErrors) {
+        showAlert('Veuillez corriger les erreurs dans le formulaire', 'error');
+        return;
+    }
+    
+    // Désactiver le bouton de soumission
+    const submitBtn = form.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '⏳ Création en cours...';
+    
+    // Supprimer le brouillon
+    localStorage.removeItem('entrepriseFormDraft');
+    formModified = false;
+    
+    // Soumettre le formulaire
+    form.submit();
+});
+
+// Fonction d'alerte
+function showAlert(message, type) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type}`;
+    alertDiv.style.cssText = `
+        position: fixed;
+        top: 2rem;
+        right: 2rem;
+        z-index: 9999;
+        padding: 1rem 2rem;
+        border-radius: 10px;
+        color: white;
+        font-weight: 600;
+        animation: slideInRight 0.3s ease;
+    `;
+    
+    if (type === 'error') {
+        alertDiv.style.background = 'var(--danger)';
+    }
+    
+    alertDiv.textContent = message;
+    document.body.appendChild(alertDiv);
+    
+    setTimeout(() => {
+        alertDiv.style.animation = 'slideOutRight 0.3s ease';
+        setTimeout(() => alertDiv.remove(), 300);
+    }, 4000);
+}
+
+// Charger le brouillon au chargement
+document.addEventListener('DOMContentLoaded', loadDraft);
+
+// Raccourcis clavier
+document.addEventListener('keydown', function(e) {
+    // Ctrl/Cmd + S pour sauvegarder (simulé)
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        saveDraft();
+        showAlert('Brouillon sauvegardé', 'success');
+    }
+    
+    // Escape pour retourner à la liste
+    if (e.key === 'Escape') {
+        if (confirm('Voulez-vous retourner à la liste ? Les modifications non sauvegardées seront perdues.')) {
+            window.location.href = '/entreprises';
+        }
+    }
+});
+
+console.log('Formulaire de création d\'entreprise chargé');
+</script>

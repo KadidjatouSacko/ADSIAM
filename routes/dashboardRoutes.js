@@ -306,6 +306,7 @@ router.get('/dashboard', requireAuth, enrichUserData, async (req, res) => {
         res.render('dashboard/etudiant', {
             user: req.user,
             stats,
+            layout: false,
             formationEnCours,
             modulesProgression,
             activites,
@@ -551,6 +552,209 @@ router.get('/evenements', requireAuth, enrichUserData, async (req, res) => {
             message: 'Erreur lors du chargement des événements',
             error: process.env.NODE_ENV === 'development' ? error : {}
         });
+    }
+});
+
+// Route Ma Progression - Simple et complète
+router.get('/ma-progression', async (req, res) => {
+    // Vérifier l'authentification
+    if (!req.session?.userId) {
+        req.flash('info', 'Veuillez vous connecter pour accéder à votre progression');
+        return res.redirect('/auth/login');
+    }
+
+    try {
+        const userId = req.session.userId;
+
+        // Requête principale pour toutes les données nécessaires
+        const [stats] = await sequelize.query(`
+            SELECT 
+                COALESCE(AVG(i.progression_pourcentage), 0) as progression_globale,
+                COALESCE(SUM(i.temps_total_minutes), 0) as temps_total_minutes,
+                COUNT(CASE WHEN i.certifie = true THEN 1 END) as certifications_obtenues,
+                COUNT(CASE WHEN i.statut IN ('en_cours', 'termine') THEN 1 END) as inscriptions_actives
+            FROM inscriptions i
+            WHERE i.user_id = $1
+        `, {
+            bind: [userId],
+            type: sequelize.QueryTypes.SELECT
+        });
+
+        // Formations avec progression
+        const formations = await sequelize.query(`
+            SELECT 
+                f.id, f.titre, f.description, f.niveau, f.duree_heures, f.nombre_modules,
+                f.icone, f.domaine,
+                i.progression_pourcentage, i.statut as statut_inscription,
+                i.temps_total_minutes as temps_formation, i.certifie
+            FROM formations f
+            JOIN inscriptions i ON f.id = i.formation_id
+            WHERE i.user_id = $1
+            ORDER BY i.date_inscription DESC
+        `, {
+            bind: [userId],
+            type: sequelize.QueryTypes.SELECT
+        });
+
+        // Pour chaque formation, récupérer les modules
+        for (let formation of formations) {
+            const modules = await sequelize.query(`
+                SELECT 
+                    m.id, m.titre, m.duree_minutes, m.ordre,
+                    COALESCE(pm.statut, 'non_commence') as statut,
+                    pm.temps_passe_minutes, pm.progression_pourcentage as progression_module
+                FROM modules m
+                LEFT JOIN progressions_modules pm ON m.id = pm.module_id AND pm.user_id = $1
+                WHERE m.formation_id = $2
+                ORDER BY m.ordre
+            `, {
+                bind: [userId, formation.id],
+                type: sequelize.QueryTypes.SELECT
+            });
+            formation.modules = modules;
+        }
+
+        // Données hebdomadaires (7 derniers jours)
+        const weeklyStats = await sequelize.query(`
+            WITH last_7_days AS (
+                SELECT generate_series(CURRENT_DATE - 6, CURRENT_DATE, '1 day'::interval)::date as day
+            ),
+            daily_study AS (
+                SELECT 
+                    DATE(pm.date_debut) as study_date,
+                    SUM(pm.temps_passe_minutes) as total_minutes
+                FROM progressions_modules pm
+                JOIN inscriptions i ON pm.inscription_id = i.id
+                WHERE i.user_id = $1 AND pm.date_debut >= CURRENT_DATE - 6
+                GROUP BY DATE(pm.date_debut)
+            )
+            SELECT 
+                l7.day,
+                CASE EXTRACT(DOW FROM l7.day)
+                    WHEN 1 THEN 'Lun' WHEN 2 THEN 'Mar' WHEN 3 THEN 'Mer'
+                    WHEN 4 THEN 'Jeu' WHEN 5 THEN 'Ven' WHEN 6 THEN 'Sam'
+                    WHEN 0 THEN 'Dim'
+                END as day_name,
+                COALESCE(ds.total_minutes, 0) as time
+            FROM last_7_days l7
+            LEFT JOIN daily_study ds ON l7.day = ds.study_date
+            ORDER BY l7.day
+        `, {
+            bind: [userId],
+            type: sequelize.QueryTypes.SELECT
+        });
+
+        // Série de jours consécutifs (calcul simple)
+        const [streakData] = await sequelize.query(`
+            SELECT COUNT(DISTINCT DATE(pm.date_debut)) as streak_days
+            FROM progressions_modules pm
+            JOIN inscriptions i ON pm.inscription_id = i.id
+            WHERE i.user_id = $1 
+            AND pm.date_debut >= CURRENT_DATE - 7
+        `, {
+            bind: [userId],
+            type: sequelize.QueryTypes.SELECT
+        });
+
+        // Activités récentes
+        const activites = await sequelize.query(`
+            SELECT 
+                'Module terminé' as titre,
+                CONCAT('Module "', m.titre, '" terminé') as description,
+                pm.date_fin as createdat
+            FROM progressions_modules pm
+            JOIN modules m ON pm.module_id = m.id
+            JOIN inscriptions i ON pm.inscription_id = i.id
+            WHERE i.user_id = $1 AND pm.statut = 'termine'
+            
+            UNION ALL
+            
+            SELECT 
+                'Nouvelle inscription' as titre,
+                CONCAT('Inscription à "', f.titre, '"') as description,
+                i.date_inscription as createdat
+            FROM inscriptions i
+            JOIN formations f ON i.formation_id = f.id
+            WHERE i.user_id = $1
+            
+            ORDER BY createdat DESC LIMIT 5
+        `, {
+            bind: [userId],
+            type: sequelize.QueryTypes.SELECT
+        });
+
+        // Préparer les données pour la vue
+        const progressionData = {
+            stats: {
+                progressionGlobale: stats.progression_globale || 0,
+                tempsTotalMinutes: stats.temps_total_minutes || 0,
+                certificationsObtenues: stats.certifications_obtenues || 0,
+                inscriptionsActives: stats.inscriptions_actives || 0
+            },
+            formations: formations,
+            weeklyStats: weeklyStats.map(day => ({
+                day: day.day_name,
+                time: Math.round(day.time || 0)
+            })),
+            streakDays: streakData.streak_days || 0,
+            activites: activites
+        };
+
+        // Rendre la vue
+        res.render('dashboard/progression', {
+            title: 'Ma Progression - ADSIAM',
+            layout: false,
+            ...progressionData
+        });
+
+    } catch (error) {
+        console.error('Erreur page progression:', error);
+        req.flash('error', 'Erreur lors du chargement de votre progression');
+        res.redirect('/dashboard');
+    }
+});
+
+// API simple pour mise à jour progression module
+router.post('/api/progression/module', async (req, res) => {
+    if (!req.session?.userId) {
+        return res.status(401).json({ error: 'Non authentifié' });
+    }
+
+    try {
+        const { moduleId, statut, tempsEcoule } = req.body;
+        const userId = req.session.userId;
+
+        await sequelize.query(`
+            INSERT INTO progressions_modules (
+                user_id, module_id, inscription_id, statut, temps_passe_minutes,
+                date_debut, date_fin, progression_pourcentage, createdat, updatedat
+            )
+            SELECT 
+                $1, $2, i.id, $3, $4,
+                CASE WHEN $3 = 'en_cours' THEN NOW() ELSE NULL END,
+                CASE WHEN $3 = 'termine' THEN NOW() ELSE NULL END,
+                CASE WHEN $3 = 'termine' THEN 100 ELSE 50 END,
+                NOW(), NOW()
+            FROM inscriptions i
+            JOIN modules m ON m.formation_id = i.formation_id
+            WHERE i.user_id = $1 AND m.id = $2
+            ON CONFLICT (user_id, module_id)
+            DO UPDATE SET
+                statut = $3,
+                temps_passe_minutes = progressions_modules.temps_passe_minutes + $4,
+                date_fin = CASE WHEN $3 = 'termine' THEN NOW() ELSE progressions_modules.date_fin END,
+                progression_pourcentage = CASE WHEN $3 = 'termine' THEN 100 ELSE 50 END,
+                updatedat = NOW()
+        `, {
+            bind: [userId, moduleId, statut, tempsEcoule || 0],
+            type: sequelize.QueryTypes.INSERT
+        });
+
+        res.json({ success: true, message: 'Progression mise à jour' });
+
+    } catch (error) {
+        console.error('Erreur mise à jour progression:', error);
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
     }
 });
 

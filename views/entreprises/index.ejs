@@ -1,0 +1,634 @@
+<!-- views/entreprises/index.ejs -->
+<%- contentFor('head') %>
+<style>
+    :root {
+        --primary-pink: #e7a6b7;
+        --primary-blue: #a5bfd4;
+        --light-pink: #fce8ec;
+        --light-blue: #e8f3f8;
+        --soft-gray: #f5f5f7;
+        --text-dark: #2f2f2f;
+        --text-light: #6f6f6f;
+        --white: #ffffff;
+        --gradient-pink: linear-gradient(135deg, #fce8ec, #e7a6b7);
+        --gradient-blue: linear-gradient(135deg, #e8f3f8, #a5bfd4);
+        --gradient-contact: linear-gradient(135deg, #e7a6b7, #a5bfd4);
+        --success: #9dd6b5;
+        --warning: #ff9f80;
+        --danger: #ff6b6b;
+    }
+
+    .page-header {
+        background: var(--gradient-contact);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        border-radius: 0 0 25px 25px;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: var(--white);
+        padding: 1.5rem;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        border-left: 4px solid var(--primary-blue);
+        transition: transform 0.2s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-2px);
+    }
+
+    .stat-card.primary {
+        border-left-color: var(--primary-pink);
+    }
+
+    .stat-card.success {
+        border-left-color: var(--success);
+    }
+
+    .stat-card.warning {
+        border-left-color: var(--warning);
+    }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-blue);
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-card.primary .stat-number {
+        color: var(--primary-pink);
+    }
+
+    .stat-label {
+        color: var(--text-light);
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .filters-section {
+        background: var(--white);
+        padding: 1.5rem;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        margin-bottom: 2rem;
+    }
+
+    .filter-row {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr auto;
+        gap: 1rem;
+        align-items: end;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .form-control {
+        padding: 0.75rem 1rem;
+        border: 2px solid var(--soft-gray);
+        border-radius: 10px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        background: var(--white);
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 3px rgba(165, 191, 212, 0.1);
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-primary {
+        background: var(--gradient-contact);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(231, 166, 183, 0.3);
+    }
+
+    .btn-outline {
+        background: transparent;
+        color: var(--primary-blue);
+        border: 2px solid var(--primary-blue);
+    }
+
+    .btn-outline:hover {
+        background: var(--primary-blue);
+        color: white;
+    }
+
+    .btn-success {
+        background: var(--success);
+        color: white;
+    }
+
+    .table-container {
+        background: var(--white);
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .table th {
+        background: var(--light-blue);
+        color: var(--text-dark);
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        border-bottom: 2px solid var(--primary-blue);
+    }
+
+    .table td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--soft-gray);
+        vertical-align: middle;
+    }
+
+    .table tr:hover {
+        background: var(--light-pink);
+    }
+
+    .badge {
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .badge-success {
+        background: #e2f8ee;
+        color: var(--success);
+    }
+
+    .badge-warning {
+        background: #ffe9dc;
+        color: var(--warning);
+    }
+
+    .badge-danger {
+        background: #ffe6e6;
+        color: var(--danger);
+    }
+
+    .badge-secondary {
+        background: var(--soft-gray);
+        color: var(--text-light);
+    }
+
+    .progress-bar {
+        width: 100%;
+        height: 8px;
+        background: var(--soft-gray);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: var(--gradient-contact);
+        transition: width 0.3s ease;
+    }
+
+    .actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-sm {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+    }
+
+    .btn-danger {
+        background: var(--danger);
+        color: white;
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 2rem;
+    }
+
+    .pagination a,
+    .pagination span {
+        padding: 0.5rem 1rem;
+        border: 2px solid var(--soft-gray);
+        border-radius: 8px;
+        text-decoration: none;
+        color: var(--text-dark);
+        transition: all 0.3s ease;
+    }
+
+    .pagination a:hover {
+        border-color: var(--primary-blue);
+        background: var(--light-blue);
+    }
+
+    .pagination .active {
+        background: var(--primary-blue);
+        color: white;
+        border-color: var(--primary-blue);
+    }
+
+    @media (max-width: 768px) {
+        .filter-row {
+            grid-template-columns: 1fr;
+        }
+        
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+    }
+</style>
+
+<div class="page-header">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="mb-2">Gestion des Entreprises</h1>
+                <p class="mb-0 opacity-90">Gérez les entreprises clientes et leurs abonnements</p>
+            </div>
+            <a href="/entreprises/nouveau" class="btn btn-light">
+                ➕ Nouvelle Entreprise
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Statistiques -->
+    <div class="stats-grid">
+        <div class="stat-card primary">
+            <div class="stat-number"><%= stats.total || 0 %></div>
+            <div class="stat-label">Total Entreprises</div>
+        </div>
+        <div class="stat-card success">
+            <div class="stat-number"><%= stats.actives || 0 %></div>
+            <div class="stat-label">Entreprises Actives</div>
+        </div>
+        <div class="stat-card warning">
+            <div class="stat-number"><%= stats.en_attente || 0 %></div>
+            <div class="stat-label">En Attente</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number"><%= stats.taux_utilisation || 0 %>%</div>
+            <div class="stat-label">Taux Utilisation</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number"><%= stats.licences_utilisees || 0 %>/<%= stats.licences_totales || 0 %></div>
+            <div class="stat-label">Licences Utilisées</div>
+        </div>
+        <div class="stat-card primary">
+            <div class="stat-number"><%= (stats.chiffre_affaires_mensuel || 0).toLocaleString('fr-FR') %>€</div>
+            <div class="stat-label">CA Mensuel</div>
+        </div>
+    </div>
+
+    <!-- Filtres -->
+    <div class="filters-section">
+        <form method="GET" action="/entreprises">
+            <div class="filter-row">
+                <div class="form-group">
+                    <label for="search" class="form-label">Rechercher</label>
+                    <input type="text" id="search" name="search" class="form-control" 
+                           placeholder="Nom, SIRET, ville..." value="<%= filters.search || '' %>">
+                </div>
+                <div class="form-group">
+                    <label for="statut" class="form-label">Statut</label>
+                    <select id="statut" name="statut" class="form-control">
+                        <option value="">Tous</option>
+                        <option value="en_attente" <%= filters.statut === 'en_attente' ? 'selected' : '' %>>En attente</option>
+                        <option value="actif" <%= filters.statut === 'actif' ? 'selected' : '' %>>Actif</option>
+                        <option value="suspendu" <%= filters.statut === 'suspendu' ? 'selected' : '' %>>Suspendu</option>
+                        <option value="inactif" <%= filters.statut === 'inactif' ? 'selected' : '' %>>Inactif</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="secteur" class="form-label">Secteur</label>
+                    <select id="secteur" name="secteur" class="form-control">
+                        <option value="">Tous</option>
+                        <option value="aide_domicile" <%= filters.secteur === 'aide_domicile' ? 'selected' : '' %>>Aide à domicile</option>
+                        <option value="ehpad" <%= filters.secteur === 'ehpad' ? 'selected' : '' %>>EHPAD</option>
+                        <option value="hopital" <%= filters.secteur === 'hopital' ? 'selected' : '' %>>Hôpital</option>
+                        <option value="clinique" <%= filters.secteur === 'clinique' ? 'selected' : '' %>>Clinique</option>
+                        <option value="centre_soins" <%= filters.secteur === 'centre_soins' ? 'selected' : '' %>>Centre de soins</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="type_contrat" class="form-label">Type Contrat</label>
+                    <select id="type_contrat" name="type_contrat" class="form-control">
+                        <option value="">Tous</option>
+                        <option value="standard" <%= filters.type_contrat === 'standard' ? 'selected' : '' %>>Standard</option>
+                        <option value="premium" <%= filters.type_contrat === 'premium' ? 'selected' : '' %>>Premium</option>
+                        <option value="enterprise" <%= filters.type_contrat === 'enterprise' ? 'selected' : '' %>>Enterprise</option>
+                        <option value="personnalise" <%= filters.type_contrat === 'personnalise' ? 'selected' : '' %>>Personnalisé</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">🔍 Filtrer</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Tableau des entreprises -->
+    <div class="table-container">
+        <% if (entreprises.length === 0) { %>
+            <div class="text-center py-5">
+                <h3 class="text-muted">Aucune entreprise trouvée</h3>
+                <p class="text-muted">Modifiez vos critères de recherche ou ajoutez une nouvelle entreprise</p>
+                <a href="/entreprises/nouveau" class="btn btn-primary">➕ Ajouter une entreprise</a>
+            </div>
+        <% } else { %>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Entreprise</th>
+                        <th>Secteur</th>
+                        <th>Contact</th>
+                        <th>Statut</th>
+                        <th>Licences</th>
+                        <th>Type Contrat</th>
+                        <th>Fin Contrat</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% entreprises.forEach(entreprise => { %>
+                        <tr>
+                            <td>
+                                <div>
+                                    <strong><%= entreprise.nom %></strong><br>
+                                    <small class="text-muted">SIRET: <%= entreprise.siret %></small><br>
+                                    <small class="text-muted">📍 <%= entreprise.ville %></small>
+                                </div>
+                            </td>
+                            <td>
+                                <% const secteurs = {
+                                    'aide_domicile': 'Aide à domicile',
+                                    'ehpad': 'EHPAD',
+                                    'hopital': 'Hôpital',
+                                    'clinique': 'Clinique',
+                                    'centre_soins': 'Centre de soins',
+                                    'autre': 'Autre'
+                                } %>
+                                <%= secteurs[entreprise.secteur_activite] || entreprise.secteur_activite %>
+                            </td>
+                            <td>
+                                <a href="mailto:<%= entreprise.email_contact %>"><%= entreprise.email_contact %></a>
+                            </td>
+                            <td>
+                                <% const statutClass = {
+                                    'actif': 'badge-success',
+                                    'en_attente': 'badge-warning',
+                                    'suspendu': 'badge-danger',
+                                    'inactif': 'badge-secondary'
+                                } %>
+                                <span class="badge <%= statutClass[entreprise.statut] %>">
+                                    <%= entreprise.statut.replace('_', ' ') %>
+                                </span>
+                            </td>
+                            <td>
+                                <div class="mb-1">
+                                    <small><%= entreprise.nombre_licences_utilisees %>/<%= entreprise.nombre_licences_max %></small>
+                                </div>
+                                <div class="progress-bar">
+                                    <% const pourcentage = entreprise.nombre_licences_max > 0 ? 
+                                        (entreprise.nombre_licences_utilisees / entreprise.nombre_licences_max) * 100 : 0 %>
+                                    <div class="progress-fill" style="width: <%= pourcentage %>%"></div>
+                                </div>
+                            </td>
+                            <td>
+                                <% const typeContrats = {
+                                    'standard': '🥉 Standard',
+                                    'premium': '🥈 Premium',
+                                    'enterprise': '🥇 Enterprise',
+                                    'personnalise': '⭐ Personnalisé'
+                                } %>
+                                <%= typeContrats[entreprise.type_contrat] || entreprise.type_contrat %>
+                            </td>
+                            <td>
+                                <% if (entreprise.date_fin_contrat) { %>
+                                    <%= formatDate(entreprise.date_fin_contrat) %>
+                                    <% const joursRestants = Math.ceil((new Date(entreprise.date_fin_contrat) - new Date()) / (1000 * 60 * 60 * 24)) %>
+                                    <% if (joursRestants < 30 && joursRestants > 0) { %>
+                                        <br><small class="text-warning">⚠️ <%= joursRestants %> jours</small>
+                                    <% } else if (joursRestants <= 0) { %>
+                                        <br><small class="text-danger">❌ Expiré</small>
+                                    <% } %>
+                                <% } else { %>
+                                    <span class="text-muted">Illimité</span>
+                                <% } %>
+                            </td>
+                            <td>
+                                <div class="actions">
+                                    <a href="/entreprises/<%= entreprise.id %>/dashboard" class="btn btn-success btn-sm" title="Dashboard">
+                                        📊
+                                    </a>
+                                    <button class="btn btn-danger btn-sm" onclick="supprimerEntreprise(<%= entreprise.id %>, '<%= entreprise.nom %>')" title="Supprimer">
+                                        🗑️
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        <% } %>
+    </div>
+
+    <!-- Pagination -->
+    <% if (pagination.totalPages > 1) { %>
+        <div class="pagination">
+            <% if (pagination.currentPage > 1) { %>
+                <a href="?page=<%= pagination.currentPage - 1 %>&<%= new URLSearchParams(filters).toString() %>">
+                    ← Précédent
+                </a>
+            <% } %>
+            
+            <% for (let i = Math.max(1, pagination.currentPage - 2); i <= Math.min(pagination.totalPages, pagination.currentPage + 2); i++) { %>
+                <% if (i === pagination.currentPage) { %>
+                    <span class="active"><%= i %></span>
+                <% } else { %>
+                    <a href="?page=<%= i %>&<%= new URLSearchParams(filters).toString() %>"><%= i %></a>
+                <% } %>
+            <% } %>
+            
+            <% if (pagination.currentPage < pagination.totalPages) { %>
+                <a href="?page=<%= pagination.currentPage + 1 %>&<%= new URLSearchParams(filters).toString() %>">
+                    Suivant →
+                </a>
+            <% } %>
+        </div>
+        
+        <div class="text-center text-muted mt-3">
+            Affichage de <%= ((pagination.currentPage - 1) * pagination.limit) + 1 %> à 
+            <%= Math.min(pagination.currentPage * pagination.limit, pagination.totalItems) %> 
+            sur <%= pagination.totalItems %> entreprises
+        </div>
+    <% } %>
+</div>
+
+<%- contentFor('scripts') %>
+<script>
+// Suppression d'entreprise avec confirmation
+async function supprimerEntreprise(id, nom) {
+    if (!confirm(`Êtes-vous sûr de vouloir supprimer l'entreprise "${nom}" ?\n\nCette action est irréversible.`)) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/entreprises/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Afficher un message de succès
+            showAlert(result.message, 'success');
+            // Recharger la page après un délai
+            setTimeout(() => window.location.reload(), 1500);
+        } else {
+            showAlert(result.message, 'error');
+        }
+    } catch (error) {
+        console.error('Erreur suppression:', error);
+        showAlert('Erreur lors de la suppression', 'error');
+    }
+}
+
+// Fonction pour afficher les alertes
+function showAlert(message, type) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type}`;
+    alertDiv.style.cssText = `
+        position: fixed;
+        top: 2rem;
+        right: 2rem;
+        z-index: 9999;
+        padding: 1rem 2rem;
+        border-radius: 10px;
+        color: white;
+        font-weight: 600;
+        animation: slideInRight 0.3s ease;
+    `;
+    
+    if (type === 'success') {
+        alertDiv.style.background = 'var(--success)';
+    } else if (type === 'error') {
+        alertDiv.style.background = 'var(--danger)';
+    }
+    
+    alertDiv.textContent = message;
+    document.body.appendChild(alertDiv);
+    
+    // Supprimer l'alerte après 3 secondes
+    setTimeout(() => {
+        alertDiv.style.animation = 'slideOutRight 0.3s ease';
+        setTimeout(() => alertDiv.remove(), 300);
+    }, 3000);
+}
+
+// Animation CSS pour les alertes
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideInRight {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOutRight {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+`;
+document.head.appendChild(style);
+
+// Auto-soumission du formulaire de filtres avec délai
+let searchTimeout;
+document.getElementById('search').addEventListener('input', function() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        this.form.submit();
+    }, 500);
+});
+
+// Raccourcis clavier
+document.addEventListener('keydown', function(e) {
+    // Ctrl/Cmd + K pour focus sur la recherche
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        document.getElementById('search').focus();
+    }
+    
+    // N pour nouvelle entreprise
+    if (e.key === 'n' && !e.ctrlKey && !e.metaKey && document.activeElement.tagName !== 'INPUT') {
+        window.location.href = '/entreprises/nouveau';
+    }
+});
+
+// Tooltip pour les raccourcis
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('search');
+    searchInput.setAttribute('title', 'Raccourci: Ctrl+K');
+    
+    // Ajouter un indicateur visuel pour le raccourci N
+    const newButton = document.querySelector('a[href="/entreprises/nouveau"]');
+    if (newButton) {
+        newButton.setAttribute('title', 'Raccourci: N');
+    }
+});
+
+console.log('Page entreprises chargée - <%= entreprises.length %> entreprises affichées');
+</script>
