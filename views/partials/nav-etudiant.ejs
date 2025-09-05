@@ -1,0 +1,745 @@
+<!-- partials/sidebar.ejs -->
+<style>
+    /* Variables CSS ADSIAM */
+    :root {
+        /* Couleurs principales */
+        --primary-pink: #e7a6b7;      /* Rose gold doux */
+        --primary-blue: #a5bfd4;      /* Bleu poudré */
+        
+        /* Couleurs secondaires */
+        --light-pink: #fce8ec;        /* Rose très clair */
+        --light-blue: #e8f3f8;        /* Bleu très clair */
+        --soft-gray: #f5f5f7;         /* Gris clair neutre */
+        
+        /* Texte */
+        --text-dark: #2f2f2f;         /* Gris anthracite lisible */
+        --text-light: #6f6f6f;        /* Gris doux */
+        --white: #ffffff;
+
+        /* Dégradés */
+        --gradient-pink: linear-gradient(135deg, #fce8ec, #e7a6b7);
+        --gradient-blue: linear-gradient(135deg, #e8f3f8, #a5bfd4);
+        --gradient-contact: linear-gradient(135deg, #e7a6b7, #a5bfd4);
+        
+        /* Couleurs système */
+        --success: #28a745;
+        --warning: #ffc107;
+        --danger: #dc3545;
+        
+        --sidebar-width: 300px;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+.nav-menu {
+  display: flex;
+  flex-direction: column; /* aligne les éléments verticalement */
+  gap: 10px; /* espace entre les liens */
+}
+
+.nav-item {
+  display: flex; 
+  align-items: center; 
+  width: 100%;  /* prend toute la largeur de la sidebar */
+  padding: 12px 16px;
+  text-decoration: none;
+}
+
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        line-height: 1.6;
+        color: var(--text-dark);
+        background: var(--soft-gray);
+    }
+
+    /* Sidebar Container */
+    .adsiam-sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: var(--sidebar-width);
+        height: 100vh;
+        background: var(--white);
+        box-shadow: 4px 0 30px rgba(0,0,0,0.1);
+        z-index: 1000;
+        overflow-y: auto;
+        transition: all 0.3s ease;
+    }
+
+    /* Header Sidebar */
+    .sidebar-header {
+        padding: 2.5rem 2rem;
+        background: var(--gradient-contact);
+        color: white;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .sidebar-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 100%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: rotate(0deg) translate(0, 0); }
+        50% { transform: rotate(180deg) translate(10px, -10px); }
+    }
+
+    .logo-container {
+        position: relative;
+        z-index: 2;
+    }
+
+    .logo-icon {
+        width: 70px;
+        height: 70px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 2rem;
+        font-weight: 700;
+        backdrop-filter: blur(15px);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .logo-text {
+        font-size: 1.8rem;
+        font-weight: 700;
+        letter-spacing: 0.15em;
+        margin-bottom: 0.5rem;
+    }
+
+    .logo-subtitle {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        font-weight: 300;
+    }
+
+    /* User Profile */
+    .user-profile {
+        padding: 2rem;
+        text-align: center;
+        background: var(--light-pink);
+        margin: 1.5rem;
+        border-radius: 20px;
+        border: 1px solid rgba(231, 166, 183, 0.2);
+    }
+
+    .user-avatar {
+        width: 80px;
+        height: 80px;
+        background: var(--gradient-contact);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 2rem;
+        color: white;
+        font-weight: 600;
+        border: 4px solid white;
+        box-shadow: 0 10px 30px rgba(231, 166, 183, 0.3);
+    }
+
+    .user-name {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .user-role {
+        font-size: 1rem;
+        color: var(--text-light);
+        margin-bottom: 1.5rem;
+    }
+
+    .user-stats {
+        display: flex;
+        justify-content: space-around;
+        gap: 1rem;
+    }
+
+    .user-stat {
+        text-align: center;
+    }
+
+    .stat-number {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary-pink);
+        display: block;
+    }
+
+    .stat-label {
+        font-size: 0.8rem;
+        color: var(--text-light);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    /* Navigation */
+    .sidebar-nav {
+        padding: 1rem 1.5rem 2rem;
+    }
+
+    .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 1.2rem;
+        padding: 1.2rem 1.5rem;
+        margin-bottom: 0.8rem;
+        color: var(--text-light);
+        text-decoration: none;
+        border-radius: 15px;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+        font-weight: 500;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .nav-item::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 4px;
+        height: 100%;
+        background: var(--primary-pink);
+        transform: scaleY(0);
+        transition: transform 0.3s ease;
+    }
+
+    .nav-item:hover {
+        background: var(--light-blue);
+        color: var(--primary-blue);
+        transform: translateX(8px);
+    }
+
+    .nav-item:hover::before {
+        transform: scaleY(1);
+    }
+
+    .nav-item.active {
+        background: var(--gradient-blue);
+        color: white;
+        font-weight: 600;
+        box-shadow: 0 8px 25px rgba(165, 191, 212, 0.4);
+        transform: translateX(8px);
+    }
+
+    .nav-item.active::before {
+        transform: scaleY(1);
+        background: white;
+    }
+
+    .nav-icon {
+        font-size: 1.4rem;
+        width: 28px;
+        text-align: center;
+        flex-shrink: 0;
+    }
+
+    .nav-text {
+        flex: 1;
+        font-size: 1rem;
+    }
+
+    .nav-badge {
+        background: var(--danger);
+        color: white;
+        padding: 0.3rem 0.8rem;
+        border-radius: 15px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        min-width: 24px;
+        text-align: center;
+        animation: pulse-glow 2s infinite;
+    }
+
+    .nav-badge.success {
+        background: var(--success);
+    }
+
+    .nav-badge.warning {
+        background: var(--warning);
+        color: var(--text-dark);
+    }
+
+    @keyframes pulse-glow {
+        0%, 100% { 
+            transform: scale(1);
+            box-shadow: 0 0 5px rgba(220, 53, 69, 0.5);
+        }
+        50% { 
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(220, 53, 69, 0.8);
+        }
+    }
+
+    /* Séparateurs visuels */
+    .nav-separator {
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--soft-gray), transparent);
+        margin: 1.5rem 0;
+    }
+
+    /* Liens spéciaux */
+    .nav-item.logout {
+        margin-top: 2rem;
+        border-top: 2px solid var(--soft-gray);
+        padding-top: 1.5rem;
+        color: var(--danger);
+    }
+
+    .nav-item.logout:hover {
+        background: #ffe6e6;
+        color: var(--danger);
+    }
+
+    .nav-item.logout::before {
+        background: var(--danger);
+    }
+
+    /* Main content offset */
+    .main-content {
+        margin-left: var(--sidebar-width);
+        transition: margin-left 0.3s ease;
+        min-height: 100vh;
+    }
+
+    /* Mobile Toggle */
+    .mobile-toggle {
+        display: none;
+        position: fixed;
+        top: 1.5rem;
+        left: 1.5rem;
+        z-index: 1001;
+        background: var(--gradient-contact);
+        color: white;
+        border: none;
+        padding: 1rem;
+        border-radius: 15px;
+        cursor: pointer;
+        font-size: 1.3rem;
+        box-shadow: 0 8px 25px rgba(231, 166, 183, 0.4);
+        transition: all 0.3s;
+    }
+
+    .mobile-toggle:hover {
+        transform: scale(1.1);
+        box-shadow: 0 12px 35px rgba(231, 166, 183, 0.6);
+    }
+
+    /* Overlay */
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.6);
+        z-index: 999;
+        opacity: 0;
+        transition: opacity 0.3s;
+        backdrop-filter: blur(5px);
+    }
+
+    .sidebar-overlay.active {
+        display: block;
+        opacity: 1;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+        .adsiam-sidebar {
+            transform: translateX(-100%);
+        }
+
+        .adsiam-sidebar.open {
+            transform: translateX(0);
+        }
+
+        .main-content {
+            margin-left: 0;
+        }
+
+        .mobile-toggle {
+            display: block;
+        }
+    }
+
+    @media (max-width: 768px) {
+        :root {
+            --sidebar-width: 280px;
+        }
+
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+        }
+
+        .user-profile {
+            margin: 1rem;
+            padding: 1.5rem;
+        }
+
+        .user-avatar {
+            width: 70px;
+            height: 70px;
+            font-size: 1.8rem;
+        }
+
+        .nav-item {
+            padding: 1rem 1.2rem;
+            font-size: 0.95rem;
+        }
+
+        .nav-icon {
+            font-size: 1.3rem;
+        }
+    }
+
+    /* Scrollbar */
+    .adsiam-sidebar::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .adsiam-sidebar::-webkit-scrollbar-track {
+        background: var(--soft-gray);
+    }
+
+    .adsiam-sidebar::-webkit-scrollbar-thumb {
+        background: var(--primary-blue);
+        border-radius: 4px;
+    }
+
+    .adsiam-sidebar::-webkit-scrollbar-thumb:hover {
+        background: var(--primary-pink);
+    }
+
+    /* Animations d'entrée */
+    .fade-in-up {
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 0.6s ease forwards;
+    }
+
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Focus states */
+    .nav-item:focus {
+        outline: 3px solid var(--primary-blue);
+        outline-offset: 2px;
+    }
+
+    .mobile-toggle:focus {
+        outline: 3px solid white;
+        outline-offset: 3px;
+    }
+
+    /* Loading state */
+    .nav-item.loading {
+        opacity: 0.7;
+        pointer-events: none;
+    }
+
+    .nav-item.loading .nav-icon {
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    /* Notification dot */
+    .notification-dot {
+        position: absolute;
+        top: 0.8rem;
+        right: 0.8rem;
+        width: 12px;
+        height: 12px;
+        background: var(--danger);
+        border-radius: 50%;
+        border: 2px solid white;
+        animation: pulse-dot 2s infinite;
+    }
+
+    @keyframes pulse-dot {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+    }
+</style>
+
+<!-- Bouton toggle mobile -->
+<button class="mobile-toggle" id="mobileToggle">☰</button>
+
+<!-- Overlay pour mobile -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Sidebar -->
+<nav class="adsiam-sidebar" id="adsiamSidebar">
+    <!-- Header -->
+    <div class="sidebar-header">
+        <div class="logo-container">
+            <div class="logo-icon">A+</div>
+            <div class="logo-text">ADSIAM</div>
+            <div class="logo-subtitle">Formation Excellence</div>
+        </div>
+    </div>
+
+    <!-- User Profile -->
+    <div class="user-profile">
+        <div class="user-avatar">
+            <%= typeof user !== 'undefined' && user && user.prenom && user.nom ? 
+                user.prenom.charAt(0).toUpperCase() + user.nom.charAt(0).toUpperCase() : 
+                'SM' %>
+        </div>
+        <div class="user-name">
+            <%= typeof user !== 'undefined' && user && user.prenom && user.nom ? 
+                user.prenom + ' ' + user.nom : 
+                'Sophie Martin' %>
+        </div>
+        <div class="user-role">
+            <%= typeof user !== 'undefined' && user && user.role ? 
+                user.role : 
+                'Aide à domicile' %>
+        </div>
+        <div class="user-stats">
+            <div class="user-stat">
+                <span class="stat-number">
+                    <%= typeof user !== 'undefined' && user && user.formations_terminees ? 
+                        user.formations_terminees : '3' %>
+                </span>
+                <span class="stat-label">Terminées</span>
+            </div>
+            <div class="user-stat">
+                <span class="stat-number">
+                    <%= typeof user !== 'undefined' && user && user.formations_en_cours ? 
+                        user.formations_en_cours : '2' %>
+                </span>
+                <span class="stat-label">En cours</span>
+            </div>
+            <div class="user-stat">
+                <span class="stat-number">
+                    <%= typeof user !== 'undefined' && user && user.heures_formation ? 
+                        user.heures_formation + 'h' : '24h' %>
+                </span>
+                <span class="stat-label">Ce mois</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="sidebar-nav">
+        <a href="/dashboard" class="nav-item fade-in-up <%= typeof currentPage !== 'undefined' && currentPage === 'dashboard' ? 'active' : '' %>">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-text">Dashboard</span>
+        </a>
+
+        <a href="/mes-formations" class="nav-item fade-in-up <%= typeof currentPage !== 'undefined' && currentPage === 'formations' ? 'active' : '' %>">
+            <span class="nav-icon">📚</span>
+            <span class="nav-text">Mes Formations</span>
+            <% if (typeof user !== 'undefined' && user && user.formations_en_cours > 0) { %>
+                <span class="nav-badge"><%= user.formations_en_cours %></span>
+            <% } %>
+        </a>
+
+        <a href="/ma-progression" class="nav-item fade-in-up <%= typeof currentPage !== 'undefined' && currentPage === 'progression' ? 'active' : '' %>">
+            <span class="nav-icon">📈</span>
+            <span class="nav-text">Progression</span>
+        </a>
+
+        <a href="/mes-certifications" class="nav-item fade-in-up <%= typeof currentPage !== 'undefined' && currentPage === 'certifications' ? 'active' : '' %>">
+            <span class="nav-icon">🏆</span>
+            <span class="nav-text">Certifications</span>
+            <% if (typeof user !== 'undefined' && user && user.nouveaux_certificats > 0) { %>
+                <span class="nav-badge success"><%= user.nouveaux_certificats %></span>
+            <% } %>
+        </a>
+
+        <a href="/evenements" class="nav-item fade-in-up <%= typeof currentPage !== 'undefined' && currentPage === 'evenements' ? 'active' : '' %>">
+            <span class="nav-icon">📅</span>
+            <span class="nav-text">Événements</span>
+        </a>
+
+        <div class="nav-separator"></div>
+
+        <a href="/mes-messages" class="nav-item fade-in-up <%= typeof currentPage !== 'undefined' && currentPage === 'messages' ? 'active' : '' %>">
+            <span class="nav-icon">💬</span>
+            <span class="nav-text">Messages</span>
+            <% if (typeof messagesNonLus !== 'undefined' && messagesNonLus > 0) { %>
+                <span class="nav-badge"><%= messagesNonLus %></span>
+            <% } %>
+        </a>
+
+        <a href="/contact" class="nav-item fade-in-up <%= typeof currentPage !== 'undefined' && currentPage === 'support' ? 'active' : '' %>">
+            <span class="nav-icon">🎧</span>
+            <span class="nav-text">Support</span>
+        </a>
+
+        <div class="nav-separator"></div>
+
+        <a href="/mon-profil" class="nav-item fade-in-up <%= typeof currentPage !== 'undefined' && currentPage === 'profil' ? 'active' : '' %>">
+            <span class="nav-icon">⚙️</span>
+            <span class="nav-text">Paramètres</span>
+        </a>
+
+        <a href="/mes-statistiques" class="nav-item fade-in-up <%= typeof currentPage !== 'undefined' && currentPage === 'statistiques' ? 'active' : '' %>">
+            <span class="nav-icon">📊</span>
+            <span class="nav-text">Statistiques</span>
+        </a>
+
+        <a href="/auth/logout" class="nav-item logout fade-in-up">
+            <span class="nav-icon">🚪</span>
+            <span class="nav-text">Déconnexion</span>
+        </a>
+    </div>
+</nav>
+
+<script>
+// Sidebar JavaScript Simplifié
+(function() {
+    const sidebar = document.getElementById('adsiamSidebar');
+    const mobileToggle = document.getElementById('mobileToggle');
+    const overlay = document.getElementById('sidebarOverlay');
+
+    // Toggle sidebar mobile
+    function toggleSidebar() {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('active');
+        document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+    }
+
+    // Fermer sidebar
+    function closeSidebar() {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    // Event listeners
+    if (mobileToggle) {
+        mobileToggle.addEventListener('click', toggleSidebar);
+    }
+
+    if (overlay) {
+        overlay.addEventListener('click', closeSidebar);
+    }
+
+    // Navigation
+    document.querySelectorAll('.nav-item').forEach((link, index) => {
+        // Animation delay
+        link.style.animationDelay = `${index * 0.1}s`;
+
+        link.addEventListener('click', function(e) {
+            // Gérer la déconnexion
+            if (this.classList.contains('logout')) {
+                e.preventDefault();
+                if (confirm('🚪 Êtes-vous sûr de vouloir vous déconnecter ?')) {
+                    this.classList.add('loading');
+                    this.querySelector('.nav-icon').textContent = '⏳';
+                    
+                    setTimeout(() => {
+                        window.location.href = this.href;
+                    }, 800);
+                }
+                return;
+            }
+
+            // Fermer mobile sidebar
+            if (window.innerWidth <= 1024) {
+                setTimeout(closeSidebar, 300);
+            }
+
+            // Animation de loading
+            this.classList.add('loading');
+            setTimeout(() => {
+                this.classList.remove('loading');
+            }, 1500);
+        });
+    });
+
+    // Raccourcis clavier
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeSidebar();
+        }
+        
+        if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
+            e.preventDefault();
+            toggleSidebar();
+        }
+    });
+
+    // Responsive
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 1024) {
+            closeSidebar();
+        }
+    });
+
+    // Animation des stats utilisateur
+    function animateUserStats() {
+        const statNumbers = document.querySelectorAll('.stat-number');
+        statNumbers.forEach((stat, index) => {
+            const finalValue = stat.textContent;
+            const isNumber = !finalValue.includes('h');
+            
+            if (isNumber) {
+                const targetNum = parseInt(finalValue);
+                let currentNum = 0;
+                const increment = targetNum / 20;
+                
+                const timer = setInterval(() => {
+                    currentNum += increment;
+                    if (currentNum >= targetNum) {
+                        stat.textContent = finalValue;
+                        clearInterval(timer);
+                    } else {
+                        stat.textContent = Math.floor(currentNum);
+                    }
+                }, 50);
+            }
+        });
+    }
+
+    // Lancer animations après chargement
+    window.addEventListener('load', function() {
+        setTimeout(animateUserStats, 800);
+    });
+
+    // Smooth notification updates
+    setInterval(function() {
+        const badges = document.querySelectorAll('.nav-badge');
+        badges.forEach(badge => {
+            if (parseInt(badge.textContent) > 0) {
+                badge.style.animation = 'pulse-glow 2s infinite';
+            }
+        });
+    }, 3000);
+
+    console.log('🎨 Sidebar ADSIAM chargée avec style !');
+    console.log('⌨️ Raccourcis: Ctrl+B pour toggle, Escape pour fermer');
+})();
+</script>

@@ -704,7 +704,7 @@ router.get('/ma-progression', async (req, res) => {
         res.render('dashboard/progression', {
             title: 'Ma Progression - ADSIAM',
             layout: false,
-            ...progressionData
+            ...progressionDatae
         });
 
     } catch (error) {

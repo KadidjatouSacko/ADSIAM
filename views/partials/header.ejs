@@ -29,6 +29,8 @@
             <li><a href="/evenements">Événements</a></li>
             <li><a href="/blog">Blog</a></li>
             <li><a href="/contact" class="nav-cta <%= (typeof currentPage !== 'undefined' && currentPage === 'contact') ? 'active' : '' %>">Contact</a></li>
+            <li><a href="/auth/login" class="nav-aut <%= (typeof currentPage !== 'undefined' && currentPage === 'login') ? 'active' : '' %>">Se connecter</a></li>
+
         </ul>
         
         <!-- Menu mobile hamburger -->
@@ -116,6 +118,23 @@
             color: var(--primary-blue);
         }
 
+        
+        .nav-aut {
+            background: rgb(220, 131, 174);
+            color: white !important;
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(212, 165, 165, 0.3);
+        }
+        
+
+        .nav-aut:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(212, 165, 165, 0.4);
+        }
+
         .nav-cta {
             background: var(--gradient-contact);
             color: white !important;
@@ -125,6 +144,7 @@
             transition: all 0.3s;
             box-shadow: 0 10px 30px rgba(212, 165, 165, 0.3);
         }
+        
 
         .nav-cta:hover {
             transform: translateY(-2px);

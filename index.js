@@ -246,6 +246,7 @@ app.use('/', formationRoutes);
 console.log('👥 Montage de etudiantsRoutes sur /');
 app.use('/', etudiantsRoutes);
 
+
 // ========================================
 // 🏠 ROUTES PRINCIPALES
 // ========================================
@@ -600,6 +601,7 @@ async function startServer() {
         process.exit(1);
     }
 }
+
 
 // Gestion de l'arrêt propre du serveur
 process.on('SIGTERM', async () => {
