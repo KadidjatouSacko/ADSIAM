@@ -158,7 +158,7 @@
 // // // Routes principales
 // // router.get('/', FormationController.accueil.bind(FormationController));
 // // router.get('/formations', FormationController.catalogue.bind(FormationController));
-// // router.get('/formations/:id', FormationController.detail.bind(FormationController));
+// router.get('/formations/:id', FormationController.detail.bind(FormationController));
 // // router.get('/contact', FormationController.contact.bind(FormationController));
 // // router.post('/contact', FormationController.traitementContact.bind(FormationController));
 

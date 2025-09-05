@@ -137,73 +137,88 @@ class FormationController {
   }
 
   // Détail d'une formation
-  async detail(req, res) {
-    try {
-      const { id } = req.params;
+async detail(req, res) {
+  try {
+    const { id } = req.params;
 
-      const formation = await Formation.findByPk(id, {
-        include: [
-          { 
-            model: Module, 
-            as: 'modules',
-            order: [['ordre', 'ASC']]
-          },
-          { model: Caracteristique, as: 'caracteristiques' },
-          { 
-            model: Avis, 
-            as: 'avis',
-            order: [['createdAt', 'DESC']],
-            limit: 10
-          }
-        ]
-      });
-
-      if (!formation || !formation.actif) {
-        return res.status(404).render('error', { 
-          message: 'Formation non trouvée',
-          error: { status: 404 }
-        });
-      }
-
-      // Calculer la note moyenne
-      if (formation.avis?.length > 0) {
-        const totalNotes = formation.avis.reduce((sum, avis) => sum + avis.note, 0);
-        formation.dataValues.noteMoyenne = (totalNotes / formation.avis.length).toFixed(1);
-        formation.dataValues.nombreAvis = formation.avis.length;
-      } else {
-        formation.dataValues.noteMoyenne = 0;
-        formation.dataValues.nombreAvis = 0;
-      }
-
-      // Formations similaires
-      const formationsSimilaires = await Formation.findAll({
-        where: {
-          domaine: formation.domaine,
-          id: { [Op.ne]: formation.id },
-          actif: true
+    const formation = await Formation.findByPk(id, {
+      include: [
+        { 
+          model: Module, 
+          as: 'modules',
+          order: [['ordre', 'ASC']] // Tri des modules
         },
-        limit: 3,
-        include: [{ model: Avis, as: 'avis' }]
-      });
-
-      // Calculer les moyennes pour les formations similaires
-      formationsSimilaires.forEach(f => {
-        if (f.avis?.length > 0) {
-          const totalNotes = f.avis.reduce((sum, avis) => sum + avis.note, 0);
-          f.dataValues.noteMoyenne = (totalNotes / f.avis.length).toFixed(1);
-          f.dataValues.nombreAvis = f.avis.length;
-        } else {
-          f.dataValues.noteMoyenne = 0;
-          f.dataValues.nombreAvis = 0;
+        { 
+          model: Caracteristique, 
+          as: 'caracteristiques' 
+        },
+        { 
+          model: Avis, 
+          as: 'avis',
+          separate: true,       // Nécessaire pour limit + order
+          limit: 10,
+          order: [['createdat', 'DESC']] // ← Utilise le nom exact de colonne dans ta table
         }
-      });
+      ]
+    });
 
-      res.render('visiteurs/formation', { formation, formationsSimilaires });
-    } catch (error) {
-      console.error('Erreur détail formation:', error);
-      res.status(500).render('error', { message: 'Erreur serveur' });
+    if (!formation || !formation.actif) {
+      return res.status(404).render('error', { 
+        message: 'Formation non trouvée',
+        error: { status: 404 }
+      });
     }
+
+    // Calculer la note moyenne
+    if (formation.avis?.length > 0) {
+      const totalNotes = formation.avis.reduce((sum, avis) => sum + avis.note, 0);
+      formation.dataValues.noteMoyenne = (totalNotes / formation.avis.length).toFixed(1);
+      formation.dataValues.nombreAvis = formation.avis.length;
+    } else {
+      formation.dataValues.noteMoyenne = 0;
+      formation.dataValues.nombreAvis = 0;
+    }
+
+    // Formations similaires
+    const formationsSimilaires = await Formation.findAll({
+      where: {
+        domaine: formation.domaine,
+        id: { [Op.ne]: formation.id },
+        actif: true
+      },
+      limit: 3,
+      include: [
+        { 
+          model: Avis, 
+          as: 'avis',
+          separate: true,
+          limit: 10,
+          order: [['createdat', 'DESC']]
+        }
+      ]
+    });
+
+    // Calculer les moyennes pour les formations similaires
+    formationsSimilaires.forEach(f => {
+      if (f.avis?.length > 0) {
+        const totalNotes = f.avis.reduce((sum, avis) => sum + avis.note, 0);
+        f.dataValues.noteMoyenne = (totalNotes / f.avis.length).toFixed(1);
+        f.dataValues.nombreAvis = f.avis.length;
+      } else {
+        f.dataValues.noteMoyenne = 0;
+        f.dataValues.nombreAvis = 0;
+      }
+    });
+
+    res.render('visiteurs/formation', { formation, formationsSimilaires });
+  } catch (error) {
+    console.error('Erreur détail formation:', error);
+    res.status(500).render('error', { message: 'Erreur serveur' });
   }
+}
+
+
+
 
   // Page de contact
   async contact(req, res) {

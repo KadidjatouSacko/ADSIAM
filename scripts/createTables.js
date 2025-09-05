@@ -290,6 +290,7 @@ async function createTablesAndData() {
     ];
 
     const avis = await Avis.bulkCreate(avisData);
+    
     console.log(`✅ ${avis.length} avis créés`);
 
     // 6. Vérifications finales

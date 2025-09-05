@@ -46,7 +46,9 @@ export default (sequelize) => {
     }
   }, {
     tableName: 'avis',
-    timestamps: true
+    timestamps: true,
+    underscored: true
+  
   });
 
   return Avis;
