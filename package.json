@@ -40,6 +40,7 @@
     "ioredis": "^5.7.0",
     "jsonwebtoken": "^9.0.2",
     "layouts": "^3.0.2",
+    "multer": "^2.0.2",
     "nodemailer": "^7.0.6",
     "pdfkit": "^0.17.2",
     "pg": "^8.11.3",

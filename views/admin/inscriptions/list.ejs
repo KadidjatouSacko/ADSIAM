@@ -1,0 +1,149 @@
+<!-- views/admin/inscriptions/list.ejs -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2>ADSIAM Admin</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="/admin">📊 Tableau de bord</a></li>
+                <li><a href="/admin/utilisateurs">👥 Utilisateurs</a></li>
+                <li><a href="/admin/formations">📚 Formations</a></li>
+                <li><a href="/admin/inscriptions" class="active">📝 Inscriptions</a></li>
+                <li><a href="/admin/evenements">📅 Événements</a></li>
+                <li><a href="/admin/rapports">📊 Rapports</a></li>
+                <li><a href="/admin/messagerie">💬 Messagerie</a></li>
+                <li><a href="/admin/parametres">⚙️ Paramètres</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <div class="content-header">
+                <h1>Gestion des inscriptions</h1>
+            </div>
+
+            <div class="filters-section">
+                <form class="filters-form" method="GET">
+                    <div class="filter-group">
+                        <select name="statut" class="form-select">
+                            <option value="">Tous les statuts</option>
+                            <option value="en_attente" <%= filters.statut === 'en_attente' ? 'selected' : '' %>>En attente</option>
+                            <option value="active" <%= filters.statut === 'active' ? 'selected' : '' %>>Active</option>
+                            <option value="terminee" <%= filters.statut === 'terminee' ? 'selected' : '' %>>Terminée</option>
+                            <option value="annulee" <%= filters.statut === 'annulee' ? 'selected' : '' %>>Annulée</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-secondary">Filtrer</button>
+                </form>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Apprenant</th>
+                            <th>Formation</th>
+                            <th>Statut</th>
+                            <th>Date d'inscription</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% inscriptions.forEach(inscription => { %>
+                        <tr>
+                            <td><%= inscription.id %></td>
+                            <td>
+                                <div>
+                                    <strong><%= inscription.User.prenom %> <%= inscription.User.nom %></strong>
+                                    <br>
+                                    <small><%= inscription.User.email %></small>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <span><%= inscription.Formation.icone || '📚' %></span>
+                                    <span><%= inscription.Formation.titre %></span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="status status-<%= inscription.statut %>"><%= inscription.statut %></span>
+                            </td>
+                            <td><%= new Date(inscription.createdAt).toLocaleDateString('fr-FR') %></td>
+                            <td class="actions">
+                                <% if (inscription.statut === 'en_attente') { %>
+                                    <button onclick="validateInscription(<%= inscription.id %>)" class="btn-icon" title="Valider">✅</button>
+                                    <button onclick="rejectInscription(<%= inscription.id %>)" class="btn-icon btn-danger" title="Refuser">❌</button>
+                                <% } %>
+                                <a href="/admin/inscriptions/<%= inscription.id %>" class="btn-icon" title="Voir détails">👁️</a>
+                            </td>
+                        </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination-container">
+                <div class="pagination-info">
+                    Affichage de <%= (pagination.currentPage - 1) * 20 + 1 %> à <%= Math.min(pagination.currentPage * 20, pagination.total) %> sur <%= pagination.total %> inscriptions
+                </div>
+                <div class="pagination">
+                    <% if (pagination.hasPrev) { %>
+                        <a href="?page=<%= pagination.currentPage - 1 %>" class="btn btn-pagination">← Précédent</a>
+                    <% } %>
+                    
+                    <% for (let i = Math.max(1, pagination.currentPage - 2); i <= Math.min(pagination.totalPages, pagination.currentPage + 2); i++) { %>
+                        <a href="?page=<%= i %>" class="btn btn-pagination <%= i === pagination.currentPage ? 'active' : '' %>"><%= i %></a>
+                    <% } %>
+                    
+                    <% if (pagination.hasNext) { %>
+                        <a href="?page=<%= pagination.currentPage + 1 %>" class="btn btn-pagination">Suivant →</a>
+                    <% } %>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function validateInscription(inscriptionId) {
+            if (confirm('Valider cette inscription ?')) {
+                fetch(`/admin/inscriptions/${inscriptionId}/valider`, {
+                    method: 'PATCH'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Erreur: ' + data.error);
+                    }
+                });
+            }
+        }
+
+        function rejectInscription(inscriptionId) {
+            if (confirm('Refuser cette inscription ?')) {
+                fetch(`/admin/inscriptions/${inscriptionId}/refuser`, {
+                    method: 'PATCH'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Erreur: ' + data.error);
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>

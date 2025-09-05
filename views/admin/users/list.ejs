@@ -1,1279 +1,163 @@
-<div class="users-container">
-    <!-- En-tête -->
-    <div class="page-header">
-        <div class="header-left">
-            <h1 class="page-title">Gestion des utilisateurs</h1>
-            <p class="page-subtitle">Administrez les comptes utilisateurs de votre plateforme</p>
-        </div>
-        <div class="header-actions">
-            <a href="/admin/utilisateurs/nouveau" class="btn btn-primary">
-                👥 Créer un utilisateur
-            </a>
-            <button class="btn btn-secondary" onclick="exportUsers()">
-                📊 Exporter
-            </button>
-        </div>
-    </div>
+<!-- views/admin/users/list.ejs -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2>ADSIAM Admin</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="/admin" class="<%= currentPage === 'dashboard' ? 'active' : '' %>">📊 Tableau de bord</a></li>
+                <li><a href="/admin/utilisateurs" class="<%= currentPage === 'users' ? 'active' : '' %>">👥 Utilisateurs</a></li>
+                <li><a href="/admin/formations" class="<%= currentPage === 'formations' ? 'active' : '' %>">📚 Formations</a></li>
+                <li><a href="/admin/inscriptions" class="<%= currentPage === 'inscriptions' ? 'active' : '' %>">📝 Inscriptions</a></li>
+                <li><a href="/admin/evenements" class="<%= currentPage === 'events' ? 'active' : '' %>">📅 Événements</a></li>
+                <li><a href="/admin/rapports">📊 Rapports</a></li>
+                <li><a href="/admin/messagerie">💬 Messagerie</a></li>
+                <li><a href="/admin/parametres">⚙️ Paramètres</a></li>
+            </ul>
+        </nav>
 
-    <!-- Filtres et recherche -->
-    <div class="filters-section">
-        <form class="filters-form" method="GET" action="/admin/utilisateurs">
-            <div class="search-container">
-                <input type="text" 
-                       name="search" 
-                       class="search-input" 
-                       placeholder="Rechercher par nom, email..." 
-                       value="<%= filters.search %>"
-                       autocomplete="off">
-                <button type="submit" class="search-btn">🔍</button>
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-header">
+                <h1>Gestion des utilisateurs</h1>
+                <div class="header-actions">
+                    <a href="/admin/utilisateurs/nouveau" class="btn btn-primary">➕ Nouvel utilisateur</a>
+                </div>
             </div>
 
-            <div class="filter-controls">
-                <select name="role" class="filter-select" onchange="this.form.submit()">
-                    <option value="">Tous les rôles</option>
-                    <option value="apprenant" <%= filters.role === 'apprenant' ? 'selected' : '' %>>Apprenant</option>
-                    <option value="formateur" <%= filters.role === 'formateur' ? 'selected' : '' %>>Formateur</option>
-                    <option value="admin" <%= filters.role === 'admin' ? 'selected' : '' %>>Administrateur</option>
-                </select>
-
-                <select name="statut" class="filter-select" onchange="this.form.submit()">
-                    <option value="">Tous les statuts</option>
-                    <option value="actif" <%= filters.statut === 'actif' ? 'selected' : '' %>>Actif</option>
-                    <option value="inactif" <%= filters.statut === 'inactif' ? 'selected' : '' %>>Inactif</option>
-                    <option value="suspendu" <%= filters.statut === 'suspendu' ? 'selected' : '' %>>Suspendu</option>
-                </select>
-
-                <a href="/admin/utilisateurs" class="btn btn-outline">Réinitialiser</a>
+            <!-- Filtres -->
+            <div class="filters-section">
+                <form class="filters-form" method="GET">
+                    <div class="filter-group">
+                        <input type="text" name="search" placeholder="Rechercher..." value="<%= filters.search %>" class="form-input">
+                    </div>
+                    <div class="filter-group">
+                        <select name="role" class="form-select">
+                            <option value="">Tous les rôles</option>
+                            <option value="apprenant" <%= filters.role === 'apprenant' ? 'selected' : '' %>>Apprenant</option>
+                            <option value="formateur" <%= filters.role === 'formateur' ? 'selected' : '' %>>Formateur</option>
+                            <option value="admin" <%= filters.role === 'admin' ? 'selected' : '' %>>Admin</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <select name="statut" class="form-select">
+                            <option value="">Tous les statuts</option>
+                            <option value="actif" <%= filters.statut === 'actif' ? 'selected' : '' %>>Actif</option>
+                            <option value="inactif" <%= filters.statut === 'inactif' ? 'selected' : '' %>>Inactif</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-secondary">Filtrer</button>
+                </form>
             </div>
-        </form>
 
-        <!-- Actions groupées -->
-        <div class="bulk-actions" id="bulkActions" style="display: none;">
-            <span class="selected-count">0 utilisateur(s) sélectionné(s)</span>
-            <div class="bulk-buttons">
-                <button class="btn btn-success" onclick="bulkAction('activate')">Activer</button>
-                <button class="btn btn-warning" onclick="bulkAction('deactivate')">Désactiver</button>
-                <button class="btn btn-danger" onclick="bulkAction('delete')">Supprimer</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Statistiques rapides -->
-    <div class="quick-stats">
-        <div class="stat-item">
-            <div class="stat-value"><%= pagination.total %></div>
-            <div class="stat-label">Total</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-value"><%= users.filter(u => u.statut === 'actif').length %></div>
-            <div class="stat-label">Actifs</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-value"><%= users.filter(u => u.role === 'apprenant').length %></div>
-            <div class="stat-label">Apprenants</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-value"><%= users.filter(u => u.role === 'formateur').length %></div>
-            <div class="stat-label">Formateurs</div>
-        </div>
-    </div>
-
-    <!-- Tableau des utilisateurs -->
-    <div class="table-container">
-        <div class="table-header">
-            <div class="table-controls">
-                <label class="checkbox-container">
-                    <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
-                    <span class="checkmark"></span>
-                </label>
-                <span>Sélectionner tout</span>
-            </div>
-            <div class="view-controls">
-                <button class="view-btn active" data-view="table">📋</button>
-                <button class="view-btn" data-view="cards">🗃️</button>
-            </div>
-        </div>
-
-        <div class="users-table" id="usersTable">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th width="50">
-                            <label class="checkbox-container">
-                                <input type="checkbox" id="headerSelectAll" onchange="toggleSelectAll()">
-                                <span class="checkmark"></span>
-                            </label>
-                        </th>
-                        <th>Utilisateur</th>
-                        <th>Rôle</th>
-                        <th>Statut</th>
-                        <th>Inscriptions</th>
-                        <th>Dernière connexion</th>
-                        <th width="120">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% users.forEach(user => { %>
-                        <tr class="user-row" data-user-id="<%= user.id %>">
+            <!-- Liste des utilisateurs -->
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nom complet</th>
+                            <th>Email</th>
+                            <th>Rôle</th>
+                            <th>Statut</th>
+                            <th>Date d'inscription</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% users.forEach(user => { %>
+                        <tr>
+                            <td><%= user.id %></td>
+                            <td><%= user.prenom %> <%= user.nom %></td>
+                            <td><%= user.email %></td>
                             <td>
-                                <label class="checkbox-container">
-                                    <input type="checkbox" class="user-checkbox" value="<%= user.id %>" onchange="updateBulkActions()">
-                                    <span class="checkmark"></span>
-                                </label>
+                                <span class="badge badge-<%= user.role %>"><%= user.role %></span>
                             </td>
                             <td>
-                                <div class="user-info">
-                                    <div class="user-avatar">
-                                        <%= user.prenom.charAt(0) %><%= user.nom.charAt(0) %>
-                                    </div>
-                                    <div class="user-details">
-                                        <div class="user-name"><%= user.prenom %> <%= user.nom %></div>
-                                        <div class="user-email"><%= user.email %></div>
-                                        <div class="user-meta">
-                                            <% if (user.telephone) { %>
-                                                <span class="meta-item">📞 <%= user.telephone %></span>
-                                            <% } %>
-                                            <span class="meta-item">📅 <%= new Date(user.createdAt).toLocaleDateString('fr-FR') %></span>
-                                        </div>
-                                    </div>
-                                </div>
+                                <span class="status status-<%= user.statut %>"><%= user.statut %></span>
                             </td>
-                            <td>
-                                <span class="role-badge role-<%= user.role %>">
-                                    <%= user.role === 'apprenant' ? '🎓' : user.role === 'formateur' ? '👨‍🏫' : '👑' %>
-                                    <%= user.role %>
-                                </span>
-                            </td>
-                            <td>
-                                <span class="status-badge status-<%= user.statut %>">
-                                    <%= user.statut %>
-                                </span>
-                            </td>
-                            <td>
-                                <div class="inscriptions-info">
-                                    <% if (user.Inscriptions && user.Inscriptions.length > 0) { %>
-                                        <span class="inscriptions-count"><%= user.Inscriptions.length %></span>
-                                        <div class="inscriptions-breakdown">
-                                            <% 
-                                                const activeInscriptions = user.Inscriptions.filter(i => i.statut === 'active').length;
-                                                const pendingInscriptions = user.Inscriptions.filter(i => i.statut === 'en_attente').length;
-                                            %>
-                                            <% if (activeInscriptions > 0) { %>
-                                                <span class="breakdown-item active"><%= activeInscriptions %> actives</span>
-                                            <% } %>
-                                            <% if (pendingInscriptions > 0) { %>
-                                                <span class="breakdown-item pending"><%= pendingInscriptions %> en attente</span>
-                                            <% } %>
-                                        </div>
-                                    <% } else { %>
-                                        <span class="no-inscriptions">Aucune</span>
-                                    <% } %>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="last-connection">
-                                    <% if (user.derniere_connexion) { %>
-                                        <%= new Date(user.derniere_connexion).toLocaleDateString('fr-FR') %>
-                                    <% } else { %>
-                                        <span class="never-connected">Jamais</span>
-                                    <% } %>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="action-buttons">
-                                    <button class="btn-icon" onclick="viewUser(<%= user.id %>)" title="Voir le profil">
-                                        👁️
-                                    </button>
-                                    <button class="btn-icon" onclick="editUser(<%= user.id %>)" title="Modifier">
-                                        ✏️
-                                    </button>
-                                    <button class="btn-icon" onclick="toggleUserStatus(<%= user.id %>, '<%= user.statut %>')" title="Changer le statut">
-                                        <%= user.statut === 'actif' ? '⏸️' : '▶️' %>
-                                    </button>
-                                    <div class="dropdown">
-                                        <button class="btn-icon dropdown-toggle" onclick="toggleDropdown(this)" title="Plus d'options">
-                                            ⋮
-                                        </button>
-                                        <div class="dropdown-menu">
-                                            <a href="/admin/utilisateurs/<%= user.id %>">Voir le profil</a>
-                                            <a href="#" onclick="sendMessage(<%= user.id %>)">Envoyer un message</a>
-                                            <a href="#" onclick="viewInscriptions(<%= user.id %>)">Voir les inscriptions</a>
-                                            <hr>
-                                            <a href="#" onclick="deleteUser(<%= user.id %>)" class="danger">Supprimer</a>
-                                        </div>
-                                    </div>
-                                </div>
+                            <td><%= new Date(user.createdAt).toLocaleDateString('fr-FR') %></td>
+                            <td class="actions">
+                                <a href="/admin/utilisateurs/<%= user.id %>/modifier" class="btn-icon" title="Modifier">✏️</a>
+                                <button onclick="toggleUserStatus(<%= user.id %>)" class="btn-icon" title="Changer statut">🔄</button>
+                                <button onclick="deleteUser(<%= user.id %>)" class="btn-icon btn-danger" title="Supprimer">🗑️</button>
                             </td>
                         </tr>
-                    <% }); %>
-                </tbody>
-            </table>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
 
-            <% if (users.length === 0) { %>
-                <div class="empty-state">
-                    <div class="empty-icon">👥</div>
-                    <h3>Aucun utilisateur trouvé</h3>
-                    <p>
-                        <% if (filters.search || filters.role || filters.statut) { %>
-                            Essayez de modifier vos critères de recherche.
-                        <% } else { %>
-                            Commencez par créer votre premier utilisateur.
-                        <% } %>
-                    </p>
-                    <% if (!filters.search && !filters.role && !filters.statut) { %>
-                        <a href="/admin/utilisateurs/nouveau" class="btn btn-primary">Créer un utilisateur</a>
+            <!-- Pagination -->
+            <div class="pagination-container">
+                <div class="pagination-info">
+                    Affichage de <%= (pagination.currentPage - 1) * 20 + 1 %> à <%= Math.min(pagination.currentPage * 20, pagination.total) %> sur <%= pagination.total %> utilisateurs
+                </div>
+                <div class="pagination">
+                    <% if (pagination.hasPrev) { %>
+                        <a href="?page=<%= pagination.currentPage - 1 %>" class="btn btn-pagination">← Précédent</a>
+                    <% } %>
+                    
+                    <% for (let i = Math.max(1, pagination.currentPage - 2); i <= Math.min(pagination.totalPages, pagination.currentPage + 2); i++) { %>
+                        <a href="?page=<%= i %>" class="btn btn-pagination <%= i === pagination.currentPage ? 'active' : '' %>"><%= i %></a>
+                    <% } %>
+                    
+                    <% if (pagination.hasNext) { %>
+                        <a href="?page=<%= pagination.currentPage + 1 %>" class="btn btn-pagination">Suivant →</a>
                     <% } %>
                 </div>
-            <% } %>
-        </div>
-
-        <!-- Vue en cartes (alternative) -->
-        <div class="users-cards" id="usersCards" style="display: none;">
-            <div class="cards-grid">
-                <% users.forEach(user => { %>
-                    <div class="user-card" data-user-id="<%= user.id %>">
-                        <div class="card-header">
-                            <div class="user-avatar large">
-                                <%= user.prenom.charAt(0) %><%= user.nom.charAt(0) %>
-                            </div>
-                            <div class="card-actions">
-                                <label class="checkbox-container">
-                                    <input type="checkbox" class="user-checkbox" value="<%= user.id %>" onchange="updateBulkActions()">
-                                    <span class="checkmark"></span>
-                                </label>
-                            </div>
-                        </div>
-                        <div class="card-content">
-                            <h3><%= user.prenom %> <%= user.nom %></h3>
-                            <p class="user-email"><%= user.email %></p>
-                            <div class="card-badges">
-                                <span class="role-badge role-<%= user.role %>"><%= user.role %></span>
-                                <span class="status-badge status-<%= user.statut %>"><%= user.statut %></span>
-                            </div>
-                            <div class="card-stats">
-                                <div class="stat">
-                                    <span class="stat-value"><%= user.Inscriptions ? user.Inscriptions.length : 0 %></span>
-                                    <span class="stat-label">Inscriptions</span>
-                                </div>
-                                <div class="stat">
-                                    <span class="stat-value">
-                                        <% if (user.derniere_connexion) { %>
-                                            <%= Math.floor((new Date() - new Date(user.derniere_connexion)) / (1000 * 60 * 60 * 24)) %>j
-                                        <% } else { %>
-                                            -
-                                        <% } %>
-                                    </span>
-                                    <span class="stat-label">Dernière connexion</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-footer">
-                            <button class="btn btn-outline btn-sm" onclick="viewUser(<%= user.id %>)">Voir</button>
-                            <button class="btn btn-primary btn-sm" onclick="editUser(<%= user.id %>)">Modifier</button>
-                        </div>
-                    </div>
-                <% }); %>
             </div>
-        </div>
+        </main>
     </div>
 
-    <!-- Pagination -->
-    <% if (pagination.totalPages > 1) { %>
-        <div class="pagination-container">
-            <div class="pagination-info">
-                Affichage de <%= ((pagination.currentPage - 1) * 20) + 1 %> à 
-                <%= Math.min(pagination.currentPage * 20, pagination.total) %> 
-                sur <%= pagination.total %> utilisateurs
-            </div>
-            <nav class="pagination">
-                <% if (pagination.hasPrev) { %>
-                    <a href="?page=<%= pagination.currentPage - 1 %>&search=<%= filters.search %>&role=<%= filters.role %>&statut=<%= filters.statut %>" 
-                       class="page-link">‹ Précédent</a>
-                <% } %>
-
-                <% for (let i = Math.max(1, pagination.currentPage - 2); i <= Math.min(pagination.totalPages, pagination.currentPage + 2); i++) { %>
-                    <a href="?page=<%= i %>&search=<%= filters.search %>&role=<%= filters.role %>&statut=<%= filters.statut %>" 
-                       class="page-link <%= i === pagination.currentPage ? 'active' : '' %>">
-                        <%= i %>
-                    </a>
-                <% } %>
-
-                <% if (pagination.hasNext) { %>
-                    <a href="?page=<%= pagination.currentPage + 1 %>&search=<%= filters.search %>&role=<%= filters.role %>&statut=<%= filters.statut %>" 
-                       class="page-link">Suivant ›</a>
-                <% } %>
-            </nav>
-        </div>
-    <% } %>
-</div>
-
-<style>
-    .users-container {
-        max-width: 1400px;
-        margin: 0 auto;
-    }
-
-    .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 2rem;
-        flex-wrap: wrap;
-        gap: 1rem;
-    }
-
-    .header-actions {
-        display: flex;
-        gap: 1rem;
-    }
-
-    .btn {
-        padding: 0.75rem 1.5rem;
-        border: none;
-        border-radius: 12px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .btn-primary {
-        background: var(--gradient-contact);
-        color: white;
-        box-shadow: 0 5px 15px rgba(231, 166, 183, 0.3);
-    }
-
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(231, 166, 183, 0.4);
-    }
-
-    .btn-secondary {
-        background: white;
-        color: var(--text-dark);
-        border: 2px solid var(--soft-gray);
-    }
-
-    .btn-outline {
-        background: transparent;
-        color: var(--text-dark);
-        border: 2px solid var(--soft-gray);
-    }
-
-    .btn-sm {
-        padding: 0.5rem 1rem;
-        font-size: 0.9rem;
-    }
-
-    /* Filtres */
-    .filters-section {
-        background: white;
-        border-radius: 20px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-    }
-
-    .filters-form {
-        display: flex;
-        gap: 2rem;
-        align-items: center;
-        flex-wrap: wrap;
-    }
-
-    .search-container {
-        position: relative;
-        flex: 1;
-        min-width: 300px;
-    }
-
-    .search-input {
-        width: 100%;
-        padding: 1rem 3rem 1rem 1.5rem;
-        border: 2px solid var(--soft-gray);
-        border-radius: 50px;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-    }
-
-    .search-input:focus {
-        outline: none;
-        border-color: var(--primary-blue);
-        box-shadow: 0 5px 15px rgba(165, 191, 212, 0.2);
-    }
-
-    .search-btn {
-        position: absolute;
-        right: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        background: none;
-        border: none;
-        font-size: 1.2rem;
-        cursor: pointer;
-        color: var(--text-light);
-    }
-
-    .filter-controls {
-        display: flex;
-        gap: 1rem;
-        align-items: center;
-    }
-
-    .filter-select {
-        padding: 0.75rem 1rem;
-        border: 2px solid var(--soft-gray);
-        border-radius: 12px;
-        background: white;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .filter-select:focus {
-        outline: none;
-        border-color: var(--primary-blue);
-    }
-
-    /* Actions groupées */
-    .bulk-actions {
-        background: var(--light-blue);
-        border: 2px solid var(--primary-blue);
-        border-radius: 12px;
-        padding: 1rem;
-        margin-top: 1rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .selected-count {
-        font-weight: 600;
-        color: var(--primary-blue);
-    }
-
-    .bulk-buttons {
-        display: flex;
-        gap: 0.5rem;
-    }
-
-    .btn-success {
-        background: var(--success);
-        color: white;
-    }
-
-    .btn-warning {
-        background: var(--warning);
-        color: white;
-    }
-
-    .btn-danger {
-        background: var(--danger);
-        color: white;
-    }
-
-    /* Statistiques rapides */
-    .quick-stats {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 1rem;
-        margin-bottom: 2rem;
-    }
-
-    .stat-item {
-        background: white;
-        border-radius: 12px;
-        padding: 1.5rem;
-        text-align: center;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-    }
-
-    .stat-value {
-        font-size: 2rem;
-        font-weight: 700;
-        color: var(--primary-blue);
-        display: block;
-    }
-
-    .stat-label {
-        font-size: 0.9rem;
-        color: var(--text-light);
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-
-    /* Tableau */
-    .table-container {
-        background: white;
-        border-radius: 20px;
-        overflow: hidden;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-    }
-
-    .table-header {
-        padding: 1.5rem 2rem;
-        border-bottom: 1px solid var(--soft-gray);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .table-controls {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
-
-    .view-controls {
-        display: flex;
-        gap: 0.5rem;
-    }
-
-    .view-btn {
-        padding: 0.5rem;
-        border: none;
-        background: var(--soft-gray);
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 1.2rem;
-        transition: all 0.3s ease;
-    }
-
-    .view-btn.active {
-        background: var(--primary-blue);
-        color: white;
-    }
-
-    .data-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .data-table th {
-        background: var(--soft-gray);
-        padding: 1rem;
-        text-align: left;
-        font-weight: 600;
-        color: var(--text-dark);
-        border-bottom: 2px solid white;
-    }
-
-    .data-table td {
-        padding: 1rem;
-        border-bottom: 1px solid var(--soft-gray);
-        vertical-align: middle;
-    }
-
-    .user-row:hover {
-        background: var(--light-blue);
-    }
-
-    /* Cases à cocher */
-    .checkbox-container {
-        position: relative;
-        cursor: pointer;
-        user-select: none;
-    }
-
-    .checkbox-container input {
-        position: absolute;
-        opacity: 0;
-        cursor: pointer;
-    }
-
-    .checkmark {
-        position: relative;
-        display: inline-block;
-        width: 20px;
-        height: 20px;
-        background: white;
-        border: 2px solid var(--soft-gray);
-        border-radius: 4px;
-        transition: all 0.3s ease;
-    }
-
-    .checkbox-container input:checked ~ .checkmark {
-        background: var(--primary-blue);
-        border-color: var(--primary-blue);
-    }
-
-    .checkbox-container input:checked ~ .checkmark::after {
-        content: '✓';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        color: white;
-        font-size: 12px;
-        font-weight: bold;
-    }
-
-    /* Informations utilisateur */
-    .user-info {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
-
-    .user-avatar {
-        width: 45px;
-        height: 45px;
-        background: var(--gradient-contact);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: 600;
-        flex-shrink: 0;
-    }
-
-    .user-avatar.large {
-        width: 60px;
-        height: 60px;
-        font-size: 1.2rem;
-    }
-
-    .user-details {
-        flex: 1;
-    }
-
-    .user-name {
-        font-weight: 600;
-        color: var(--text-dark);
-        margin-bottom: 0.2rem;
-    }
-
-    .user-email {
-        color: var(--text-light);
-        font-size: 0.9rem;
-        margin-bottom: 0.3rem;
-    }
-
-    .user-meta {
-        display: flex;
-        gap: 1rem;
-        font-size: 0.8rem;
-        color: var(--text-light);
-    }
-
-    .meta-item {
-        display: flex;
-        align-items: center;
-        gap: 0.3rem;
-    }
-
-    /* Badges */
-    .role-badge, .status-badge {
-        padding: 0.4rem 0.8rem;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-
-    .role-apprenant {
-        background: var(--light-blue);
-        color: var(--primary-blue);
-    }
-
-    .role-formateur {
-        background: var(--light-pink);
-        color: var(--primary-pink);
-    }
-
-    .role-admin {
-        background: var(--gradient-purple);
-        color: white;
-    }
-
-    .status-actif {
-        background: #d1fae5;
-        color: #065f46;
-    }
-
-    .status-inactif {
-        background: #f3f4f6;
-        color: #6b7280;
-    }
-
-    .status-suspendu {
-        background: #fef2f2;
-        color: #991b1b;
-    }
-
-    /* Inscriptions */
-    .inscriptions-info {
-        text-align: center;
-    }
-
-    .inscriptions-count {
-        font-size: 1.2rem;
-        font-weight: 600;
-        color: var(--text-dark);
-        display: block;
-        margin-bottom: 0.3rem;
-    }
-
-    .inscriptions-breakdown {
-        display: flex;
-        flex-direction: column;
-        gap: 0.2rem;
-    }
-
-    .breakdown-item {
-        font-size: 0.8rem;
-        padding: 0.2rem 0.5rem;
-        border-radius: 8px;
-    }
-
-    .breakdown-item.active {
-        background: #d1fae5;
-        color: #065f46;
-    }
-
-    .breakdown-item.pending {
-        background: #fef3c7;
-        color: #92400e;
-    }
-
-    .no-inscriptions {
-        color: var(--text-light);
-        font-style: italic;
-    }
-
-    /* Dernière connexion */
-    .last-connection {
-        text-align: center;
-    }
-
-    .never-connected {
-        color: var(--text-light);
-        font-style: italic;
-    }
-
-    /* Actions */
-    .action-buttons {
-        display: flex;
-        gap: 0.5rem;
-        align-items: center;
-    }
-
-    .btn-icon {
-        background: none;
-        border: none;
-        font-size: 1.2rem;
-        cursor: pointer;
-        padding: 0.5rem;
-        border-radius: 8px;
-        transition: all 0.3s ease;
-    }
-
-    .btn-icon:hover {
-        background: var(--soft-gray);
-    }
-
-    /* Dropdown */
-    .dropdown {
-        position: relative;
-    }
-
-    .dropdown-menu {
-        position: absolute;
-        top: 100%;
-        right: 0;
-        background: white;
-        border: 1px solid var(--soft-gray);
-        border-radius: 12px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        min-width: 180px;
-        z-index: 1000;
-        display: none;
-        overflow: hidden;
-    }
-
-    .dropdown-menu.show {
-        display: block;
-    }
-
-    .dropdown-menu a {
-        display: block;
-        padding: 0.75rem 1rem;
-        color: var(--text-dark);
-        text-decoration: none;
-        transition: all 0.3s ease;
-        border: none;
-        background: none;
-        width: 100%;
-        text-align: left;
-    }
-
-    .dropdown-menu a:hover {
-        background: var(--soft-gray);
-    }
-
-    .dropdown-menu a.danger {
-        color: var(--danger);
-    }
-
-    .dropdown-menu hr {
-        margin: 0;
-        border: none;
-        border-top: 1px solid var(--soft-gray);
-    }
-
-    /* Vue en cartes */
-    .cards-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 1.5rem;
-        padding: 2rem;
-    }
-
-    .user-card {
-        background: white;
-        border-radius: 16px;
-        padding: 1.5rem;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-        transition: all 0.3s ease;
-    }
-
-    .user-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
-    }
-
-    .card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1rem;
-    }
-
-    .card-content h3 {
-        font-size: 1.2rem;
-        font-weight: 600;
-        color: var(--text-dark);
-        margin-bottom: 0.5rem;
-    }
-
-    .card-badges {
-        display: flex;
-        gap: 0.5rem;
-        margin: 1rem 0;
-    }
-
-    .card-stats {
-        display: flex;
-        justify-content: space-around;
-        margin: 1rem 0;
-        padding: 1rem 0;
-        border-top: 1px solid var(--soft-gray);
-        border-bottom: 1px solid var(--soft-gray);
-    }
-
-    .card-stats .stat {
-        text-align: center;
-    }
-
-    .card-stats .stat-value {
-        font-size: 1.5rem;
-        font-weight: 600;
-        color: var(--primary-blue);
-        display: block;
-    }
-
-    .card-stats .stat-label {
-        font-size: 0.8rem;
-        color: var(--text-light);
-    }
-
-    .card-footer {
-        display: flex;
-        gap: 1rem;
-        margin-top: 1rem;
-    }
-
-    .card-footer .btn {
-        flex: 1;
-        justify-content: center;
-    }
-
-    /* État vide */
-    .empty-state {
-        text-align: center;
-        padding: 4rem 2rem;
-        color: var(--text-light);
-    }
-
-    .empty-icon {
-        font-size: 4rem;
-        margin-bottom: 1rem;
-        opacity: 0.5;
-    }
-
-    .empty-state h3 {
-        font-size: 1.5rem;
-        color: var(--text-dark);
-        margin-bottom: 0.5rem;
-    }
-
-    .empty-state p {
-        margin-bottom: 2rem;
-    }
-
-    /* Pagination */
-    .pagination-container {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 2rem;
-    }
-
-    .pagination-info {
-        color: var(--text-light);
-        font-size: 0.9rem;
-    }
-
-    .pagination {
-        display: flex;
-        gap: 0.5rem;
-    }
-
-    .page-link {
-        padding: 0.75rem 1rem;
-        border: 2px solid var(--soft-gray);
-        border-radius: 8px;
-        color: var(--text-dark);
-        text-decoration: none;
-        transition: all 0.3s ease;
-    }
-
-    .page-link:hover {
-        border-color: var(--primary-blue);
-        color: var(--primary-blue);
-    }
-
-    .page-link.active {
-        background: var(--primary-blue);
-        border-color: var(--primary-blue);
-        color: white;
-    }
-
-    /* Responsive */
-    @media (max-width: 1024px) {
-        .filters-form {
-            flex-direction: column;
-            align-items: stretch;
-        }
-
-        .search-container {
-            min-width: auto;
-        }
-
-        .filter-controls {
-            justify-content: space-between;
-        }
-
-        .quick-stats {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-
-    @media (max-width: 768px) {
-        .page-header {
-            flex-direction: column;
-            align-items: stretch;
-        }
-
-        .header-actions {
-            justify-content: stretch;
-        }
-
-        .btn {
-            flex: 1;
-            justify-content: center;
-        }
-
-        .data-table {
-            font-size: 0.9rem;
-        }
-
-        .user-info {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 0.5rem;
-        }
-
-        .user-meta {
-            flex-direction: column;
-            gap: 0.3rem;
-        }
-
-        .action-buttons {
-            flex-direction: column;
-        }
-
-        .cards-grid {
-            grid-template-columns: 1fr;
-            padding: 1rem;
-        }
-
-        .pagination-container {
-            flex-direction: column;
-            gap: 1rem;
-        }
-    }
-</style>
-
-<script>
-    let selectedUsers = new Set();
-
-    // Gestion de la sélection
-    function toggleSelectAll() {
-        const checkboxes = document.querySelectorAll('.user-checkbox');
-        const selectAllCheckbox = document.getElementById('selectAll') || document.getElementById('headerSelectAll');
-        
-        checkboxes.forEach(checkbox => {
-            checkbox.checked = selectAllCheckbox.checked;
-            if (selectAllCheckbox.checked) {
-                selectedUsers.add(checkbox.value);
-            } else {
-                selectedUsers.delete(checkbox.value);
-            }
-        });
-        
-        updateBulkActions();
-    }
-
-    function updateBulkActions() {
-        const checkboxes = document.querySelectorAll('.user-checkbox:checked');
-        const bulkActions = document.getElementById('bulkActions');
-        const selectedCount = document.querySelector('.selected-count');
-        
-        selectedUsers.clear();
-        checkboxes.forEach(checkbox => {
-            selectedUsers.add(checkbox.value);
-        });
-        
-        if (selectedUsers.size > 0) {
-            bulkActions.style.display = 'flex';
-            selectedCount.textContent = `${selectedUsers.size} utilisateur(s) sélectionné(s)`;
-        } else {
-            bulkActions.style.display = 'none';
-        }
-    }
-
-    // Actions groupées
-    function bulkAction(action) {
-        if (selectedUsers.size === 0) return;
-        
-        const actionTexts = {
-            'activate': 'activer',
-            'deactivate': 'désactiver',
-            'delete': 'supprimer'
-        };
-        
-        if (confirm(`Voulez-vous vraiment ${actionTexts[action]} ${selectedUsers.size} utilisateur(s) ?`)) {
-            fetch('/admin/utilisateurs/bulk-action', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    action: action,
-                    userIds: Array.from(selectedUsers)
+    <script>
+        function toggleUserStatus(userId) {
+            if (confirm('Changer le statut de cet utilisateur ?')) {
+                fetch(`/admin/api/utilisateurs/${userId}/toggle-status`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
                 })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showNotification(data.message, 'success');
-                    setTimeout(() => location.reload(), 1000);
-                } else {
-                    showNotification('Erreur lors de l\'action', 'error');
-                }
-            })
-            .catch(error => {
-                showNotification('Erreur de connexion', 'error');
-            });
-        }
-    }
-
-    // Actions individuelles
-    function viewUser(userId) {
-        window.location.href = `/admin/utilisateurs/${userId}`;
-    }
-
-    function editUser(userId) {
-        window.location.href = `/admin/utilisateurs/${userId}/edit`;
-    }
-
-    function toggleUserStatus(userId, currentStatus) {
-        const newStatus = currentStatus === 'actif' ? 'inactif' : 'actif';
-        const action = newStatus === 'actif' ? 'activer' : 'désactiver';
-        
-        if (confirm(`Voulez-vous ${action} cet utilisateur ?`)) {
-            fetch(`/admin/api/users/${userId}/toggle-status`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showNotification(data.message, 'success');
-                    setTimeout(() => location.reload(), 1000);
-                } else {
-                    showNotification('Erreur lors du changement de statut', 'error');
-                }
-            })
-            .catch(error => {
-                showNotification('Erreur de connexion', 'error');
-            });
-        }
-    }
-
-    function deleteUser(userId) {
-        if (confirm('Voulez-vous vraiment supprimer cet utilisateur ? Cette action est irréversible.')) {
-            fetch(`/admin/utilisateurs/${userId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showNotification('Utilisateur supprimé avec succès', 'success');
-                    setTimeout(() => location.reload(), 1000);
-                } else {
-                    showNotification('Erreur lors de la suppression', 'error');
-                }
-            })
-            .catch(error => {
-                showNotification('Erreur de connexion', 'error');
-            });
-        }
-    }
-
-    function sendMessage(userId) {
-        // Redirection vers la messagerie avec l'utilisateur pré-sélectionné
-        window.location.href = `/admin/messagerie?user=${userId}`;
-    }
-
-    function viewInscriptions(userId) {
-        window.location.href = `/admin/inscriptions?user=${userId}`;
-    }
-
-    // Gestion des dropdowns
-    function toggleDropdown(button) {
-        const dropdown = button.nextElementSibling;
-        const allDropdowns = document.querySelectorAll('.dropdown-menu');
-        
-        // Fermer tous les autres dropdowns
-        allDropdowns.forEach(d => {
-            if (d !== dropdown) {
-                d.classList.remove('show');
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Erreur: ' + data.error);
+                    }
+                });
             }
-        });
-        
-        dropdown.classList.toggle('show');
-    }
-
-    // Fermer les dropdowns en cliquant ailleurs
-    document.addEventListener('click', function(e) {
-        if (!e.target.closest('.dropdown')) {
-            document.querySelectorAll('.dropdown-menu').forEach(d => {
-                d.classList.remove('show');
-            });
         }
-    });
 
-    // Changement de vue (tableau/cartes)
-    document.querySelectorAll('.view-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const view = this.dataset.view;
-            
-            document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            
-            if (view === 'table') {
-                document.getElementById('usersTable').style.display = 'block';
-                document.getElementById('usersCards').style.display = 'none';
-            } else {
-                document.getElementById('usersTable').style.display = 'none';
-                document.getElementById('usersCards').style.display = 'block';
+        function deleteUser(userId) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
+                fetch(`/admin/utilisateurs/${userId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Erreur: ' + data.error);
+                    }
+                });
             }
-        });
-    });
-
-    // Export des utilisateurs
-    function exportUsers() {
-        const format = prompt('Format d\'export (csv ou pdf):', 'csv');
-        if (format && ['csv', 'pdf'].includes(format.toLowerCase())) {
-            window.location.href = `/admin/rapports/export/users?format=${format.toLowerCase()}`;
         }
-    }
-
-    // Recherche en temps réel
-    let searchTimeout;
-    document.querySelector('.search-input').addEventListener('input', function() {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => {
-            this.form.submit();
-        }, 500);
-    });
-
-    // Notification système
-    function showNotification(message, type = 'info') {
-        const notification = document.createElement('div');
-        notification.className = `notification notification-${type}`;
-        notification.innerHTML = `
-            <span>${message}</span>
-            <button onclick="this.parentElement.remove()">×</button>
-        `;
-        
-        notification.style.cssText = `
-            position: fixed;
-            top: 2rem;
-            right: 2rem;
-            padding: 1rem 1.5rem;
-            border-radius: 12px;
-            color: white;
-            font-weight: 500;
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            animation: slideInRight 0.3s ease;
-            min-width: 300px;
-        `;
-        
-        switch(type) {
-            case 'success':
-                notification.style.background = 'var(--success)';
-                break;
-            case 'error':
-                notification.style.background = 'var(--danger)';
-                break;
-            case 'warning':
-                notification.style.background = 'var(--warning)';
-                break;
-            default:
-                notification.style.background = 'var(--primary-blue)';
-        }
-        
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-            if (notification.parentElement) {
-                notification.remove();
-            }
-        }, 5000);
-    }
-</script>
+    </script>
+</body>
+</html>

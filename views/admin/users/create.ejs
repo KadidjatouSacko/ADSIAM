@@ -1,1322 +1,165 @@
-<div class="create-user-container">
-    <!-- En-tête -->
-    <div class="page-header">
-        <div class="header-left">
-            <h1 class="page-title">Créer un utilisateur</h1>
-            <p class="page-subtitle">Ajoutez un nouvel utilisateur à votre plateforme ADSIAM</p>
-        </div>
-        <div class="header-actions">
-            <a href="/admin/utilisateurs" class="btn btn-secondary">
-                ← Retour à la liste
-            </a>
-        </div>
-    </div>
+<!-- views/admin/users/create.ejs -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar (même que dans list.ejs) -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2>ADSIAM Admin</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="/admin">📊 Tableau de bord</a></li>
+                <li><a href="/admin/utilisateurs" class="active">👥 Utilisateurs</a></li>
+                <li><a href="/admin/formations">📚 Formations</a></li>
+                <li><a href="/admin/inscriptions">📝 Inscriptions</a></li>
+                <li><a href="/admin/evenements">📅 Événements</a></li>
+                <li><a href="/admin/rapports">📊 Rapports</a></li>
+                <li><a href="/admin/messagerie">💬 Messagerie</a></li>
+                <li><a href="/admin/parametres">⚙️ Paramètres</a></li>
+            </ul>
+        </nav>
 
-    <!-- Formulaire de création -->
-    <div class="form-container">
-        <form id="createUserForm" method="POST" action="/admin/utilisateurs/nouveau" class="user-form">
-            
-            <!-- Informations personnelles -->
-            <div class="form-section">
-                <div class="section-header">
-                    <h3>👤 Informations personnelles</h3>
-                    <p>Renseignez les informations de base de l'utilisateur</p>
-                </div>
-                
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="prenom" class="form-label required">Prénom</label>
-                        <input type="text" 
-                               id="prenom" 
-                               name="prenom" 
-                               class="form-input" 
-                               value="<%= typeof formData !== 'undefined' ? formData.prenom || '' : '' %>"
-                               required>
-                        <div class="input-help">Le prénom de l'utilisateur</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="nom" class="form-label required">Nom</label>
-                        <input type="text" 
-                               id="nom" 
-                               name="nom" 
-                               class="form-input" 
-                               value="<%= typeof formData !== 'undefined' ? formData.nom || '' : '' %>"
-                               required>
-                        <div class="input-help">Le nom de famille de l'utilisateur</div>
-                    </div>
-
-                    <div class="form-group full-width">
-                        <label for="email" class="form-label required">Adresse email</label>
-                        <input type="email" 
-                               id="email" 
-                               name="email" 
-                               class="form-input" 
-                               value="<%= typeof formData !== 'undefined' ? formData.email || '' : '' %>"
-                               required>
-                        <div class="input-help">L'adresse email servira d'identifiant de connexion</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="telephone" class="form-label">Téléphone</label>
-                        <input type="tel" 
-                               id="telephone" 
-                               name="telephone" 
-                               class="form-input" 
-                               value="<%= typeof formData !== 'undefined' ? formData.telephone || '' : '' %>"
-                               placeholder="06 12 34 56 78">
-                        <div class="input-help">Numéro de téléphone (optionnel)</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="date_naissance" class="form-label">Date de naissance</label>
-                        <input type="date" 
-                               id="date_naissance" 
-                               name="date_naissance" 
-                               class="form-input" 
-                               value="<%= typeof formData !== 'undefined' ? formData.date_naissance || '' : '' %>">
-                        <div class="input-help">Date de naissance (optionnel)</div>
-                    </div>
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-header">
+                <h1>Créer un nouvel utilisateur</h1>
+                <div class="header-actions">
+                    <a href="/admin/utilisateurs" class="btn btn-secondary">← Retour à la liste</a>
                 </div>
             </div>
 
-            <!-- Rôle et permissions -->
-            <div class="form-section">
-                <div class="section-header">
-                    <h3>🔐 Rôle et permissions</h3>
-                    <p>Définissez le rôle et les permissions de l'utilisateur</p>
+            <% if (typeof error !== 'undefined' && error) { %>
+                <div class="alert alert-error">
+                    <%= error %>
                 </div>
+            <% } %>
 
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="role" class="form-label required">Rôle</label>
-                        <select id="role" name="role" class="form-select" required onchange="updateRoleDescription()">
-                            <option value="">Sélectionnez un rôle</option>
-                            <option value="apprenant" <%= typeof formData !== 'undefined' && formData.role === 'apprenant' ? 'selected' : '' %>>
-                                🎓 Apprenant
-                            </option>
-                            <option value="formateur" <%= typeof formData !== 'undefined' && formData.role === 'formateur' ? 'selected' : '' %>>
-                                👨‍🏫 Formateur
-                            </option>
-                            <option value="admin" <%= typeof formData !== 'undefined' && formData.role === 'admin' ? 'selected' : '' %>>
-                                👑 Administrateur
-                            </option>
-                        </select>
-                        <div class="input-help" id="roleDescription">Choisissez le rôle approprié</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="type_utilisateur" class="form-label required">Type d'utilisateur</label>
-                        <select id="type_utilisateur" name="type_utilisateur" class="form-select" required>
-                            <option value="">Sélectionnez un type</option>
-<option value="aide_domicile" <%= typeof formData !== 'undefined' && formData.type_utilisateur === 'aide_domicile' ? 'selected' : '' %>>
-                                🏠 Aide à domicile
-                            </option>
-                            <option value="aide_soignant" <%= typeof formData !== 'undefined' && formData.type_utilisateur === 'aide_soignant' ? 'selected' : '' %>>
-                                🏥 Aide-soignant
-                            </option>
-                            <option value="infirmier" <%= typeof formData !== 'undefined' && formData.type_utilisateur === 'infirmier' ? 'selected' : '' %>>
-                                💉 Infirmier
-                            </option>
-                            <option value="cadre_sante" <%= typeof formData !== 'undefined' && formData.type_utilisateur === 'cadre_sante' ? 'selected' : '' %>>
-                                👔 Cadre de santé
-                            </option>
-                            <option value="autre" <%= typeof formData !== 'undefined' && formData.type_utilisateur === 'autre' ? 'selected' : '' %>>
-                                👤 Autre
-                            </option>
-                        </select>
-                        <div class="input-help">Précisez le type de professionnel</div>
-                    </div>
-                </div>
-
-                <!-- Statut -->
-                <div class="form-group">
-                    <label class="form-label">Statut du compte</label>
-                    <div class="radio-group">
-                        <label class="radio-item">
-                            <input type="radio" name="statut" value="actif" <%= typeof formData !== 'undefined' && formData.statut === 'actif' ? 'checked' : 'checked' %>>
-                            <span class="radio-checkmark"></span>
-                            <span class="radio-label">
-                                <strong>Actif</strong>
-                                <span class="radio-description">L'utilisateur peut se connecter et accéder à la plateforme</span>
-                            </span>
-                        </label>
-                        <label class="radio-item">
-                            <input type="radio" name="statut" value="inactif" <%= typeof formData !== 'undefined' && formData.statut === 'inactif' ? 'checked' : '' %>>
-                            <span class="radio-checkmark"></span>
-                            <span class="radio-label">
-                                <strong>Inactif</strong>
-                                <span class="radio-description">L'utilisateur ne peut pas se connecter</span>
-                            </span>
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Informations professionnelles -->
-            <div class="form-section">
-                <div class="section-header">
-                    <h3>🏢 Informations professionnelles</h3>
-                    <p>Détails sur l'environnement professionnel de l'utilisateur</p>
-                </div>
-
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="etablissement" class="form-label">Établissement</label>
-                        <input type="text" 
-                               id="etablissement" 
-                               name="etablissement" 
-                               class="form-input" 
-                               value="<%= typeof formData !== 'undefined' ? formData.etablissement || '' : '' %>"
-                               placeholder="EHPAD Les Jardins, Service d'aide à domicile...">
-                        <div class="input-help">Nom de l'établissement ou du service</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="experience" class="form-label">Niveau d'expérience</label>
-                        <select id="experience" name="experience" class="form-select">
-                            <option value="">Sélectionnez le niveau</option>
-                            <option value="debutant" <%= typeof formData !== 'undefined' && formData.experience === 'debutant' ? 'selected' : '' %>>
-                                🌱 Débutant (moins d'1 an)
-                            </option>
-                            <option value="intermediaire" <%= typeof formData !== 'undefined' && formData.experience === 'intermediaire' ? 'selected' : '' %>>
-                                📈 Intermédiaire (1-5 ans)
-                            </option>
-                            <option value="confirme" <%= typeof formData !== 'undefined' && formData.experience === 'confirme' ? 'selected' : '' %>>
-                                ⭐ Confirmé (5-10 ans)
-                            </option>
-                            <option value="expert" <%= typeof formData !== 'undefined' && formData.experience === 'expert' ? 'selected' : '' %>>
-                                🏆 Expert (plus de 10 ans)
-                            </option>
-                        </select>
-                        <div class="input-help">Niveau d'expérience dans le domaine</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="ville" class="form-label">Ville</label>
-                        <input type="text" 
-                               id="ville" 
-                               name="ville" 
-                               class="form-input" 
-                               value="<%= typeof formData !== 'undefined' ? formData.ville || '' : '' %>"
-                               placeholder="Paris, Lyon, Marseille...">
-                        <div class="input-help">Ville de travail</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="code_postal" class="form-label">Code postal</label>
-                        <input type="text" 
-                               id="code_postal" 
-                               name="code_postal" 
-                               class="form-input" 
-                               value="<%= typeof formData !== 'undefined' ? formData.code_postal || '' : '' %>"
-                               placeholder="75001"
-                               pattern="[0-9]{5}">
-                        <div class="input-help">Code postal de la ville</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sécurité -->
-            <div class="form-section">
-                <div class="section-header">
-                    <h3>🔒 Sécurité et accès</h3>
-                    <p>Paramètres de connexion et de sécurité</p>
-                </div>
-
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="mot_de_passe" class="form-label required">Mot de passe temporaire</label>
-                        <div class="password-input-container">
-                            <input type="password" 
-                                   id="mot_de_passe" 
-                                   name="mot_de_passe" 
-                                   class="form-input" 
-                                   required
-                                   minlength="8"
-                                   onkeyup="checkPasswordStrength()">
-                            <button type="button" class="password-toggle" onclick="togglePassword('mot_de_passe')">👁️</button>
+            <div class="form-container">
+                <form action="/admin/utilisateurs/nouveau" method="POST" class="admin-form" enctype="multipart/form-data">
+                    <div class="form-section">
+                        <h3>Informations personnelles</h3>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="prenom" class="form-label required">Prénom</label>
+                                <input type="text" id="prenom" name="prenom" class="form-input" 
+                                       value="<%= typeof formData !== 'undefined' ? formData.prenom || '' : '' %>" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="nom" class="form-label required">Nom</label>
+                                <input type="text" id="nom" name="nom" class="form-input" 
+                                       value="<%= typeof formData !== 'undefined' ? formData.nom || '' : '' %>" required>
+                            </div>
                         </div>
-                        <div class="password-strength" id="passwordStrength"></div>
-                        <div class="input-help">L'utilisateur devra changer ce mot de passe lors de sa première connexion</div>
-                    </div>
 
-                    <div class="form-group">
-                        <label for="confirm_password" class="form-label required">Confirmer le mot de passe</label>
-                        <div class="password-input-container">
-                            <input type="password" 
-                                   id="confirm_password" 
-                                   name="confirm_password" 
-                                   class="form-input" 
-                                   required
-                                   onkeyup="checkPasswordMatch()">
-                            <button type="button" class="password-toggle" onclick="togglePassword('confirm_password')">👁️</button>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="email" class="form-label required">Email</label>
+                                <input type="email" id="email" name="email" class="form-input" 
+                                       value="<%= typeof formData !== 'undefined' ? formData.email || '' : '' %>" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="telephone" class="form-label">Téléphone</label>
+                                <input type="tel" id="telephone" name="telephone" class="form-input" 
+                                       value="<%= typeof formData !== 'undefined' ? formData.telephone || '' : '' %>">
+                            </div>
                         </div>
-                        <div class="password-match" id="passwordMatch"></div>
-                    </div>
-                </div>
 
-                <!-- Options de sécurité -->
-                <div class="form-group">
-                    <label class="form-label">Options</label>
-                    <div class="checkbox-group">
-                        <label class="checkbox-item">
-                            <input type="checkbox" name="email_verification" value="true" checked>
-                            <span class="checkbox-checkmark"></span>
-                            <span class="checkbox-label">
-                                <strong>Envoyer un email de vérification</strong>
-                                <span class="checkbox-description">L'utilisateur recevra un email pour vérifier son compte</span>
-                            </span>
-                        </label>
-                        <label class="checkbox-item">
-                            <input type="checkbox" name="force_password_change" value="true" checked>
-                            <span class="checkbox-checkmark"></span>
-                            <span class="checkbox-label">
-                                <strong>Forcer le changement de mot de passe</strong>
-                                <span class="checkbox-description">L'utilisateur devra changer son mot de passe à la première connexion</span>
-                            </span>
-                        </label>
-                        <label class="checkbox-item">
-                            <input type="checkbox" name="send_welcome_email" value="true" checked>
-                            <span class="checkbox-checkmark"></span>
-                            <span class="checkbox-label">
-                                <strong>Envoyer un email de bienvenue</strong>
-                                <span class="checkbox-description">Envoyer les informations de connexion par email</span>
-                            </span>
-                        </label>
+                        <div class="form-group">
+                            <label for="mot_de_passe" class="form-label required">Mot de passe</label>
+                            <input type="password" id="mot_de_passe" name="mot_de_passe" class="form-input" required>
+                            <small class="form-help">Minimum 8 caractères</small>
+                        </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- Actions du formulaire -->
-            <div class="form-actions">
-                <div class="actions-left">
-                    <a href="/admin/utilisateurs" class="btn btn-secondary">
-                        Annuler
-                    </a>
-                </div>
-                <div class="actions-right">
-                    <button type="button" class="btn btn-outline" onclick="saveAsDraft()">
-                        💾 Sauvegarder en brouillon
-                    </button>
-                    <button type="submit" class="btn btn-primary" id="submitBtn">
-                        ✅ Créer l'utilisateur
-                    </button>
-                </div>
+                    <div class="form-section">
+                        <h3>Informations professionnelles</h3>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="role" class="form-label required">Rôle</label>
+                                <select id="role" name="role" class="form-select" required>
+                                    <option value="">Sélectionner un rôle</option>
+                                    <option value="apprenant" <%= (typeof formData !== 'undefined' && formData.role === 'apprenant') ? 'selected' : '' %>>Apprenant</option>
+                                    <option value="formateur" <%= (typeof formData !== 'undefined' && formData.role === 'formateur') ? 'selected' : '' %>>Formateur</option>
+                                    <option value="admin" <%= (typeof formData !== 'undefined' && formData.role === 'admin') ? 'selected' : '' %>>Administrateur</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="type_utilisateur" class="form-label">Type d'utilisateur</label>
+                                <select id="type_utilisateur" name="type_utilisateur" class="form-select">
+                                    <option value="aide_domicile" <%= (typeof formData !== 'undefined' && formData.type_utilisateur === 'aide_domicile') ? 'selected' : '' %>>Aide à domicile</option>
+                                    <option value="aide_soignant" <%= (typeof formData !== 'undefined' && formData.type_utilisateur === 'aide_soignant') ? 'selected' : '' %>>Aide-soignant</option>
+                                    <option value="formateur" <%= (typeof formData !== 'undefined' && formData.type_utilisateur === 'formateur') ? 'selected' : '' %>>Formateur</option>
+                                    <option value="etudiant" <%= (typeof formData !== 'undefined' && formData.type_utilisateur === 'etudiant') ? 'selected' : '' %>>Étudiant</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="etablissement" class="form-label">Établissement</label>
+                                <input type="text" id="etablissement" name="etablissement" class="form-input" 
+                                       value="<%= typeof formData !== 'undefined' ? formData.etablissement || '' : '' %>">
+                            </div>
+                            <div class="form-group">
+                                <label for="ville" class="form-label">Ville</label>
+                                <input type="text" id="ville" name="ville" class="form-input" 
+                                       value="<%= typeof formData !== 'undefined' ? formData.ville || '' : '' %>">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="experience" class="form-label">Expérience (années)</label>
+                            <input type="number" id="experience" name="experience" class="form-input" min="0" max="50"
+                                   value="<%= typeof formData !== 'undefined' ? formData.experience || '' : '' %>">
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">✅ Créer l'utilisateur</button>
+                        <a href="/admin/utilisateurs" class="btn btn-secondary">❌ Annuler</a>
+                    </div>
+                </form>
             </div>
-        </form>
+        </main>
     </div>
 
-    <!-- Aperçu de l'utilisateur -->
-    <div class="preview-container">
-        <div class="preview-card">
-            <div class="preview-header">
-                <h3>👁️ Aperçu</h3>
-                <p>Aperçu de l'utilisateur à créer</p>
-            </div>
-            <div class="preview-content" id="userPreview">
-                <div class="preview-avatar" id="previewAvatar">
-                    👤
-                </div>
-                <div class="preview-info">
-                    <div class="preview-name" id="previewName">Nom Prénom</div>
-                    <div class="preview-email" id="previewEmail">email@example.com</div>
-                    <div class="preview-badges">
-                        <span class="preview-role" id="previewRole">Rôle</span>
-                        <span class="preview-type" id="previewType">Type</span>
-                    </div>
-                    <div class="preview-details">
-                        <div class="preview-detail" id="previewEtablissement"></div>
-                        <div class="preview-detail" id="previewVille"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Aide contextuelle -->
-        <div class="help-card">
-            <div class="help-header">
-                <h3>💡 Aide</h3>
-            </div>
-            <div class="help-content">
-                <div class="help-section">
-                    <h4>Rôles disponibles :</h4>
-                    <ul>
-                        <li><strong>Apprenant :</strong> Peut suivre des formations et consulter son profil</li>
-                        <li><strong>Formateur :</strong> Peut créer et animer des formations</li>
-                        <li><strong>Administrateur :</strong> Accès complet à l'administration</li>
-                    </ul>
-                </div>
-                <div class="help-section">
-                    <h4>Bonnes pratiques :</h4>
-                    <ul>
-                        <li>Utilisez des mots de passe forts (8+ caractères)</li>
-                        <li>Vérifiez l'email avant de créer le compte</li>
-                        <li>Attribuez le bon rôle selon les besoins</li>
-                        <li>Renseignez l'établissement pour un meilleur suivi</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<style>
-    .create-user-container {
-        max-width: 1400px;
-        margin: 0 auto;
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 2rem;
-    }
-
-    .page-header {
-        grid-column: 1 / -1;
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 2rem;
-        flex-wrap: wrap;
-        gap: 1rem;
-    }
-
-    .btn {
-        padding: 0.75rem 1.5rem;
-        border: none;
-        border-radius: 12px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .btn-primary {
-        background: var(--gradient-contact);
-        color: white;
-        box-shadow: 0 5px 15px rgba(231, 166, 183, 0.3);
-    }
-
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(231, 166, 183, 0.4);
-    }
-
-    .btn-secondary {
-        background: white;
-        color: var(--text-dark);
-        border: 2px solid var(--soft-gray);
-    }
-
-    .btn-outline {
-        background: transparent;
-        color: var(--text-dark);
-        border: 2px solid var(--soft-gray);
-    }
-
-    /* Formulaire */
-    .form-container {
-        background: white;
-        border-radius: 20px;
-        padding: 2rem;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-    }
-
-    .form-section {
-        margin-bottom: 3rem;
-        padding-bottom: 2rem;
-        border-bottom: 1px solid var(--soft-gray);
-    }
-
-    .form-section:last-of-type {
-        border-bottom: none;
-    }
-
-    .section-header {
-        margin-bottom: 2rem;
-    }
-
-    .section-header h3 {
-        font-size: 1.3rem;
-        font-weight: 600;
-        color: var(--text-dark);
-        margin-bottom: 0.5rem;
-    }
-
-    .section-header p {
-        color: var(--text-light);
-        font-size: 0.95rem;
-    }
-
-    .form-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1.5rem;
-    }
-
-    .form-group {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .form-group.full-width {
-        grid-column: 1 / -1;
-    }
-
-    .form-label {
-        font-weight: 600;
-        color: var(--text-dark);
-        margin-bottom: 0.5rem;
-        font-size: 0.95rem;
-    }
-
-    .form-label.required::after {
-        content: ' *';
-        color: var(--danger);
-        font-weight: bold;
-    }
-
-    .form-input, .form-select {
-        padding: 1rem;
-        border: 2px solid var(--soft-gray);
-        border-radius: 12px;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-        background: white;
-    }
-
-    .form-input:focus, .form-select:focus {
-        outline: none;
-        border-color: var(--primary-blue);
-        box-shadow: 0 5px 15px rgba(165, 191, 212, 0.2);
-    }
-
-    .input-help {
-        font-size: 0.8rem;
-        color: var(--text-light);
-        margin-top: 0.3rem;
-    }
-
-    /* Mot de passe */
-    .password-input-container {
-        position: relative;
-    }
-
-    .password-toggle {
-        position: absolute;
-        right: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        background: none;
-        border: none;
-        cursor: pointer;
-        font-size: 1.2rem;
-    }
-
-    .password-strength {
-        margin-top: 0.5rem;
-        font-size: 0.8rem;
-    }
-
-    .password-strength.weak {
-        color: var(--danger);
-    }
-
-    .password-strength.medium {
-        color: var(--warning);
-    }
-
-    .password-strength.strong {
-        color: var(--success);
-    }
-
-    .password-match {
-        margin-top: 0.3rem;
-        font-size: 0.8rem;
-    }
-
-    .password-match.match {
-        color: var(--success);
-    }
-
-    .password-match.no-match {
-        color: var(--danger);
-    }
-
-    /* Radio buttons */
-    .radio-group {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .radio-item {
-        display: flex;
-        align-items: flex-start;
-        gap: 1rem;
-        cursor: pointer;
-        padding: 1rem;
-        border: 2px solid var(--soft-gray);
-        border-radius: 12px;
-        transition: all 0.3s ease;
-    }
-
-    .radio-item:hover {
-        border-color: var(--primary-blue);
-        background: var(--light-blue);
-    }
-
-    .radio-item input[type="radio"] {
-        display: none;
-    }
-
-    .radio-checkmark {
-        width: 20px;
-        height: 20px;
-        border: 2px solid var(--soft-gray);
-        border-radius: 50%;
-        background: white;
-        transition: all 0.3s ease;
-        flex-shrink: 0;
-        margin-top: 0.1rem;
-    }
-
-    .radio-item input[type="radio"]:checked + .radio-checkmark {
-        border-color: var(--primary-blue);
-        background: var(--primary-blue);
-        position: relative;
-    }
-
-    .radio-item input[type="radio"]:checked + .radio-checkmark::after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 8px;
-        height: 8px;
-        background: white;
-        border-radius: 50%;
-    }
-
-    .radio-label {
-        display: flex;
-        flex-direction: column;
-        gap: 0.3rem;
-    }
-
-    .radio-description {
-        color: var(--text-light);
-        font-size: 0.9rem;
-        font-weight: normal;
-    }
-
-    /* Checkboxes */
-    .checkbox-group {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .checkbox-item {
-        display: flex;
-        align-items: flex-start;
-        gap: 1rem;
-        cursor: pointer;
-        padding: 1rem;
-        border: 2px solid var(--soft-gray);
-        border-radius: 12px;
-        transition: all 0.3s ease;
-    }
-
-    .checkbox-item:hover {
-        border-color: var(--primary-blue);
-        background: var(--light-blue);
-    }
-
-    .checkbox-item input[type="checkbox"] {
-        display: none;
-    }
-
-    .checkbox-checkmark {
-        width: 20px;
-        height: 20px;
-        border: 2px solid var(--soft-gray);
-        border-radius: 4px;
-        background: white;
-        transition: all 0.3s ease;
-        flex-shrink: 0;
-        margin-top: 0.1rem;
-    }
-
-    .checkbox-item input[type="checkbox"]:checked + .checkbox-checkmark {
-        border-color: var(--primary-blue);
-        background: var(--primary-blue);
-    }
-
-    .checkbox-item input[type="checkbox"]:checked + .checkbox-checkmark::after {
-        content: '✓';
-        position: absolute;
-        color: white;
-        font-size: 12px;
-        font-weight: bold;
-        margin-left: -16px;
-        margin-top: 2px;
-    }
-
-    .checkbox-label {
-        display: flex;
-        flex-direction: column;
-        gap: 0.3rem;
-    }
-
-    .checkbox-description {
-        color: var(--text-light);
-        font-size: 0.9rem;
-        font-weight: normal;
-    }
-
-    /* Actions du formulaire */
-    .form-actions {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 2rem;
-        padding-top: 2rem;
-        border-top: 1px solid var(--soft-gray);
-    }
-
-    .actions-right {
-        display: flex;
-        gap: 1rem;
-    }
-
-    /* Colonne de droite */
-    .preview-container {
-        display: flex;
-        flex-direction: column;
-        gap: 2rem;
-    }
-
-    .preview-card, .help-card {
-        background: white;
-        border-radius: 20px;
-        padding: 2rem;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-        position: sticky;
-        top: 6rem;
-    }
-
-    .preview-header, .help-header {
-        margin-bottom: 1.5rem;
-    }
-
-    .preview-header h3, .help-header h3 {
-        font-size: 1.2rem;
-        font-weight: 600;
-        color: var(--text-dark);
-        margin-bottom: 0.5rem;
-    }
-
-    .preview-header p {
-        color: var(--text-light);
-        font-size: 0.9rem;
-    }
-
-    .preview-content {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        gap: 1rem;
-    }
-
-    .preview-avatar {
-        width: 80px;
-        height: 80px;
-        background: var(--gradient-contact);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 2rem;
-        font-weight: 600;
-    }
-
-    .preview-name {
-        font-size: 1.2rem;
-        font-weight: 600;
-        color: var(--text-dark);
-    }
-
-    .preview-email {
-        color: var(--text-light);
-        font-size: 0.9rem;
-    }
-
-    .preview-badges {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-
-    .preview-role, .preview-type {
-        padding: 0.3rem 0.8rem;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 600;
-    }
-
-    .preview-role {
-        background: var(--light-blue);
-        color: var(--primary-blue);
-    }
-
-    .preview-type {
-        background: var(--light-pink);
-        color: var(--primary-pink);
-    }
-
-    .preview-details {
-        display: flex;
-        flex-direction: column;
-        gap: 0.3rem;
-        font-size: 0.9rem;
-        color: var(--text-light);
-    }
-
-    /* Aide */
-    .help-content {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-    }
-
-    .help-section h4 {
-        font-size: 1rem;
-        font-weight: 600;
-        color: var(--text-dark);
-        margin-bottom: 0.5rem;
-    }
-
-    .help-section ul {
-        margin-left: 1rem;
-        color: var(--text-light);
-    }
-
-    .help-section li {
-        margin-bottom: 0.3rem;
-        font-size: 0.9rem;
-    }
-
-    /* Responsive */
-    @media (max-width: 1024px) {
-        .create-user-container {
-            grid-template-columns: 1fr;
-        }
-
-        .preview-container {
-            order: -1;
-        }
-
-        .preview-card, .help-card {
-            position: static;
-        }
-
-        .form-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    @media (max-width: 768px) {
-        .page-header {
-            flex-direction: column;
-            align-items: stretch;
-        }
-
-        .form-container {
-            padding: 1.5rem;
-        }
-
-        .form-actions {
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .actions-right {
-            width: 100%;
-            justify-content: stretch;
-        }
-
-        .actions-right .btn {
-            flex: 1;
-            justify-content: center;
-        }
-    }
-</style>
-
-<script>
-    // Mise à jour de l'aperçu en temps réel
-    function updatePreview() {
-        const prenom = document.getElementById('prenom').value || 'Prénom';
-        const nom = document.getElementById('nom').value || 'Nom';
-        const email = document.getElementById('email').value || 'email@example.com';
-        const role = document.getElementById('role').value;
-        const type = document.getElementById('type_utilisateur').value;
-        const etablissement = document.getElementById('etablissement').value;
-        const ville = document.getElementById('ville').value;
-
-        // Mise à jour de l'avatar
-        const avatar = document.getElementById('previewAvatar');
-        avatar.textContent = prenom.charAt(0).toUpperCase() + nom.charAt(0).toUpperCase();
-
-        // Mise à jour des informations
-        document.getElementById('previewName').textContent = `${prenom} ${nom}`;
-        document.getElementById('previewEmail').textContent = email;
-        
-        // Mise à jour des badges
-        const roleElement = document.getElementById('previewRole');
-        const typeElement = document.getElementById('previewType');
-        
-        roleElement.textContent = role ? getRoleLabel(role) : 'Rôle';
-        typeElement.textContent = type ? getTypeLabel(type) : 'Type';
-
-        // Mise à jour des détails
-        document.getElementById('previewEtablissement').textContent = etablissement ? `🏢 ${etablissement}` : '';
-        document.getElementById('previewVille').textContent = ville ? `📍 ${ville}` : '';
-    }
-
-    function getRoleLabel(role) {
-        const labels = {
-            'apprenant': '🎓 Apprenant',
-            'formateur': '👨‍🏫 Formateur',
-            'admin': '👑 Admin'
-        };
-        return labels[role] || role;
-    }
-
-    function getTypeLabel(type) {
-        const labels = {
-            'aide_domicile': '🏠 Aide à domicile',
-            'aide_soignant': '🏥 Aide-soignant',
-            'infirmier': '💉 Infirmier',
-            'cadre_sante': '👔 Cadre de santé',
-            'autre': '👤 Autre'
-        };
-        return labels[type] || type;
-    }
-
-    // Écouteurs d'événements pour la mise à jour en temps réel
-    document.addEventListener('DOMContentLoaded', function() {
-        const inputs = ['prenom', 'nom', 'email', 'role', 'type_utilisateur', 'etablissement', 'ville'];
-        inputs.forEach(id => {
-            const element = document.getElementById(id);
-            if (element) {
-                element.addEventListener('input', updatePreview);
-                element.addEventListener('change', updatePreview);
+    <script>
+        // Validation côté client
+        document.querySelector('.admin-form').addEventListener('submit', function(e) {
+            const password = document.getElementById('mot_de_passe').value;
+            if (password.length < 8) {
+                e.preventDefault();
+                alert('Le mot de passe doit contenir au moins 8 caractères');
+                return false;
+            }
+            
+            const email = document.getElementById('email').value;
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                e.preventDefault();
+                alert('Veuillez entrer un email valide');
+                return false;
             }
         });
 
-        updatePreview();
-    });
-
-    // Description des rôles
-    function updateRoleDescription() {
-        const role = document.getElementById('role').value;
-        const description = document.getElementById('roleDescription');
-        
-        const descriptions = {
-            'apprenant': 'Peut s\'inscrire aux formations, suivre les cours et consulter son profil',
-            'formateur': 'Peut créer et gérer des formations, voir les statistiques des apprenants',
-            'admin': 'Accès complet à l\'administration de la plateforme'
-        };
-        
-        description.textContent = descriptions[role] || 'Choisissez le rôle approprié';
-    }
-
-    // Gestion des mots de passe
-    function togglePassword(inputId) {
-        const input = document.getElementById(inputId);
-        const button = input.nextElementSibling;
-        
-        if (input.type === 'password') {
-            input.type = 'text';
-            button.textContent = '🙈';
-        } else {
-            input.type = 'password';
-            button.textContent = '👁️';
-        }
-    }
-
-    function checkPasswordStrength() {
-        const password = document.getElementById('mot_de_passe').value;
-        const strengthElement = document.getElementById('passwordStrength');
-        
-        let strength = 0;
-        let feedback = [];
-        
-        if (password.length >= 8) strength += 1;
-        else feedback.push('Au moins 8 caractères');
-        
-        if (/[a-z]/.test(password)) strength += 1;
-        else feedback.push('Une lettre minuscule');
-        
-        if (/[A-Z]/.test(password)) strength += 1;
-        else feedback.push('Une lettre majuscule');
-        
-        if (/[0-9]/.test(password)) strength += 1;
-        else feedback.push('Un chiffre');
-        
-        if (/[^A-Za-z0-9]/.test(password)) strength += 1;
-        else feedback.push('Un caractère spécial');
-        
-        if (strength < 3) {
-            strengthElement.textContent = `Faible: ${feedback.join(', ')}`;
-            strengthElement.className = 'password-strength weak';
-        } else if (strength < 4) {
-            strengthElement.textContent = 'Moyen: Ajoutez des caractères spéciaux';
-            strengthElement.className = 'password-strength medium';
-        } else {
-            strengthElement.textContent = 'Fort: Mot de passe sécurisé ✓';
-            strengthElement.className = 'password-strength strong';
-        }
-        
-        checkPasswordMatch();
-    }
-
-    function checkPasswordMatch() {
-        const password = document.getElementById('mot_de_passe').value;
-        const confirm = document.getElementById('confirm_password').value;
-        const matchElement = document.getElementById('passwordMatch');
-        
-        if (confirm.length === 0) {
-            matchElement.textContent = '';
-            matchElement.className = 'password-match';
-            return;
-        }
-        
-        if (password === confirm) {
-            matchElement.textContent = 'Les mots de passe correspondent ✓';
-            matchElement.className = 'password-match match';
-        } else {
-            matchElement.textContent = 'Les mots de passe ne correspondent pas';
-            matchElement.className = 'password-match no-match';
-        }
-    }
-
-    // Validation du formulaire
-    function validateForm() {
-        let isValid = true;
-        const errors = [];
-        
-        // Champs requis
-        const requiredFields = [
-            { id: 'prenom', name: 'Prénom' },
-            { id: 'nom', name: 'Nom' },
-            { id: 'email', name: 'Email' },
-            { id: 'role', name: 'Rôle' },
-            { id: 'type_utilisateur', name: 'Type d\'utilisateur' },
-            { id: 'mot_de_passe', name: 'Mot de passe' }
-        ];
-        
-        requiredFields.forEach(field => {
-            const element = document.getElementById(field.id);
-            if (!element.value.trim()) {
-                errors.push(`${field.name} est requis`);
-                element.style.borderColor = 'var(--danger)';
-                isValid = false;
-            } else {
-                element.style.borderColor = 'var(--soft-gray)';
+        // Auto-complétion du rôle basé sur le type d'utilisateur
+        document.getElementById('type_utilisateur').addEventListener('change', function() {
+            const role = document.getElementById('role');
+            if (this.value === 'formateur') {
+                role.value = 'formateur';
+            } else if (this.value !== 'formateur' && role.value === 'formateur') {
+                role.value = 'apprenant';
             }
         });
-        
-        // Validation email
-        const email = document.getElementById('email').value;
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (email && !emailRegex.test(email)) {
-            errors.push('Format d\'email invalide');
-            document.getElementById('email').style.borderColor = 'var(--danger)';
-            isValid = false;
-        }
-        
-        // Validation mot de passe
-        const password = document.getElementById('mot_de_passe').value;
-        const confirmPassword = document.getElementById('confirm_password').value;
-        
-        if (password.length < 8) {
-            errors.push('Le mot de passe doit contenir au moins 8 caractères');
-            isValid = false;
-        }
-        
-        if (password !== confirmPassword) {
-            errors.push('Les mots de passe ne correspondent pas');
-            isValid = false;
-        }
-        
-        // Validation téléphone (si renseigné)
-        const telephone = document.getElementById('telephone').value;
-        if (telephone) {
-            const phoneRegex = /^(?:(?:\+|00)33|0)\s*[1-9](?:[\s.-]*\d{2}){4}$/;
-            if (!phoneRegex.test(telephone.replace(/\s/g, ''))) {
-                errors.push('Format de téléphone invalide');
-                document.getElementById('telephone').style.borderColor = 'var(--danger)';
-                isValid = false;
-            }
-        }
-        
-        if (!isValid) {
-            showNotification('Erreurs de validation:\n' + errors.join('\n'), 'error');
-        }
-        
-        return isValid;
-    }
-
-    // Soumission du formulaire
-    document.getElementById('createUserForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        if (!validateForm()) {
-            return;
-        }
-        
-        const submitBtn = document.getElementById('submitBtn');
-        const originalText = submitBtn.innerHTML;
-        
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '⏳ Création en cours...';
-        
-        // Simulation d'envoi (remplacer par fetch en production)
-        setTimeout(() => {
-            const formData = new FormData(this);
-            
-            fetch('/admin/utilisateurs/nouveau', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => {
-                if (response.ok) {
-                    showNotification('Utilisateur créé avec succès !', 'success');
-                    setTimeout(() => {
-                        window.location.href = '/admin/utilisateurs';
-                    }, 2000);
-                } else {
-                    return response.text().then(text => {
-                        throw new Error(text);
-                    });
-                }
-            })
-            .catch(error => {
-                showNotification('Erreur lors de la création: ' + error.message, 'error');
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalText;
-            });
-        }, 1000);
-    });
-
-    // Sauvegarde en brouillon
-    function saveAsDraft() {
-        const formData = new FormData(document.getElementById('createUserForm'));
-        const draftData = {};
-        
-        for (let [key, value] of formData.entries()) {
-            draftData[key] = value;
-        }
-        
-        localStorage.setItem('userDraft', JSON.stringify(draftData));
-        showNotification('Brouillon sauvegardé', 'success');
-    }
-
-    // Chargement du brouillon
-    function loadDraft() {
-        const draft = localStorage.getItem('userDraft');
-        if (draft) {
-            const draftData = JSON.parse(draft);
-            
-            Object.keys(draftData).forEach(key => {
-                const element = document.getElementById(key);
-                if (element) {
-                    if (element.type === 'checkbox') {
-                        element.checked = draftData[key] === 'true';
-                    } else if (element.type === 'radio') {
-                        if (element.value === draftData[key]) {
-                            element.checked = true;
-                        }
-                    } else {
-                        element.value = draftData[key];
-                    }
-                }
-            });
-            
-            updatePreview();
-            
-            if (confirm('Un brouillon a été trouvé. Voulez-vous le charger ?')) {
-                // Brouillon déjà chargé
-            } else {
-                localStorage.removeItem('userDraft');
-                location.reload();
-            }
-        }
-    }
-
-    // Formatage automatique du téléphone
-    document.getElementById('telephone').addEventListener('input', function(e) {
-        let value = e.target.value.replace(/\D/g, '');
-        
-        if (value.length > 0) {
-            if (value.length <= 2) {
-                value = value;
-            } else if (value.length <= 4) {
-                value = value.slice(0, 2) + ' ' + value.slice(2);
-            } else if (value.length <= 6) {
-                value = value.slice(0, 2) + ' ' + value.slice(2, 4) + ' ' + value.slice(4);
-            } else if (value.length <= 8) {
-                value = value.slice(0, 2) + ' ' + value.slice(2, 4) + ' ' + value.slice(4, 6) + ' ' + value.slice(6);
-            } else {
-                value = value.slice(0, 2) + ' ' + value.slice(2, 4) + ' ' + value.slice(4, 6) + ' ' + value.slice(6, 8) + ' ' + value.slice(8, 10);
-            }
-        }
-        
-        e.target.value = value;
-    });
-
-    // Notification système
-    function showNotification(message, type = 'info') {
-        const notification = document.createElement('div');
-        notification.className = `notification notification-${type}`;
-        notification.innerHTML = `
-            <span>${message}</span>
-            <button onclick="this.parentElement.remove()">×</button>
-        `;
-        
-        notification.style.cssText = `
-            position: fixed;
-            top: 2rem;
-            right: 2rem;
-            padding: 1rem 1.5rem;
-            border-radius: 12px;
-            color: white;
-            font-weight: 500;
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            animation: slideInRight 0.3s ease;
-            min-width: 300px;
-            white-space: pre-line;
-        `;
-        
-        switch(type) {
-            case 'success':
-                notification.style.background = 'var(--success)';
-                break;
-            case 'error':
-                notification.style.background = 'var(--danger)';
-                break;
-            case 'warning':
-                notification.style.background = 'var(--warning)';
-                break;
-            default:
-                notification.style.background = 'var(--primary-blue)';
-        }
-        
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-            if (notification.parentElement) {
-                notification.remove();
-            }
-        }, 5000);
-    }
-
-    // Génération de mot de passe
-    function generatePassword() {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
-        let password = '';
-        
-        // Assurer au moins un caractère de chaque type
-        password += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[Math.floor(Math.random() * 26)];
-        password += 'abcdefghijklmnopqrstuvwxyz'[Math.floor(Math.random() * 26)];
-        password += '0123456789'[Math.floor(Math.random() * 10)];
-        password += '!@#$%^&*'[Math.floor(Math.random() * 8)];
-        
-        // Compléter à 12 caractères
-        for (let i = 4; i < 12; i++) {
-            password += chars[Math.floor(Math.random() * chars.length)];
-        }
-        
-        // Mélanger les caractères
-        password = password.split('').sort(() => Math.random() - 0.5).join('');
-        
-        document.getElementById('mot_de_passe').value = password;
-        document.getElementById('confirm_password').value = password;
-        checkPasswordStrength();
-        checkPasswordMatch();
-    }
-
-    // Ajouter le bouton de génération de mot de passe
-    document.addEventListener('DOMContentLoaded', function() {
-        const passwordInput = document.getElementById('mot_de_passe');
-        const generateBtn = document.createElement('button');
-        generateBtn.type = 'button';
-        generateBtn.className = 'btn btn-outline btn-sm';
-        generateBtn.innerHTML = '🎲 Générer';
-        generateBtn.onclick = generatePassword;
-        generateBtn.style.marginTop = '0.5rem';
-        
-        passwordInput.parentNode.appendChild(generateBtn);
-        
-        // Charger le brouillon si disponible
-        loadDraft();
-    });
-
-    // Animation d'entrée
-    document.addEventListener('DOMContentLoaded', function() {
-        const sections = document.querySelectorAll('.form-section');
-        sections.forEach((section, index) => {
-            section.style.opacity = '0';
-            section.style.transform = 'translateY(20px)';
-            section.style.animation = `fadeInUp 0.6s ease ${index * 0.1}s forwards`;
-        });
-    });
-
-    // Styles pour les animations
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes slideInRight {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-        
-        @keyframes fadeInUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .notification button {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.2rem;
-            cursor: pointer;
-            padding: 0.2rem;
-            border-radius: 4px;
-        }
-        
-        .notification button:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-    `;
-    document.head.appendChild(style);
-</script>
+    </script>
+</body>
+</html>

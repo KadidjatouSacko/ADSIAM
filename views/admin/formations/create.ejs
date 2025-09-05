@@ -1,0 +1,204 @@
+<!-- views/admin/formations/create.ejs -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2>ADSIAM Admin</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="/admin">📊 Tableau de bord</a></li>
+                <li><a href="/admin/utilisateurs">👥 Utilisateurs</a></li>
+                <li><a href="/admin/formations" class="active">📚 Formations</a></li>
+                <li><a href="/admin/inscriptions">📝 Inscriptions</a></li>
+                <li><a href="/admin/evenements">📅 Événements</a></li>
+                <li><a href="/admin/rapports">📊 Rapports</a></li>
+                <li><a href="/admin/messagerie">💬 Messagerie</a></li>
+                <li><a href="/admin/parametres">⚙️ Paramètres</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <div class="content-header">
+                <h1>Créer une nouvelle formation</h1>
+                <div class="header-actions">
+                    <a href="/admin/formations" class="btn btn-secondary">← Retour à la liste</a>
+                </div>
+            </div>
+
+            <% if (typeof error !== 'undefined' && error) { %>
+                <div class="alert alert-error">
+                    <%= error %>
+                </div>
+            <% } %>
+
+            <div class="form-container">
+                <form action="/admin/formations/nouvelle" method="POST" class="admin-form" enctype="multipart/form-data">
+                    <div class="form-section">
+                        <h3>Informations générales</h3>
+                        
+                        <div class="form-group">
+                            <label for="titre" class="form-label required">Titre de la formation</label>
+                            <input type="text" id="titre" name="titre" class="form-input" 
+                                   value="<%= typeof formData !== 'undefined' ? formData.titre || '' : '' %>" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description" class="form-label required">Description</label>
+                            <textarea id="description" name="description" class="form-textarea" rows="4" required><%= typeof formData !== 'undefined' ? formData.description || '' : '' %></textarea>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="domaine" class="form-label required">Domaine</label>
+                                <select id="domaine" name="domaine" class="form-select" required>
+                                    <option value="">Sélectionner un domaine</option>
+                                    <option value="communication">Communication</option>
+                                    <option value="hygiene">Hygiène & Sécurité</option>
+                                    <option value="ergonomie">Ergonomie</option>
+                                    <option value="urgences">Urgences</option>
+                                    <option value="nutrition">Nutrition</option>
+                                    <option value="pathologies">Pathologies</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="niveau" class="form-label required">Niveau</label>
+                                <select id="niveau" name="niveau" class="form-select" required>
+                                    <option value="">Sélectionner un niveau</option>
+                                    <option value="debutant">Débutant</option>
+                                    <option value="intermediaire">Intermédiaire</option>
+                                    <option value="avance">Avancé</option>
+                                    <option value="expert">Expert</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="prix" class="form-label">Prix (€)</label>
+                                <input type="number" id="prix" name="prix" class="form-input" min="0" step="0.01"
+                                       value="<%= typeof formData !== 'undefined' ? formData.prix || '' : '' %>">
+                                <small class="form-help">Laisser vide ou 0 pour une formation gratuite</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="prix_original" class="form-label">Prix original (€)</label>
+                                <input type="number" id="prix_original" name="prix_original" class="form-input" min="0" step="0.01"
+                                       value="<%= typeof formData !== 'undefined' ? formData.prix_original || '' : '' %>">
+                                <small class="form-help">Pour afficher une réduction</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Contenu de la formation</h3>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="duree_heures" class="form-label">Durée (heures)</label>
+                                <input type="number" id="duree_heures" name="duree_heures" class="form-input" min="1"
+                                       value="<%= typeof formData !== 'undefined' ? formData.duree_heures || '' : '' %>">
+                            </div>
+                            <div class="form-group">
+                                <label for="nombre_modules" class="form-label">Nombre de modules</label>
+                                <input type="number" id="nombre_modules" name="nombre_modules" class="form-input" min="1"
+                                       value="<%= typeof formData !== 'undefined' ? formData.nombre_modules || '' : '' %>">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="objectifs" class="form-label">Objectifs pédagogiques</label>
+                            <textarea id="objectifs" name="objectifs" class="form-textarea" rows="3"><%= typeof formData !== 'undefined' ? formData.objectifs || '' : '' %></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="prerequis" class="form-label">Prérequis</label>
+                            <textarea id="prerequis" name="prerequis" class="form-textarea" rows="2"><%= typeof formData !== 'undefined' ? formData.prerequis || '' : '' %></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Paramètres et médias</h3>
+                        
+                        <div class="form-group">
+                            <label for="image_formation" class="form-label">Image de la formation</label>
+                            <input type="file" id="image_formation" name="image_formation" class="form-input" accept="image/*">
+                            <small class="form-help">Formats acceptés: JPG, PNG, WebP (max 10MB)</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="icone" class="form-label">Icône (emoji)</label>
+                            <input type="text" id="icone" name="icone" class="form-input" maxlength="2"
+                                   value="<%= typeof formData !== 'undefined' ? formData.icone || '' : '' %>">
+                            <small class="form-help">Ex: 📚, 🗣️, 🛡️</small>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Options</label>
+                                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="checkbox" name="gratuit" value="true">
+                                        Formation gratuite
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="checkbox" name="populaire" value="true">
+                                        Formation populaire
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="checkbox" name="nouveau" value="true">
+                                        Nouvelle formation
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="checkbox" name="certifiant" value="true">
+                                        Formation certifiante
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="checkbox" name="actif" value="true" checked>
+                                        Formation active
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">✅ Créer la formation</button>
+                        <a href="/admin/formations" class="btn btn-secondary">❌ Annuler</a>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Auto-cocher "gratuit" si prix = 0
+        document.getElementById('prix').addEventListener('input', function() {
+            const gratuitCheckbox = document.querySelector('input[name="gratuit"]');
+            if (parseFloat(this.value) === 0 || this.value === '') {
+                gratuitCheckbox.checked = true;
+            } else {
+                gratuitCheckbox.checked = false;
+            }
+        });
+
+        // Validation côté client
+        document.querySelector('.admin-form').addEventListener('submit', function(e) {
+            const titre = document.getElementById('titre').value.trim();
+            const description = document.getElementById('description').value.trim();
+            
+            if (!titre || !description) {
+                e.preventDefault();
+                alert('Le titre et la description sont obligatoires');
+                return false;
+            }
+        });
+    </script>
+</body>
+</html>

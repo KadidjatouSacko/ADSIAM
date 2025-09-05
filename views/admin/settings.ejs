@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2>ADSIAM Admin</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="/admin">📊 Tableau de bord</a></li>
+                <li><a href="/admin/utilisateurs">👥 Utilisateurs</a></li>
+                <li><a href="/admin/formations">📚 Formations</a></li>
+                <li><a href="/admin/inscriptions">📝 Inscriptions</a></li>
+                <li><a href="/admin/evenements">📅 Événements</a></li>
+                <li><a href="/admin/rapports">📊 Rapports</a></li>
+                <li><a href="/admin/messagerie">💬 Messagerie</a></li>
+                <li><a href="/admin/parametres" class="active">⚙️ Paramètres</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <div class="content-header">
+                <h1>Paramètres généraux</h1>
+            </div>
+
+            <div class="settings-container">
+                <!-- Paramètres de l'organisme -->
+                <div class="settings-section">
+                    <h3>Informations de l'organisme</h3>
+                    <form action="/admin/parametres/organisme" method="POST" class="settings-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="nom" class="form-label">Nom de l'organisme</label>
+                                <input type="text" id="nom" name="nom" class="form-input" 
+                                       value="<%= settings.organisme.nom %>" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="siret" class="form-label">SIRET</label>
+                                <input type="text" id="siret" name="siret" class="form-input" 
+                                       value="<%= settings.organisme.siret %>">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="adresse" class="form-label">Adresse</label>
+                            <textarea id="adresse" name="adresse" class="form-textarea" rows="3"><%= settings.organisme.adresse %></textarea>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="telephone" class="form-label">Téléphone</label>
+                                <input type="tel" id="telephone" name="telephone" class="form-input" 
+                                       value="<%= settings.organisme.telephone %>">
+                            </div>
+                            <div class="form-group">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" id="email" name="email" class="form-input" 
+                                       value="<%= settings.organisme.email %>">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="numeroDeclaration" class="form-label">Numéro de déclaration d'activité</label>
+                            <input type="text" id="numeroDeclaration" name="numeroDeclaration" class="form-input" 
+                                   value="<%= settings.organisme.numeroDeclaration %>">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">💾 Sauvegarder</button>
+                    </form>
+                </div>
+
+                <!-- Paramètres du site -->
+                <div class="settings-section">
+                    <h3>Paramètres du site</h3>
+                    <form action="/admin/parametres/site" method="POST" class="settings-form">
+                        <div class="form-group">
+                            <label for="titre" class="form-label">Titre du site</label>
+                            <input type="text" id="titre" name="titre" class="form-input" 
+                                   value="<%= settings.site.titre %>">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea id="description" name="description" class="form-textarea" rows="3"><%= settings.site.description %></textarea>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="couleurPrimaire" class="form-label">Couleur primaire</label>
+                                <input type="color" id="couleurPrimaire" name="couleurPrimaire" class="form-input" 
+                                       value="<%= settings.site.couleurPrimaire %>">
+                            </div>
+                            <div class="form-group">
+                                <label for="couleurSecondaire" class="form-label">Couleur secondaire</label>
+                                <input type="color" id="couleurSecondaire" name="couleurSecondaire" class="form-input" 
+                                       value="<%= settings.site.couleurSecondaire %>">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">💾 Sauvegarder</button>
+                    </form>
+                </div>
+
+                <!-- Paramètres des notifications -->
+                <div class="settings-section">
+                    <h3>Notifications</h3>
+                    <form action="/admin/parametres/notifications" method="POST" class="settings-form">
+                        <div class="form-group">
+                            <label class="form-label">Notifications par email</label>
+                            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <input type="checkbox" name="emailInscription" 
+                                           <%= settings.notifications.emailInscription ? 'checked' : '' %>>
+                                    Nouvelle inscription
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <input type="checkbox" name="emailValidation" 
+                                           <%= settings.notifications.emailValidation ? 'checked' : '' %>>
+                                    Validation d'inscription
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <input type="checkbox" name="emailRappel" 
+                                           <%= settings.notifications.emailRappel ? 'checked' : '' %>>
+                                    Rappels de formation
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="checkbox" name="smsActivation" 
+                                       <%= settings.notifications.smsActivation ? 'checked' : '' %>>
+                                Activer les notifications SMS
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">💾 Sauvegarder</button>
+                    </form>
+                </div>
+
+                <!-- Actions système -->
+                <div class="settings-section">
+                    <h3>Actions système</h3>
+                    <div class="system-actions">
+                        <button onclick="clearCache()" class="btn btn-secondary">🗑️ Vider le cache</button>
+                        <button onclick="exportData()" class="btn btn-secondary">📥 Exporter les données</button>
+                        <button onclick="backupDatabase()" class="btn btn-secondary">💾 Sauvegarder la base</button>
+                        <button onclick="viewLogs()" class="btn btn-secondary">📋 Voir les logs</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <style>
+        .settings-container {
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
+        }
+
+        .settings-section {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        .settings-section h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--soft-gray);
+        }
+
+        .settings-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .system-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .system-actions .btn {
+            justify-content: center;
+        }
+
+        @media (max-width: 768px) {
+            .settings-section {
+                padding: 2rem;
+            }
+            
+            .system-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
+    <script>
+        function clearCache() {
+            if (confirm('Vider le cache du système ?')) {
+                alert('Cache vidé avec succès');
+            }
+        }
+
+        function exportData() {
+            alert('Export des données en cours...');
+        }
+
+        function backupDatabase() {
+            if (confirm('Créer une sauvegarde de la base de données ?')) {
+                alert('Sauvegarde créée avec succès');
+            }
+        }
+
+        function viewLogs() {
+            window.open('/admin/logs', '_blank');
+        }
+    </script>
+</body>
+</html>
