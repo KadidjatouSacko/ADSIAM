@@ -449,7 +449,7 @@ export const requireAuth = async (req, res, next) => {
 
         // Attacher les infos utilisateur à la requête
         req.user = {
-            userId: user.id,
+            userId: userId,
             email: user.email,
             prenom: user.prenom,
             nom: user.nom,

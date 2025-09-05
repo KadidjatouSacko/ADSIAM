@@ -20,20 +20,17 @@ export class AdminController {
     
     // ====================== TABLEAU DE BORD ======================
     async dashboard(req, res) {
-        try {
-            const stats = await this.getDashboardStatsData();
-            
-            res.render('admin/dashboard', {
-                title: 'Tableau de bord - Administration ADSIAM',
-                admin: req.admin,
-                stats,
-                currentPage: 'dashboard'
-            });
-        } catch (error) {
-            console.error('Erreur dashboard admin:', error);
-            res.status(500).render('errors/500', { error });
-        }
-    }
+    console.log('🎯 AdminController.dashboard appelé');
+    console.log('🎯 req.admin:', req.admin);
+    
+    // Test simple sans template
+    res.send(`
+        <h1>Interface Admin ADSIAM</h1>
+        <p>Bienvenue ${req.admin.prenom} ${req.admin.nom}</p>
+        <p>Email: ${req.admin.email}</p>
+        <p>Rôle: ${req.admin.role}</p>
+    `);
+}
 
     async getDashboardStatsData() {
         const [
@@ -1024,4 +1021,6 @@ export class AdminController {
             res.status(500).json({ error: 'Erreur lors de l\'action groupée' });
         }
     }
+
+    
 }

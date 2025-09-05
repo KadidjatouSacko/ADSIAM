@@ -136,7 +136,11 @@ export const processRegister = async (req, res) => {
         req.session.userToken = token;
 
         req.flash('success', 'Inscription réussie ! Votre compte est en attente de validation.');
-        res.redirect('/dashboard');
+        if (newUser.role === 'admin') {
+    res.redirect('/admin');
+} else {
+    res.redirect('/dashboard');
+}
 
     } catch (error) {
         console.error('Erreur inscription:', error);
@@ -243,7 +247,11 @@ export const processLogin = async (req, res) => {
         }
 
         req.flash('success', `Bienvenue ${user.getNomComplet()} !`);
-        res.redirect('/dashboard');
+        if (user.role === 'admin') {
+    res.redirect('/admin');
+} else {
+    res.redirect('/dashboard');
+}
 
     } catch (error) {
         console.error('Erreur connexion:', error);
