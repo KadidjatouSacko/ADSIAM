@@ -1,0 +1,1023 @@
+<div class="dashboard-container">
+    <!-- En-tête du tableau de bord -->
+    <div class="dashboard-header">
+        <h1 class="page-title">Tableau de bord</h1>
+        <p class="page-subtitle">Vue d'ensemble de votre plateforme ADSIAM</p>
+        
+        <div class="dashboard-actions">
+            <button class="btn btn-primary" onclick="refreshStats()">
+                🔄 Actualiser
+            </button>
+            <button class="btn btn-secondary" onclick="exportDashboard()">
+                📊 Exporter
+            </button>
+        </div>
+    </div>
+
+    <!-- Statistiques principales -->
+    <div class="stats-grid">
+        <div class="stat-card stat-users">
+            <div class="stat-icon">👥</div>
+            <div class="stat-content">
+                <div class="stat-value"><%= stats.totalUsers %></div>
+                <div class="stat-label">Utilisateurs</div>
+                <div class="stat-trend">
+                    <span class="trend-value <%= stats.userGrowthRate >= 0 ? 'positive' : 'negative' %>">
+                        <%= stats.userGrowthRate >= 0 ? '+' : '' %><%= stats.userGrowthRate %>%
+                    </span>
+                    <span class="trend-period">ce mois</span>
+                </div>
+            </div>
+            <div class="stat-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: <%= Math.min((stats.activeUsers / stats.totalUsers) * 100, 100) %>%"></div>
+                </div>
+                <span class="progress-text"><%= stats.activeUsers %> actifs</span>
+            </div>
+        </div>
+
+        <div class="stat-card stat-formations">
+            <div class="stat-icon">📚</div>
+            <div class="stat-content">
+                <div class="stat-value"><%= stats.totalFormations %></div>
+                <div class="stat-label">Formations</div>
+                <div class="stat-trend">
+                    <span class="trend-value positive">+2</span>
+                    <span class="trend-period">ce mois</span>
+                </div>
+            </div>
+            <div class="stat-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: <%= Math.min((stats.activeFormations / stats.totalFormations) * 100, 100) %>%"></div>
+                </div>
+                <span class="progress-text"><%= stats.activeFormations %> actives</span>
+            </div>
+        </div>
+
+        <div class="stat-card stat-inscriptions">
+            <div class="stat-icon">📝</div>
+            <div class="stat-content">
+                <div class="stat-value"><%= stats.totalInscriptions %></div>
+                <div class="stat-label">Inscriptions</div>
+                <div class="stat-trend">
+                    <span class="trend-value <%= stats.inscriptionGrowthRate >= 0 ? 'positive' : 'negative' %>">
+                        <%= stats.inscriptionGrowthRate >= 0 ? '+' : '' %><%= stats.inscriptionGrowthRate %>%
+                    </span>
+                    <span class="trend-period">ce mois</span>
+                </div>
+            </div>
+            <div class="stat-progress">
+                <% if (stats.pendingInscriptions > 0) { %>
+                    <div class="alert-badge"><%= stats.pendingInscriptions %> en attente</div>
+                <% } else { %>
+                    <span class="progress-text">Toutes validées</span>
+                <% } %>
+            </div>
+        </div>
+
+        <div class="stat-card stat-revenue">
+            <div class="stat-icon">💰</div>
+            <div class="stat-content">
+                <div class="stat-value">€2,847</div>
+                <div class="stat-label">Revenus</div>
+                <div class="stat-trend">
+                    <span class="trend-value positive">+15%</span>
+                    <span class="trend-period">ce mois</span>
+                </div>
+            </div>
+            <div class="stat-progress">
+                <span class="progress-text">Objectif: €3,000</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Graphiques et analyses -->
+    <div class="dashboard-charts">
+        <div class="chart-container">
+            <div class="chart-header">
+                <h3>Évolution mensuelle</h3>
+                <div class="chart-controls">
+                    <select class="chart-period">
+                        <option value="12">12 derniers mois</option>
+                        <option value="6">6 derniers mois</option>
+                        <option value="3">3 derniers mois</option>
+                    </select>
+                </div>
+            </div>
+            <div class="chart-content">
+                <canvas id="monthlyChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-header">
+                <h3>Répartition des formations</h3>
+            </div>
+            <div class="chart-content">
+                <canvas id="formationsChart" width="300" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activité récente -->
+    <div class="recent-activity">
+        <div class="activity-section">
+            <div class="section-header">
+                <h3>Nouveaux utilisateurs</h3>
+                <a href="/admin/utilisateurs" class="view-all">Voir tout</a>
+            </div>
+            <div class="activity-list">
+                <% stats.recentUsers.forEach(user => { %>
+                    <div class="activity-item">
+                        <div class="activity-avatar">
+                            <%= user.prenom.charAt(0) %><%= user.nom.charAt(0) %>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title"><%= user.prenom %> <%= user.nom %></div>
+                            <div class="activity-subtitle"><%= user.email %></div>
+                            <div class="activity-meta">
+                                <span class="role-badge role-<%= user.role %>"><%= user.role %></span>
+                                <span class="activity-time"><%= new Date(user.createdAt).toLocaleDateString('fr-FR') %></span>
+                            </div>
+                        </div>
+                        <div class="activity-actions">
+                            <button class="btn-icon" onclick="viewUser(<%= user.id %>)" title="Voir le profil">👁️</button>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+        </div>
+
+        <div class="activity-section">
+            <div class="section-header">
+                <h3>Inscriptions récentes</h3>
+                <a href="/admin/inscriptions" class="view-all">Voir tout</a>
+            </div>
+            <div class="activity-list">
+                <% stats.recentInscriptions.forEach(inscription => { %>
+                    <div class="activity-item">
+                        <div class="activity-icon formation-icon">📚</div>
+                        <div class="activity-content">
+                            <div class="activity-title"><%= inscription.Formation.titre %></div>
+                            <div class="activity-subtitle">
+                                par <%= inscription.User.prenom %> <%= inscription.User.nom %>
+                            </div>
+                            <div class="activity-meta">
+                                <span class="status-badge status-<%= inscription.statut %>"><%= inscription.statut %></span>
+                                <span class="activity-time"><%= new Date(inscription.createdAt).toLocaleDateString('fr-FR') %></span>
+                            </div>
+                        </div>
+                        <div class="activity-actions">
+                            <% if (inscription.statut === 'en_attente') { %>
+                                <button class="btn-icon btn-success" onclick="validateInscription(<%= inscription.id %>)" title="Valider">✅</button>
+                                <button class="btn-icon btn-danger" onclick="rejectInscription(<%= inscription.id %>)" title="Refuser">❌</button>
+                            <% } %>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formations populaires -->
+    <div class="popular-formations">
+        <div class="section-header">
+            <h3>Formations les plus populaires</h3>
+            <a href="/admin/formations" class="view-all">Gérer les formations</a>
+        </div>
+        <div class="formations-grid">
+            <% stats.topFormations.forEach(formation => { %>
+                <div class="formation-card">
+                    <div class="formation-icon"><%= formation.icone || '📚' %></div>
+                    <div class="formation-content">
+                        <h4><%= formation.titre %></h4>
+                        <div class="formation-stats">
+                            <span class="stat">👥 <%= formation.Inscriptions ? formation.Inscriptions.length : 0 %> inscrits</span>
+                        </div>
+                    </div>
+                    <div class="formation-actions">
+                        <button class="btn-icon" onclick="editFormation(<%= formation.id %>)" title="Modifier">✏️</button>
+                        <button class="btn-icon" onclick="viewFormationStats(<%= formation.id %>)" title="Statistiques">📊</button>
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+    </div>
+
+    <!-- Actions rapides -->
+    <div class="quick-actions">
+        <h3>Actions rapides</h3>
+        <div class="actions-grid">
+            <a href="/admin/utilisateurs/nouveau" class="action-card">
+                <div class="action-icon">👥</div>
+                <div class="action-title">Créer un utilisateur</div>
+                <div class="action-description">Ajouter un nouvel utilisateur à la plateforme</div>
+            </a>
+
+            <a href="/admin/formations/nouvelle" class="action-card">
+                <div class="action-icon">📚</div>
+                <div class="action-title">Créer une formation</div>
+                <div class="action-description">Ajouter une nouvelle formation au catalogue</div>
+            </a>
+
+            <a href="/admin/evenements/nouveau" class="action-card">
+                <div class="action-icon">📅</div>
+                <div class="action-title">Planifier un événement</div>
+                <div class="action-description">Organiser une session ou un webinaire</div>
+            </a>
+
+            <a href="/admin/messagerie" class="action-card">
+                <div class="action-icon">💬</div>
+                <div class="action-title">Envoyer un message</div>
+                <div class="action-description">Communiquer avec les utilisateurs</div>
+            </a>
+
+            <a href="/admin/rapports" class="action-card">
+                <div class="action-icon">📊</div>
+                <div class="action-title">Générer un rapport</div>
+                <div class="action-description">Analyser les données de la plateforme</div>
+            </a>
+
+            <a href="/admin/parametres" class="action-card">
+                <div class="action-icon">⚙️</div>
+                <div class="action-title">Paramètres</div>
+                <div class="action-description">Configurer la plateforme</div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .dashboard-container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .dashboard-actions {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-primary {
+        background: var(--gradient-contact);
+        color: white;
+        box-shadow: 0 5px 15px rgba(231, 166, 183, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(231, 166, 183, 0.4);
+    }
+
+    .btn-secondary {
+        background: white;
+        color: var(--text-dark);
+        border: 2px solid var(--soft-gray);
+    }
+
+    .btn-secondary:hover {
+        border-color: var(--primary-blue);
+        color: var(--primary-blue);
+    }
+
+    /* Grille des statistiques */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+    }
+
+    .stat-users::before { background: var(--gradient-contact); }
+    .stat-formations::before { background: var(--gradient-blue); }
+    .stat-inscriptions::before { background: var(--gradient-purple); }
+    .stat-revenue::before { background: var(--gradient-green); }
+
+    .stat-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        opacity: 0.7;
+    }
+
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        font-size: 1rem;
+        color: var(--text-light);
+        margin-bottom: 1rem;
+    }
+
+    .stat-trend {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .trend-value {
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .trend-value.positive {
+        color: var(--success);
+    }
+
+    .trend-value.negative {
+        color: var(--danger);
+    }
+
+    .trend-period {
+        font-size: 0.8rem;
+        color: var(--text-light);
+    }
+
+    .stat-progress {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .progress-bar {
+        flex: 1;
+        height: 6px;
+        background: var(--soft-gray);
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: var(--gradient-contact);
+        transition: width 1s ease;
+    }
+
+    .progress-text {
+        font-size: 0.8rem;
+        color: var(--text-light);
+        white-space: nowrap;
+    }
+
+    .alert-badge {
+        background: var(--warning);
+        color: white;
+        padding: 0.3rem 0.8rem;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    /* Graphiques */
+    .dashboard-charts {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .chart-container {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .chart-header h3 {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--text-dark);
+    }
+
+    .chart-period {
+        padding: 0.5rem 1rem;
+        border: 2px solid var(--soft-gray);
+        border-radius: 8px;
+        background: white;
+        cursor: pointer;
+    }
+
+    /* Activité récente */
+    .recent-activity {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .activity-section {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .section-header h3 {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--text-dark);
+    }
+
+    .view-all {
+        color: var(--primary-blue);
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+
+    .view-all:hover {
+        text-decoration: underline;
+    }
+
+    .activity-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .activity-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .activity-item:hover {
+        background: var(--soft-gray);
+    }
+
+    .activity-avatar {
+        width: 45px;
+        height: 45px;
+        background: var(--gradient-contact);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        flex-shrink: 0;
+    }
+
+    .activity-icon {
+        width: 45px;
+        height: 45px;
+        background: var(--light-blue);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+
+    .activity-content {
+        flex: 1;
+    }
+
+    .activity-title {
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 0.2rem;
+    }
+
+    .activity-subtitle {
+        color: var(--text-light);
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .activity-meta {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+    }
+
+    .role-badge, .status-badge {
+        padding: 0.2rem 0.6rem;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .role-apprenant {
+        background: var(--light-blue);
+        color: var(--primary-blue);
+    }
+
+    .role-formateur {
+        background: var(--light-pink);
+        color: var(--primary-pink);
+    }
+
+    .role-admin {
+        background: var(--gradient-purple);
+        color: white;
+    }
+
+    .status-en_attente {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .status-active {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .activity-time {
+        font-size: 0.8rem;
+        color: var(--text-light);
+    }
+
+    .activity-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-icon {
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-icon:hover {
+        background: var(--soft-gray);
+    }
+
+    .btn-success:hover {
+        background: var(--success);
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background: var(--danger);
+        color: white;
+    }
+
+    /* Formations populaires */
+    .popular-formations {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        margin-bottom: 3rem;
+    }
+
+    .formations-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+    }
+
+    .formation-card {
+        background: var(--soft-gray);
+        border-radius: 16px;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .formation-card:hover {
+        background: white;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .formation-icon {
+        font-size: 2rem;
+        width: 60px;
+        height: 60px;
+        background: var(--gradient-blue);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .formation-content {
+        flex: 1;
+    }
+
+    .formation-content h4 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .formation-stats {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.9rem;
+        color: var(--text-light);
+    }
+
+    .formation-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    /* Actions rapides */
+    .quick-actions {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .quick-actions h3 {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 1.5rem;
+    }
+
+    .actions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .action-card {
+        background: var(--soft-gray);
+        border-radius: 16px;
+        padding: 2rem;
+        text-decoration: none;
+        color: var(--text-dark);
+        transition: all 0.3s ease;
+        display: block;
+    }
+
+    .action-card:hover {
+        background: white;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        transform: translateY(-5px);
+        color: var(--text-dark);
+    }
+
+    .action-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        opacity: 0.8;
+    }
+
+    .action-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .action-description {
+        font-size: 0.9rem;
+        color: var(--text-light);
+        line-height: 1.5;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+        .dashboard-charts {
+            grid-template-columns: 1fr;
+        }
+
+        .recent-activity {
+            grid-template-columns: 1fr;
+        }
+
+        .formations-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-header {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .actions-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .dashboard-actions {
+            justify-content: stretch;
+        }
+
+        .btn {
+            flex: 1;
+            justify-content: center;
+        }
+    }
+</style>
+
+<script>
+    // Données pour les graphiques
+    const monthlyData = <%- JSON.stringify(stats.monthlyStats) %>;
+
+    // Initialisation des graphiques
+    document.addEventListener('DOMContentLoaded', function() {
+        initMonthlyChart();
+        initFormationsChart();
+        animateCounters();
+    });
+
+    function initMonthlyChart() {
+        const ctx = document.getElementById('monthlyChart').getContext('2d');
+        
+        // Simulation d'un graphique simple (vous pourriez utiliser Chart.js)
+        const canvas = document.getElementById('monthlyChart');
+        const width = canvas.width;
+        const height = canvas.height;
+        
+        ctx.fillStyle = '#f8f9fa';
+        ctx.fillRect(0, 0, width, height);
+        
+        // Titre
+        ctx.fillStyle = '#2f2f2f';
+        ctx.font = '16px Inter';
+        ctx.textAlign = 'center';
+        ctx.fillText('Graphique des statistiques mensuelles', width/2, 30);
+        
+        // Note
+        ctx.fillStyle = '#6f6f6f';
+        ctx.font = '14px Inter';
+        ctx.fillText('(Intégrer Chart.js pour des graphiques interactifs)', width/2, height/2);
+    }
+
+    function initFormationsChart() {
+        const ctx = document.getElementById('formationsChart').getContext('2d');
+        const canvas = document.getElementById('formationsChart');
+        const width = canvas.width;
+        const height = canvas.height;
+        
+        ctx.fillStyle = '#f8f9fa';
+        ctx.fillRect(0, 0, width, height);
+        
+        ctx.fillStyle = '#2f2f2f';
+        ctx.font = '16px Inter';
+        ctx.textAlign = 'center';
+        ctx.fillText('Répartition des formations', width/2, 30);
+        
+        ctx.fillStyle = '#6f6f6f';
+        ctx.font = '14px Inter';
+        ctx.fillText('(Graphique circulaire à implémenter)', width/2, height/2);
+    }
+
+    function animateCounters() {
+        const counters = document.querySelectorAll('.stat-value');
+        counters.forEach(counter => {
+            const target = parseInt(counter.textContent.replace(/[^\d]/g, ''));
+            let count = 0;
+            const increment = target / 50;
+            
+            const timer = setInterval(() => {
+                count += increment;
+                if (count >= target) {
+                    counter.textContent = counter.textContent.replace(/[\d,]+/, target.toLocaleString());
+                    clearInterval(timer);
+                } else {
+                    counter.textContent = counter.textContent.replace(/[\d,]+/, Math.floor(count).toLocaleString());
+                }
+            }, 40);
+        });
+    }
+
+    // Fonctions d'action
+    function refreshStats() {
+        // Simulation du rafraîchissement
+        const button = event.target;
+        button.innerHTML = '⏳ Actualisation...';
+        button.disabled = true;
+        
+        setTimeout(() => {
+            button.innerHTML = '🔄 Actualiser';
+            button.disabled = false;
+            showNotification('Statistiques actualisées', 'success');
+        }, 2000);
+    }
+
+    function exportDashboard() {
+        showNotification('Export en cours...', 'info');
+        // Ici vous pourriez déclencher un export PDF ou Excel
+        setTimeout(() => {
+            showNotification('Tableau de bord exporté avec succès', 'success');
+        }, 1500);
+    }
+
+    function viewUser(userId) {
+        window.location.href = `/admin/utilisateurs/${userId}`;
+    }
+
+    function validateInscription(inscriptionId) {
+        if (confirm('Valider cette inscription ?')) {
+            fetch(`/admin/inscriptions/${inscriptionId}/valider`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Inscription validée', 'success');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showNotification('Erreur lors de la validation', 'error');
+                }
+            })
+            .catch(error => {
+                showNotification('Erreur de connexion', 'error');
+            });
+        }
+    }
+
+    function rejectInscription(inscriptionId) {
+        if (confirm('Refuser cette inscription ?')) {
+            fetch(`/admin/inscriptions/${inscriptionId}/refuser`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Inscription refusée', 'success');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showNotification('Erreur lors du refus', 'error');
+                }
+            })
+            .catch(error => {
+                showNotification('Erreur de connexion', 'error');
+            });
+        }
+    }
+
+    function editFormation(formationId) {
+        window.location.href = `/admin/formations/${formationId}/edit`;
+    }
+
+    function viewFormationStats(formationId) {
+        window.location.href = `/admin/formations/${formationId}/statistiques`;
+    }
+
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.innerHTML = `
+            <span>${message}</span>
+            <button onclick="this.parentElement.remove()">×</button>
+        `;
+        
+        // Styles pour la notification
+        notification.style.cssText = `
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            animation: slideInRight 0.3s ease;
+            min-width: 300px;
+        `;
+        
+        switch(type) {
+            case 'success':
+                notification.style.background = 'var(--success)';
+                break;
+            case 'error':
+                notification.style.background = 'var(--danger)';
+                break;
+            case 'warning':
+                notification.style.background = 'var(--warning)';
+                break;
+            default:
+                notification.style.background = 'var(--primary-blue)';
+        }
+        
+        document.body.appendChild(notification);
+        
+        // Auto-suppression après 5 secondes
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.remove();
+            }
+        }, 5000);
+    }
+
+    // Animation d'entrée pour les notifications
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .notification button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0.2rem;
+            border-radius: 4px;
+        }
+        
+        .notification button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+    `;
+    document.head.appendChild(style);
+</script>

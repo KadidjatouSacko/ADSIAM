@@ -14,9 +14,11 @@ import etudiantsRoutes from './routes/etudiantsRoutes.js';
 
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import DashboardController from './controllers/DashboardController.js';
+import { checkAdmin } from './middleware/checkAdmin.js';
 
 // Import des nouvelles routes d'authentification
 import authRoutes from './routes/authRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
 
 // Import de la configuration DB (adapter selon votre structure)
 import { sequelize } from './models/index.js';
@@ -245,6 +247,8 @@ app.use('/', formationRoutes);
 // 👥 Routes étudiants existantes - GARDEZ CELLE-CI
 console.log('👥 Montage de etudiantsRoutes sur /');
 app.use('/', etudiantsRoutes);
+
+router.use('/admin', checkAdmin, adminRoutes);
 
 
 // ========================================
