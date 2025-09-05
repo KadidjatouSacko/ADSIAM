@@ -19,21 +19,170 @@ import fs from 'fs/promises';
 export class AdminController {
     
     // ====================== TABLEAU DE BORD ======================
-    async dashboard(req, res) {
-        try {
-            const stats = await this.getDashboardStatsData();
-            
-            res.render('admin/dashboard', {
-                title: 'Tableau de bord - Administration ADSIAM',
-                admin: req.admin,
-                stats,
-                currentPage: 'dashboard'
-            });
-        } catch (error) {
-            console.error('Erreur dashboard admin:', error);
-            res.status(500).render('errors/500', { error });
-        }
+async dashboard(req, res) {
+    try {
+        console.log('🎯 AdminController.dashboard appelé');
+        console.log('🎯 req.admin:', req.admin);
+        
+        const stats = await this.getRealDashboardStats();
+        
+        res.render('admin/dashboard', {
+            title: 'Tableau de bord - Administration ADSIAM',
+            admin: req.admin,
+            stats,
+            currentPage: 'dashboard',
+            layout: 'layouts/admin'
+        });
+    } catch (error) {
+        console.error('Erreur dashboard admin:', error);
+        res.status(500).send(`
+            <h1>Erreur 500</h1>
+            <p>Erreur dans le dashboard admin:</p>
+            <pre>${error.message}</pre>
+        `);
     }
+}
+
+async getRealDashboardStats() {
+    try {
+        const { QueryTypes } = await import('sequelize');
+        const { sequelize } = await import('../models/index.js');
+
+        // Statistiques de base avec requêtes SQL adaptées à vos tables
+        const [
+            totalUsers,
+            totalFormations,
+            totalInscriptions,
+            pendingInscriptions,
+            recentUsers,
+            recentInscriptions,
+            topFormations
+        ] = await Promise.all([
+            // Total utilisateurs depuis la table users
+            sequelize.query("SELECT COUNT(*) as count FROM users", {
+                type: QueryTypes.SELECT
+            }).then(result => result[0]?.count || 0),
+
+            // Total formations
+            sequelize.query("SELECT COUNT(*) as count FROM formations", {
+                type: QueryTypes.SELECT
+            }).then(result => result[0]?.count || 0),
+
+            // Total inscriptions
+            sequelize.query("SELECT COUNT(*) as count FROM inscriptions", {
+                type: QueryTypes.SELECT
+            }).then(result => result[0]?.count || 0),
+
+            // Inscriptions en attente
+            sequelize.query("SELECT COUNT(*) as count FROM inscriptions WHERE statut = 'en_attente'", {
+                type: QueryTypes.SELECT
+            }).then(result => result[0]?.count || 0),
+
+            // Utilisateurs récents
+            sequelize.query(`
+                SELECT prenom, nom, email, role, "createdAt"
+                FROM users 
+                ORDER BY "createdAt" DESC 
+                LIMIT 5
+            `, {
+                type: QueryTypes.SELECT
+            }),
+
+            // Inscriptions récentes
+            sequelize.query(`
+                SELECT 
+                    u.prenom, u.nom,
+                    f.titre as formation_titre,
+                    i."createdAt"
+                FROM inscriptions i
+                LEFT JOIN users u ON i.user_id = u.id
+                LEFT JOIN formations f ON i.formation_id = f.id
+                ORDER BY i."createdAt" DESC
+                LIMIT 5
+            `, {
+                type: QueryTypes.SELECT
+            }),
+
+            // Formations populaires
+            sequelize.query(`
+                SELECT 
+                    f.titre, f.icone,
+                    COUNT(i.id) as inscription_count
+                FROM formations f
+                LEFT JOIN inscriptions i ON f.id = i.formation_id
+                GROUP BY f.id, f.titre, f.icone
+                ORDER BY inscription_count DESC
+                LIMIT 5
+            `, {
+                type: QueryTypes.SELECT
+            })
+        ]);
+
+        // Formater les données pour le template
+        return {
+            totalUsers,
+            totalFormations,
+            totalInscriptions,
+            pendingInscriptions,
+            recentUsers: recentUsers || [],
+            recentInscriptions: (recentInscriptions || []).map(inscription => ({
+                User: {
+                    prenom: inscription.prenom,
+                    nom: inscription.nom
+                },
+                Formation: {
+                    titre: inscription.formation_titre
+                }
+            })),
+            topFormations: topFormations || [],
+            monthlyStats: await this.getMonthlyStatsReal()
+        };
+
+    } catch (error) {
+        console.error('Erreur getRealDashboardStats:', error);
+        // Fallback avec données vides en cas d'erreur
+        return {
+            totalUsers: 0,
+            totalFormations: 0,
+            totalInscriptions: 0,
+            pendingInscriptions: 0,
+            recentUsers: [],
+            recentInscriptions: [],
+            topFormations: [],
+            monthlyStats: []
+        };
+    }
+}
+
+async getMonthlyStatsReal() {
+    try {
+        const { QueryTypes } = await import('sequelize');
+        const { sequelize } = await import('../models/index.js');
+
+        const monthlyData = await sequelize.query(`
+            SELECT 
+                TO_CHAR(DATE_TRUNC('month', "createdAt"), 'Mon YYYY') as month,
+                COUNT(*) as count
+            FROM users 
+            WHERE "createdAt" >= NOW() - INTERVAL '12 months'
+            GROUP BY DATE_TRUNC('month', "createdAt")
+            ORDER BY DATE_TRUNC('month', "createdAt") DESC
+            LIMIT 12
+        `, {
+            type: QueryTypes.SELECT
+        });
+
+        return monthlyData.map(row => ({
+            month: row.month,
+            users: parseInt(row.count),
+            inscriptions: 0 // À compléter si nécessaire
+        }));
+
+    } catch (error) {
+        console.error('Erreur getMonthlyStatsReal:', error);
+        return [];
+    }
+}
 
     async getDashboardStatsData() {
         const [

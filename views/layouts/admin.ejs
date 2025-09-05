@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            /* Couleurs principales */
+            --primary-pink: #e7a6b7;
+            --primary-blue: #a5bfd4;
+            
+            /* Couleurs secondaires */
+            --light-pink: #fce8ec;
+            --light-blue: #e8f3f8;
+            --soft-gray: #f5f5f7;
+            
+            /* Texte */
+            --text-dark: #2f2f2f;
+            --text-light: #6f6f6f;
+            --white: #ffffff;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            
+            /* Dégradés */
+            --gradient-pink: linear-gradient(135deg, #fce8ec, #e7a6b7);
+            --gradient-blue: linear-gradient(135deg, #e8f3f8, #a5bfd4);
+            --gradient-contact: linear-gradient(135deg, #e7a6b7, #a5bfd4);
+            --gradient-purple: linear-gradient(135deg, #f0e1ff, #c7a3ff);
+            --gradient-green: linear-gradient(135deg, #e2f8ee, #9dd6b5);
+            --gradient-orange: linear-gradient(135deg, #ffe9dc, #ff9f80);
+            
+            /* Sidebar */
+            --sidebar-width: 280px;
+            --sidebar-collapsed-width: 80px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--soft-gray);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        /* Layout principal */
+        .admin-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .admin-sidebar {
+            width: var(--sidebar-width);
+            background: var(--white);
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.05);
+            position: fixed;
+            height: 100vh;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            overflow-y: auto;
+        }
+
+        .admin-sidebar.collapsed {
+            width: var(--sidebar-collapsed-width);
+        }
+
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid var(--soft-gray);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .sidebar-logo {
+            width: 45px;
+            height: 45px;
+            background: var(--gradient-contact);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .sidebar-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            transition: opacity 0.3s ease;
+        }
+
+        .collapsed .sidebar-title {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .nav-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-section-title {
+            padding: 0 1.5rem 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-light);
+            transition: opacity 0.3s ease;
+        }
+
+        .collapsed .nav-section-title {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .nav-item {
+            margin: 0.25rem 0;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.875rem 1.5rem;
+            color: var(--text-dark);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            background: var(--light-blue);
+            color: var(--primary-blue);
+        }
+
+        .nav-link.active {
+            background: var(--gradient-blue);
+            color: white;
+            font-weight: 600;
+        }
+
+        .nav-link.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--primary-blue);
+        }
+
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .nav-text {
+            transition: opacity 0.3s ease;
+        }
+
+        .collapsed .nav-text {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            background: var(--danger);
+            color: white;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+            transition: opacity 0.3s ease;
+        }
+
+        .collapsed .nav-badge {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Contenu principal */
+        .admin-main {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            transition: margin-left 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .collapsed + .admin-main {
+            margin-left: var(--sidebar-collapsed-width);
+        }
+
+        /* Header du contenu */
+        .admin-header {
+            background: var(--white);
+            padding: 1.5rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .sidebar-toggle {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-light);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-toggle:hover {
+            background: var(--soft-gray);
+            color: var(--text-dark);
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .breadcrumb a {
+            color: var(--primary-blue);
+            text-decoration: none;
+        }
+
+        .breadcrumb-separator {
+            margin: 0 0.5rem;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-input {
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 2px solid var(--soft-gray);
+            border-radius: 25px;
+            width: 300px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 5px 15px rgba(165, 191, 212, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+        }
+
+        .notification-bell {
+            position: relative;
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            color: var(--text-light);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .notification-bell:hover {
+            background: var(--soft-gray);
+            color: var(--text-dark);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: var(--danger);
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.4rem;
+            border-radius: 10px;
+            min-width: 16px;
+            text-align: center;
+        }
+
+        .admin-profile {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .admin-profile:hover {
+            background: var(--soft-gray);
+        }
+
+        .profile-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-contact);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .profile-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .profile-role {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        /* Contenu de la page */
+        .admin-content {
+            flex: 1;
+            padding: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: var(--text-light);
+            margin-bottom: 2rem;
+        }
+
+        /* Alertes */
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .alert-success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .alert-error {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .alert-warning {
+            background: #fffbeb;
+            color: #92400e;
+            border: 1px solid #fed7aa;
+        }
+
+        .alert-info {
+            background: var(--light-blue);
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .admin-sidebar {
+                transform: translateX(-100%);
+            }
+
+            .admin-sidebar.open {
+                transform: translateX(0);
+            }
+
+            .admin-main {
+                margin-left: 0;
+            }
+
+            .search-input {
+                width: 200px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .admin-header {
+                padding: 1rem;
+            }
+
+            .admin-content {
+                padding: 1rem;
+            }
+
+            .search-input {
+                width: 150px;
+            }
+
+            .profile-info {
+                display: none;
+            }
+
+            .header-right {
+                gap: 0.5rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .slide-in {
+            animation: slideIn 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <nav class="admin-sidebar" id="adminSidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">A</div>
+                <div class="sidebar-title">ADSIAM Admin</div>
+            </div>
+
+            <div class="sidebar-nav">
+                <!-- Dashboard -->
+                <div class="nav-section">
+                    <div class="nav-section-title">Tableau de bord</div>
+                    <div class="nav-item">
+                        <a href="/admin" class="nav-link <%= currentPage === 'dashboard' ? 'active' : '' %>">
+                            <div class="nav-icon">📊</div>
+                            <span class="nav-text">Vue d'ensemble</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Gestion -->
+                <div class="nav-section">
+                    <div class="nav-section-title">Gestion</div>
+                    <div class="nav-item">
+                        <a href="/admin/utilisateurs" class="nav-link <%= currentPage === 'users' ? 'active' : '' %>">
+                            <div class="nav-icon">👥</div>
+                            <span class="nav-text">Utilisateurs</span>
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="/admin/formations" class="nav-link <%= currentPage === 'formations' ? 'active' : '' %>">
+                            <div class="nav-icon">📚</div>
+                            <span class="nav-text">Formations</span>
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="/admin/inscriptions" class="nav-link <%= currentPage === 'inscriptions' ? 'active' : '' %>">
+                            <div class="nav-icon">📝</div>
+                            <span class="nav-text">Inscriptions</span>
+                            <% if (typeof pendingInscriptions !== 'undefined' && pendingInscriptions > 0) { %>
+                                <span class="nav-badge"><%= pendingInscriptions %></span>
+                            <% } %>
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="/admin/evenements" class="nav-link <%= currentPage === 'events' ? 'active' : '' %>">
+                            <div class="nav-icon">📅</div>
+                            <span class="nav-text">Événements</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Finance -->
+                <div class="nav-section">
+                    <div class="nav-section-title">Finance</div>
+                    <div class="nav-item">
+                        <a href="/admin/facturation" class="nav-link <%= currentPage === 'billing' ? 'active' : '' %>">
+                            <div class="nav-icon">💳</div>
+                            <span class="nav-text">Facturation</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Rapports -->
+                <div class="nav-section">
+                    <div class="nav-section-title">Analyses</div>
+                    <div class="nav-item">
+                        <a href="/admin/rapports" class="nav-link <%= currentPage === 'reports' ? 'active' : '' %>">
+                            <div class="nav-icon">📈</div>
+                            <span class="nav-text">Rapports</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Communication -->
+                <div class="nav-section">
+                    <div class="nav-section-title">Communication</div>
+                    <div class="nav-item">
+                        <a href="/admin/messagerie" class="nav-link <%= currentPage === 'messaging' ? 'active' : '' %>">
+                            <div class="nav-icon">💬</div>
+                            <span class="nav-text">Messagerie</span>
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="/admin/notifications" class="nav-link <%= currentPage === 'notifications' ? 'active' : '' %>">
+                            <div class="nav-icon">🔔</div>
+                            <span class="nav-text">Notifications</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Paramètres -->
+                <div class="nav-section">
+                    <div class="nav-section-title">Configuration</div>
+                    <div class="nav-item">
+                        <a href="/admin/parametres" class="nav-link <%= currentPage === 'settings' ? 'active' : '' %>">
+                            <div class="nav-icon">⚙️</div>
+                            <span class="nav-text">Paramètres</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Contenu principal -->
+        <main class="admin-main">
+            <!-- Header -->
+            <header class="admin-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <nav class="breadcrumb">
+                        <a href="/admin">Administration</a>
+                        <span class="breadcrumb-separator">›</span>
+                        <span><%= title.split(' - ')[0] %></span>
+                    </nav>
+                </div>
+
+                <div class="header-right">
+                    <div class="search-box">
+                        <input type="text" class="search-input" placeholder="Rechercher...">
+                        <span class="search-icon">🔍</span>
+                    </div>
+
+                    <button class="notification-bell" id="notificationBell">
+                        🔔
+                        <span class="notification-badge">3</span>
+                    </button>
+
+                    <div class="admin-profile" onclick="toggleProfileMenu()">
+                        <div class="profile-avatar">
+                            <%= admin.prenom.charAt(0) %><%= admin.nom.charAt(0) %>
+                        </div>
+                        <div class="profile-info">
+                            <div class="profile-name"><%= admin.prenom %> <%= admin.nom %></div>
+                            <div class="profile-role">Administrateur</div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Contenu de la page -->
+            <div class="admin-content">
+                <!-- Alertes -->
+                <% if (typeof req !== 'undefined' && req.session && req.session.flash) { %>
+                    <div class="alert alert-<%= req.session.flash.type %>">
+                        <span><%= req.session.flash.message %></span>
+                    </div>
+                    <% delete req.session.flash; %>
+                <% } %>
+
+                <!-- Contenu spécifique à la page -->
+                <%- body %>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Toggle sidebar
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('adminSidebar');
+            sidebar.classList.toggle('collapsed');
+        });
+
+        // Responsive sidebar pour mobile
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('adminSidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        // Gestion des notifications
+        document.getElementById('notificationBell').addEventListener('click', function() {
+            // Ici vous pourriez ouvrir un dropdown de notifications
+            alert('Notifications - À implémenter');
+        });
+
+        // Menu profil
+        function toggleProfileMenu() {
+            // Ici vous pourriez ouvrir un menu déroulant
+            if (confirm('Voulez-vous vous déconnecter ?')) {
+                window.location.href = '/admin/logout';
+            }
+        }
+
+        // Recherche globale
+        document.querySelector('.search-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const query = this.value;
+                if (query.trim()) {
+                    window.location.href = `/admin/search?q=${encodeURIComponent(query)}`;
+                }
+            }
+        });
+
+        // Auto-dismiss alerts
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                alert.style.transition = 'opacity 0.3s ease';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 300);
+            });
+        }, 5000);
+
+        // Animation d'entrée
+        document.addEventListener('DOMContentLoaded', function() {
+            const content = document.querySelector('.admin-content');
+            content.classList.add('slide-in');
+        });
+    </script>
+</body>
+</html>
