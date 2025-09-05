@@ -278,7 +278,7 @@ app.use('/auth', authRoutes);
 
 // 👑 Routes administrateur (PROTECTION ADMIN)
 console.log('👑 Montage des routes administrateur sur /admin');
-app.use('/admin', checkAdmin, adminRoutes);
+app.use('/admin', adminRoutes);
 
 // 📊 Routes Dashboard
 console.log('📊 Montage des routes Dashboard');

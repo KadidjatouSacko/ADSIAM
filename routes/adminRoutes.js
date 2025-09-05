@@ -4,13 +4,13 @@ import { AdminController } from '../controllers/AdminController.js';
 import { authMiddleware } from '../middleware/authMiddleware.js'; // Votre middleware existant
 import { checkAdminAPI } from '../middleware/checkAdmin.js';
 import { requireAdmin } from '../middleware/authMiddleware.js';
+import { checkAdmin } from '../middleware/checkAdmin.js';
 
 const router = express.Router();
 const adminController = new AdminController();
 
 // Middleware d'authentification pour toutes les routes admin
-router.use(requireAdmin);
-
+router.use(checkAdmin);
 // ====================== TABLEAU DE BORD ======================
 router.get('/', adminController.dashboard.bind(adminController));
 router.get('/dashboard', adminController.dashboard.bind(adminController));
