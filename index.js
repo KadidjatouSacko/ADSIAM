@@ -21,6 +21,8 @@ import adminRoutes from './routes/adminRoutes.js';
 
 // Import de la configuration DB
 import { sequelize } from './models/index.js';
+import methodOverride from 'method-override';
+
 
 // Configuration ES6 pour __dirname
 const __filename = fileURLToPath(import.meta.url);
@@ -78,7 +80,7 @@ app.use(session({
 
 // Configuration Flash messages
 app.use(flash());
-
+app.use(methodOverride('_method'));
 // ========================================
 // 🛡️ SÉCURITÉ
 // ========================================

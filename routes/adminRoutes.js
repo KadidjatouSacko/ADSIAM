@@ -71,7 +71,22 @@ router.post('/evenements/nouveau',
     parseFormData,
     adminController.createEvent.bind(adminController)
 );
+// ====================== GESTION DES ÉVÉNEMENTS (complet) ======================
+router.get('/evenements', adminController.getEvents.bind(adminController));
+router.get('/evenements/nouveau', adminController.createEventForm.bind(adminController));
+router.post('/evenements/nouveau', 
+    parseFormData,
+    adminController.createEvent.bind(adminController)
+);
 
+// Routes manquantes à ajouter :
+router.get('/evenements/:id/modifier', adminController.editEventForm.bind(adminController));
+router.put('/evenements/:id', 
+    parseFormData,
+    adminController.updateEvent.bind(adminController)
+);
+router.delete('/evenements/:id', adminController.deleteEvent.bind(adminController));
+router.get('/evenements/:id', adminController.viewEvent.bind(adminController));
 // ====================== PARAMÈTRES ======================
 router.get('/parametres', adminController.getSettings.bind(adminController));
 router.put('/parametres/organisme', adminController.updateOrganismSettings.bind(adminController));

@@ -541,19 +541,44 @@ export class AdminController {
     }
 
     // ====================== GESTION DES INSCRIPTIONS ======================
-    async getInscriptions(req, res) {
+    // Dans votre AdminController.js, remplacez la méthode getInscriptions par cette version corrigée :
+
+async getInscriptions(req, res) {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 20;
+        const statut = req.query.statut || '';
+        
+        const { QueryTypes } = await import('sequelize');
+        const { sequelize } = await import('../models/index.js');
+
+        // D'abord, vérifions la structure de la table inscriptions
+        console.log('🔍 Vérification de la structure de la table inscriptions...');
+        
         try {
-            const page = parseInt(req.query.page) || 1;
-            const limit = parseInt(req.query.limit) || 20;
-            const statut = req.query.statut || '';
+            const tableInfo = await sequelize.query(`
+                SELECT column_name, data_type 
+                FROM information_schema.columns 
+                WHERE table_name = 'inscriptions'
+                ORDER BY ordinal_position;
+            `, {
+                type: QueryTypes.SELECT
+            });
             
-            const where = {};
-            if (statut) where.statut = statut;
-
-            // Requête SQL directe pour éviter les problèmes d'associations
-            const { QueryTypes } = await import('sequelize');
-            const { sequelize } = await import('../models/index.js');
-
+            console.log('📋 Colonnes de la table inscriptions:', tableInfo);
+            
+            // Déterminer le nom correct de la colonne de date
+            const dateColumn = tableInfo.find(col => 
+                col.column_name.toLowerCase().includes('created') || 
+                col.column_name.toLowerCase().includes('date')
+            );
+            
+            const dateColumnName = dateColumn ? dateColumn.column_name : 'created_at';
+            console.log(`📅 Colonne de date détectée: ${dateColumnName}`);
+            
+            // Construire la requête avec le bon nom de colonne
+            const whereClause = statut ? `WHERE i.statut = '${statut}'` : '';
+            
             const inscriptionsQuery = `
                 SELECT 
                     i.*,
@@ -562,15 +587,15 @@ export class AdminController {
                 FROM inscriptions i
                 LEFT JOIN users u ON i.user_id = u.id
                 LEFT JOIN formations f ON i.formation_id = f.id
-                ${statut ? `WHERE i.statut = '${statut}'` : ''}
-                ORDER BY i."createdAt" DESC
+                ${whereClause}
+                ORDER BY i."${dateColumnName}" DESC
                 LIMIT ${limit} OFFSET ${(page - 1) * limit}
             `;
 
             const countQuery = `
                 SELECT COUNT(*) as count
                 FROM inscriptions i
-                ${statut ? `WHERE i.statut = '${statut}'` : ''}
+                ${whereClause}
             `;
 
             const [inscriptions, countResult] = await Promise.all([
@@ -578,14 +603,14 @@ export class AdminController {
                 sequelize.query(countQuery, { type: QueryTypes.SELECT })
             ]);
 
-            const count = countResult[0].count;
+            const count = parseInt(countResult[0].count);
             const totalPages = Math.ceil(count / limit);
 
             // Formater les données pour le template
             const formattedInscriptions = inscriptions.map(inscription => ({
                 id: inscription.id,
                 statut: inscription.statut,
-                createdAt: inscription.createdAt,
+                createdAt: inscription[dateColumnName], // Utiliser le bon nom de colonne
                 User: {
                     id: inscription.user_id,
                     prenom: inscription.prenom,
@@ -595,7 +620,7 @@ export class AdminController {
                 Formation: {
                     id: inscription.formation_id,
                     titre: inscription.formation_titre,
-                    icone: inscription.icone,
+                    icone: inscription.icone || '📚',
                     prix: inscription.prix
                 }
             }));
@@ -615,11 +640,218 @@ export class AdminController {
                 currentPage: 'inscriptions',
                 layout: 'layouts/admin'
             });
-        } catch (error) {
-            console.error('Erreur getInscriptions:', error);
-            res.status(500).render('errors/500', { error });
+
+        } catch (tableError) {
+            console.error('❌ Erreur lors de la vérification de la table:', tableError);
+            
+            // Fallback: essayer avec des noms de colonnes alternatifs
+            const fallbackQuery = `
+                SELECT 
+                    i.id,
+                    i.statut,
+                    i.created_at,
+                    u.prenom, u.nom, u.email,
+                    f.titre as formation_titre, f.icone, f.prix
+                FROM inscriptions i
+                LEFT JOIN users u ON i.user_id = u.id
+                LEFT JOIN formations f ON i.formation_id = f.id
+                ${statut ? `WHERE i.statut = '${statut}'` : ''}
+                ORDER BY i.id DESC
+                LIMIT ${limit} OFFSET ${(page - 1) * limit}
+            `;
+
+            const inscriptions = await sequelize.query(fallbackQuery, { type: QueryTypes.SELECT });
+            
+            const formattedInscriptions = inscriptions.map(inscription => ({
+                id: inscription.id,
+                statut: inscription.statut,
+                createdAt: inscription.created_at || new Date(),
+                User: {
+                    id: inscription.user_id,
+                    prenom: inscription.prenom || 'N/A',
+                    nom: inscription.nom || 'N/A',
+                    email: inscription.email || 'N/A'
+                },
+                Formation: {
+                    id: inscription.formation_id,
+                    titre: inscription.formation_titre || 'Formation inconnue',
+                    icone: inscription.icone || '📚',
+                    prix: inscription.prix || 0
+                }
+            }));
+
+            res.render('admin/inscriptions/list', {
+                title: 'Gestion des inscriptions - ADSIAM Admin',
+                admin: req.admin,
+                inscriptions: formattedInscriptions,
+                pagination: {
+                    currentPage: page,
+                    totalPages: 1,
+                    total: inscriptions.length,
+                    hasNext: false,
+                    hasPrev: false
+                },
+                filters: { statut },
+                currentPage: 'inscriptions',
+                layout: 'layouts/admin'
+            });
         }
+
+    } catch (error) {
+        console.error('Erreur getInscriptions:', error);
+        res.status(500).render('errors/500', { 
+            error,
+            title: 'Erreur - ADSIAM Admin',
+            admin: req.admin,
+            layout: 'layouts/admin'
+        });
     }
+}
+
+async editEventForm(req, res) {
+    try {
+        const { id } = req.params;
+        const { QueryTypes } = await import('sequelize');
+        const { sequelize } = await import('../models/index.js');
+
+        const event = await sequelize.query(`
+            SELECT * FROM evenements WHERE id = :id
+        `, {
+            type: QueryTypes.SELECT,
+            replacements: { id }
+        });
+
+        if (!event || event.length === 0) {
+            return res.status(404).render('errors/404', {
+                message: 'Événement non trouvé'
+            });
+        }
+
+        const formations = await sequelize.query(`
+            SELECT id, titre FROM formations WHERE actif = true ORDER BY titre ASC
+        `, {
+            type: QueryTypes.SELECT
+        });
+
+        res.render('admin/events/edit', {
+            title: `Modifier l'événement - ADSIAM Admin`,
+            admin: req.admin,
+            event: event[0],
+            formations,
+            currentPage: 'events',
+            layout: 'layouts/admin'
+        });
+    } catch (error) {
+        console.error('Erreur editEventForm:', error);
+        res.status(500).render('errors/500', { error });
+    }
+}
+
+async updateEvent(req, res) {
+    try {
+        const { id } = req.params;
+        const { QueryTypes } = await import('sequelize');
+        const { sequelize } = await import('../models/index.js');
+
+        const updateData = {
+            titre: req.body.titre,
+            description: req.body.description,
+            date_debut: req.body.date_debut ? new Date(req.body.date_debut) : null,
+            date_fin: req.body.date_fin ? new Date(req.body.date_fin) : null,
+            lieu: req.body.lieu,
+            max_participants: parseInt(req.body.max_participants) || null,
+            formation_id: req.body.formation_id || null
+        };
+
+        await sequelize.query(`
+            UPDATE evenements SET 
+                titre = :titre,
+                description = :description,
+                date_debut = :date_debut,
+                date_fin = :date_fin,
+                lieu = :lieu,
+                max_participants = :max_participants,
+                formation_id = :formation_id
+            WHERE id = :id
+        `, {
+            type: QueryTypes.UPDATE,
+            replacements: { ...updateData, id }
+        });
+
+        req.session.flash = {
+            type: 'success',
+            message: 'Événement mis à jour avec succès'
+        };
+
+        res.redirect('/admin/evenements');
+    } catch (error) {
+        console.error('Erreur updateEvent:', error);
+        res.status(500).json({ error: 'Erreur lors de la mise à jour' });
+    }
+}
+
+async deleteEvent(req, res) {
+    try {
+        const { id } = req.params;
+        const { QueryTypes } = await import('sequelize');
+        const { sequelize } = await import('../models/index.js');
+
+        const result = await sequelize.query(`
+            DELETE FROM evenements WHERE id = :id
+        `, {
+            type: QueryTypes.DELETE,
+            replacements: { id }
+        });
+
+        res.json({ 
+            success: true, 
+            message: 'Événement supprimé avec succès' 
+        });
+    } catch (error) {
+        console.error('Erreur deleteEvent:', error);
+        res.status(500).json({ 
+            error: 'Erreur lors de la suppression',
+            message: error.message 
+        });
+    }
+}
+
+async viewEvent(req, res) {
+    try {
+        const { id } = req.params;
+        const { QueryTypes } = await import('sequelize');
+        const { sequelize } = await import('../models/index.js');
+
+        const event = await sequelize.query(`
+            SELECT 
+                e.*,
+                f.titre as formation_titre
+            FROM evenements e
+            LEFT JOIN formations f ON e.formation_id = f.id
+            WHERE e.id = :id
+        `, {
+            type: QueryTypes.SELECT,
+            replacements: { id }
+        });
+
+        if (!event || event.length === 0) {
+            return res.status(404).render('errors/404', {
+                message: 'Événement non trouvé'
+            });
+        }
+
+        res.render('admin/events/view', {
+            title: `Événement: ${event[0].titre} - ADSIAM Admin`,
+            admin: req.admin,
+            event: event[0],
+            currentPage: 'events',
+            layout: 'layouts/admin'
+        });
+    } catch (error) {
+        console.error('Erreur viewEvent:', error);
+        res.status(500).render('errors/500', { error });
+    }
+}
 
     async validateInscription(req, res) {
         try {
@@ -835,13 +1067,41 @@ export class AdminController {
 
     // ====================== PARAMÈTRES ======================
   // Méthodes de classe, pas de variables template
+// Dans votre AdminController.js, remplacez la méthode getSettings par ceci :
+
 async getSettings(req, res) {
     try {
-        const settings = { /* ... */ };
+        // Définir explicitement l'objet settings avec toutes les propriétés
+        const settings = {
+            organisme: {
+                nom: 'ADSIAM',
+                adresse: '123 Rue de la Formation, 75001 Paris',
+                telephone: '06 50 84 81 75',
+                email: 'contact@adsiam.fr',
+                siret: '12345678901234',
+                numeroDeclaration: 'OF123456789'
+            },
+            site: {
+                titre: 'ADSIAM - Formation Excellence',
+                description: 'Plateforme de formation pour professionnels de l\'aide à domicile',
+                logo: '/images/logo-adsiam.png',
+                couleurPrimaire: '#e7a6b7',
+                couleurSecondaire: '#a5bfd4'
+            },
+            notifications: {
+                emailInscription: true,
+                emailValidation: true,
+                emailRappel: true,
+                smsActivation: false
+            }
+        };
+
+        console.log('🔧 Settings data:', settings); // Debug
+
         res.render('admin/settings', {
             title: 'Paramètres généraux - ADSIAM Admin',
             admin: req.admin,
-            settings,
+            settings, // Passer l'objet settings complet
             currentPage: 'settings',
             layout: 'layouts/admin'
         });

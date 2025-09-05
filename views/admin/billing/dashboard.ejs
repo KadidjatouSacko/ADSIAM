@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2>ADSIAM Admin</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="/admin">Tableau de bord</a></li>
+                <li><a href="/admin/utilisateurs">Utilisateurs</a></li>
+                <li><a href="/admin/formations">Formations</a></li>
+                <li><a href="/admin/inscriptions">Inscriptions</a></li>
+                <li><a href="/admin/evenements">Événements</a></li>
+                <li><a href="/admin/facturation" class="<%= currentPage === 'billing' ? 'active' : '' %>">Facturation</a></li>
+                <li><a href="/admin/rapports">Rapports</a></li>
+                <li><a href="/admin/messagerie">Messagerie</a></li>
+                <li><a href="/admin/parametres">Paramètres</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <div class="content-header">
+                <h1>Facturation et revenus</h1>
+                <div class="header-actions">
+                    <button class="btn btn-primary">Nouvelle facture</button>
+                    <button class="btn btn-secondary">Exporter</button>
+                </div>
+            </div>
+
+            <!-- Statistiques financières -->
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div class="stat-number"><%= billingData.totalRevenue.toLocaleString() %>€</div>
+                        <div class="stat-label">Revenus totaux</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div class="stat-number"><%= billingData.monthlyRevenue.toLocaleString() %>€</div>
+                        <div class="stat-label">Ce mois</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div class="stat-number"><%= billingData.pendingPayments %></div>
+                        <div class="stat-label">Paiements en attente</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div class="stat-number"><%= billingData.totalInvoices %></div>
+                        <div class="stat-label">Factures émises</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Factures récentes -->
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>Factures récentes</h3>
+                    <div class="table-actions">
+                        <select class="form-select">
+                            <option>Toutes les factures</option>
+                            <option>Payées</option>
+                            <option>En attente</option>
+                            <option>En retard</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>N° Facture</th>
+                            <th>Client</th>
+                            <th>Montant</th>
+                            <th>Date</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (billingData.recentInvoices && billingData.recentInvoices.length > 0) { %>
+                            <% billingData.recentInvoices.forEach((invoice, index) => { %>
+                            <tr>
+                                <td><strong>FAC-2025-<%= String(invoice.id).padStart(3, '0') %></strong></td>
+                                <td><%= invoice.client %></td>
+                                <td><%= invoice.amount %>€</td>
+                                <td><%= new Date(invoice.date).toLocaleDateString('fr-FR') %></td>
+                                <td>
+                                    <span class="status status-<%= invoice.status === 'paid' ? 'actif' : 'en_attente' %>">
+                                        <%= invoice.status === 'paid' ? 'Payée' : 'En attente' %>
+                                    </span>
+                                </td>
+                                <td class="actions">
+                                    <button class="btn-icon" onclick="viewInvoice(<%= invoice.id %>)" title="Voir">👁️</button>
+                                    <button class="btn-icon" onclick="downloadInvoice(<%= invoice.id %>)" title="Télécharger">📄</button>
+                                    <% if (invoice.status !== 'paid') { %>
+                                        <button class="btn-icon" onclick="sendReminder(<%= invoice.id %>)" title="Rappel">📧</button>
+                                    <% } %>
+                                </td>
+                            </tr>
+                            <% }); %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="6" style="text-align: center; padding: 3rem; color: var(--text-light);">
+                                    <div style="font-size: 1.2rem; margin-bottom: 0.5rem;">Aucune facture trouvée</div>
+                                    <div>Les factures apparaîtront ici une fois créées</div>
+                                </td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Graphique des revenus mensuels -->
+            <div class="chart-container" style="background: white; border-radius: 20px; padding: 2rem; margin-top: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
+                <h3>Évolution des revenus</h3>
+                <div id="revenueChart" style="height: 300px; display: flex; align-items: center; justify-content: center; color: var(--text-light);">
+                    Graphique des revenus à implémenter
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function viewInvoice(invoiceId) {
+            alert(`Affichage de la facture ${invoiceId}`);
+        }
+
+        function downloadInvoice(invoiceId) {
+            // Simuler le téléchargement
+            const link = document.createElement('a');
+            link.href = `/admin/facturation/facture/${invoiceId}/pdf`;
+            link.download = `facture-${invoiceId}.pdf`;
+            link.click();
+        }
+
+        function sendReminder(invoiceId) {
+            if (confirm('Envoyer un rappel de paiement pour cette facture ?')) {
+                fetch(`/admin/facturation/facture/${invoiceId}/rappel`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Rappel envoyé avec succès');
+                    } else {
+                        alert('Erreur lors de l\'envoi du rappel');
+                    }
+                });
+            }
+        }
+    </script>
+
+    <style>
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            background: var(--light-blue);
+            border-radius: 15px 15px 0 0;
+        }
+
+        .table-header h3 {
+            margin: 0;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .chart-container {
+            margin-top: 2rem;
+        }
+
+        .chart-container h3 {
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        @media (max-width: 768px) {
+            .table-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+            
+            .dashboard-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</body>
+</html>

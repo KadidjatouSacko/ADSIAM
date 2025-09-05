@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2>ADSIAM Admin</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="/admin">📊 Tableau de bord</a></li>
+                <li><a href="/admin/utilisateurs">👥 Utilisateurs</a></li>
+                <li><a href="/admin/formations">📚 Formations</a></li>
+                <li><a href="/admin/inscriptions">📝 Inscriptions</a></li>
+                <li><a href="/admin/evenements" class="active">📅 Événements</a></li>
+                <li><a href="/admin/rapports">📊 Rapports</a></li>
+                <li><a href="/admin/messagerie">💬 Messagerie</a></li>
+                <li><a href="/admin/parametres">⚙️ Paramètres</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <div class="content-header">
+                <h1>Gestion des événements</h1>
+                <div class="header-actions">
+                    <a href="/admin/evenements/nouveau" class="btn btn-primary">➕ Nouvel événement</a>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Titre</th>
+                            <th>Description</th>
+                            <th>Date de début</th>
+                            <th>Date de fin</th>
+                            <th>Lieu</th>
+                            <th>Max participants</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (events && events.length > 0) { %>
+                            <% events.forEach(event => { %>
+                            <tr>
+                                <td><%= event.id %></td>
+                                <td><%= event.titre %></td>
+                                <td>
+                                    <% if (event.description && event.description.length > 50) { %>
+                                        <%= event.description.substring(0, 50) %>...
+                                    <% } else { %>
+                                        <%= event.description || 'Aucune description' %>
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <% if (event.date_debut) { %>
+                                        <%= new Date(event.date_debut).toLocaleDateString('fr-FR') %>
+                                        <br>
+                                        <small><%= new Date(event.date_debut).toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'}) %></small>
+                                    <% } else { %>
+                                        Non définie
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <% if (event.date_fin) { %>
+                                        <%= new Date(event.date_fin).toLocaleDateString('fr-FR') %>
+                                        <br>
+                                        <small><%= new Date(event.date_fin).toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'}) %></small>
+                                    <% } else { %>
+                                        Non définie
+                                    <% } %>
+                                </td>
+                                <td><%= event.lieu || 'Non défini' %></td>
+                                <td>
+                                    <% if (event.max_participants) { %>
+                                        <%= event.max_participants %> personnes
+                                    <% } else { %>
+                                        Illimité
+                                    <% } %>
+                                </td>
+                                <td class="actions">
+                                    <a href="/admin/evenements/<%= event.id %>/modifier" class="btn-icon" title="Modifier">✏️</a>
+                                    <button onclick="viewEvent(<%= event.id %>)" class="btn-icon" title="Voir détails">👁️</button>
+                                    <button onclick="deleteEvent(<%= event.id %>)" class="btn-icon btn-danger" title="Supprimer">🗑️</button>
+                                </td>
+                            </tr>
+                            <% }); %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="8" style="text-align: center; padding: 3rem; color: var(--text-light);">
+                                    <div style="font-size: 3rem; margin-bottom: 1rem;">📅</div>
+                                    <div style="font-size: 1.2rem; margin-bottom: 0.5rem;">Aucun événement trouvé</div>
+                                    <div>Commencez par créer votre premier événement</div>
+                                </td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+
+            <% if (events && events.length > 0) { %>
+            <div class="pagination-container">
+                <div class="pagination-info">
+                    Affichage de <%= events.length %> événement(s)
+                </div>
+            </div>
+            <% } %>
+        </main>
+    </div>
+
+    <script>
+        function viewEvent(eventId) {
+            alert(`Affichage des détails de l'événement ${eventId}\n\nFonctionnalité à implémenter`);
+        }
+
+        function deleteEvent(eventId) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer cet événement ?')) {
+                fetch(`/admin/evenements/${eventId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Erreur: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    alert('Erreur lors de la suppression');
+                });
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2>ADSIAM Admin</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="/admin">📊 Tableau de bord</a></li>
+                <li><a href="/admin/utilisateurs">👥 Utilisateurs</a></li>
+                <li><a href="/admin/formations">📚 Formations</a></li>
+                <li><a href="/admin/inscriptions">📝 Inscriptions</a></li>
+                <li><a href="/admin/evenements" class="active">📅 Événements</a></li>
+                <li><a href="/admin/rapports">📊 Rapports</a></li>
+                <li><a href="/admin/messagerie">💬 Messagerie</a></li>
+                <li><a href="/admin/parametres">⚙️ Paramètres</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <div class="content-header">
+                <h1>Modifier l'événement</h1>
+                <div class="header-actions">
+                    <a href="/admin/evenements" class="btn btn-secondary">← Retour à la liste</a>
+                </div>
+            </div>
+
+            <div class="form-container">
+                <form action="/admin/evenements/<%= event.id %>" method="POST" class="admin-form">
+                    <input type="hidden" name="_method" value="PUT">
+                    
+                    <div class="form-section">
+                        <h3>Informations de l'événement</h3>
+                        
+                        <div class="form-group">
+                            <label for="titre" class="form-label required">Titre</label>
+                            <input type="text" id="titre" name="titre" class="form-input" 
+                                   value="<%= event.titre %>" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea id="description" name="description" class="form-textarea" rows="4"><%= event.description || '' %></textarea>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="date_debut" class="form-label required">Date de début</label>
+                                <input type="datetime-local" id="date_debut" name="date_debut" class="form-input" 
+                                       value="<%= event.date_debut ? new Date(event.date_debut).toISOString().slice(0, 16) : '' %>" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="date_fin" class="form-label">Date de fin</label>
+                                <input type="datetime-local" id="date_fin" name="date_fin" class="form-input"
+                                       value="<%= event.date_fin ? new Date(event.date_fin).toISOString().slice(0, 16) : '' %>">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="lieu" class="form-label">Lieu</label>
+                                <input type="text" id="lieu" name="lieu" class="form-input" 
+                                       value="<%= event.lieu || '' %>">
+                            </div>
+                            <div class="form-group">
+                                <label for="max_participants" class="form-label">Nombre max de participants</label>
+                                <input type="number" id="max_participants" name="max_participants" class="form-input" 
+                                       min="1" value="<%= event.max_participants || '' %>">
+                            </div>
+                        </div>
+
+                        <% if (formations && formations.length > 0) { %>
+                        <div class="form-group">
+                            <label for="formation_id" class="form-label">Formation associée</label>
+                            <select id="formation_id" name="formation_id" class="form-select">
+                                <option value="">Aucune formation</option>
+                                <% formations.forEach(formation => { %>
+                                    <option value="<%= formation.id %>" <%= event.formation_id == formation.id ? 'selected' : '' %>>
+                                        <%= formation.titre %>
+                                    </option>
+                                <% }); %>
+                            </select>
+                        </div>
+                        <% } %>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">✅ Mettre à jour</button>
+                        <a href="/admin/evenements" class="btn btn-secondary">❌ Annuler</a>
+                        <button type="button" onclick="deleteEvent(<%= event.id %>)" class="btn btn-danger">🗑️ Supprimer</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function deleteEvent(eventId) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer cet événement ? Cette action est irréversible.')) {
+                fetch(`/admin/evenements/${eventId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Événement supprimé avec succès');
+                        window.location.href = '/admin/evenements';
+                    } else {
+                        alert('Erreur: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    alert('Erreur lors de la suppression');
+                });
+            }
+        }
+
+        // Validation côté client
+        document.querySelector('.admin-form').addEventListener('submit', function(e) {
+            const titre = document.getElementById('titre').value.trim();
+            const dateDebut = document.getElementById('date_debut').value;
+            
+            if (!titre) {
+                e.preventDefault();
+                alert('Le titre est obligatoire');
+                return false;
+            }
+            
+            if (!dateDebut) {
+                e.preventDefault();
+                alert('La date de début est obligatoire');
+                return false;
+            }
+        });
+    </script>
+</body>
+</html>
