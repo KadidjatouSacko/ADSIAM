@@ -1,0 +1,1462 @@
+<%- include('../layout') %>
+
+<style>
+    :root {
+        --primary-pink: #e7a6b7;
+        --primary-blue: #a5bfd4;
+        --light-pink: #fce8ec;
+        --light-blue: #e8f3f8;
+        --soft-gray: #f5f5f7;
+        --text-dark: #2f2f2f;
+        --text-light: #6f6f6f;
+        --white: #ffffff;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --info: #3b82f6;
+        
+        --gradient-pink: linear-gradient(135deg, #fce8ec, #e7a6b7);
+        --gradient-blue: linear-gradient(135deg, #e8f3f8, #a5bfd4);
+        --gradient-contact: linear-gradient(135deg, #e7a6b7, #a5bfd4);
+        --gradient-purple: linear-gradient(135deg, #f0e1ff, #c7a3ff);
+        --gradient-green: linear-gradient(135deg, #e2f8ee, #9dd6b5);
+        --gradient-orange: linear-gradient(135deg, #ffe9dc, #ff9f80);
+        
+        --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.05);
+        --shadow-md: 0 8px 25px rgba(0, 0, 0, 0.1);
+        --shadow-lg: 0 15px 50px rgba(0, 0, 0, 0.15);
+        --radius-lg: 20px;
+        --radius-xl: 25px;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    .formations-page {
+        padding: 0;
+        background: var(--soft-gray);
+        min-height: 100vh;
+    }
+
+    /* Header Section */
+    .page-header {
+        background: var(--white);
+        padding: 2.5rem 2rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-sm);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 300px;
+        height: 100%;
+        background: var(--gradient-contact);
+        opacity: 0.05;
+        clip-path: polygon(20% 0%, 100% 0%, 100% 100%, 0% 100%);
+    }
+
+    .header-content {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        max-width: 1400px;
+        margin: 0 auto;
+        flex-wrap: wrap;
+        gap: 2rem;
+    }
+
+    .header-text h1 {
+        font-size: 2.5rem;
+        font-weight: 300;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.02em;
+    }
+
+    .header-text p {
+        font-size: 1.1rem;
+        color: var(--text-light);
+        margin-bottom: 1.5rem;
+    }
+
+    .header-stats {
+        display: flex;
+        gap: 2rem;
+        align-items: center;
+    }
+
+    .stat-bubble {
+        background: var(--gradient-blue);
+        color: white;
+        padding: 0.8rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    /* Modern Button Styles */
+    .btn {
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: var(--radius-lg);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.8rem;
+        font-size: 0.95rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    .btn:hover::before {
+        left: 100%;
+    }
+
+    .btn-primary {
+        background: var(--gradient-contact);
+        color: white;
+        box-shadow: var(--shadow-md);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .btn-secondary {
+        background: white;
+        color: var(--text-dark);
+        border: 2px solid var(--soft-gray);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .btn-secondary:hover {
+        border-color: var(--primary-blue);
+        color: var(--primary-blue);
+        transform: translateY(-2px);
+    }
+
+    /* Filters Section */
+    .filters-section {
+        background: var(--white);
+        border-radius: var(--radius-xl);
+        padding: 2rem;
+        margin: 0 2rem 2rem;
+        box-shadow: var(--shadow-sm);
+        position: relative;
+    }
+
+    .filters-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .filters-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+    }
+
+    .search-container {
+        position: relative;
+        max-width: 500px;
+        width: 100%;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 1.2rem 4rem 1.2rem 1.5rem;
+        border: 3px solid var(--soft-gray);
+        border-radius: 50px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: var(--soft-gray);
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: var(--primary-blue);
+        background: white;
+        box-shadow: 0 0 0 4px rgba(165, 191, 212, 0.1);
+    }
+
+    .search-icon {
+        position: absolute;
+        right: 1.5rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: var(--gradient-contact);
+        color: white;
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .search-icon:hover {
+        transform: translateY(-50%) scale(1.1);
+    }
+
+    .filter-tabs {
+        display: flex;
+        gap: 0.5rem;
+        margin: 2rem 0;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+    }
+
+    .filter-tab {
+        padding: 0.8rem 1.5rem;
+        border: 2px solid var(--soft-gray);
+        border-radius: 50px;
+        background: white;
+        color: var(--text-light);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+        font-weight: 500;
+        position: relative;
+    }
+
+    .filter-tab:hover {
+        border-color: var(--primary-blue);
+        color: var(--primary-blue);
+        transform: translateY(-2px);
+    }
+
+    .filter-tab.active {
+        background: var(--gradient-blue);
+        border-color: var(--primary-blue);
+        color: white;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .filter-tab .count {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 0.2rem 0.6rem;
+        border-radius: 10px;
+        font-size: 0.8rem;
+        margin-left: 0.5rem;
+    }
+
+    /* Formations Grid */
+    .formations-container {
+        padding: 0 2rem 2rem;
+    }
+
+    .formations-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .formation-card {
+        background: var(--white);
+        border-radius: var(--radius-xl);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 2px solid transparent;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .formation-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--primary-blue);
+    }
+
+    .card-header {
+        height: 120px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .card-header.gradient-0 { background: var(--gradient-pink); }
+    .card-header.gradient-1 { background: var(--gradient-blue); }
+    .card-header.gradient-2 { background: var(--gradient-purple); }
+    .card-header.gradient-3 { background: var(--gradient-green); }
+    .card-header.gradient-4 { background: var(--gradient-orange); }
+    .card-header.gradient-5 { background: var(--gradient-contact); }
+
+   
+        .formation-icon {
+        font-size: 3rem;
+        color: white;
+        z-index: 2;
+        position: relative;
+    }
+
+    .card-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-10px) rotate(180deg); }
+    }
+
+    .card-status {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        z-index: 3;
+    }
+
+    .status-badge {
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .status-active {
+        background: rgba(16, 185, 129, 0.9);
+        color: white;
+    }
+
+    .status-inactive {
+        background: rgba(107, 114, 128, 0.9);
+        color: white;
+    }
+
+    .card-content {
+        padding: 2rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .formation-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .badge {
+        padding: 0.3rem 0.8rem;
+        border-radius: 15px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .badge-free {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .badge-popular {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .badge-new {
+        background: #ddd6fe;
+        color: #5b21b6;
+    }
+
+    .badge-certified {
+        background: #fed7aa;
+        color: #c2410c;
+    }
+
+    .formation-title {
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 1rem;
+        line-height: 1.3;
+    }
+
+    .formation-description {
+        color: var(--text-light);
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+        flex: 1;
+    }
+
+    .formation-meta {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background: var(--soft-gray);
+        border-radius: 15px;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .meta-icon {
+        width: 30px;
+        height: 30px;
+        background: var(--gradient-blue);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.8rem;
+    }
+
+    .meta-value {
+        color: var(--text-dark);
+        font-weight: 500;
+    }
+
+    .card-footer {
+        padding: 1.5rem 2rem;
+        border-top: 1px solid var(--soft-gray);
+        background: linear-gradient(to right, #fafafa, #ffffff);
+    }
+
+    .stats-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .stat-group {
+        display: flex;
+        gap: 1.5rem;
+    }
+
+    .stat {
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary-blue);
+        display: block;
+    }
+
+    .stat-label {
+        font-size: 0.8rem;
+        color: var(--text-light);
+        text-transform: uppercase;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-icon {
+        background: var(--soft-gray);
+        border: none;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 1.1rem;
+        color: var(--text-light);
+    }
+
+    .btn-icon:hover {
+        background: var(--gradient-blue);
+        color: white;
+        transform: translateY(-2px) scale(1.1);
+    }
+
+    .btn-icon.primary {
+        background: var(--gradient-contact);
+        color: white;
+    }
+
+    /* Dropdown Menu */
+    .dropdown {
+        position: relative;
+    }
+
+    .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: white;
+        border: 1px solid var(--soft-gray);
+        border-radius: 15px;
+        box-shadow: var(--shadow-lg);
+        min-width: 200px;
+        z-index: 1000;
+        display: none;
+        overflow: hidden;
+        animation: dropdownSlide 0.3s ease;
+    }
+
+    @keyframes dropdownSlide {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .dropdown-menu.show {
+        display: block;
+    }
+
+    .dropdown-menu a {
+        display: block;
+        padding: 1rem 1.5rem;
+        color: var(--text-dark);
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        border-bottom: 1px solid var(--soft-gray);
+    }
+
+    .dropdown-menu a:last-child {
+        border-bottom: none;
+    }
+
+    .dropdown-menu a:hover {
+        background: var(--light-blue);
+        color: var(--primary-blue);
+        padding-left: 2rem;
+    }
+
+    .dropdown-menu a.danger {
+        color: var(--danger);
+    }
+
+    .dropdown-menu a.danger:hover {
+        background: #fef2f2;
+        color: var(--danger);
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        grid-column: 1 / -1;
+        background: var(--white);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        margin-bottom: 1.5rem;
+        opacity: 0.3;
+    }
+
+    .empty-state h3 {
+        font-size: 1.8rem;
+        color: var(--text-dark);
+        margin-bottom: 1rem;
+        font-weight: 300;
+    }
+
+    .empty-state p {
+        color: var(--text-light);
+        margin-bottom: 2rem;
+        font-size: 1.1rem;
+    }
+
+    /* Pagination */
+    .pagination-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 2rem;
+        background: var(--white);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-sm);
+        margin: 2rem;
+    }
+
+    .pagination-info {
+        color: var(--text-light);
+        font-weight: 500;
+    }
+
+    .pagination {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .page-link {
+        padding: 0.8rem 1.2rem;
+        border: 2px solid var(--soft-gray);
+        border-radius: 12px;
+        color: var(--text-dark);
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+
+    .page-link:hover {
+        border-color: var(--primary-blue);
+        color: var(--primary-blue);
+        transform: translateY(-2px);
+    }
+
+    .page-link.active {
+        background: var(--gradient-blue);
+        border-color: var(--primary-blue);
+        color: white;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+        .formations-grid {
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        }
+
+        .header-content {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .header-stats {
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .formations-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .filter-tabs {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .formations-container {
+            padding: 0 1rem 1rem;
+        }
+
+        .page-header {
+            padding: 2rem 1rem;
+        }
+
+        .filters-section {
+            margin: 0 1rem 2rem;
+            padding: 1.5rem;
+        }
+
+        .formation-meta {
+            grid-template-columns: 1fr;
+        }
+
+        .stats-row {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: stretch;
+        }
+
+        .stat-group {
+            justify-content: space-around;
+        }
+
+        .action-buttons {
+            justify-content: space-around;
+        }
+    }
+
+    /* Loading Animation */
+    .loading-shimmer {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+
+    /* Notification Toast */
+    .toast {
+        position: fixed;
+        top: 2rem;
+        right: 2rem;
+        background: var(--white);
+        border-radius: 15px;
+        padding: 1rem 1.5rem;
+        box-shadow: var(--shadow-lg);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        min-width: 300px;
+        transform: translateX(400px);
+        transition: transform 0.3s ease;
+    }
+
+    .toast.show {
+        transform: translateX(0);
+    }
+
+    .toast.success {
+        border-left: 4px solid var(--success);
+    }
+
+    .toast.error {
+        border-left: 4px solid var(--danger);
+    }
+
+    .toast.warning {
+        border-left: 4px solid var(--warning);
+    }
+
+    .toast-content {
+        flex: 1;
+    }
+
+    .toast-title {
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 0.3rem;
+    }
+
+    .toast-message {
+        color: var(--text-light);
+        font-size: 0.9rem;
+    }
+
+    .toast-close {
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        color: var(--text-light);
+        padding: 0.5rem;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+    }
+
+    .toast-close:hover {
+        background: var(--soft-gray);
+        color: var(--text-dark);
+    }
+</style>
+
+<div class="formations-page">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <div class="header-text">
+                <h1>Gestion des Formations</h1>
+                <p>Administrez et organisez votre catalogue de formations ADSIAM</p>
+                <div class="header-stats">
+                    <div class="stat-bubble">
+                        <%= pagination?.total || 0 %> Formations
+                    </div>
+                    <div class="stat-bubble">
+                        <%= (formations || []).filter(f => f.actif).length %> Actives
+                    </div>
+                    <div class="stat-bubble">
+                        <%= (formations || []).filter(f => f.gratuit).length %> Gratuites
+                    </div>
+                </div>
+            </div>
+            <div class="header-actions">
+                <a href="/admin/formations/nouvelle" class="btn btn-primary">
+                    <span>📚</span>
+                    Nouvelle Formation
+                </a>
+                <button class="btn btn-secondary" onclick="exportFormations()">
+                    <span>📊</span>
+                    Exporter
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="filters-section">
+        <div class="filters-header">
+            <h3 class="filters-title">
+                <span>🔍</span>
+                Rechercher et Filtrer
+            </h3>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-container">
+            <form method="GET" action="/admin/formations">
+                <input type="text" 
+                       name="search" 
+                       class="search-input" 
+                       placeholder="Rechercher par titre, description, domaine..." 
+                       value="<%= (typeof filters !== 'undefined' ? filters.search : '') || '' %>">
+                <button type="submit" class="search-icon">🔍</button>
+            </form>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="filter-tabs">
+            <div class="filter-tab active" data-filter="all">
+                Toutes
+                <span class="count"><%= (formations || []).length %></span>
+            </div>
+            <div class="filter-tab" data-filter="active">
+                Actives
+                <span class="count"><%= (formations || []).filter(f => f.actif).length %></span>
+            </div>
+            <div class="filter-tab" data-filter="inactive">
+                Inactives
+                <span class="count"><%= (formations || []).filter(f => !f.actif).length %></span>
+            </div>
+            <div class="filter-tab" data-filter="free">
+                Gratuites
+                <span class="count"><%= (formations || []).filter(f => f.gratuit).length %></span>
+            </div>
+            <div class="filter-tab" data-filter="popular">
+                Populaires
+                <span class="count"><%= (formations || []).filter(f => f.populaire).length %></span>
+            </div>
+            <div class="filter-tab" data-filter="new">
+                Nouvelles
+                <span class="count"><%= (formations || []).filter(f => f.nouveau).length %></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formations Grid -->
+    <div class="formations-container">
+        <% if (formations && formations.length > 0) { %>
+            <div class="formations-grid" id="formationsGrid">
+                <% formations.forEach((formation, index) => { %>
+                    <div class="formation-card" 
+                         data-formation-id="<%= formation.id %>"
+                         data-status="<%= formation.actif ? 'active' : 'inactive' %>"
+                         data-free="<%= formation.gratuit %>"
+                         data-popular="<%= formation.populaire %>"
+                         data-new="<%= formation.nouveau %>">
+                        
+                        <!-- Card Header -->
+                        <div class="card-header gradient-<%= index % 6 %>">
+                            <div class="formation-icon">
+                                <%= formation.icone || '📚' %>
+                            </div>
+                            <div class="card-status">
+                                <span class="status-badge status-<%= formation.actif ? 'active' : 'inactive' %>">
+                                    <%= formation.actif ? 'Active' : 'Inactive' %>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Card Content -->
+                        <div class="card-content">
+                            <!-- Badges -->
+                            <div class="formation-badges">
+                                <% if (formation.gratuit) { %>
+                                    <span class="badge badge-free">🆓 Gratuit</span>
+                                <% } %>
+                                <% if (formation.populaire) { %>
+                                    <span class="badge badge-popular">⭐ Populaire</span>
+                                <% } %>
+                                <% if (formation.nouveau) { %>
+                                    <span class="badge badge-new">🆕 Nouveau</span>
+                                <% } %>
+                                <% if (formation.certifiant) { %>
+                                    <span class="badge badge-certified">🏆 Certifiant</span>
+                                <% } %>
+                            </div>
+
+                            <!-- Title & Description -->
+                            <h3 class="formation-title"><%= formation.titre %></h3>
+                            <p class="formation-description">
+                                <%= formation.description ? formation.description.substring(0, 120) + '...' : 'Aucune description disponible' %>
+                            </p>
+
+                            <!-- Meta Information -->
+                            <div class="formation-meta">
+                                <div class="meta-item">
+                                    <div class="meta-icon">🎯</div>
+                                    <div class="meta-value"><%= formation.domaine || 'Non défini' %></div>
+                                </div>
+                                <div class="meta-item">
+                                    <div class="meta-icon">📊</div>
+                                    <div class="meta-value"><%= formation.niveau || 'Tous niveaux' %></div>
+                                </div>
+                                <div class="meta-item">
+                                    <div class="meta-icon">📚</div>
+                                    <div class="meta-value"><%= formation.nombre_modules || 0 %> modules</div>
+                                </div>
+                                <div class="meta-item">
+                                    <div class="meta-icon">⏱️</div>
+                                    <div class="meta-value"><%= formation.duree_heures || 0 %>h</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card Footer -->
+                        <div class="card-footer">
+                            <div class="stats-row">
+                                <div class="stat-group">
+                                    <div class="stat">
+                                        <span class="stat-value">
+                                            <%= (formation.Inscriptions || []).length %>
+                                        </span>
+                                        <span class="stat-label">Inscrits</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span class="stat-value">
+                                            <% if (formation.gratuit) { %>
+                                                Gratuit
+                                            <% } else { %>
+                                                <%= formation.prix || 0 %>€
+                                            <% } %>
+                                        </span>
+                                        <span class="stat-label">Prix</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span class="stat-value">
+                                            <%= new Date(formation.createdAt).toLocaleDateString('fr-FR') %>
+                                        </span>
+                                        <span class="stat-label">Créée</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="action-buttons">
+                                <button class="btn-icon" onclick="viewFormation(<%= formation.id %>)" title="Voir">
+                                    👁️
+                                </button>
+                                <button class="btn-icon primary" onclick="editFormation(<%= formation.id %>)" title="Modifier">
+                                    ✏️
+                                </button>
+                                <button class="btn-icon" onclick="manageModules(<%= formation.id %>)" title="Modules">
+                                    📚
+                                </button>
+                                <button class="btn-icon" onclick="viewStats(<%= formation.id %>)" title="Statistiques">
+                                    📊
+                                </button>
+                                <div class="dropdown">
+                                    <button class="btn-icon" onclick="toggleDropdown(this)" title="Plus">
+                                        ⋮
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <a href="#" onclick="duplicateFormation(<%= formation.id %>)">
+                                            📋 Dupliquer
+                                        </a>
+                                        <a href="#" onclick="exportFormation(<%= formation.id %>)">
+                                            📄 Exporter
+                                        </a>
+                                        <a href="#" onclick="viewInscriptions(<%= formation.id %>)">
+                                            👥 Inscriptions
+                                        </a>
+                                        <a href="#" onclick="toggleStatus(<%= formation.id %>)" class="<%= formation.actif ? 'warning' : 'success' %>">
+                                            <%= formation.actif ? '⏸️ Désactiver' : '▶️ Activer' %>
+                                        </a>
+                                        <a href="#" onclick="deleteFormation(<%= formation.id %>)" class="danger">
+                                            🗑️ Supprimer
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+        <% } else { %>
+            <div class="formations-grid">
+                <div class="empty-state">
+                    <div class="empty-icon">📚</div>
+                    <h3>Aucune formation trouvée</h3>
+                    <p>
+                        <% if ((typeof filters !== 'undefined' && filters.search) || false) { %>
+                            Aucune formation ne correspond à vos critères de recherche.
+                        <% } else { %>
+                            Créez votre première formation pour commencer.
+                        <% } %>
+                    </p>
+                    <a href="/admin/formations/nouvelle" class="btn btn-primary">
+                        <span>📚</span>
+                        Créer une Formation
+                    </a>
+                </div>
+            </div>
+        <% } %>
+    </div>
+
+    <!-- Pagination -->
+    <% if (pagination && pagination.totalPages > 1) { %>
+        <div class="pagination-section">
+            <div class="pagination-info">
+                Affichage de <%= ((pagination.currentPage - 1) * 20) + 1 %> à 
+                <%= Math.min(pagination.currentPage * 20, pagination.total) %> 
+                sur <%= pagination.total %> formations
+            </div>
+            <nav class="pagination">
+                <% if (pagination.hasPrev) { %>
+                    <a href="?page=<%= pagination.currentPage - 1 %>&search=<%= (typeof filters !== 'undefined' ? filters.search : '') || '' %>" 
+                       class="page-link">‹ Précédent</a>
+                <% } %>
+
+                <% for (let i = Math.max(1, pagination.currentPage - 2); i <= Math.min(pagination.totalPages, pagination.currentPage + 2); i++) { %>
+                    <a href="?page=<%= i %>&search=<%= (typeof filters !== 'undefined' ? filters.search : '') || '' %>" 
+                       class="page-link <%= i === pagination.currentPage ? 'active' : '' %>">
+                        <%= i %>
+                    </a>
+                <% } %>
+
+                <% if (pagination.hasNext) { %>
+                    <a href="?page=<%= pagination.currentPage + 1 %>&search=<%= (typeof filters !== 'undefined' ? filters.search : '') || '' %>" 
+                       class="page-link">Suivant ›</a>
+                <% } %>
+            </nav>
+        </div>
+    <% } %>
+</div>
+
+<script>
+    // Variables globales
+    let currentFilter = 'all';
+
+    // Initialisation
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeFilters();
+        animateCards();
+    });
+
+    // Système de filtrage
+    function initializeFilters() {
+        const filterTabs = document.querySelectorAll('.filter-tab');
+        
+        filterTabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                const filter = this.dataset.filter;
+                setActiveFilter(filter);
+                filterFormations(filter);
+            });
+        });
+    }
+
+    function setActiveFilter(filter) {
+        document.querySelectorAll('.filter-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.querySelector(`[data-filter="${filter}"]`).classList.add('active');
+        currentFilter = filter;
+    }
+
+    function filterFormations(filter) {
+        const cards = document.querySelectorAll('.formation-card');
+        
+        cards.forEach(card => {
+            let show = true;
+            
+            switch(filter) {
+                case 'active':
+                    show = card.dataset.status === 'active';
+                    break;
+                case 'inactive':
+                    show = card.dataset.status === 'inactive';
+                    break;
+                case 'free':
+                    show = card.dataset.free === 'true';
+                    break;
+                case 'popular':
+                    show = card.dataset.popular === 'true';
+                    break;
+                case 'new':
+                    show = card.dataset.new === 'true';
+                    break;
+                default:
+                    show = true;
+            }
+            
+            if (show) {
+                card.style.display = 'flex';
+                card.style.animation = 'fadeInUp 0.5s ease forwards';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    // Animations
+    function animateCards() {
+        const cards = document.querySelectorAll('.formation-card');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            card.style.animation = `fadeInUp 0.6s ease ${index * 0.1}s forwards`;
+        });
+    }
+
+    // Actions sur les formations
+    function viewFormation(id) {
+        window.location.href = `/admin/formations/${id}`;
+    }
+
+    function editFormation(id) {
+        window.location.href = `/admin/formations/${id}/edit`;
+    }
+
+    function manageModules(id) {
+        window.location.href = `/admin/formations/${id}/modules`;
+    }
+
+    function viewStats(id) {
+        window.location.href = `/admin/formations/${id}/statistiques`;
+    }
+
+    function viewInscriptions(id) {
+        window.location.href = `/admin/inscriptions?formation=${id}`;
+    }
+
+    function duplicateFormation(id) {
+        if (confirm('Voulez-vous dupliquer cette formation ?')) {
+            showToast('success', 'Duplication en cours...', 'La formation est en cours de duplication');
+            // Implémentation de la duplication
+            setTimeout(() => {
+                showToast('success', 'Formation dupliquée', 'La formation a été dupliquée avec succès');
+            }, 2000);
+        }
+    }
+
+    function exportFormation(id) {
+        showToast('info', 'Export en cours...', 'Génération du fichier d\'export');
+        // Implémentation de l'export
+    }
+
+    function toggleStatus(id) {
+        const card = document.querySelector(`[data-formation-id="${id}"]`);
+        const isActive = card.dataset.status === 'active';
+        const action = isActive ? 'désactiver' : 'activer';
+        
+        if (confirm(`Voulez-vous ${action} cette formation ?`)) {
+            showToast('info', 'Modification en cours...', `Formation en cours de ${action.slice(0, -1)}ation`);
+            // Implémentation du changement de statut
+            setTimeout(() => {
+                card.dataset.status = isActive ? 'inactive' : 'active';
+                const badge = card.querySelector('.status-badge');
+                badge.textContent = isActive ? 'Inactive' : 'Active';
+                badge.className = `status-badge status-${isActive ? 'inactive' : 'active'}`;
+                showToast('success', 'Statut modifié', `Formation ${isActive ? 'désactivée' : 'activée'} avec succès`);
+            }, 1000);
+        }
+    }
+
+    function deleteFormation(id) {
+        if (confirm('Voulez-vous vraiment supprimer cette formation ?\n\nCette action est irréversible et supprimera :\n- La formation\n- Tous ses modules\n- Toutes les inscriptions associées')) {
+            showToast('warning', 'Suppression en cours...', 'La formation est en cours de suppression');
+            // Implémentation de la suppression
+            setTimeout(() => {
+                document.querySelector(`[data-formation-id="${id}"]`).remove();
+                showToast('success', 'Formation supprimée', 'La formation a été supprimée avec succès');
+            }, 2000);
+        }
+    }
+
+    function exportFormations() {
+        const format = prompt('Format d\'export :\n1. CSV\n2. PDF\n3. Excel\n\nTapez le numéro de votre choix:', '1');
+        const formats = { '1': 'csv', '2': 'pdf', '3': 'xlsx' };
+        
+        if (formats[format]) {
+            showToast('info', 'Export en cours...', `Génération du fichier ${formats[format].toUpperCase()}`);
+            window.location.href = `/admin/formations/export?format=${formats[format]}`;
+        }
+    }
+
+    // Gestion des dropdowns
+    function toggleDropdown(button) {
+        const dropdown = button.parentElement.querySelector('.dropdown-menu');
+        const allDropdowns = document.querySelectorAll('.dropdown-menu');
+        
+        // Fermer tous les autres dropdowns
+        allDropdowns.forEach(d => {
+            if (d !== dropdown) {
+                d.classList.remove('show');
+            }
+        });
+        
+        dropdown.classList.toggle('show');
+    }
+
+    // Fermer les dropdowns en cliquant ailleurs
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.dropdown')) {
+            document.querySelectorAll('.dropdown-menu').forEach(d => {
+                d.classList.remove('show');
+            });
+        }
+    });
+
+    // Système de toast notifications
+    function showToast(type, title, message) {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `
+            <div class="toast-content">
+                <div class="toast-title">${title}</div>
+                <div class="toast-message">${message}</div>
+            </div>
+            <button class="toast-close" onclick="closeToast(this)">×</button>
+        `;
+        
+        document.body.appendChild(toast);
+        
+        // Animation d'entrée
+        setTimeout(() => toast.classList.add('show'), 100);
+        
+        // Auto-suppression après 5 secondes
+        setTimeout(() => {
+            if (toast.parentElement) {
+                closeToast(toast.querySelector('.toast-close'));
+            }
+        }, 5000);
+    }
+
+    function closeToast(button) {
+        const toast = button.closest('.toast');
+        toast.classList.remove('show');
+        setTimeout(() => {
+            if (toast.parentElement) {
+                toast.remove();
+            }
+        }, 300);
+    }
+
+    // Recherche en temps réel
+    let searchTimeout;
+    const searchInput = document.querySelector('.search-input');
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                this.form.submit();
+            }, 800);
+        });
+    }
+
+    // Raccourcis clavier
+    document.addEventListener('keydown', function(e) {
+        // Ctrl/Cmd + F pour focus sur la recherche
+        if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+            e.preventDefault();
+            document.querySelector('.search-input').focus();
+        }
+        
+        // Échap pour fermer les dropdowns
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.dropdown-menu').forEach(d => {
+                d.classList.remove('show');
+            });
+        }
+        
+        // Ctrl/Cmd + N pour nouvelle formation
+        if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+            e.preventDefault();
+            window.location.href = '/admin/formations/nouvelle';
+        }
+    });
+
+    // Styles CSS pour les animations
+    const animationStyles = `
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+            }
+            to {
+                transform: translateX(0);
+            }
+        }
+        
+        .formation-card {
+            animation-fill-mode: forwards;
+        }
+    `;
+    
+    // Ajouter les styles au document
+    const styleSheet = document.createElement('style');
+    styleSheet.textContent = animationStyles;
+    document.head.appendChild(styleSheet);
+
+    // Effet de hover sur les cartes
+    document.querySelectorAll('.formation-card').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.zIndex = '10';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.zIndex = '1';
+        });
+    });
+
+    // Gestion du responsive pour les tablets
+    function handleResponsive() {
+        const isMobile = window.innerWidth <= 768;
+        const isTablet = window.innerWidth <= 1024 && window.innerWidth > 768;
+        
+        if (isMobile) {
+            // Ajustements pour mobile
+            document.querySelectorAll('.btn').forEach(btn => {
+                btn.style.fontSize = '0.9rem';
+                btn.style.padding = '0.8rem 1.5rem';
+            });
+        }
+        
+        if (isTablet) {
+            // Ajustements pour tablet
+            const grid = document.querySelector('.formations-grid');
+            if (grid) {
+                grid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(350px, 1fr))';
+            }
+        }
+    }
+
+    // Écouter les changements de taille d'écran
+    window.addEventListener('resize', handleResponsive);
+    handleResponsive(); // Appel initial
+
+    // Lazy loading pour les images (si vous en ajoutez)
+    function setupLazyLoading() {
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    img.src = img.dataset.src;
+                    img.classList.remove('loading-shimmer');
+                    observer.unobserve(img);
+                }
+            });
+        });
+
+        document.querySelectorAll('img[data-src]').forEach(img => {
+            imageObserver.observe(img);
+        });
+    }
+
+    // Performance monitoring
+    function logPerformance() {
+        if (performance.mark) {
+            performance.mark('formations-page-loaded');
+            
+            // Mesurer le temps de chargement
+            const loadTime = performance.now();
+            console.log(`Page formations chargée en ${Math.round(loadTime)}ms`);
+            
+            // Compter les éléments rendus
+            const cardsCount = document.querySelectorAll('.formation-card').length;
+            console.log(`${cardsCount} formations affichées`);
+        }
+    }
+
+    // Appel final
+    setTimeout(logPerformance, 1000);
+
+    // Message d'aide pour les nouveaux utilisateurs
+    function showWelcomeMessage() {
+        const hasVisited = localStorage.getItem('admin-formations-visited');
+        
+        if (!hasVisited) {
+            setTimeout(() => {
+                showToast('info', 'Bienvenue !', 'Utilisez les filtres pour organiser vos formations. Raccourci: Ctrl+F pour rechercher, Ctrl+N pour créer.');
+                localStorage.setItem('admin-formations-visited', 'true');
+            }, 2000);
+        }
+    }
+
+    showWelcomeMessage();
+
+    // Export des données pour debug
+    window.ADSIAM_FORMATIONS = {
+        currentFilter,
+        totalFormations: document.querySelectorAll('.formation-card').length,
+        activeFormations: document.querySelectorAll('[data-status="active"]').length,
+        actions: {
+            filterFormations,
+            showToast,
+            exportFormations
+        }
+    };
+
+    console.log('📚 Page formations admin chargée avec succès');
+    console.log('🎯 Fonctionnalités disponibles: filtrage, recherche, export, gestion');
+    console.log('⌨️  Raccourcis: Ctrl+F (recherche), Ctrl+N (nouvelle formation), Échap (fermer menus)');
+</script>

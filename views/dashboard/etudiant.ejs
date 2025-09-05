@@ -1268,7 +1268,7 @@
                                     <div class="activity-title">Bienvenue sur ADSIAM</div>
                                     <div class="activity-description">Votre compte a été créé avec succès</div>
                                     <div class="activity-time">
-                                        <%= typeof formatDate !== 'undefined' ? formatDate(user.cree_le || user.createdAt || Date.now()) : new Date().toLocaleDateString('fr-FR') %>
+                                        <%= typeof formatDate !== 'undefined' && user ? formatDate(user.cree_le || user.createdAt || Date.now()) : new Date().toLocaleDateString('fr-FR') %>
                                     </div>
                                 </div>
                             </div>
