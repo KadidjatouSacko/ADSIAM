@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { User } from '../models/User.js';
+import { User } from '../models/index.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'votre_secret_jwt_super_securise_adsiam_2024';
 

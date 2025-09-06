@@ -1,5 +1,5 @@
 // middleware/checkAdmin.js
-import { User } from '../models/User.js';
+import { User } from '../models/index.js';
 
 export const checkAdmin = async (req, res, next) => {
     console.log('🔍 CheckAdmin - req.user:', req.user);

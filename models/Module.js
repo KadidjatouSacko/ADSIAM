@@ -1,4 +1,3 @@
-// models/Module.js
 import { DataTypes } from 'sequelize';
 
 export default (sequelize) => {
@@ -18,31 +17,53 @@ export default (sequelize) => {
     },
     titre: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
+      validate: {
+        notEmpty: true,
+        len: [3, 255]
+      }
     },
     description: {
       type: DataTypes.TEXT,
-      allowNull: false
-    },
-    ordre: {
-      type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
+      validate: {
+        notEmpty: true
+      }
     },
     duree_minutes: {
       type: DataTypes.INTEGER,
-      defaultValue: 15
+      allowNull: true,
+      validate: {
+        min: 1,
+        max: 480
+      }
     },
     type_contenu: {
-      type: DataTypes.ENUM('video', 'pdf', 'quiz', 'exercice'),
+      type: DataTypes.ENUM('video', 'quiz', 'document', 'pratique'),
+      allowNull: true,
       defaultValue: 'video'
+    },
+    ordre: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 1,
+      validate: {
+        min: 1
+      }
     },
     disponible: {
       type: DataTypes.BOOLEAN,
+      allowNull: true,
       defaultValue: true
     }
   }, {
     tableName: 'modules',
-    timestamps: true
+    timestamps: true,
+    indexes: [
+      { fields: ['formation_id'] },
+      { fields: ['ordre'] },
+      { fields: ['disponible'] }
+    ]
   });
 
   return Module;
