@@ -1,0 +1,365 @@
+<% locals.currentPage = 'inscriptions' %>
+
+<div style="max-width: 1000px; margin: 0 auto;">
+    <!-- En-tête -->
+    <div style="margin-bottom: 2rem;">
+        <h2 style="margin: 0; color: var(--text-dark);">Nouvelle Inscription</h2>
+        <p style="margin: 0.5rem 0 0; color: var(--text-light);">
+            Inscrivez vos employés à des formations spécialisées
+        </p>
+    </div>
+
+    <form action="/entreprise/inscriptions" method="POST" id="inscriptionForm">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+            <!-- Sélection des employés -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Sélectionner les employés</h3>
+                </div>
+                <div class="card-body">
+                    <!-- Recherche employé -->
+                    <div style="margin-bottom: 1.5rem; position: relative;">
+                        <input type="text" id="searchEmployee" placeholder="Rechercher un employé..." 
+                               style="width: 100%; padding: 0.75rem 1rem 0.75rem 2.5rem; border: 2px solid var(--soft-gray); border-radius: 8px;">
+                        <span style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--text-light);">🔍</span>
+                    </div>
+
+                    <!-- Actions de sélection -->
+                    <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                        <button type="button" class="btn btn-secondary" onclick="selectAllEmployees()" style="font-size: 0.9rem; padding: 0.5rem 1rem;">
+                            Tout sélectionner
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="clearSelection()" style="font-size: 0.9rem; padding: 0.5rem 1rem;">
+                            Tout désélectionner
+                        </button>
+                    </div>
+
+                    <!-- Liste des employés -->
+                    <div id="employeesList" style="max-height: 400px; overflow-y: auto; border: 1px solid var(--soft-gray); border-radius: 8px;">
+                        <% if (employees && employees.length > 0) { %>
+                            <% employees.forEach(employee => { %>
+                                <label style="display: flex; align-items: center; gap: 1rem; padding: 1rem; border-bottom: 1px solid var(--soft-gray); cursor: pointer; transition: background 0.2s;"
+                                       onmouseover="this.style.background='var(--light-blue)'" 
+                                       onmouseout="this.style.background='white'">
+                                    <input type="checkbox" name="employeeIds" value="<%= employee.id %>" 
+                                           style="width: 18px; height: 18px; accent-color: var(--primary-blue);">
+                                    <div style="width: 40px; height: 40px; background: var(--gradient-contact); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600;">
+                                        <%= employee.prenom.charAt(0) %><%= employee.nom.charAt(0) %>
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <div style="font-weight: 600; color: var(--text-dark);">
+                                            <%= employee.prenom %> <%= employee.nom %>
+                                        </div>
+                                        <div style="color: var(--text-light); font-size: 0.9rem;">
+                                            <%= employee.email %>
+                                        </div>
+                                        <span class="badge badge-info" style="font-size: 0.7rem;">
+                                            <%= capitalize(employee.type_utilisateur?.replace('_', ' ') || 'Non défini') %>
+                                        </span>
+                                    </div>
+                                </label>
+                            <% }) %>
+                        <% } else { %>
+                            <div style="text-align: center; padding: 2rem; color: var(--text-light);">
+                                Aucun employé disponible
+                            </div>
+                        <% } %>
+                    </div>
+
+                    <div id="selectedCount" style="margin-top: 1rem; padding: 0.75rem; background: var(--light-blue); border-radius: 8px; text-align: center; font-weight: 600; color: var(--primary-blue);">
+                        0 employé(s) sélectionné(s)
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sélection de la formation -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Choisir la formation</h3>
+                </div>
+                <div class="card-body">
+                    <!-- Filtre par domaine -->
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Filtrer par domaine :</label>
+                        <select id="domainFilter" style="width: 100%; padding: 0.75rem; border: 2px solid var(--soft-gray); border-radius: 8px;">
+                            <option value="">Tous les domaines</option>
+                            <option value="communication">Communication</option>
+                            <option value="hygiene">Hygiène & Sécurité</option>
+                            <option value="ergonomie">Ergonomie</option>
+                            <option value="urgences">Urgences</option>
+                            <option value="nutrition">Nutrition</option>
+                            <option value="pathologies">Pathologies</option>
+                        </select>
+                    </div>
+
+                    <!-- Liste des formations -->
+                    <div id="formationsList" style="max-height: 400px; overflow-y: auto;">
+                        <% if (formations && formations.length > 0) { %>
+                            <% formations.forEach(formation => { %>
+                                <label style="display: block; margin-bottom: 1rem; cursor: pointer;" data-domain="<%= formation.domaine %>">
+                                    <input type="radio" name="formationId" value="<%= formation.id %>" 
+                                           style="display: none;" onchange="selectFormation(this)">
+                                    <div class="formation-option" style="border: 2px solid var(--soft-gray); border-radius: 12px; padding: 1.5rem; transition: all 0.3s;">
+                                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                                            <div style="font-size: 2.5rem;">
+                                                <%= formation.icone || '📚' %>
+                                            </div>
+                                            <div style="flex: 1;">
+                                                <div style="font-weight: 600; color: var(--text-dark); margin-bottom: 0.25rem;">
+                                                    <%= formation.titre %>
+                                                </div>
+                                                <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                                    <span class="badge badge-info">
+                                                        <%= capitalize(formation.niveau || 'standard') %>
+                                                    </span>
+                                                    <span class="badge badge-secondary">
+                                                        <%= formation.duree_heures || 0 %>h
+                                                    </span>
+                                                    <span class="badge badge-secondary">
+                                                        <%= capitalize(formation.domaine || 'général') %>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div style="text-align: right;">
+                                                <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary-pink);">
+                                                    <% if (formation.prix && formation.prix > 0) { %>
+                                                        <%= formation.prix %>€
+                                                    <% } else { %>
+                                                        Gratuit
+                                                    <% } %>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div style="color: var(--text-light); font-size: 0.9rem; line-height: 1.5;">
+                                            <%= truncateText(formation.description, 120) %>
+                                        </div>
+                                    </div>
+                                </label>
+                            <% }) %>
+                        <% } else { %>
+                            <div style="text-align: center; padding: 2rem; color: var(--text-light);">
+                                Aucune formation disponible
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Options additionnelles -->
+        <div class="card" style="margin-top: 2rem;">
+            <div class="card-header">
+                <h3 class="card-title">Options d'inscription</h3>
+            </div>
+            <div class="card-body">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                    <div>
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Date de fin prévue (optionnel) :</label>
+                        <input type="date" name="dateFinPrevue" 
+                               style="width: 100%; padding: 0.75rem; border: 2px solid var(--soft-gray); border-radius: 8px;"
+                               min="<%= new Date().toISOString().split('T')[0] %>">
+                        <div style="font-size: 0.8rem; color: var(--text-light); margin-top: 0.25rem;">
+                            Laissez vide pour une formation sans limite de temps
+                        </div>
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Priorité de l'inscription :</label>
+                        <select name="priorite" style="width: 100%; padding: 0.75rem; border: 2px solid var(--soft-gray); border-radius: 8px;">
+                            <option value="normale">Normale</option>
+                            <option value="haute">Haute</option>
+                            <option value="urgente">Urgente</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="margin-top: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Notes (optionnel) :</label>
+                    <textarea name="notes" rows="3" placeholder="Informations complémentaires sur cette inscription..."
+                              style="width: 100%; padding: 0.75rem; border: 2px solid var(--soft-gray); border-radius: 8px; resize: vertical;"></textarea>
+                </div>
+
+                <div style="margin-top: 1.5rem;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" name="notifierEmployes" value="1" checked 
+                               style="width: 18px; height: 18px; accent-color: var(--primary-blue);">
+                        <span style="font-weight: 600;">Notifier les employés par email</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Récapitulatif et validation -->
+        <div class="card" style="margin-top: 2rem;">
+            <div class="card-header">
+                <h3 class="card-title">Récapitulatif</h3>
+            </div>
+            <div class="card-body">
+                <div id="summary" style="background: var(--soft-gray); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+                    <div style="color: var(--text-light); text-align: center;">
+                        Sélectionnez des employés et une formation pour voir le récapitulatif
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <a href="/entreprise/inscriptions" class="btn btn-secondary">
+                        Annuler
+                    </a>
+                    <button type="submit" class="btn btn-primary" id="submitBtn" disabled>
+                        Créer les inscriptions
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+let selectedEmployees = [];
+let selectedFormation = null;
+
+// Recherche d'employés
+document.getElementById('searchEmployee').addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const employeeLabels = document.querySelectorAll('#employeesList label');
+    
+    employeeLabels.forEach(label => {
+        const text = label.textContent.toLowerCase();
+        label.style.display = text.includes(searchTerm) ? 'flex' : 'none';
+    });
+});
+
+// Filtre formations par domaine
+document.getElementById('domainFilter').addEventListener('change', function(e) {
+    const selectedDomain = e.target.value;
+    const formationLabels = document.querySelectorAll('#formationsList label');
+    
+    formationLabels.forEach(label => {
+        const domain = label.getAttribute('data-domain');
+        label.style.display = (!selectedDomain || domain === selectedDomain) ? 'block' : 'none';
+    });
+});
+
+// Gestion sélection employés
+document.addEventListener('change', function(e) {
+    if (e.target.name === 'employeeIds') {
+        updateSelectedEmployees();
+    }
+});
+
+function updateSelectedEmployees() {
+    const checkboxes = document.querySelectorAll('input[name="employeeIds"]:checked');
+    selectedEmployees = Array.from(checkboxes).map(cb => ({
+        id: cb.value,
+        name: cb.closest('label').querySelector('div:nth-child(3) div:first-child').textContent.trim()
+    }));
+    
+    document.getElementById('selectedCount').textContent = `${selectedEmployees.length} employé(s) sélectionné(s)`;
+    updateSummary();
+}
+
+// Sélection formation
+function selectFormation(radio) {
+    // Retirer la sélection précédente
+    document.querySelectorAll('.formation-option').forEach(option => {
+        option.style.borderColor = 'var(--soft-gray)';
+        option.style.background = 'white';
+    });
+    
+    // Appliquer la nouvelle sélection
+    const option = radio.closest('label').querySelector('.formation-option');
+    option.style.borderColor = 'var(--primary-blue)';
+    option.style.background = 'var(--light-blue)';
+    
+    // Stocker la formation sélectionnée
+    const formationTitle = option.querySelector('div:nth-child(1) div:nth-child(2) div:first-child').textContent.trim();
+    const priceElement = option.querySelector('div:nth-child(1) div:nth-child(3) div');
+    const price = priceElement.textContent.trim();
+    
+    selectedFormation = {
+        id: radio.value,
+        title: formationTitle,
+        price: price
+    };
+    
+    updateSummary();
+}
+
+// Actions de sélection
+function selectAllEmployees() {
+    const visibleCheckboxes = document.querySelectorAll('#employeesList label:not([style*="display: none"]) input[type="checkbox"]');
+    visibleCheckboxes.forEach(cb => cb.checked = true);
+    updateSelectedEmployees();
+}
+
+function clearSelection() {
+    document.querySelectorAll('input[name="employeeIds"]').forEach(cb => cb.checked = false);
+    updateSelectedEmployees();
+}
+
+// Mise à jour du récapitulatif
+function updateSummary() {
+    const summaryDiv = document.getElementById('summary');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    if (selectedEmployees.length === 0 || !selectedFormation) {
+        summaryDiv.innerHTML = '<div style="color: var(--text-light); text-align: center;">Sélectionnez des employés et une formation pour voir le récapitulatif</div>';
+        submitBtn.disabled = true;
+        return;
+    }
+    
+    const totalPrice = selectedFormation.price === 'Gratuit' ? 0 : 
+                      (parseFloat(selectedFormation.price.replace('€', '')) * selectedEmployees.length);
+    
+    summaryDiv.innerHTML = `
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+            <div>
+                <h4 style="margin-bottom: 1rem; color: var(--text-dark);">Employés sélectionnés (${selectedEmployees.length})</h4>
+                <div style="max-height: 150px; overflow-y: auto;">
+                    ${selectedEmployees.map(emp => `
+                        <div style="padding: 0.5rem; background: white; border-radius: 6px; margin-bottom: 0.5rem;">
+                            ${emp.name}
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+            <div>
+                <h4 style="margin-bottom: 1rem; color: var(--text-dark);">Formation sélectionnée</h4>
+                <div style="padding: 1rem; background: white; border-radius: 8px;">
+                    <div style="font-weight: 600; margin-bottom: 0.5rem;">${selectedFormation.title}</div>
+                    <div style="color: var(--primary-pink); font-weight: 700; font-size: 1.2rem;">
+                        Prix unitaire : ${selectedFormation.price}
+                    </div>
+                    ${totalPrice > 0 ? `
+                        <div style="color: var(--text-dark); font-weight: 600; margin-top: 0.5rem;">
+                            Total : ${totalPrice}€
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        </div>
+    `;
+    
+    submitBtn.disabled = false;
+}
+
+// Validation du formulaire
+document.getElementById('inscriptionForm').addEventListener('submit', function(e) {
+    if (selectedEmployees.length === 0) {
+        e.preventDefault();
+        alert('Veuillez sélectionner au moins un employé');
+        return;
+    }
+    
+    if (!selectedFormation) {
+        e.preventDefault();
+        alert('Veuillez sélectionner une formation');
+        return;
+    }
+    
+    // Confirmation
+    const confirmMessage = `Confirmer la création de ${selectedEmployees.length} inscription(s) pour la formation "${selectedFormation.title}" ?`;
+    if (!confirm(confirmMessage)) {
+        e.preventDefault();
+    }
+});
+</script>

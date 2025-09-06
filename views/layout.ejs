@@ -28,7 +28,9 @@
     <div id="loadingSpinner" class="loading-spinner">
         <div class="spinner"></div>
     </div>
-
+<% if (locals.isCompany) { %>
+    <li><a href="/entreprise" class="nav-link">🏢 Espace Entreprise</a></li>
+<% } %>
     <!-- Main Content -->
     <%- body %>
 

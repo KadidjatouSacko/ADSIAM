@@ -1,0 +1,21 @@
+.company-badge {
+    background: var(--gradient-contact);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.company-nav-link {
+    background: var(--light-blue);
+    color: var(--primary-blue) !important;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s;
+}
+
+.company-nav-link:hover {
+    background: var(--primary-blue);
+    color: white !important;
+}

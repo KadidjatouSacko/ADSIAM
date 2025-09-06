@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2>ADSIAM Admin</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="/admin">Tableau de bord</a></li>
+                <li><a href="/admin/utilisateurs">Utilisateurs</a></li>
+                <li><a href="/admin/formations">Formations</a></li>
+                <li><a href="/admin/inscriptions">Inscriptions</a></li>
+                <li><a href="/admin/evenements">Événements</a></li>
+                <li><a href="/admin/facturation">Facturation</a></li>
+                <li><a href="/admin/rapports">Rapports</a></li>
+                <li><a href="/admin/messagerie" class="<%= currentPage === 'messaging' ? 'active' : '' %>">Messagerie</a></li>
+                <li><a href="/admin/parametres">Paramètres</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <div class="content-header">
+                <h1>Centre de messagerie</h1>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="newMessage()">Nouveau message</button>
+                    <button class="btn btn-secondary" onclick="markAllAsRead()">Tout marquer comme lu</button>
+                </div>
+            </div>
+
+            <!-- Statistiques messagerie -->
+            <div class="messaging-stats">
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div class="stat-number"><%= conversations.length %></div>
+                        <div class="stat-label">Conversations actives</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Messages non lus</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div class="stat-number">24h</div>
+                        <div class="stat-label">Temps de réponse moyen</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Liste des conversations -->
+            <div class="conversations-container">
+                <div class="conversations-header">
+                    <h3>Conversations récentes</h3>
+                    <div class="conversations-filters">
+                        <select class="form-select">
+                            <option>Toutes les conversations</option>
+                            <option>Non lues</option>
+                            <option>Importantes</option>
+                            <option>Archivées</option>
+                        </select>
+                        <input type="text" class="form-input" placeholder="Rechercher..." style="width: 200px;">
+                    </div>
+                </div>
+
+                <div class="conversations-list">
+                    <% if (conversations && conversations.length > 0) { %>
+                        <% conversations.forEach((conversation, index) => { %>
+                        <div class="conversation-item" onclick="openConversation('<%= conversation.conversation_id %>')">
+                            <div class="conversation-avatar">
+                                <%= conversation.expediteur.prenom ? conversation.expediteur.prenom.charAt(0) : 'U' %><%= conversation.expediteur.nom ? conversation.expediteur.nom.charAt(0) : 'U' %>
+                            </div>
+                            <div class="conversation-content">
+                                <div class="conversation-header">
+                                    <div class="conversation-name">
+                                        <%= conversation.expediteur.prenom || 'Utilisateur' %> <%= conversation.expediteur.nom || 'Inconnu' %>
+                                    </div>
+                                    <div class="conversation-time">
+                                        <%= conversation.createdAt ? new Date(conversation.createdAt).toLocaleDateString('fr-FR') : 'Date inconnue' %>
+                                    </div>
+                                </div>
+                                <div class="conversation-subject">
+                                    <%= conversation.sujet || 'Pas de sujet' %>
+                                </div>
+                                <div class="conversation-preview">
+                                    Conversation ID: <%= conversation.conversation_id %>
+                                </div>
+                            </div>
+                            <div class="conversation-actions">
+                                <button class="btn-icon" onclick="event.stopPropagation(); replyToConversation('<%= conversation.conversation_id %>')" title="Répondre">↩️</button>
+                                <button class="btn-icon" onclick="event.stopPropagation(); archiveConversation('<%= conversation.conversation_id %>')" title="Archiver">📁</button>
+                                <button class="btn-icon btn-danger" onclick="event.stopPropagation(); deleteConversation('<%= conversation.conversation_id %>')" title="Supprimer">🗑️</button>
+                            </div>
+                        </div>
+                        <% }); %>
+                    <% } else { %>
+                        <div class="empty-state">
+                            <div class="empty-icon">💬</div>
+                            <div class="empty-title">Aucune conversation</div>
+                            <div class="empty-description">
+                                Les conversations avec les utilisateurs apparaîtront ici
+                            </div>
+                            <button class="btn btn-primary" onclick="newMessage()">
+                                Démarrer une conversation
+                            </button>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Actions rapides -->
+            <div class="quick-messaging">
+                <div class="quick-section">
+                    <h3>Actions rapides</h3>
+                    <div class="quick-actions">
+                        <button class="quick-action-btn" onclick="sendBroadcast()">
+                            <div class="action-icon">📢</div>
+                            <div class="action-text">
+                                <div class="action-title">Message groupé</div>
+                                <div class="action-desc">Envoyer à tous les utilisateurs</div>
+                            </div>
+                        </button>
+                        <button class="quick-action-btn" onclick="sendNotification()">
+                            <div class="action-icon">🔔</div>
+                            <div class="action-text">
+                                <div class="action-title">Notification</div>
+                                <div class="action-desc">Notification système</div>
+                            </div>
+                        </button>
+                        <button class="quick-action-btn" onclick="sendReminder()">
+                            <div class="action-icon">⏰</div>
+                            <div class="action-text">
+                                <div class="action-title">Rappel formation</div>
+                                <div class="action-desc">Rappeler une échéance</div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="quick-section">
+                    <h3>Modèles de réponse</h3>
+                    <div class="templates-list">
+                        <div class="template-item">
+                            <div class="template-title">Bienvenue</div>
+                            <div class="template-preview">Bienvenue sur ADSIAM ! Nous sommes ravis de vous accompagner...</div>
+                            <button class="btn btn-secondary btn-sm" onclick="useTemplate('welcome')">Utiliser</button>
+                        </div>
+                        <div class="template-item">
+                            <div class="template-title">Support technique</div>
+                            <div class="template-preview">Merci pour votre message. Notre équipe technique va...</div>
+                            <button class="btn btn-secondary btn-sm" onclick="useTemplate('support')">Utiliser</button>
+                        </div>
+                        <div class="template-item">
+                            <div class="template-title">Validation inscription</div>
+                            <div class="template-preview">Votre inscription a été validée avec succès...</div>
+                            <button class="btn btn-secondary btn-sm" onclick="useTemplate('validation')">Utiliser</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function newMessage() {
+            // Ouvrir une modal pour nouveau message
+            alert('Fonctionnalité "Nouveau message" à implémenter\n\nPermettra de composer un nouveau message à un utilisateur spécifique.');
+        }
+
+        function markAllAsRead() {
+            if (confirm('Marquer toutes les conversations comme lues ?')) {
+                alert('Toutes les conversations ont été marquées comme lues');
+                // Ici vous feriez un appel API pour marquer comme lu
+            }
+        }
+
+        function openConversation(conversationId) {
+            alert(`Ouverture de la conversation: ${conversationId}\n\nFonctionnalité à implémenter: affichage complet de la conversation avec historique des messages.`);
+            // window.location.href = `/admin/messagerie/conversation/${conversationId}`;
+        }
+
+        function replyToConversation(conversationId) {
+            alert(`Réponse à la conversation: ${conversationId}\n\nOuverture de l'éditeur de message...`);
+        }
+
+        function archiveConversation(conversationId) {
+            if (confirm('Archiver cette conversation ?')) {
+                alert(`Conversation ${conversationId} archivée`);
+                // Appel API pour archiver
+            }
+        }
+
+        function deleteConversation(conversationId) {
+            if (confirm('Supprimer définitivement cette conversation ?')) {
+                alert(`Conversation ${conversationId} supprimée`);
+                // Appel API pour supprimer
+            }
+        }
+
+        function sendBroadcast() {
+            alert('Envoi de message groupé\n\nFonctionnalité à implémenter: composer un message pour tous les utilisateurs ou un groupe spécifique.');
+        }
+
+        function sendNotification() {
+            alert('Création de notification\n\nFonctionnalité à implémenter: créer une notification système pour les utilisateurs.');
+        }
+
+        function sendReminder() {
+            alert('Envoi de rappel\n\nFonctionnalité à implémenter: envoyer un rappel de formation ou d\'échéance.');
+        }
+
+        function useTemplate(templateType) {
+            alert(`Utilisation du modèle: ${templateType}\n\nLe texte du modèle sera inséré dans l'éditeur de message.`);
+        }
+    </script>
+
+    <style>
+        .messaging-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .conversations-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+
+        .conversations-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2rem;
+            border-bottom: 1px solid var(--soft-gray);
+        }
+
+        .conversations-header h3 {
+            margin: 0;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .conversations-filters {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .conversations-list {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .conversation-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--soft-gray);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .conversation-item:hover {
+            background: var(--light-blue);
+        }
+
+        .conversation-item:last-child {
+            border-bottom: none;
+        }
+
+        .conversation-avatar {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-contact);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .conversation-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .conversation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .conversation-name {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .conversation-time {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .conversation-subject {
+            font-weight: 500;
+            color: var(--text-dark);
+            margin-bottom: 0.3rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .conversation-preview {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .conversation-actions {
+            display: flex;
+            gap: 0.5rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .conversation-item:hover .conversation-actions {
+            opacity: 1;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-light);
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .empty-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+        }
+
+        .empty-description {
+            margin-bottom: 2rem;
+        }
+
+        .quick-messaging {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .quick-section {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        .quick-section h3 {
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .quick-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .quick-action-btn {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--soft-gray);
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+
+        .quick-action-btn:hover {
+            background: var(--light-blue);
+            transform: translateY(-2px);
+        }
+
+        .action-icon {
+            font-size: 2rem;
+            width: 50px;
+            text-align: center;
+        }
+
+        .action-title {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .action-desc {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .templates-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .template-item {
+            padding: 1rem;
+            background: var(--soft-gray);
+            border-radius: 15px;
+        }
+
+        .template-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .template-preview {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 1rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 1024px) {
+            .quick-messaging {
+                grid-template-columns: 1fr;
+            }
+            
+            .conversations-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .messaging-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .conversations-filters {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .conversation-actions {
+                opacity: 1;
+            }
+        }
+    </style>
+</body>
+</html>

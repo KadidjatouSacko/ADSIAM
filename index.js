@@ -14,6 +14,7 @@ import etudiantsRoutes from './routes/etudiantsRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import DashboardController from './controllers/DashboardController.js';
 import { checkAdmin } from './middleware/checkAdmin.js';
+import companyRoutes from './routes/companyRouter.js';
 
 // Import des nouvelles routes d'authentification
 import authRoutes from './routes/authRoutes.js';
@@ -209,9 +210,51 @@ app.use(async (req, res, next) => {
         };
         return badges[status] || 'badge-secondary';
     };
+res.locals.getCompanyEmployeeCount = async (companyName) => {
+    try {
+        const result = await sequelize.query(`
+            SELECT COUNT(*) as count 
+            FROM users 
+            WHERE societe_rattachee = :company 
+            AND role != 'societe'
+        `, {
+            type: QueryTypes.SELECT,
+            replacements: { company: companyName }
+        });
+        return result[0]?.count || 0;
+    } catch (error) {
+        console.error('Erreur count employés:', error);
+        return 0;
+    }
+};
+
+res.locals.getCompanyStats = async (companyName) => {
+    try {
+        const stats = await sequelize.query(`
+            SELECT 
+                COUNT(DISTINCT u.id) as employes,
+                COUNT(DISTINCT i.id) as inscriptions,
+                COUNT(DISTINCT CASE WHEN i.statut = 'termine' THEN i.id END) as terminees,
+                ROUND(AVG(i.progression_pourcentage), 1) as progression
+            FROM users u
+            LEFT JOIN inscriptions i ON u.id = i.user_id  
+            WHERE u.societe_rattachee = :company
+            AND u.role != 'societe'
+        `, {
+            type: QueryTypes.SELECT,
+            replacements: { company: companyName }
+        });
+        return stats[0] || {};
+    } catch (error) {
+        console.error('Erreur stats entreprise:', error);
+        return {};
+    }
+};
 
     next();
 });
+
+
 
 // MIDDLEWARE DE DEBUG
 if (process.env.NODE_ENV !== 'production') {
@@ -294,6 +337,9 @@ app.use('/', formationRoutes);
 console.log('👥 Montage de etudiantsRoutes sur /');
 app.use('/', etudiantsRoutes);
 
+console.log('🏢 Montage des routes Espace Entreprise sur /entreprise');
+app.use('/entreprise', companyRoutes);
+
 // ========================================
 // 🏠 ROUTES PRINCIPALES
 // ========================================
@@ -316,10 +362,39 @@ app.get('/', (req, res) => {
 });
 
 // Dashboard avec redirection selon authentification
+// Dashboard avec redirection selon authentification
 app.get('/dashboard', async (req, res, next) => {
     if (!req.session?.userId) {
         req.flash('info', 'Veuillez vous connecter pour accéder au tableau de bord.');
         return res.redirect('/auth/login');
+    }
+    
+    // AJOUT : Redirection automatique pour les entreprises
+    // Récupérer le rôle depuis la base si pas en session
+    if (!req.session.user?.role) {
+        try {
+            const { QueryTypes } = await import('sequelize');
+            const userData = await sequelize.query(`
+                SELECT role, statut, societe_rattachee, prenom, nom 
+                FROM users 
+                WHERE id = :userId
+            `, {
+                type: QueryTypes.SELECT,
+                replacements: { userId: req.session.userId }
+            });
+            
+            if (userData[0]) {
+                req.session.user = userData[0];
+            }
+        } catch (error) {
+            console.error('Erreur récupération rôle:', error);
+        }
+    }
+    
+    // Redirection selon le rôle
+    if (req.session.user?.role === 'societe') {
+        console.log('Redirection entreprise pour:', req.session.user.prenom);
+        return res.redirect('/entreprise');
     }
     
     try {
@@ -365,6 +440,26 @@ app.get('/api/dashboard/quick-stats', async (req, res) => {
         res.status(500).json({ success: false, error: 'Erreur serveur' });
     }
 });
+
+app.get('/api/company/quick-stats', async (req, res) => {
+    if (!req.session?.userId || req.session.user?.role !== 'societe') {
+        return res.status(401).json({ error: 'Non autorisé' });
+    }
+    
+    try {
+        const companyName = req.session.user.societe_rattachee;
+        const stats = await res.locals.getCompanyStats(companyName);
+        
+        res.json({
+            success: true,
+            stats
+        });
+    } catch (error) {
+        console.error('Erreur API company stats:', error);
+        res.status(500).json({ success: false, error: 'Erreur serveur' });
+    }
+});
+
 
 // ========================================
 // 🚫 GESTION DES ERREURS

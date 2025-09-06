@@ -105,6 +105,9 @@ router.get('/dashboard-redirect', requireAuth, (req, res) => {
         case 'instructeur':
             res.redirect('/instructeur/dashboard');
             break;
+        case 'societe':       // <-- Ajouté ici
+            res.redirect('/entreprise/dashboard');
+            break;
         case 'etudiant':
         default:
             res.redirect('/etudiant/dashboard');

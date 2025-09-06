@@ -1,0 +1,449 @@
+<% locals.currentPage = 'reports' %>
+
+<!-- En-tête avec actions -->
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <div>
+        <h2 style="margin: 0; color: var(--text-dark);">Rapports & Attestations</h2>
+        <p style="margin: 0.5rem 0 0; color: var(--text-light);">
+            Générez et téléchargez les rapports de progression de vos équipes
+        </p>
+    </div>
+    <div style="display: flex; gap: 1rem;">
+        <button class="btn btn-primary" onclick="generateGlobalReport()">
+            📊 Rapport global
+        </button>
+        <button class="btn btn-secondary" onclick="downloadAllCertificates()">
+            📜 Toutes les attestations
+        </button>
+    </div>
+</div>
+
+<!-- Filtres de rapport -->
+<div class="card" style="margin-bottom: 2rem;">
+    <div class="card-header">
+        <h3 class="card-title">Filtres de rapport</h3>
+    </div>
+    <div class="card-body">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <div>
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Période :</label>
+                <select id="periodFilter" style="width: 100%; padding: 0.75rem; border: 2px solid var(--soft-gray); border-radius: 8px;">
+                    <option value="all">Toute la période</option>
+                    <option value="30">30 derniers jours</option>
+                    <option value="90">3 derniers mois</option>
+                    <option value="365">Dernière année</option>
+                    <option value="custom">Période personnalisée</option>
+                </select>
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Formation :</label>
+                <select id="formationFilter" style="width: 100%; padding: 0.75rem; border: 2px solid var(--soft-gray); border-radius: 8px;">
+                    <option value="">Toutes les formations</option>
+                    <!-- Options dynamiques -->
+                </select>
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Statut :</label>
+                <select id="statusFilter" style="width: 100%; padding: 0.75rem; border: 2px solid var(--soft-gray); border-radius: 8px;">
+                    <option value="">Tous les statuts</option>
+                    <option value="termine">Terminées</option>
+                    <option value="en_cours">En cours</option>
+                    <option value="certifie">Certifiées</option>
+                </select>
+            </div>
+            <div style="display: flex; align-items: flex-end;">
+                <button class="btn btn-secondary" onclick="applyFilters()">
+                    Appliquer les filtres
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Rapport de progression par formation -->
+<div class="card" style="margin-bottom: 2rem;">
+    <div class="card-header">
+        <h3 class="card-title">Progression par formation</h3>
+        <button class="btn btn-secondary" onclick="exportProgressionData()">
+            📊 Exporter CSV
+        </button>
+    </div>
+    <div class="card-body">
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Formation</th>
+                        <th>Inscrits</th>
+                        <th>Terminées</th>
+                        <th>Taux de réussite</th>
+                        <th>Progression moyenne</th>
+                        <th>Certifiés</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (progressionReports && progressionReports.length > 0) { %>
+                        <% progressionReports.forEach(report => { %>
+                            <tr>
+                                <td>
+                                    <div style="font-weight: 600; color: var(--text-dark);">
+                                        <%= report.formation %>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="text-align: center; font-weight: 600; color: var(--primary-blue);">
+                                        <%= report.nb_inscrits %>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="text-align: center; font-weight: 600; color: var(--success);">
+                                        <%= report.nb_termines %>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="text-align: center;">
+                                        <% const tauxReussite = report.nb_inscrits > 0 ? Math.round((report.nb_termines / report.nb_inscrits) * 100) : 0 %>
+                                        <span style="font-weight: 600; color: <%= tauxReussite >= 80 ? 'var(--success)' : tauxReussite >= 50 ? 'var(--warning)' : 'var(--danger)' %>;">
+                                            <%= tauxReussite %>%
+                                        </span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="min-width: 120px;">
+                                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                                            <span style="font-weight: 600;">
+                                                <%= report.progression_moyenne || 0 %>%
+                                            </span>
+                                        </div>
+                                        <div class="progress">
+                                            <div class="progress-bar" style="width: <%= report.progression_moyenne || 0 %>%;"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="text-align: center;">
+                                        <span class="badge badge-warning">
+                                            <%= report.nb_certifies || 0 %>
+                                        </span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 0.5rem;">
+                                        <button class="btn btn-secondary" style="padding: 0.5rem; font-size: 0.8rem;" 
+                                                onclick="viewDetailedReport('<%= report.formation %>')">
+                                            📊 Détails
+                                        </button>
+                                        <button class="btn btn-primary" style="padding: 0.5rem; font-size: 0.8rem;" 
+                                                onclick="downloadFormationCertificates('<%= report.formation %>')">
+                                            📜 Attestations
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 3rem; color: var(--text-light);">
+                                Aucune donnée de progression disponible
+                            </td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Attestations disponibles -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Attestations de formation</h3>
+        <div style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-secondary" onclick="refreshCertificates()">
+                🔄 Actualiser
+            </button>
+            <button class="btn btn-primary" onclick="batchDownloadCertificates()">
+                📦 Téléchargement groupé
+            </button>
+        </div>
+    </div>
+    <div class="card-body" style="padding: 0;">
+        <div id="certificatesContainer" style="padding: 2rem;">
+            <!-- Sera rempli dynamiquement -->
+            <div style="text-align: center; color: var(--text-light);">
+                Chargement des attestations...
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de période personnalisée -->
+<div id="customPeriodModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center;">
+    <div style="background: white; padding: 2rem; border-radius: 12px; max-width: 400px; width: 90%;">
+        <h3 style="margin-bottom: 1.5rem;">Période personnalisée</h3>
+        
+        <div style="margin-bottom: 1rem;">
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Date de début :</label>
+            <input type="date" id="customStartDate" style="width: 100%; padding: 0.75rem; border: 2px solid var(--soft-gray); border-radius: 8px;">
+        </div>
+        
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Date de fin :</label>
+            <input type="date" id="customEndDate" style="width: 100%; padding: 0.75rem; border: 2px solid var(--soft-gray); border-radius: 8px;">
+        </div>
+        
+        <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+            <button class="btn btn-secondary" onclick="closeCustomPeriodModal()">
+                Annuler
+            </button>
+            <button class="btn btn-primary" onclick="applyCustomPeriod()">
+                Appliquer
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Gestion des filtres
+document.getElementById('periodFilter').addEventListener('change', function(e) {
+    if (e.target.value === 'custom') {
+        document.getElementById('customPeriodModal').style.display = 'flex';
+    }
+});
+
+function closeCustomPeriodModal() {
+    document.getElementById('customPeriodModal').style.display = 'none';
+    document.getElementById('periodFilter').value = 'all';
+}
+
+function applyCustomPeriod() {
+    const startDate = document.getElementById('customStartDate').value;
+    const endDate = document.getElementById('customEndDate').value;
+    
+    if (!startDate || !endDate) {
+        alert('Veuillez sélectionner les deux dates');
+        return;
+    }
+    
+    if (new Date(startDate) > new Date(endDate)) {
+        alert('La date de début doit être antérieure à la date de fin');
+        return;
+    }
+    
+    closeCustomPeriodModal();
+    applyFilters();
+}
+
+function applyFilters() {
+    const period = document.getElementById('periodFilter').value;
+    const formation = document.getElementById('formationFilter').value;
+    const status = document.getElementById('statusFilter').value;
+    
+    // Construire les paramètres de filtre
+    const params = new URLSearchParams();
+    if (period && period !== 'all') params.append('period', period);
+    if (formation) params.append('formation', formation);
+    if (status) params.append('status', status);
+    
+    // Recharger la page avec les filtres
+    window.location.href = `/entreprise/rapports?${params.toString()}`;
+}
+
+// Actions de rapport
+function generateGlobalReport() {
+    window.open('/entreprise/rapports/export?type=global&format=pdf', '_blank');
+}
+
+function exportProgressionData() {
+    const params = new URLSearchParams(window.location.search);
+    params.append('export', 'progression');
+    window.location.href = `/entreprise/rapports/export?${params.toString()}`;
+}
+
+function viewDetailedReport(formation) {
+    window.open(`/entreprise/rapports/formation/${encodeURIComponent(formation)}`, '_blank');
+}
+
+function downloadFormationCertificates(formation) {
+    window.location.href = `/entreprise/attestations/formation/${encodeURIComponent(formation)}/batch-download`;
+}
+
+function downloadAllCertificates() {
+    if (confirm('Télécharger toutes les attestations disponibles ? Cela peut prendre quelques minutes.')) {
+        window.location.href = '/entreprise/attestations/batch-download';
+    }
+}
+
+function batchDownloadCertificates() {
+    const selectedCerts = document.querySelectorAll('input[name="certificateIds"]:checked');
+    if (selectedCerts.length === 0) {
+        alert('Veuillez sélectionner au moins une attestation');
+        return;
+    }
+    
+    const ids = Array.from(selectedCerts).map(cb => cb.value);
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/entreprise/attestations/batch-download';
+    
+    ids.forEach(id => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'certificateIds';
+        input.value = id;
+        form.appendChild(input);
+    });
+    
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+}
+
+// Charger les attestations
+async function loadCertificates() {
+    try {
+        const response = await fetch('/entreprise/api/certificates');
+        const data = await response.json();
+        
+        if (data.success) {
+            displayCertificates(data.certificates);
+        } else {
+            document.getElementById('certificatesContainer').innerHTML = 
+                '<div style="text-align: center; color: var(--danger);">Erreur lors du chargement des attestations</div>';
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        document.getElementById('certificatesContainer').innerHTML = 
+            '<div style="text-align: center; color: var(--danger);">Erreur de connexion</div>';
+    }
+}
+
+function displayCertificates(certificates) {
+    const container = document.getElementById('certificatesContainer');
+    
+    if (!certificates || certificates.length === 0) {
+        container.innerHTML = `
+            <div style="text-align: center; padding: 3rem; color: var(--text-light);">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">📜</div>
+                <div style="font-size: 1.2rem; margin-bottom: 0.5rem;">Aucune attestation disponible</div>
+                <div>Les attestations apparaîtront ici une fois les formations terminées</div>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = `
+        <div style="margin-bottom: 1rem;">
+            <label style="display: flex; align-items: center; gap: 0.5rem; font-weight: 600;">
+                <input type="checkbox" id="selectAllCerts" onchange="toggleAllCertificates(this.checked)">
+                Sélectionner toutes les attestations (${certificates.length})
+            </label>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem;">
+            ${certificates.map(cert => `
+                <div style="border: 2px solid var(--soft-gray); border-radius: 12px; padding: 1.5rem; transition: all 0.3s;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" name="certificateIds" value="${cert.id}">
+                            <span style="font-weight: 600;">Sélectionner</span>
+                        </label>
+                        <span class="badge badge-success">Certifié</span>
+                    </div>
+                    
+                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                        <div style="width: 50px; height: 50px; background: var(--gradient-contact); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600;">
+                            ${cert.employee_name.split(' ').map(n => n[0]).join('')}
+                        </div>
+                        <div>
+                            <div style="font-weight: 600; color: var(--text-dark);">
+                                ${cert.employee_name}
+                            </div>
+                            <div style="color: var(--text-light); font-size: 0.9rem;">
+                                ${cert.formation_title}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; font-size: 0.9rem;">
+                        <div>
+                            <div style="color: var(--text-light);">Date d'obtention</div>
+                            <div style="font-weight: 600;">${new Date(cert.date_certification).toLocaleDateString('fr-FR')}</div>
+                        </div>
+                        <div>
+                            <div style="color: var(--text-light);">Note finale</div>
+                            <div style="font-weight: 600; color: var(--success);">${cert.note_finale || 'N/A'}/20</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn btn-primary" style="flex: 1; padding: 0.75rem; font-size: 0.9rem;" 
+                                onclick="downloadCertificate('${cert.id}')">
+                            📜 Télécharger PDF
+                        </button>
+                        <button class="btn btn-secondary" style="padding: 0.75rem; font-size: 0.9rem;" 
+                                onclick="previewCertificate('${cert.id}')">
+                            👁️ Aperçu
+                        </button>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function toggleAllCertificates(checked) {
+    document.querySelectorAll('input[name="certificateIds"]').forEach(cb => {
+        cb.checked = checked;
+    });
+}
+
+function downloadCertificate(certId) {
+    window.open(`/entreprise/attestations/${certId}/pdf`, '_blank');
+}
+
+function previewCertificate(certId) {
+    window.open(`/entreprise/attestations/${certId}/preview`, '_blank');
+}
+
+function refreshCertificates() {
+    document.getElementById('certificatesContainer').innerHTML = 
+        '<div style="text-align: center; color: var(--text-light);">Actualisation des attestations...</div>';
+    loadCertificates();
+}
+
+// Charger les attestations au chargement de la page
+document.addEventListener('DOMContentLoaded', function() {
+    loadCertificates();
+    
+    // Charger les formations pour le filtre
+    loadFormationsFilter();
+});
+
+async function loadFormationsFilter() {
+    try {
+        const response = await fetch('/entreprise/api/formations/available');
+        const data = await response.json();
+        
+        if (data.success) {
+            const select = document.getElementById('formationFilter');
+            data.formations.forEach(formation => {
+                const option = document.createElement('option');
+                option.value = formation.id;
+                option.textContent = formation.titre;
+                select.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('Erreur chargement formations:', error);
+    }
+}
+
+// Fermer modal en cliquant à l'extérieur
+document.getElementById('customPeriodModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeCustomPeriodModal();
+    }
+});
+</script>

@@ -1,0 +1,494 @@
+<% locals.currentPage = 'billing' %>
+
+<!-- En-tête avec statistiques financières -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+    <div class="stat-card primary">
+        <div class="stat-number">2,450€</div>
+        <div class="stat-label">Total facturé</div>
+    </div>
+    <div class="stat-card success">
+        <div class="stat-number">1,890€</div>
+        <div class="stat-label">Payé</div>
+    </div>
+    <div class="stat-card warning">
+        <div class="stat-number">560€</div>
+        <div class="stat-label">En attente</div>
+    </div>
+    <div class="stat-card info">
+        <div class="stat-number">3</div>
+        <div class="stat-label">Factures en cours</div>
+    </div>
+</div>
+
+<!-- Navigation des onglets -->
+<div style="margin-bottom: 2rem;">
+    <div style="display: flex; border-bottom: 2px solid var(--soft-gray);">
+        <button class="tab-btn active" onclick="switchTab('devis')" data-tab="devis">
+            📄 Devis
+        </button>
+        <button class="tab-btn" onclick="switchTab('factures')" data-tab="factures">
+            🧾 Factures
+        </button>
+        <button class="tab-btn" onclick="switchTab('paiements')" data-tab="paiements">
+            💳 Paiements
+        </button>
+    </div>
+</div>
+
+<style>
+.tab-btn {
+    padding: 1rem 2rem;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-weight: 500;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s;
+}
+
+.tab-btn:hover {
+    background: var(--light-blue);
+}
+
+.tab-btn.active {
+    border-bottom-color: var(--primary-blue);
+    background: var(--light-blue);
+    color: var(--primary-blue);
+    font-weight: 600;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+</style>
+
+<!-- Contenu des onglets -->
+
+<!-- Onglet Devis -->
+<div id="devis" class="tab-content active">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Mes Devis</h3>
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn btn-primary" onclick="createQuote()">
+                    ➕ Nouveau devis
+                </button>
+                <button class="btn btn-secondary" onclick="exportQuotes()">
+                    📊 Exporter
+                </button>
+            </div>
+        </div>
+        <div class="card-body" style="padding: 0;">
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>N° Devis</th>
+                            <th>Date</th>
+                            <th>Formations</th>
+                            <th>Employés</th>
+                            <th>Montant HT</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Exemple de données -->
+                        <tr>
+                            <td><strong>DEV-2024-001</strong></td>
+                            <td>15/03/2024</td>
+                            <td>Communication & Relationnel</td>
+                            <td>5 employés</td>
+                            <td style="font-weight: 600; color: var(--primary-pink);">245€</td>
+                            <td><span class="badge badge-warning">En attente</span></td>
+                            <td>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <button class="btn btn-secondary" style="padding: 0.5rem; font-size: 0.8rem;" onclick="viewQuote('DEV-2024-001')">
+                                        👁️ Voir
+                                    </button>
+                                    <button class="btn btn-primary" style="padding: 0.5rem; font-size: 0.8rem;" onclick="downloadQuotePdf('DEV-2024-001')">
+                                        📄 PDF
+                                    </button>
+                                    <button class="btn btn-success" style="padding: 0.5rem; font-size: 0.8rem; background: var(--success);" onclick="acceptQuote('DEV-2024-001')">
+                                        ✅ Accepter
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>DEV-2024-002</strong></td>
+                            <td>20/03/2024</td>
+                            <td>Hygiène & Sécurité</td>
+                            <td>8 employés</td>
+                            <td style="font-weight: 600; color: var(--primary-pink);">392€</td>
+                            <td><span class="badge badge-success">Accepté</span></td>
+                            <td>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <button class="btn btn-secondary" style="padding: 0.5rem; font-size: 0.8rem;" onclick="viewQuote('DEV-2024-002')">
+                                        👁️ Voir
+                                    </button>
+                                    <button class="btn btn-primary" style="padding: 0.5rem; font-size: 0.8rem;" onclick="downloadQuotePdf('DEV-2024-002')">
+                                        📄 PDF
+                                    </button>
+                                    <span style="color: var(--success); font-size: 0.8rem; padding: 0.5rem;">✅ Facturé</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Onglet Factures -->
+<div id="factures" class="tab-content">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Mes Factures</h3>
+            <div style="display: flex; gap: 1rem;">
+                <select style="padding: 0.5rem; border: 2px solid var(--soft-gray); border-radius: 8px;">
+                    <option>Toutes les factures</option>
+                    <option>À payer</option>
+                    <option>Payées</option>
+                    <option>En retard</option>
+                </select>
+                <button class="btn btn-secondary" onclick="exportInvoices()">
+                    📊 Exporter
+                </button>
+            </div>
+        </div>
+        <div class="card-body" style="padding: 0;">
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>N° Facture</th>
+                            <th>Date d'émission</th>
+                            <th>Date d'échéance</th>
+                            <th>Montant TTC</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>FACT-2024-001</strong></td>
+                            <td>22/03/2024</td>
+                            <td>21/04/2024</td>
+                            <td style="font-weight: 600; color: var(--primary-pink);">470,40€</td>
+                            <td><span class="badge badge-success">Payée</span></td>
+                            <td>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <button class="btn btn-secondary" style="padding: 0.5rem; font-size: 0.8rem;" onclick="viewInvoice('FACT-2024-001')">
+                                        👁️ Voir
+                                    </button>
+                                    <button class="btn btn-primary" style="padding: 0.5rem; font-size: 0.8rem;" onclick="downloadInvoicePdf('FACT-2024-001')">
+                                        📄 PDF
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>FACT-2024-002</strong></td>
+                            <td>25/03/2024</td>
+                            <td>24/04/2024</td>
+                            <td style="font-weight: 600; color: var(--primary-pink);">294,00€</td>
+                            <td><span class="badge badge-warning">À payer</span></td>
+                            <td>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <button class="btn btn-secondary" style="padding: 0.5rem; font-size: 0.8rem;" onclick="viewInvoice('FACT-2024-002')">
+                                        👁️ Voir
+                                    </button>
+                                    <button class="btn btn-primary" style="padding: 0.5rem; font-size: 0.8rem;" onclick="downloadInvoicePdf('FACT-2024-002')">
+                                        📄 PDF
+                                    </button>
+                                    <button class="btn btn-success" style="padding: 0.5rem; font-size: 0.8rem; background: var(--success);" onclick="payInvoice('FACT-2024-002')">
+                                        💳 Payer
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>FACT-2024-003</strong></td>
+                            <td>28/03/2024</td>
+                            <td style="color: var(--danger); font-weight: 600;">27/04/2024</td>
+                            <td style="font-weight: 600; color: var(--primary-pink);">560,00€</td>
+                            <td><span class="badge badge-danger">En retard</span></td>
+                            <td>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <button class="btn btn-secondary" style="padding: 0.5rem; font-size: 0.8rem;" onclick="viewInvoice('FACT-2024-003')">
+                                        👁️ Voir
+                                    </button>
+                                    <button class="btn btn-primary" style="padding: 0.5rem; font-size: 0.8rem;" onclick="downloadInvoicePdf('FACT-2024-003')">
+                                        📄 PDF
+                                    </button>
+                                    <button class="btn btn-danger" style="padding: 0.5rem; font-size: 0.8rem; background: var(--danger);" onclick="payInvoice('FACT-2024-003')">
+                                        🚨 Payer urgent
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Onglet Paiements -->
+<div id="paiements" class="tab-content">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Historique des paiements</h3>
+            <div style="display: flex; gap: 1rem;">
+                <input type="month" style="padding: 0.5rem; border: 2px solid var(--soft-gray); border-radius: 8px;">
+                <button class="btn btn-secondary" onclick="exportPayments()">
+                    📊 Exporter
+                </button>
+            </div>
+        </div>
+        <div class="card-body" style="padding: 0;">
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Facture</th>
+                            <th>Montant</th>
+                            <th>Méthode</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>22/03/2024</td>
+                            <td><strong>FACT-2024-001</strong></td>
+                            <td style="font-weight: 600; color: var(--success);">470,40€</td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <span>💳</span>
+                                    <span>Carte bancaire</span>
+                                </div>
+                            </td>
+                            <td><span class="badge badge-success">Confirmé</span></td>
+                            <td>
+                                <button class="btn btn-secondary" style="padding: 0.5rem; font-size: 0.8rem;" onclick="downloadPaymentReceipt('PAY-001')">
+                                    📄 Reçu
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>15/03/2024</td>
+                            <td><strong>FACT-2024-000</strong></td>
+                            <td style="font-weight: 600; color: var(--success);">189,00€</td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <span>🏦</span>
+                                    <span>Virement</span>
+                                </div>
+                            </td>
+                            <td><span class="badge badge-success">Confirmé</span></td>
+                            <td>
+                                <button class="btn btn-secondary" style="padding: 0.5rem; font-size: 0.8rem;" onclick="downloadPaymentReceipt('PAY-000')">
+                                    📄 Reçu
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Module de paiement (modal) -->
+<div id="paymentModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center;">
+    <div style="background: white; padding: 2rem; border-radius: 12px; max-width: 500px; width: 90%;">
+        <h3 style="margin-bottom: 1.5rem;">Paiement sécurisé</h3>
+        
+        <div id="paymentDetails" style="background: var(--soft-gray); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+            <!-- Détails de la facture à payer -->
+        </div>
+        
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Méthode de paiement :</label>
+            <div style="display: flex; gap: 1rem;">
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 1rem; border: 2px solid var(--soft-gray); border-radius: 8px; flex: 1;">
+                    <input type="radio" name="paymentMethod" value="card" checked>
+                    <span>💳 Carte bancaire</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 1rem; border: 2px solid var(--soft-gray); border-radius: 8px; flex: 1;">
+                    <input type="radio" name="paymentMethod" value="transfer">
+                    <span>🏦 Virement</span>
+                </label>
+            </div>
+        </div>
+        
+        <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+            <button class="btn btn-secondary" onclick="closePaymentModal()">
+                Annuler
+            </button>
+            <button class="btn btn-primary" onclick="processPayment()">
+                Confirmer le paiement
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentInvoiceId = null;
+
+// Gestion des onglets
+function switchTab(tabName) {
+    // Masquer tous les contenus
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    
+    // Désactiver tous les boutons
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Activer l'onglet sélectionné
+    document.getElementById(tabName).classList.add('active');
+    document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+}
+
+// Actions des devis
+function createQuote() {
+    window.location.href = '/entreprise/inscriptions/nouvelle?type=devis';
+}
+
+function viewQuote(quoteId) {
+    window.open(`/entreprise/facturation/devis/${quoteId}`, '_blank');
+}
+
+function downloadQuotePdf(quoteId) {
+    window.open(`/entreprise/facturation/devis/${quoteId}/pdf`, '_blank');
+}
+
+function acceptQuote(quoteId) {
+    if (confirm(`Accepter le devis ${quoteId} ? Une facture sera automatiquement générée.`)) {
+        fetch(`/entreprise/facturation/devis/${quoteId}/accept`, {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Devis accepté ! Facture générée avec succès.');
+                window.location.reload();
+            } else {
+                alert('Erreur lors de l\'acceptation du devis');
+            }
+        });
+    }
+}
+
+// Actions des factures
+function viewInvoice(invoiceId) {
+    window.open(`/entreprise/facturation/factures/${invoiceId}`, '_blank');
+}
+
+function downloadInvoicePdf(invoiceId) {
+    window.open(`/entreprise/facturation/factures/${invoiceId}/pdf`, '_blank');
+}
+
+function payInvoice(invoiceId) {
+    currentInvoiceId = invoiceId;
+    
+    // Charger les détails de la facture
+    fetch(`/entreprise/facturation/factures/${invoiceId}/details`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('paymentDetails').innerHTML = `
+                    <div><strong>Facture :</strong> ${data.invoice.number}</div>
+                    <div><strong>Montant :</strong> ${data.invoice.amount}</div>
+                    <div><strong>Échéance :</strong> ${data.invoice.due_date}</div>
+                `;
+                document.getElementById('paymentModal').style.display = 'flex';
+            }
+        });
+}
+
+function closePaymentModal() {
+    document.getElementById('paymentModal').style.display = 'none';
+    currentInvoiceId = null;
+}
+
+function processPayment() {
+    if (!currentInvoiceId) return;
+    
+    const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+    
+    // Simuler le traitement de paiement
+    alert(`Traitement du paiement en cours...\nMéthode : ${paymentMethod}\nFacture : ${currentInvoiceId}`);
+    
+    // Dans un vrai système, on enverrait les données à l'API de paiement
+    setTimeout(() => {
+        alert('Paiement effectué avec succès !');
+        closePaymentModal();
+        window.location.reload();
+    }, 2000);
+}
+
+// Actions d'export
+function exportQuotes() {
+    window.location.href = '/entreprise/facturation/export?type=quotes&format=csv';
+}
+
+function exportInvoices() {
+    window.location.href = '/entreprise/facturation/export?type=invoices&format=csv';
+}
+
+function exportPayments() {
+    const month = document.querySelector('input[type="month"]').value;
+    const params = month ? `?month=${month}` : '';
+    window.location.href = `/entreprise/facturation/export?type=payments&format=csv${params}`;
+}
+
+function downloadPaymentReceipt(paymentId) {
+    window.open(`/entreprise/facturation/paiements/${paymentId}/receipt`, '_blank');
+}
+
+// Fermer modal en cliquant à l'extérieur
+document.getElementById('paymentModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closePaymentModal();
+    }
+});
+
+// Auto-refresh des données toutes les 5 minutes
+setInterval(() => {
+    // Actualiser discrètement les statuts de paiement
+    fetch('/entreprise/api/billing/status')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.updates) {
+                // Mettre à jour les badges de statut si nécessaire
+                updateBillingStatus(data.updates);
+            }
+        })
+        .catch(console.error);
+}, 300000); // 5 minutes
+
+function updateBillingStatus(updates) {
+    updates.forEach(update => {
+        const row = document.querySelector(`tr[data-invoice="${update.invoiceId}"]`);
+        if (row) {
+            const statusBadge = row.querySelector('.badge');
+            if (statusBadge) {
+                statusBadge.className = `badge badge-${update.statusClass}`;
+                statusBadge.textContent = update.statusText;
+            }
+        }
+    });
+}
+</script>

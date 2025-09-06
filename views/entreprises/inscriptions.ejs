@@ -1,0 +1,303 @@
+<% locals.currentPage = 'inscriptions' %>
+
+<!-- En-tête avec statistiques -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+    <div class="stat-card primary">
+        <div class="stat-number"><%= stats.total || 0 %></div>
+        <div class="stat-label">Total inscriptions</div>
+    </div>
+    <div class="stat-card info">
+        <div class="stat-number"><%= stats.en_cours || 0 %></div>
+        <div class="stat-label">En cours</div>
+    </div>
+    <div class="stat-card success">
+        <div class="stat-number"><%= stats.terminees || 0 %></div>
+        <div class="stat-label">Terminées</div>
+    </div>
+    <div class="stat-card warning">
+        <div class="stat-number"><%= stats.certifiees || 0 %></div>
+        <div class="stat-label">Certifiées</div>
+    </div>
+</div>
+
+<!-- Actions et filtres -->
+<div class="card" style="margin-bottom: 2rem;">
+    <div class="card-body" style="padding: 1.5rem;">
+        <div style="display: grid; grid-template-columns: 1fr auto auto auto; gap: 1rem; align-items: center;">
+            <!-- Recherche -->
+            <div style="position: relative;">
+                <input type="text" id="searchInscription" placeholder="Rechercher par nom ou formation..." 
+                       style="width: 100%; padding: 0.75rem 1rem 0.75rem 2.5rem; border: 2px solid var(--soft-gray); border-radius: 8px;">
+                <span style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--text-light);">🔍</span>
+            </div>
+            
+            <!-- Filtre statut -->
+            <select id="statusFilter" style="padding: 0.75rem; border: 2px solid var(--soft-gray); border-radius: 8px;">
+                <option value="">Tous les statuts</option>
+                <option value="non_commence">Non commencé</option>
+                <option value="en_cours">En cours</option>
+                <option value="termine">Terminé</option>
+                <option value="suspendu">Suspendu</option>
+            </select>
+            
+            <!-- Actions -->
+            <a href="/entreprise/inscriptions/nouvelle" class="btn btn-primary">
+                ➕ Nouvelle inscription
+            </a>
+            
+            <a href="/entreprise/inscriptions/groupee" class="btn btn-secondary">
+                👥 Inscription groupée
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Liste des inscriptions -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Inscriptions actives</h3>
+        <div style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-secondary" onclick="exportInscriptions()">
+                📊 Exporter
+            </button>
+        </div>
+    </div>
+    <div class="card-body" style="padding: 0;">
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Employé</th>
+                        <th>Formation</th>
+                        <th>Date d'inscription</th>
+                        <th>Statut</th>
+                        <th>Progression</th>
+                        <th>Date de fin prévue</th>
+                        <th>Prix</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="inscriptionsTableBody">
+                    <% if (inscriptions && inscriptions.length > 0) { %>
+                        <% inscriptions.forEach(inscription => { %>
+                            <tr data-inscription-id="<%= inscription.id %>">
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                        <div style="width: 35px; height: 35px; background: var(--gradient-contact); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.9rem;">
+                                            <%= inscription.prenom.charAt(0) %><%= inscription.nom.charAt(0) %>
+                                        </div>
+                                        <div>
+                                            <div style="font-weight: 600;">
+                                                <%= inscription.prenom %> <%= inscription.nom %>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                        <span style="font-size: 1.5rem;"><%= inscription.icone || '📚' %></span>
+                                        <div>
+                                            <div style="font-weight: 600; color: var(--text-dark);">
+                                                <%= inscription.titre %>
+                                            </div>
+                                            <span class="badge badge-info" style="font-size: 0.7rem;">
+                                                <%= capitalize(inscription.niveau || 'standard') %>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="font-size: 0.9rem;">
+                                        <%= formatDate(inscription.date_inscription) %>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge badge-<%= getStatusBadgeClass(inscription.statut) %>">
+                                        <%= capitalize(inscription.statut?.replace('_', ' ') || 'Non défini') %>
+                                    </span>
+                                </td>
+                                <td>
+                                    <div style="min-width: 120px;">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                                            <span style="font-weight: 600; color: var(--primary-blue);">
+                                                <%= inscription.progression_pourcentage || 0 %>%
+                                            </span>
+                                        </div>
+                                        <div class="progress">
+                                            <div class="progress-bar" style="width: <%= inscription.progression_pourcentage || 0 %>%; background: <%= getProgressColor(inscription.progression_pourcentage || 0) %>;"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <% if (inscription.date_fin_prevue) { %>
+                                        <div style="font-size: 0.9rem;">
+                                            <%= formatDate(inscription.date_fin_prevue) %>
+                                        </div>
+                                    <% } else { %>
+                                        <span style="color: var(--text-light); font-style: italic;">Non définie</span>
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <div style="font-weight: 600; color: var(--primary-pink);">
+                                        <% if (inscription.prix && inscription.prix > 0) { %>
+                                            <%= inscription.prix %>€
+                                        <% } else { %>
+                                            Gratuit
+                                        <% } %>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 0.5rem;">
+                                        <button class="btn btn-secondary" style="padding: 0.5rem; font-size: 0.8rem;" 
+                                                onclick="viewInscriptionDetails('<%= inscription.id %>')">
+                                            👁️ Détails
+                                        </button>
+                                        <% if (inscription.statut === 'en_cours' || inscription.statut === 'non_commence') { %>
+                                            <button class="btn btn-primary" style="padding: 0.5rem; font-size: 0.8rem;" 
+                                                    onclick="manageInscription('<%= inscription.id %>')">
+                                                ⚙️ Gérer
+                                            </button>
+                                        <% } %>
+                                    </div>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="8" style="text-align: center; padding: 3rem; color: var(--text-light);">
+                                <div style="font-size: 3rem; margin-bottom: 1rem;">📚</div>
+                                <div style="font-size: 1.2rem; margin-bottom: 0.5rem;">Aucune inscription trouvée</div>
+                                <div>Commencez par inscrire vos employés à des formations</div>
+                                <a href="/entreprise/inscriptions/nouvelle" class="btn btn-primary" style="margin-top: 1rem;">
+                                    ➕ Première inscription
+                                </a>
+                            </td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de gestion d'inscription -->
+<div id="manageModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center;">
+    <div style="background: white; padding: 2rem; border-radius: 12px; max-width: 500px; width: 90%;">
+        <h3 style="margin-bottom: 1.5rem;">Gérer l'inscription</h3>
+        
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Nouveau statut :</label>
+            <select id="newStatus" style="width: 100%; padding: 0.75rem; border: 2px solid var(--soft-gray); border-radius: 8px;">
+                <option value="non_commence">Non commencé</option>
+                <option value="en_cours">En cours</option>
+                <option value="termine">Terminé</option>
+                <option value="suspendu">Suspendu</option>
+            </select>
+        </div>
+        
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Date de fin prévue :</label>
+            <input type="date" id="newEndDate" style="width: 100%; padding: 0.75rem; border: 2px solid var(--soft-gray); border-radius: 8px;">
+        </div>
+        
+        <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+            <button class="btn btn-secondary" onclick="closeManageModal()">
+                Annuler
+            </button>
+            <button class="btn btn-primary" onclick="updateInscription()">
+                Mettre à jour
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentInscriptionId = null;
+
+// Recherche et filtres
+document.getElementById('searchInscription').addEventListener('input', filterInscriptions);
+document.getElementById('statusFilter').addEventListener('change', filterInscriptions);
+
+function filterInscriptions() {
+    const searchTerm = document.getElementById('searchInscription').value.toLowerCase();
+    const statusFilter = document.getElementById('statusFilter').value;
+    
+    const rows = document.querySelectorAll('#inscriptionsTableBody tr');
+    
+    rows.forEach(row => {
+        if (row.cells.length === 1) return; // Ignore empty state row
+        
+        const text = row.textContent.toLowerCase();
+        const status = row.querySelector('.badge').textContent.toLowerCase();
+        
+        const matchesSearch = text.includes(searchTerm);
+        const matchesStatus = !statusFilter || status.includes(statusFilter.replace('_', ' '));
+        
+        row.style.display = (matchesSearch && matchesStatus) ? '' : 'none';
+    });
+}
+
+// Actions
+function viewInscriptionDetails(inscriptionId) {
+    window.location.href = `/entreprise/inscriptions/${inscriptionId}`;
+}
+
+function manageInscription(inscriptionId) {
+    currentInscriptionId = inscriptionId;
+    document.getElementById('manageModal').style.display = 'flex';
+}
+
+function closeManageModal() {
+    document.getElementById('manageModal').style.display = 'none';
+    currentInscriptionId = null;
+}
+
+async function updateInscription() {
+    if (!currentInscriptionId) return;
+    
+    const newStatus = document.getElementById('newStatus').value;
+    const newEndDate = document.getElementById('newEndDate').value;
+    
+    try {
+        const response = await fetch(`/entreprise/inscriptions/${currentInscriptionId}/statut`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                statut: newStatus,
+                date_fin_prevue: newEndDate
+            })
+        });
+        
+        if (response.ok) {
+            window.location.reload();
+        } else {
+            alert('Erreur lors de la mise à jour');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        alert('Erreur lors de la mise à jour');
+    }
+    
+    closeManageModal();
+}
+
+function exportInscriptions() {
+    const params = new URLSearchParams();
+    const search = document.getElementById('searchInscription').value;
+    const status = document.getElementById('statusFilter').value;
+    
+    if (search) params.append('search', search);
+    if (status) params.append('status', status);
+    
+    window.location.href = `/entreprise/inscriptions/export?${params.toString()}`;
+}
+
+// Fermer modal en cliquant à l'extérieur
+document.getElementById('manageModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeManageModal();
+    }
+});
+</script>
