@@ -1,0 +1,1119 @@
+<% locals.currentPage = 'billing' %>
+
+<!-- Header de la page -->
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <div>
+        <h1 style="color: var(--text-dark); margin-bottom: 0.5rem;">Gestion des Devis</h1>
+        <p style="color: var(--text-light);">Créez et gérez vos devis de formations pour vos équipes</p>
+    </div>
+    <button class="btn btn-primary" onclick="openNewQuoteModal()">
+        ➕ Nouveau devis
+    </button>
+</div>
+
+<!-- Stats des devis -->
+<div class="stats-grid">
+    <div class="stat-card primary">
+        <div class="stat-number"><%= (quoteStats && quoteStats.total) || 0 %></div>
+        <div class="stat-label">Devis créés</div>
+    </div>
+    <div class="stat-card success">
+        <div class="stat-number"><%= (quoteStats && quoteStats.acceptes) || 0 %></div>
+        <div class="stat-label">Acceptés</div>
+    </div>
+    <div class="stat-card warning">
+        <div class="stat-number"><%= (quoteStats && quoteStats.en_attente) || 0 %></div>
+        <div class="stat-label">En attente</div>
+    </div>
+    <div class="stat-card info">
+        <div class="stat-number"><%= (quoteStats && quoteStats.montant_total) ? quoteStats.montant_total.toLocaleString('fr-FR') + '€' : '0€' %></div>
+        <div class="stat-label">Montant total</div>
+    </div>
+</div>
+
+<!-- Filtres -->
+<div class="card" style="margin-bottom: 2rem;">
+    <div class="card-body">
+        <form method="GET" action="/entreprise/facturation/devis">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; align-items: end;">
+                <div>
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Statut</label>
+                    <select class="form-control" name="statut" id="filterStatus">
+                        <option value="">Tous les statuts</option>
+                        <option value="brouillon" <%= (filters && filters.statut === 'brouillon') ? 'selected' : '' %>>Brouillon</option>
+                        <option value="envoye" <%= (filters && filters.statut === 'envoye') ? 'selected' : '' %>>Envoyé</option>
+                        <option value="accepte" <%= (filters && filters.statut === 'accepte') ? 'selected' : '' %>>Accepté</option>
+                        <option value="refuse" <%= (filters && filters.statut === 'refuse') ? 'selected' : '' %>>Refusé</option>
+                        <option value="expire" <%= (filters && filters.statut === 'expire') ? 'selected' : '' %>>Expiré</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Période</label>
+                    <select class="form-control" name="periode" id="filterPeriod">
+                        <option value="">Toutes les périodes</option>
+                        <option value="7" <%= (filters && filters.periode === '7') ? 'selected' : '' %>>7 derniers jours</option>
+                        <option value="30" <%= (filters && filters.periode === '30') ? 'selected' : '' %>>30 derniers jours</option>
+                        <option value="90" <%= (filters && filters.periode === '90') ? 'selected' : '' %>>3 derniers mois</option>
+                        <option value="365" <%= (filters && filters.periode === '365') ? 'selected' : '' %>>Cette année</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Recherche</label>
+                    <input type="text" class="form-control" name="search" placeholder="Numéro de devis..." value="<%= (filters && filters.search) || '' %>" id="searchQuote">
+                </div>
+                <div>
+                    <button type="submit" class="btn btn-secondary">Filtrer</button>
+                    <% if (filters && Object.keys(filters).length > 0) { %>
+                        <a href="/entreprise/facturation/devis" class="btn btn-outline-secondary" style="margin-left: 0.5rem;">Réinitialiser</a>
+                    <% } %>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Liste des devis -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Mes Devis</h3>
+        <div style="display: flex; gap: 1rem;">
+            <button class="btn btn-secondary" onclick="exportQuotes()">
+                📄 Exporter
+            </button>
+            <select class="form-control" style="width: auto;" onchange="bulkAction(this.value)">
+                <option value="">Actions groupées</option>
+                <option value="send">Envoyer sélectionnés</option>
+                <option value="delete">Supprimer sélectionnés</option>
+                <option value="duplicate">Dupliquer sélectionnés</option>
+            </select>
+        </div>
+    </div>
+    <div class="card-body">
+        <% if (quotes && quotes.length > 0) { %>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>
+                                <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                            </th>
+                            <th>N° Devis</th>
+                            <th>Date</th>
+                            <th>Client/Formation</th>
+                            <th>Participants</th>
+                            <th>Montant HT</th>
+                            <th>Statut</th>
+                            <th>Validité</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="quotesTableBody">
+                        <% quotes.forEach(quote => { %>
+                            <tr data-quote-id="<%= quote.id %>">
+                                <td>
+                                    <input type="checkbox" class="quote-checkbox" data-id="<%= quote.id %>">
+                                </td>
+                                <td>
+                                    <strong><%= quote.numero_devis %></strong>
+                                </td>
+                                <td>
+                                    <div><%= new Date(quote.date_creation).toLocaleDateString('fr-FR') %></div>
+                                    <small style="color: var(--text-light);"><%= new Date(quote.date_creation).toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'}) %></small>
+                                </td>
+                                <td>
+                                    <div style="font-weight: 600;"><%= quote.formation_titre || quote.titre_personnalise %></div>
+                                    <small style="color: var(--text-light);"><%= quote.description_courte %></small>
+                                </td>
+                                <td>
+                                    <span class="badge badge-info"><%= quote.nombre_participants %> personne<%= quote.nombre_participants > 1 ? 's' : '' %></span>
+                                </td>
+                                <td>
+                                    <strong><%= parseFloat(quote.montant_ht).toLocaleString('fr-FR') %>€</strong>
+                                    <small style="color: var(--text-light); display: block;"><%= parseFloat(quote.montant_ttc).toLocaleString('fr-FR') %>€ TTC</small>
+                                </td>
+                                <td>
+                                    <%
+                                        let statusClass = 'secondary';
+                                        let statusText = quote.statut;
+                                        switch(quote.statut) {
+                                            case 'accepte':
+                                                statusClass = 'success';
+                                                statusText = 'Accepté';
+                                                break;
+                                            case 'envoye':
+                                                statusClass = 'info';
+                                                statusText = 'Envoyé';
+                                                break;
+                                            case 'en_attente':
+                                                statusClass = 'warning';
+                                                statusText = 'En attente';
+                                                break;
+                                            case 'refuse':
+                                                statusClass = 'danger';
+                                                statusText = 'Refusé';
+                                                break;
+                                            case 'expire':
+                                                statusClass = 'warning';
+                                                statusText = 'Expiré';
+                                                break;
+                                            case 'brouillon':
+                                                statusClass = 'secondary';
+                                                statusText = 'Brouillon';
+                                                break;
+                                        }
+                                    %>
+                                    <span class="badge badge-<%= statusClass %>"><%= statusText %></span>
+                                </td>
+                                <td>
+                                    <% if (quote.date_validite) { %>
+                                        <%
+                                            const validite = new Date(quote.date_validite);
+                                            const aujourd_hui = new Date();
+                                            const jours_restants = Math.ceil((validite - aujourd_hui) / (1000 * 60 * 60 * 24));
+                                            let validiteClass = 'success';
+                                            if (jours_restants < 0) validiteClass = 'danger';
+                                            else if (jours_restants <= 7) validiteClass = 'warning';
+                                        %>
+                                        <div style="color: var(--<%= validiteClass %>);"><%= validite.toLocaleDateString('fr-FR') %></div>
+                                        <small style="color: var(--text-light);">
+                                            <% if (jours_restants < 0) { %>
+                                                Expiré
+                                            <% } else { %>
+                                                <%= jours_restants %> jour<%= jours_restants > 1 ? 's' : '' %>
+                                            <% } %>
+                                        </small>
+                                    <% } else { %>
+                                        <div style="color: var(--text-light);">-</div>
+                                        <small style="color: var(--text-light);">Non envoyé</small>
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                        <button class="btn btn-sm btn-secondary" onclick="viewQuote(<%= quote.id %>)" title="Voir">
+                                            👁️
+                                        </button>
+                                        <% if (quote.statut === 'brouillon' || quote.statut === 'en_attente') { %>
+                                            <button class="btn btn-sm btn-primary" onclick="editQuote(<%= quote.id %>)" title="Modifier">
+                                                ✏️
+                                            </button>
+                                        <% } %>
+                                        <% if (quote.statut !== 'brouillon') { %>
+                                            <button class="btn btn-sm btn-secondary" onclick="downloadQuotePdf(<%= quote.id %>)" title="PDF">
+                                                📄
+                                            </button>
+                                        <% } %>
+                                        <% if (quote.statut === 'accepte') { %>
+                                            <button class="btn btn-sm btn-success" onclick="convertToInvoice(<%= quote.id %>)" title="Facturer">
+                                                💰
+                                            </button>
+                                        <% } %>
+                                        <% if (quote.statut === 'brouillon' || quote.statut === 'en_attente') { %>
+                                            <button class="btn btn-sm btn-info" onclick="sendQuote(<%= quote.id %>)" title="Envoyer">
+                                                📧
+                                            </button>
+                                        <% } %>
+                                        <% if (quote.statut === 'brouillon') { %>
+                                            <button class="btn btn-sm btn-danger" onclick="deleteQuote(<%= quote.id %>)" title="Supprimer">
+                                                🗑️
+                                            </button>
+                                        <% } %>
+                                        <button class="btn btn-sm btn-outline-secondary" onclick="duplicateQuote(<%= quote.id %>)" title="Dupliquer">
+                                            📋
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        <% } else { %>
+            <div style="text-align: center; padding: 3rem; color: var(--text-light);">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">📄</div>
+                <h3>Aucun devis trouvé</h3>
+                <p>Commencez par créer votre premier devis pour vos formations d'équipe.</p>
+                <button class="btn btn-primary" onclick="openNewQuoteModal()" style="margin-top: 1rem;">
+                    ➕ Créer mon premier devis
+                </button>
+            </div>
+        <% } %>
+    </div>
+</div>
+
+<!-- Pagination -->
+<% if (pagination && pagination.total > 1) { %>
+    <div style="display: flex; justify-content: center; margin-top: 2rem;">
+        <div style="display: flex; gap: 0.5rem;">
+            <% if (pagination.hasPrev) { %>
+                <a href="?page=<%= pagination.current - 1 %><%= filters ? '&' + new URLSearchParams(filters).toString() : '' %>" 
+                   class="btn btn-secondary">← Précédent</a>
+            <% } else { %>
+                <button class="btn btn-secondary" disabled>← Précédent</button>
+            <% } %>
+            
+            <% for (let i = Math.max(1, pagination.current - 2); i <= Math.min(pagination.total, pagination.current + 2); i++) { %>
+                <% if (i === pagination.current) { %>
+                    <button class="btn btn-primary"><%= i %></button>
+                <% } else { %>
+                    <a href="?page=<%= i %><%= filters ? '&' + new URLSearchParams(filters).toString() : '' %>" 
+                       class="btn btn-secondary"><%= i %></a>
+                <% } %>
+            <% } %>
+            
+            <% if (pagination.hasNext) { %>
+                <a href="?page=<%= pagination.current + 1 %><%= filters ? '&' + new URLSearchParams(filters).toString() : '' %>" 
+                   class="btn btn-secondary">Suivant →</a>
+            <% } else { %>
+                <button class="btn btn-secondary" disabled>Suivant →</button>
+            <% } %>
+        </div>
+    </div>
+<% } %>
+
+<!-- Modal Nouveau Devis -->
+<div id="newQuoteModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 15px; padding: 2rem; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h3 style="margin: 0;">Nouveau Devis</h3>
+            <button onclick="closeNewQuoteModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">×</button>
+        </div>
+
+        <form id="newQuoteForm" action="/entreprise/facturation/devis" method="POST">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                <div>
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Formation *</label>
+                    <select class="form-control" name="formation_id" id="formationSelect" required onchange="updateFormationDetails()">
+                        <option value="">Sélectionner une formation</option>
+                        <% if (formations && formations.length > 0) { %>
+                            <% formations.forEach(formation => { %>
+                                <option value="<%= formation.id %>" 
+                                        data-prix="<%= formation.prix %>" 
+                                        data-titre="<%= formation.titre %>"
+                                        data-duree="<%= formation.duree_heures %>">
+                                    <%= formation.titre %> - <%= formation.prix ? parseFloat(formation.prix).toLocaleString('fr-FR') + '€' : 'Gratuit' %>
+                                </option>
+                            <% }) %>
+                        <% } %>
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Nombre de participants *</label>
+                    <input type="number" class="form-control" name="nombre_participants" id="participantsInput" 
+                           min="1" max="50" required onchange="updatePricing()">
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                <div>
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Date de début souhaitée</label>
+                    <input type="date" class="form-control" name="date_debut_souhaitee" 
+                           min="<%= new Date().toISOString().split('T')[0] %>">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Validité du devis (jours)</label>
+                    <select class="form-control" name="validite_jours">
+                        <option value="30">30 jours</option>
+                        <option value="60">60 jours</option>
+                        <option value="90">90 jours</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Contact client</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <input type="text" class="form-control" name="contact_nom" placeholder="Nom du contact">
+                    <input type="email" class="form-control" name="contact_email" placeholder="Email du contact">
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Modalités spécifiques</label>
+                <textarea class="form-control" name="modalites" rows="3" 
+                          placeholder="Précisez vos besoins spécifiques, contraintes horaires, lieu de formation..."></textarea>
+            </div>
+
+            <div style="background: var(--soft-gray); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;" id="pricingEstimate">
+                <h4 style="margin-bottom: 1rem;">Estimation tarifaire</h4>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span>Prix unitaire:</span>
+                    <strong id="prixUnitaire">-</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span>Participants (<span id="nbParticipants">0</span>):</span>
+                    <strong id="sousTotal">-</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;" id="remiseRow" style="display: none;">
+                    <span>Remise groupe (<span id="remisePourcentage">0</span>%):</span>
+                    <strong style="color: var(--success);" id="remiseMontant">-</strong>
+                </div>
+                <hr>
+                <div style="display: flex; justify-content: space-between; font-size: 1.1rem;">
+                    <span><strong>Total HT:</strong></span>
+                    <strong style="color: var(--primary-blue);" id="totalHT">0€</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span>TVA (20%):</span>
+                    <span id="tva">0€</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 1.2rem;">
+                    <span><strong>Total TTC:</strong></span>
+                    <strong style="color: var(--primary-pink);" id="totalTTC">0€</strong>
+                </div>
+            </div>
+
+            <input type="hidden" name="montant_ht" id="montantHT">
+            <input type="hidden" name="montant_ttc" id="montantTTC">
+            <input type="hidden" name="taux_tva" value="20">
+
+            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                <button type="button" class="btn btn-secondary" onclick="closeNewQuoteModal()">
+                    Annuler
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    Créer le devis
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// Variables globales
+let selectedQuotes = [];
+let formations = <%- JSON.stringify(formations || []) %>;
+
+// ========================================
+// GESTION DES MODALS
+// ========================================
+function openNewQuoteModal() {
+    document.getElementById('newQuoteModal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeNewQuoteModal() {
+    document.getElementById('newQuoteModal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+    document.getElementById('newQuoteForm').reset();
+    updatePricing();
+}
+
+// ========================================
+// GESTION DES SÉLECTIONS
+// ========================================
+function toggleSelectAll() {
+    const selectAll = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('.quote-checkbox');
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAll.checked;
+    });
+    
+    updateSelectedQuotes();
+}
+
+function updateSelectedQuotes() {
+    const checkboxes = document.querySelectorAll('.quote-checkbox:checked');
+    selectedQuotes = Array.from(checkboxes).map(cb => cb.dataset.id);
+    
+    const selectAll = document.getElementById('selectAll');
+    const allCheckboxes = document.querySelectorAll('.quote-checkbox');
+    
+    if (selectedQuotes.length === allCheckboxes.length) {
+        selectAll.checked = true;
+        selectAll.indeterminate = false;
+    } else if (selectedQuotes.length > 0) {
+        selectAll.checked = false;
+        selectAll.indeterminate = true;
+    } else {
+        selectAll.checked = false;
+        selectAll.indeterminate = false;
+    }
+}
+
+// ========================================
+// ACTIONS SUR LES DEVIS
+// ========================================
+function viewQuote(id) {
+    window.location.href = `/entreprise/facturation/devis/${id}`;
+}
+
+function editQuote(id) {
+    window.location.href = `/entreprise/facturation/devis/${id}/modifier`;
+}
+
+function sendQuote(id) {
+    if (confirm('Êtes-vous sûr de vouloir envoyer ce devis ?')) {
+        fetch(`/entreprise/facturation/devis/${id}/envoyer`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Devis envoyé avec succès!');
+                location.reload();
+            } else {
+                alert('Erreur lors de l\'envoi: ' + (data.message || 'Erreur inconnue'));
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors de l\'envoi du devis');
+        });
+    }
+}
+
+function deleteQuote(id) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer définitivement ce devis ?')) {
+        fetch(`/entreprise/facturation/devis/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Devis supprimé avec succès!');
+                location.reload();
+            } else {
+                alert('Erreur lors de la suppression: ' + (data.message || 'Erreur inconnue'));
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors de la suppression du devis');
+        });
+    }
+}
+
+function downloadQuotePdf(id) {
+    const link = document.createElement('a');
+    link.href = `/entreprise/facturation/devis/${id}/pdf`;
+    link.download = `devis-${id}.pdf`;
+    link.click();
+}
+
+function convertToInvoice(id) {
+    if (confirm('Convertir ce devis en facture ?\n\nCette action créera automatiquement une facture.')) {
+        fetch(`/entreprise/facturation/devis/${id}/convertir-facture`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Facture créée avec succès!');
+                window.location.href = '/entreprise/facturation/factures';
+            } else {
+                alert('Erreur lors de la conversion: ' + (data.message || 'Erreur inconnue'));
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors de la conversion en facture');
+        });
+    }
+}
+
+function duplicateQuote(id) {
+    if (confirm('Dupliquer ce devis ?')) {
+        fetch(`/entreprise/facturation/devis/${id}/dupliquer`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Devis dupliqué avec succès!');
+                location.reload();
+            } else {
+                alert('Erreur lors de la duplication: ' + (data.message || 'Erreur inconnue'));
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors de la duplication du devis');
+        });
+    }
+}
+
+// ========================================
+// ACTIONS GROUPÉES
+// ========================================
+function bulkAction(action) {
+    if (!action || selectedQuotes.length === 0) {
+        alert('Veuillez sélectionner au moins un devis.');
+        return;
+    }
+
+    let confirmMessage = '';
+    let endpoint = '';
+    
+    switch(action) {
+        case 'send':
+            confirmMessage = `Envoyer ${selectedQuotes.length} devis sélectionnés ?`;
+            endpoint = '/entreprise/facturation/devis/bulk-send';
+            break;
+        case 'delete':
+            confirmMessage = `Supprimer définitivement ${selectedQuotes.length} devis sélectionnés ?`;
+            endpoint = '/entreprise/facturation/devis/bulk-delete';
+            break;
+        case 'duplicate':
+            confirmMessage = `Dupliquer ${selectedQuotes.length} devis sélectionnés ?`;
+            endpoint = '/entreprise/facturation/devis/bulk-duplicate';
+            break;
+    }
+    
+    if (confirm(confirmMessage)) {
+        fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ ids: selectedQuotes })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(`Action "${action}" effectuée avec succès sur ${selectedQuotes.length} devis!`);
+                location.reload();
+            } else {
+                alert('Erreur lors de l\'action groupée: ' + (data.message || 'Erreur inconnue'));
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors de l\'action groupée');
+        });
+    }
+    
+    document.querySelector('select').value = '';
+}
+
+// ========================================
+// CALCUL DES PRIX
+// ========================================
+function updateFormationDetails() {
+    updatePricing();
+}
+
+function updatePricing() {
+    const formationSelect = document.getElementById('formationSelect');
+    const participantsInput = document.getElementById('participantsInput');
+    
+    if (!formationSelect.value || !participantsInput.value) {
+        resetPricing();
+        return;
+    }
+    
+    const selectedOption = formationSelect.selectedOptions[0];
+    const prix = parseFloat(selectedOption.dataset.prix) || 0;
+    const participants = parseInt(participantsInput.value) || 0;
+    
+    if (prix === 0) {
+        // Formation gratuite
+        document.getElementById('prixUnitaire').textContent = 'Gratuit';
+        document.getElementById('nbParticipants').textContent = participants;
+        document.getElementById('sousTotal').textContent = 'Gratuit';
+        document.getElementById('remiseRow').style.display = 'none';
+        document.getElementById('totalHT').textContent = '0€';
+        document.getElementById('tva').textContent = '0€';
+        document.getElementById('totalTTC').textContent = '0€';
+        document.getElementById('montantHT').value = '0';
+        document.getElementById('montantTTC').value = '0';
+        return;
+    }
+    
+    // Calculs pour formations payantes
+    const sousTotal = prix * participants;
+    let remisePourcentage = 0;
+    
+    // Remises selon le nombre de participants
+    if (participants >= 20) {
+        remisePourcentage = 15;
+    } else if (participants >= 10) {
+        remisePourcentage = 10;
+    } else if (participants >= 5) {
+        remisePourcentage = 5;
+    }
+    
+    const remiseMontant = sousTotal * (remisePourcentage / 100);
+    const totalHT = sousTotal - remiseMontant;
+    const tva = totalHT * 0.20;
+    const totalTTC = totalHT + tva;
+    
+    // Mise à jour de l'affichage
+    document.getElementById('prixUnitaire').textContent = prix.toLocaleString('fr-FR') + '€ HT';
+    document.getElementById('nbParticipants').textContent = participants;
+    document.getElementById('sousTotal').textContent = sousTotal.toLocaleString('fr-FR') + '€ HT';
+    
+    if (remisePourcentage > 0) {
+        document.getElementById('remiseRow').style.display = 'flex';
+        document.getElementById('remisePourcentage').textContent = remisePourcentage;
+        document.getElementById('remiseMontant').textContent = '-' + remiseMontant.toLocaleString('fr-FR') + '€';
+    } else {
+        document.getElementById('remiseRow').style.display = 'none';
+    }
+    
+    document.getElementById('totalHT').textContent = totalHT.toLocaleString('fr-FR') + '€';
+    document.getElementById('tva').textContent = tva.toLocaleString('fr-FR') + '€';
+    document.getElementById('totalTTC').textContent = totalTTC.toLocaleString('fr-FR') + '€';
+    
+    // Champs cachés pour le formulaire
+    document.getElementById('montantHT').value = totalHT.toFixed(2);
+    document.getElementById('montantTTC').value = totalTTC.toFixed(2);
+}
+
+function resetPricing() {
+    document.getElementById('prixUnitaire').textContent = '-';
+    document.getElementById('nbParticipants').textContent = '0';
+    document.getElementById('sousTotal').textContent = '-';
+    document.getElementById('remiseRow').style.display = 'none';
+    document.getElementById('totalHT').textContent = '0€';
+    document.getElementById('tva').textContent = '0€';
+    document.getElementById('totalTTC').textContent = '0€';
+    document.getElementById('montantHT').value = '';
+    document.getElementById('montantTTC').value = '';
+}
+
+// ========================================
+// EXPORT DES DONNÉES
+// ========================================
+function exportQuotes() {
+    const formats = [
+        { name: 'Excel (.xlsx)', value: 'xlsx' },
+        { name: 'CSV', value: 'csv' },
+        { name: 'PDF', value: 'pdf' }
+    ];
+    
+    const formatChoice = prompt(
+        'Choisir le format d\'export:\n' + 
+        formats.map((f, i) => `${i+1}. ${f.name}`).join('\n')
+    );
+    
+    if (formatChoice && formatChoice >= 1 && formatChoice <= 3) {
+        const format = formats[formatChoice - 1].value;
+        window.location.href = `/entreprise/facturation/devis/export?format=${format}`;
+    }
+}
+
+// ========================================
+// GESTION DU FORMULAIRE
+// ========================================
+document.getElementById('newQuoteForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    // Validation côté client
+    if (!formData.get('formation_id')) {
+        alert('Veuillez sélectionner une formation.');
+        return;
+    }
+    
+    if (!formData.get('nombre_participants') || parseInt(formData.get('nombre_participants')) < 1) {
+        alert('Veuillez saisir un nombre de participants valide.');
+        return;
+    }
+    
+    // Affichage du loader
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = 'Création en cours...';
+    submitBtn.disabled = true;
+    
+    fetch('/entreprise/facturation/devis', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Devis créé avec succès!\n\nNuméro: ' + data.numero_devis);
+            closeNewQuoteModal();
+            location.reload();
+        } else {
+            alert('Erreur lors de la création: ' + (data.message || 'Erreur inconnue'));
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        alert('Erreur lors de la création du devis');
+    })
+    .finally(() => {
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+    });
+});
+
+// ========================================
+// EVENT LISTENERS
+// ========================================
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestionnaire pour les checkboxes individuelles
+    document.querySelectorAll('.quote-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', updateSelectedQuotes);
+    });
+    
+    // Fermeture du modal en cliquant à l'extérieur
+    document.getElementById('newQuoteModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeNewQuoteModal();
+        }
+    });
+    
+    // Initialisation du calcul de prix
+    updatePricing();
+    
+    console.log('📋 Page Gestion des Devis chargée');
+    console.log('✅ <%= (quotes && quotes.length) || 0 %> devis affichés');
+    console.log('🎯 Fonctionnalités: Création, envoi, modification, export PDF');
+});
+
+// ========================================
+// GESTION DES RACCOURCIS CLAVIER
+// ========================================
+document.addEventListener('keydown', function(e) {
+    // Ctrl/Cmd + N pour nouveau devis
+    if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+        e.preventDefault();
+        openNewQuoteModal();
+    }
+    
+    // Échap pour fermer le modal
+    if (e.key === 'Escape') {
+        closeNewQuoteModal();
+    }
+    
+    // Ctrl/Cmd + A pour sélectionner tous les devis
+    if ((e.ctrlKey || e.metaKey) && e.key === 'a' && 
+        !e.target.matches('input, textarea, select')) {
+        e.preventDefault();
+        document.getElementById('selectAll').checked = true;
+        toggleSelectAll();
+    }
+});
+
+// ========================================
+// FONCTIONS UTILITAIRES
+// ========================================
+function formatCurrency(amount) {
+    return parseFloat(amount).toLocaleString('fr-FR') + '€';
+}
+
+function formatDate(dateString) {
+    return new Date(dateString).toLocaleDateString('fr-FR');
+}
+
+// ========================================
+// NOTIFICATIONS EN TEMPS RÉEL
+// ========================================
+function checkForUpdates() {
+    // Vérification périodique des mises à jour
+    fetch('/entreprise/facturation/devis/check-updates', {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.hasUpdates) {
+            const banner = document.createElement('div');
+            banner.className = 'alert alert-info';
+            banner.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>Des mises à jour sont disponibles pour vos devis.</span>
+                    <button onclick="location.reload()" class="btn btn-sm btn-primary">Actualiser</button>
+                </div>
+            `;
+            banner.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; z-index: 9999; margin: 0; border-radius: 0;';
+            document.body.prepend(banner);
+        }
+    })
+    .catch(error => {
+        console.log('Erreur lors de la vérification des mises à jour:', error);
+    });
+}
+
+// Vérification toutes les 2 minutes
+setInterval(checkForUpdates, 120000);
+
+// ========================================
+// AMÉLIORATION UX
+// ========================================
+
+// Auto-save des données du formulaire
+function autoSaveForm() {
+    const form = document.getElementById('newQuoteForm');
+    const formData = new FormData(form);
+    const data = {};
+    
+    for (let [key, value] of formData.entries()) {
+        data[key] = value;
+    }
+    
+    localStorage.setItem('quote_draft', JSON.stringify(data));
+}
+
+// Restauration des données du formulaire
+function restoreFormData() {
+    const savedData = localStorage.getItem('quote_draft');
+    if (savedData) {
+        const data = JSON.parse(savedData);
+        const form = document.getElementById('newQuoteForm');
+        
+        Object.keys(data).forEach(key => {
+            const field = form.querySelector(`[name="${key}"]`);
+            if (field) {
+                field.value = data[key];
+            }
+        });
+        
+        updatePricing();
+    }
+}
+
+// Nettoyage du brouillon après création
+function clearFormDraft() {
+    localStorage.removeItem('quote_draft');
+}
+
+// Debounced auto-save
+let autoSaveTimeout;
+function debouncedAutoSave() {
+    clearTimeout(autoSaveTimeout);
+    autoSaveTimeout = setTimeout(autoSaveForm, 1000);
+}
+
+// Ajout des listeners pour l'auto-save
+document.getElementById('newQuoteForm').addEventListener('input', debouncedAutoSave);
+document.getElementById('newQuoteForm').addEventListener('change', debouncedAutoSave);
+</script>
+
+<style>
+/* Styles spécifiques à la page devis */
+.quote-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.quote-amount {
+    font-weight: 700;
+    color: var(--primary-blue);
+}
+
+.quote-validity {
+    font-size: 0.9rem;
+}
+
+.quote-validity.expired {
+    color: var(--danger);
+}
+
+.quote-validity.soon {
+    color: var(--warning);
+}
+
+/* Animation pour les lignes sélectionnées */
+.quote-checkbox:checked + * {
+    background: rgba(165, 201, 212, 0.05);
+}
+
+/* Styles pour le modal */
+#newQuoteModal .form-control {
+    border: 2px solid var(--soft-gray);
+    border-radius: 8px;
+    padding: 0.75rem;
+    transition: all 0.3s;
+}
+
+#newQuoteModal .form-control:focus {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(165, 201, 212, 0.1);
+    outline: none;
+}
+
+/* Styles pour l'estimation tarifaire */
+#pricingEstimate {
+    transition: all 0.3s ease;
+}
+
+#pricingEstimate.calculating {
+    opacity: 0.7;
+}
+
+/* Responsive pour mobile */
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .table-responsive {
+        font-size: 0.9rem;
+    }
+    
+    .table th,
+    .table td {
+        padding: 0.5rem;
+    }
+    
+    #newQuoteModal > div {
+        width: 95%;
+        padding: 1rem;
+        max-height: 95vh;
+    }
+    
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.8rem;
+    }
+}
+
+/* Animation des cartes stats */
+.stat-card {
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+/* Indicateur de chargement */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid var(--primary-blue);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Badge de notification */
+.notification-badge {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--success);
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    z-index: 10000;
+    animation: slideInRight 0.3s ease;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Amélioration des boutons d'action */
+.btn-group {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.btn-group .btn {
+    flex: 1;
+    min-width: auto;
+}
+
+/* Style pour les lignes de tableau survolées */
+.table tbody tr:hover {
+    background-color: rgba(165, 201, 212, 0.05);
+}
+
+/* Amélioration du formulaire */
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.form-group .required {
+    color: var(--danger);
+}
+
+/* Indicateur de formulaire modifié */
+.form-modified {
+    border-left: 4px solid var(--warning);
+    padding-left: 1rem;
+}
+
+/* Styles pour les alertes */
+.alert {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+    border-radius: 8px;
+}
+
+.alert-info {
+    color: #0c5460;
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+}
+
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.alert-warning {
+    color: #856404;
+    background-color: #fff3cd;
+    border-color: #ffeaa7;
+}
+
+.alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+</style>

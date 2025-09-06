@@ -85,66 +85,67 @@ class CompanyController {
     // 👥 GESTION DES SALARIÉS
     // ========================================
     static async listEmployees(req, res) {
-        try {
-            const companyId = req.session.user.societe_rattachee;
-            const page = parseInt(req.query.page) || 1;
-            const limit = 20;
-            const offset = (page - 1) * limit;
+    try {
+        const companyId = req.session.user.societe_rattachee;
+        const page = parseInt(req.query.page) || 1;
+        const limit = 20;
+        const offset = (page - 1) * limit;
 
-            // Liste des employés avec leurs statistiques
-            const employees = await sequelize.query(`
-                SELECT 
-                    u.id, u.prenom, u.nom, u.email, u.telephone,
-                    u.type_utilisateur, u.statut, u.derniere_connexion,
-                    COUNT(DISTINCT i.id) as nb_formations,
-                    COUNT(DISTINCT CASE WHEN i.statut = 'termine' THEN i.id END) as formations_terminees,
-                    ROUND(AVG(i.progression_pourcentage), 1) as progression_moyenne,
-                    SUM(i.temps_total_minutes) as temps_total,
-                    COUNT(DISTINCT CASE WHEN i.certifie = true THEN i.id END) as certifications
-                FROM users u
-                LEFT JOIN inscriptions i ON u.id = i.user_id
-                WHERE u.societe_rattachee = :companyId
-                AND u.role != 'societe'
-                GROUP BY u.id
-                ORDER BY u.nom, u.prenom
-                LIMIT :limit OFFSET :offset
-            `, {
-                type: QueryTypes.SELECT,
-                replacements: { companyId, limit, offset }
-            });
+        // CORRECTION: Liste des employés avec préfixes explicites
+        const employees = await sequelize.query(`
+            SELECT 
+                u.id, u.prenom, u.nom, u.email, u.telephone,
+                u.type_utilisateur, u.statut as statut_employe, u.derniere_connexion,
+                COUNT(DISTINCT i.id) as nb_formations,
+                COUNT(DISTINCT CASE WHEN i.statut = 'termine' THEN i.id END) as formations_terminees,
+                ROUND(AVG(i.progression_pourcentage), 1) as progression_moyenne,
+                SUM(i.temps_total_minutes) as temps_total,
+                COUNT(DISTINCT CASE WHEN i.certifie = true THEN i.id END) as certifications
+            FROM users u
+            LEFT JOIN inscriptions i ON u.id = i.user_id
+            WHERE u.societe_rattachee = :companyId
+            AND u.role != 'societe'
+            GROUP BY u.id, u.prenom, u.nom, u.email, u.telephone, u.type_utilisateur, u.statut, u.derniere_connexion
+            ORDER BY u.nom, u.prenom
+            LIMIT :limit OFFSET :offset
+        `, {
+            type: QueryTypes.SELECT,
+            replacements: { companyId, limit, offset }
+        });
 
-            // Total pour pagination
-            const totalResult = await sequelize.query(`
-                SELECT COUNT(*) as total
-                FROM users 
-                WHERE societe_rattachee = :companyId 
-                AND role != 'societe'
-            `, {
-                type: QueryTypes.SELECT,
-                replacements: { companyId }
-            });
+        // Total pour pagination
+        const totalResult = await sequelize.query(`
+            SELECT COUNT(*) as total
+            FROM users 
+            WHERE societe_rattachee = :companyId 
+            AND role != 'societe'
+        `, {
+            type: QueryTypes.SELECT,
+            replacements: { companyId }
+        });
 
-            const total = parseInt(totalResult[0].total);
-            const totalPages = Math.ceil(total / limit);
+        const total = parseInt(totalResult[0].total);
+        const totalPages = Math.ceil(total / limit);
 
-            res.render('entreprises/employees', {
-                title: 'Mes Salariés - ADSIAM',
-                layout: 'layouts/company',
-                employees,
-                pagination: {
-                    current: page,
-                    total: totalPages,
-                    hasNext: page < totalPages,
-                    hasPrev: page > 1
-                }
-            });
+        res.render('entreprises/employees', {
+            title: 'Mes Salariés - ADSIAM',
+            layout: 'layouts/company',
+            employees,
+            pagination: {
+                current: page,
+                total: totalPages,
+                hasNext: page < totalPages,
+                hasPrev: page > 1
+            }
+        });
 
-        } catch (error) {
-            console.error('Erreur liste employés:', error);
-            req.flash('error', 'Erreur lors du chargement des employés.');
-            res.redirect('/entreprise/dashboard');
-        }
+    } catch (error) {
+        console.error('Erreur liste employés:', error);
+        req.flash('error', 'Erreur lors du chargement des employés.');
+        res.redirect('/entreprise/dashboard');
     }
+}
+
 
     static async employeeDetails(req, res) {
         try {
@@ -207,55 +208,56 @@ class CompanyController {
     // ========================================
     // 📝 INSCRIPTIONS & FORMATIONS
     // ========================================
-    static async inscriptions(req, res) {
-        try {
-            const companyId = req.session.user.societe_rattachee;
+  static async inscriptions(req, res) {
+    try {
+        const companyId = req.session.user.societe_rattachee;
 
-            // Toutes les inscriptions de l'entreprise
-            const inscriptions = await sequelize.query(`
-                SELECT 
-                    i.id, i.statut, i.progression_pourcentage,
-                    i.date_inscription, i.date_fin_prevue,
-                    u.prenom, u.nom,
-                    f.titre, f.icone, f.niveau, f.prix
-                FROM inscriptions i
-                JOIN users u ON i.user_id = u.id
-                JOIN formations f ON i.formation_id = f.id
-                WHERE u.societe_rattachee = :companyId
-                ORDER BY i.date_inscription DESC
-            `, {
-                type: QueryTypes.SELECT,
-                replacements: { companyId }
-            });
+        // Toutes les inscriptions de l'entreprise
+        const inscriptions = await sequelize.query(`
+            SELECT 
+                i.id, i.statut, i.progression_pourcentage,
+                i.date_inscription, i.date_fin_prevue,
+                u.prenom, u.nom,
+                f.titre, f.icone, f.niveau, f.prix
+            FROM inscriptions i
+            JOIN users u ON i.user_id = u.id
+            JOIN formations f ON i.formation_id = f.id
+            WHERE u.societe_rattachee = :companyId
+            ORDER BY i.date_inscription DESC
+        `, {
+            type: QueryTypes.SELECT,
+            replacements: { companyId }
+        });
 
-            // Stats des inscriptions
-            const stats = await sequelize.query(`
-                SELECT 
-                    COUNT(*) as total,
-                    COUNT(CASE WHEN statut = 'en_cours' THEN 1 END) as en_cours,
-                    COUNT(CASE WHEN statut = 'termine' THEN 1 END) as terminees,
-                    COUNT(CASE WHEN certifie = true THEN 1 END) as certifiees
-                FROM inscriptions i
-                JOIN users u ON i.user_id = u.id
-                WHERE u.societe_rattachee = :companyId
-            `, {
-                type: QueryTypes.SELECT,
-                replacements: { companyId }
-            });
+        // CORRECTION: Stats des inscriptions avec préfixes explicites
+        const stats = await sequelize.query(`
+            SELECT 
+                COUNT(*) as total,
+                COUNT(CASE WHEN i.statut = 'en_cours' THEN 1 END) as en_cours,
+                COUNT(CASE WHEN i.statut = 'termine' THEN 1 END) as terminees,
+                COUNT(CASE WHEN i.certifie = true THEN 1 END) as certifiees
+            FROM inscriptions i
+            JOIN users u ON i.user_id = u.id
+            WHERE u.societe_rattachee = :companyId
+        `, {
+            type: QueryTypes.SELECT,
+            replacements: { companyId }
+        });
 
-            res.render('entreprises/inscriptions', {
-                title: 'Inscriptions - ADSIAM',
-                layout: 'layouts/company',
-                inscriptions,
-                stats: stats[0]
-            });
+        res.render('entreprises/inscriptions', {
+            title: 'Inscriptions - ADSIAM',
+            layout: 'layouts/company',
+            inscriptions,
+            stats: stats[0]
+        });
 
-        } catch (error) {
-            console.error('Erreur inscriptions:', error);
-            req.flash('error', 'Erreur lors du chargement des inscriptions.');
-            res.redirect('/entreprise/dashboard');
-        }
+    } catch (error) {
+        console.error('Erreur inscriptions:', error);
+        req.flash('error', 'Erreur lors du chargement des inscriptions.');
+        res.redirect('/entreprise/dashboard');
     }
+}
+
 
     static async newInscription(req, res) {
         try {
@@ -300,29 +302,47 @@ class CompanyController {
     }
 
     static async processInscription(req, res) {
-        try {
-            const { employeeIds, formationId, dateFinPrevue } = req.body;
-            const companyId = req.session.user.societe_rattachee;
+    try {
+        const { employeeIds, formationId, dateFinPrevue } = req.body;
+        const companyId = req.session.user.societe_rattachee;
 
-            // Vérification que les employés appartiennent à l'entreprise
-            const validEmployees = await sequelize.query(`
-                SELECT id FROM users 
-                WHERE id = ANY(:employeeIds) 
-                AND societe_rattachee = :companyId
-            `, {
-                type: QueryTypes.SELECT,
-                replacements: { 
-                    employeeIds: Array.isArray(employeeIds) ? employeeIds : [employeeIds],
-                    companyId 
-                }
-            });
-
-            if (validEmployees.length === 0) {
-                req.flash('error', 'Aucun employé valide sélectionné.');
-                return res.redirect('/entreprise/inscriptions/nouvelle');
+        // Vérification que les employés appartiennent à l'entreprise
+        const validEmployees = await sequelize.query(`
+            SELECT id FROM users 
+            WHERE id = ANY(:employeeIds) 
+            AND societe_rattachee = :companyId
+            AND role != 'societe'
+        `, {
+            type: QueryTypes.SELECT,
+            replacements: { 
+                employeeIds: Array.isArray(employeeIds) ? employeeIds : [employeeIds],
+                companyId 
             }
+        });
 
-            // Création des inscriptions
+        if (validEmployees.length === 0) {
+            req.flash('error', 'Aucun employé valide sélectionné.');
+            return res.redirect('/entreprise/inscriptions/nouvelle');
+        }
+
+        // Vérifier que la formation existe et est active
+        const formation = await sequelize.query(`
+            SELECT id, titre, prix FROM formations 
+            WHERE id = :formationId AND actif = true
+        `, {
+            type: QueryTypes.SELECT,
+            replacements: { formationId }
+        });
+
+        if (!formation[0]) {
+            req.flash('error', 'Formation non trouvée ou inactive.');
+            return res.redirect('/entreprise/inscriptions/nouvelle');
+        }
+
+        // Création des inscriptions avec transaction
+        const transaction = await sequelize.transaction();
+        
+        try {
             const inscriptionPromises = validEmployees.map(emp => 
                 sequelize.query(`
                     INSERT INTO inscriptions 
@@ -331,6 +351,7 @@ class CompanyController {
                     RETURNING id
                 `, {
                     type: QueryTypes.INSERT,
+                    transaction,
                     replacements: {
                         userId: emp.id,
                         formationId,
@@ -340,16 +361,23 @@ class CompanyController {
             );
 
             await Promise.all(inscriptionPromises);
+            await transaction.commit();
 
-            req.flash('success', `${validEmployees.length} inscription(s) créée(s) avec succès.`);
+            req.flash('success', `${validEmployees.length} inscription(s) créée(s) avec succès pour la formation "${formation[0].titre}".`);
             res.redirect('/entreprise/inscriptions');
 
         } catch (error) {
-            console.error('Erreur traitement inscription:', error);
-            req.flash('error', 'Erreur lors de la création des inscriptions.');
-            res.redirect('/entreprise/inscriptions/nouvelle');
+            await transaction.rollback();
+            throw error;
         }
+
+    } catch (error) {
+        console.error('Erreur traitement inscription:', error);
+        req.flash('error', 'Erreur lors de la création des inscriptions.');
+        res.redirect('/entreprise/inscriptions/nouvelle');
     }
+}
+
 
     // ========================================
     // 💰 FACTURATION & DEVIS
