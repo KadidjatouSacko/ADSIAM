@@ -233,12 +233,23 @@ export const processLogin = async (req, res) => {
         // Générer le token
         const token = generateToken(user.id);
 
-        // Configuration session/cookies
+        // --- Configuration session ---
         req.session.userId = user.id;
         req.session.userToken = token;
 
+        // Stockage complet de l'utilisateur dans la session
+        req.session.user = {
+            id: user.id,
+            prenom: user.prenom,
+            nom: user.nom,
+            email: user.email,
+            role: user.role,                  // 'societe', 'employe', 'admin', etc.
+            statut: user.statut,              // 'actif', 'inactif', 'suspendu'
+            societe_rattachee: user.societe_rattachee || null // utile pour les middleware société
+        };
+
+        // Cookie persistant "Se souvenir de moi"
         if (remember) {
-            // Cookie persistant pour "Se souvenir de moi"
             res.cookie('rememberToken', token, {
                 maxAge: 30 * 24 * 60 * 60 * 1000, // 30 jours
                 httpOnly: true,
@@ -247,11 +258,15 @@ export const processLogin = async (req, res) => {
         }
 
         req.flash('success', `Bienvenue ${user.getNomComplet()} !`);
+
+        // Redirection selon le rôle
         if (user.role === 'admin') {
-    res.redirect('/admin');
-} else {
-    res.redirect('/dashboard');
-}
+            return res.redirect('/admin');
+        } else if (user.role === 'societe') {
+            return res.redirect('/entreprise/dashboard');
+        } else {
+            return res.redirect('/dashboard');
+        }
 
     } catch (error) {
         console.error('Erreur connexion:', error);
@@ -263,6 +278,7 @@ export const processLogin = async (req, res) => {
         });
     }
 };
+
 
 /**
  * ✏️ Mise à jour du profil

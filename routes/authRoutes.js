@@ -100,18 +100,38 @@ router.get('/dashboard-redirect', requireAuth, (req, res) => {
     
     switch (role) {
         case 'admin':
-            res.redirect('/admin/dashboard');
+            res.redirect('/admin');
             break;
         case 'instructeur':
             res.redirect('/instructeur/dashboard');
             break;
-        case 'societe':       // <-- Ajouté ici
-            res.redirect('/entreprise/dashboard');
+        case 'societe':       
+            res.redirect('/entreprise');
             break;
         case 'etudiant':
         default:
-            res.redirect('/etudiant/dashboard');
+            res.redirect('/dashboard');
             break;
+    }
+});
+
+router.get('/check-redirect', (req, res) => {
+    if (!req.session?.userId) {
+        return res.redirect('/auth/login');
+    }
+    
+    const userRole = req.session.user?.role;
+    console.log(`🔄 Check-redirect pour role: ${userRole}`);
+    
+    switch (userRole) {
+        case 'admin':
+            return res.redirect('/admin');
+        case 'societe':
+            return res.redirect('/entreprise');
+        case 'instructeur':
+            return res.redirect('/instructeur/dashboard');
+        default:
+            return res.redirect('/dashboard');
     }
 });
 

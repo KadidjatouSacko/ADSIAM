@@ -364,18 +364,21 @@ app.get('/', (req, res) => {
 // Dashboard avec redirection selon authentification
 // Dashboard avec redirection selon authentification
 app.get('/dashboard', async (req, res, next) => {
+    console.log('📊 Accès route /dashboard');
+    
     if (!req.session?.userId) {
+        console.log('❌ Utilisateur non connecté');
         req.flash('info', 'Veuillez vous connecter pour accéder au tableau de bord.');
         return res.redirect('/auth/login');
     }
     
-    // AJOUT : Redirection automatique pour les entreprises
-    // Récupérer le rôle depuis la base si pas en session
+    // Récupérer les données utilisateur si pas en session
     if (!req.session.user?.role) {
+        console.log('🔄 Récupération données utilisateur pour redirection');
         try {
             const { QueryTypes } = await import('sequelize');
             const userData = await sequelize.query(`
-                SELECT role, statut, societe_rattachee, prenom, nom 
+                SELECT id, prenom, nom, role, statut, societe_rattachee, type_utilisateur 
                 FROM users 
                 WHERE id = :userId
             `, {
@@ -385,22 +388,46 @@ app.get('/dashboard', async (req, res, next) => {
             
             if (userData[0]) {
                 req.session.user = userData[0];
+                console.log(`👤 Données utilisateur récupérées: ${userData[0].prenom} ${userData[0].nom} (${userData[0].role})`);
+            } else {
+                console.log('❌ Utilisateur non trouvé, destruction session');
+                req.session.destroy();
+                return res.redirect('/auth/login');
             }
         } catch (error) {
-            console.error('Erreur récupération rôle:', error);
+            console.error('💥 Erreur récupération utilisateur:', error);
+            return res.redirect('/auth/login');
         }
     }
     
-    // Redirection selon le rôle
-    if (req.session.user?.role === 'societe') {
-        console.log('Redirection entreprise pour:', req.session.user.prenom);
-        return res.redirect('/entreprise');
-    }
+    const userRole = req.session.user.role;
+    console.log(`🎯 Role utilisateur: ${userRole}`);
     
-    try {
-        await DashboardController.dashboard(req, res);
-    } catch (error) {
-        next(error);
+    // Redirection selon le rôle
+    switch (userRole) {
+        case 'societe':
+            console.log('🏢 Redirection entreprise vers /entreprise');
+            return res.redirect('/entreprise');
+            
+        case 'admin':
+            console.log('👑 Redirection admin vers /admin');
+            return res.redirect('/admin');
+            
+        case 'instructeur':
+        case 'formateur':
+            console.log('🎓 Redirection formateur vers /instructeur/dashboard');
+            return res.redirect('/instructeur/dashboard');
+            
+        default:
+            // Utilisateurs normaux (employés, étudiants, etc.)
+            console.log('👤 Affichage dashboard étudiant');
+            try {
+                await DashboardController.dashboard(req, res);
+            } catch (error) {
+                console.error('💥 Erreur dashboard controller:', error);
+                next(error);
+            }
+            break;
     }
 });
 

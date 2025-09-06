@@ -479,6 +479,7 @@ class CompanyController {
             });
         }
     }
+    
 
     // ========================================
     // 🔧 MÉTHODES UTILITAIRES
@@ -554,5 +555,92 @@ class CompanyController {
     static async getAvailableFormations(req, res) { res.json({ message: 'Formations disponibles à implémenter' }); }
     static async markNotificationsRead(req, res) { res.json({ message: 'Marquer notifications lues à implémenter' }); }
 }
+
+export const manageCompanies = async (req, res) => {
+    try {
+        const { QueryTypes } = await import('sequelize');
+        
+        // Récupérer toutes les entreprises
+        const companies = await sequelize.query(`
+            SELECT 
+                u.id,
+                u.prenom,
+                u.nom,
+                u.email,
+                u.statut,
+                u.societe_rattachee,
+                u.cree_le,
+                u.derniere_connexion_le,
+                COUNT(DISTINCT emp.id) as nombre_employes,
+                COUNT(DISTINCT i.id) as total_inscriptions
+            FROM users u
+            LEFT JOIN users emp ON emp.societe_rattachee = u.societe_rattachee AND emp.role != 'societe'
+            LEFT JOIN inscriptions i ON emp.id = i.user_id
+            WHERE u.role = 'societe'
+            GROUP BY u.id, u.prenom, u.nom, u.email, u.statut, u.societe_rattachee, u.cree_le, u.derniere_connexion_le
+            ORDER BY u.cree_le DESC
+        `, {
+            type: QueryTypes.SELECT
+        });
+
+        res.render('admin/companies', {
+            title: 'Gestion des Entreprises - ADSIAM',
+            layout: 'layouts/admin',
+            companies,
+            currentPage: 'companies'
+        });
+
+    } catch (error) {
+        console.error('Erreur gestion entreprises:', error);
+        req.flash('error', 'Erreur lors du chargement des entreprises');
+        res.redirect('/admin');
+    }
+};
+
+// Modifier le statut d'une entreprise
+export const updateCompanyStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { statut } = req.body;
+
+        if (!['actif', 'en_attente', 'suspendu', 'inactif'].includes(statut)) {
+            req.flash('error', 'Statut invalide');
+            return res.redirect('/admin/entreprises');
+        }
+
+        const { QueryTypes } = await import('sequelize');
+        
+        // Mettre à jour le statut
+        await sequelize.query(`
+            UPDATE users 
+            SET statut = :statut, modifie_le = NOW()
+            WHERE id = :id AND role = 'societe'
+        `, {
+            type: QueryTypes.UPDATE,
+            replacements: { id, statut }
+        });
+
+        // Récupérer les infos de l'entreprise pour le message
+        const company = await sequelize.query(`
+            SELECT prenom, nom, societe_rattachee 
+            FROM users 
+            WHERE id = :id
+        `, {
+            type: QueryTypes.SELECT,
+            replacements: { id }
+        });
+
+        if (company[0]) {
+            req.flash('success', `Statut de l'entreprise ${company[0].societe_rattachee} mis à jour: ${statut}`);
+        }
+
+        res.redirect('/admin/entreprises');
+
+    } catch (error) {
+        console.error('Erreur mise à jour statut:', error);
+        req.flash('error', 'Erreur lors de la mise à jour du statut');
+        res.redirect('/admin/entreprises');
+    }
+};
 
 export default CompanyController;

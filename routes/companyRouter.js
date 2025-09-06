@@ -73,5 +73,7 @@ router.get('/api/stats', CompanyController.getStats);
 router.get('/api/employees/search', CompanyController.searchEmployees);
 router.get('/api/formations/available', CompanyController.getAvailableFormations);
 router.post('/api/notifications/mark-read', CompanyController.markNotificationsRead);
-
+import { manageCompanies, updateCompanyStatus } from '../controllers/CompanyController.js';
+router.get('/entreprises', manageCompanies);
+router.post('/entreprises/:id/statut', updateCompanyStatus);
 export default router;
