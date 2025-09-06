@@ -84,7 +84,7 @@ export default (sequelize) => {
     }
   }, {
     tableName: 'users',
-    timestamps: true,
+    timestamps: false,
     indexes: [
       { fields: ['email'], unique: true },
       { fields: ['type_utilisateur'] },

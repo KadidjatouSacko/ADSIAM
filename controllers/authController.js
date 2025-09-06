@@ -105,8 +105,13 @@ export const processRegister = async (req, res) => {
             });
         }
 
-        // Vérifier si l'utilisateur existe déjà
-        const existingUser = await User.findByEmail(email);
+        // Vérifier si l'utilisateur existe déjà - MÉTHODE SEQUELIZE STANDARD
+        const existingUser = await User.findOne({
+            where: {
+                email: email.toLowerCase().trim()
+            }
+        });
+
         if (existingUser) {
             return res.render('auth/register', {
                 title: 'Inscription - ADSIAM',
@@ -116,12 +121,16 @@ export const processRegister = async (req, res) => {
             });
         }
 
+        // Hasher le mot de passe manuellement
+        const saltRounds = 12;
+        const hashedPassword = await bcrypt.hash(mot_de_passe, saltRounds);
+
         // Créer l'utilisateur
         const newUser = await User.create({
             prenom: prenom.trim(),
             nom: nom.trim(),
             email: email.toLowerCase().trim(),
-            mot_de_passe,
+            mot_de_passe: hashedPassword,
             telephone: telephone?.trim() || null,
             societe_rattachee: societe_rattachee?.trim() || null,
             role: 'etudiant',
@@ -136,11 +145,12 @@ export const processRegister = async (req, res) => {
         req.session.userToken = token;
 
         req.flash('success', 'Inscription réussie ! Votre compte est en attente de validation.');
+        
         if (newUser.role === 'admin') {
-    res.redirect('/admin');
-} else {
-    res.redirect('/dashboard');
-}
+            res.redirect('/admin');
+        } else {
+            res.redirect('/dashboard');
+        }
 
     } catch (error) {
         console.error('Erreur inscription:', error);
@@ -170,11 +180,13 @@ export const processRegister = async (req, res) => {
 };
 
 /**
- * 🔑 Traitement de la connexion
+ * 🔑 Traitement de la connexion - VERSION CORRIGÉE
  */
 export const processLogin = async (req, res) => {
     try {
         const { email, mot_de_passe, remember } = req.body;
+
+        console.log('🔐 Tentative de connexion pour:', email);
 
         // Validation des données
         if (!email || !mot_de_passe) {
@@ -186,9 +198,15 @@ export const processLogin = async (req, res) => {
             });
         }
 
-        // Rechercher l'utilisateur
-        const user = await User.findByEmail(email);
+        // Rechercher l'utilisateur - MÉTHODE SEQUELIZE STANDARD
+        const user = await User.findOne({
+            where: {
+                email: email.toLowerCase().trim()
+            }
+        });
+
         if (!user) {
+            console.log('❌ Utilisateur non trouvé:', email);
             return res.render('auth/login', {
                 title: 'Connexion - ADSIAM',
                 layout: 'layouts/auth',
@@ -197,9 +215,13 @@ export const processLogin = async (req, res) => {
             });
         }
 
-        // Vérifier le mot de passe
-        const isPasswordValid = await user.checkPassword(mot_de_passe);
+        console.log('✅ Utilisateur trouvé:', user.email, 'Statut:', user.statut);
+
+        // Vérifier le mot de passe - MÉTHODE BCRYPT DIRECTE
+        const isPasswordValid = await bcrypt.compare(mot_de_passe, user.mot_de_passe);
+        
         if (!isPasswordValid) {
+            console.log('❌ Mot de passe incorrect pour:', email);
             return res.render('auth/login', {
                 title: 'Connexion - ADSIAM',
                 layout: 'layouts/auth',
@@ -207,9 +229,12 @@ export const processLogin = async (req, res) => {
                 email
             });
         }
+
+        console.log('✅ Mot de passe correct');
 
         // Vérifier le statut du compte
         if (user.statut === 'suspendu') {
+            console.log('❌ Compte suspendu:', email);
             return res.render('auth/login', {
                 title: 'Connexion - ADSIAM',
                 layout: 'layouts/auth',
@@ -219,6 +244,7 @@ export const processLogin = async (req, res) => {
         }
 
         if (user.statut === 'inactif') {
+            console.log('❌ Compte inactif:', email);
             return res.render('auth/login', {
                 title: 'Connexion - ADSIAM',
                 layout: 'layouts/auth',
@@ -228,12 +254,14 @@ export const processLogin = async (req, res) => {
         }
 
         // Mettre à jour la dernière connexion
-        await user.update({ derniere_connexion: new Date() });
+        await user.update({ 
+            derniere_connexion: new Date() 
+        });
 
         // Générer le token
         const token = generateToken(user.id);
 
-        // --- Configuration session ---
+        // Configuration session
         req.session.userId = user.id;
         req.session.userToken = token;
 
@@ -243,9 +271,9 @@ export const processLogin = async (req, res) => {
             prenom: user.prenom,
             nom: user.nom,
             email: user.email,
-            role: user.role,                  // 'societe', 'employe', 'admin', etc.
-            statut: user.statut,              // 'actif', 'inactif', 'suspendu'
-            societe_rattachee: user.societe_rattachee || null // utile pour les middleware société
+            role: user.role,
+            statut: user.statut,
+            societe_rattachee: user.societe_rattachee || null
         };
 
         // Cookie persistant "Se souvenir de moi"
@@ -257,7 +285,12 @@ export const processLogin = async (req, res) => {
             });
         }
 
-        req.flash('success', `Bienvenue ${user.getNomComplet()} !`);
+        // Fonction helper pour le nom complet
+        const getNomComplet = () => `${user.prenom} ${user.nom}`;
+
+        req.flash('success', `Bienvenue ${getNomComplet()} !`);
+
+        console.log('✅ Connexion réussie pour:', email, 'Role:', user.role);
 
         // Redirection selon le rôle
         if (user.role === 'admin') {
@@ -278,7 +311,6 @@ export const processLogin = async (req, res) => {
         });
     }
 };
-
 
 /**
  * ✏️ Mise à jour du profil
@@ -361,9 +393,9 @@ export const changePassword = async (req, res) => {
             errors.confirm_nouveau_mot_de_passe = 'La confirmation ne correspond pas';
         }
 
-        // Vérifier l'ancien mot de passe
+        // Vérifier l'ancien mot de passe - BCRYPT DIRECT
         if (ancien_mot_de_passe) {
-            const isOldPasswordValid = await user.checkPassword(ancien_mot_de_passe);
+            const isOldPasswordValid = await bcrypt.compare(ancien_mot_de_passe, user.mot_de_passe);
             if (!isOldPasswordValid) {
                 errors.ancien_mot_de_passe = 'Ancien mot de passe incorrect';
             }
@@ -380,8 +412,14 @@ export const changePassword = async (req, res) => {
             });
         }
 
+        // Hasher le nouveau mot de passe
+        const saltRounds = 12;
+        const hashedPassword = await bcrypt.hash(nouveau_mot_de_passe, saltRounds);
+
         // Mettre à jour le mot de passe
-        await user.update({ mot_de_passe: nouveau_mot_de_passe });
+        await user.update({ 
+            mot_de_passe: hashedPassword 
+        });
 
         req.flash('success', 'Mot de passe modifié avec succès !');
         res.redirect('/auth/profile');
@@ -446,7 +484,7 @@ export const checkAuthStatus = async (req, res) => {
                 email: user.email,
                 role: user.role,
                 statut: user.statut,
-                nomComplet: user.getNomComplet()
+                nomComplet: `${user.prenom} ${user.nom}`
             }
         });
 
