@@ -1780,7 +1780,7 @@ static async processAddEmployee(req, res) {
             email,
             telephone,
             date_naissance,
-            type_utilisateur,
+            profession_detail,
             statut,
             role,
             mot_de_passe
@@ -1789,16 +1789,28 @@ static async processAddEmployee(req, res) {
         const companyId = req.session.user.societe_rattachee;
 
         console.log(`📝 Traitement ajout salarié pour l'entreprise: ${companyId}`, {
-            prenom, nom, email, type_utilisateur
+            prenom, nom, email, profession_detail, statut, role
         });
 
         // Validations
-        if (!prenom || !nom || !email || !type_utilisateur || !statut || !role || !mot_de_passe) {
+        if (!prenom || !nom || !email || !profession_detail || !statut || !role || !mot_de_passe) {
             return res.status(400).json({
                 success: false,
                 message: 'Tous les champs obligatoires doivent être remplis.'
             });
         }
+
+        // Validation du statut
+        const validStatuts = ['actif', 'inactif', 'suspendu', 'en_attente'];
+        const validStatut = validStatuts.includes(statut) ? statut : 'en_attente';
+
+        // Validation du rôle
+        const roleMapping = {
+            'employe': 'salarié',
+            'formateur': 'formateur', 
+            'manager': 'administrateur'
+        };
+        const validRole = roleMapping[role] || 'salarié';
 
         // Vérifier que l'email n'existe pas déjà
         const existingUser = await sequelize.query(`
@@ -1819,19 +1831,19 @@ static async processAddEmployee(req, res) {
         const bcrypt = await import('bcrypt');
         const hashedPassword = await bcrypt.hash(mot_de_passe, 12);
 
-        // Création de l'utilisateur avec transaction
+        // Création de l'utilisateur
         const transaction = await sequelize.transaction();
         
         try {
-            // CORRECTION: Suppression des colonnes createdat et updatedat qui n'existent pas
-            const [newUser] = await sequelize.query(`
+            // Utiliser UNIQUEMENT les colonnes qui existent vraiment dans votre table
+            const [result] = await sequelize.query(`
                 INSERT INTO users 
                 (prenom, nom, email, mot_de_passe, telephone, date_naissance, 
                  type_utilisateur, statut, role, societe_rattachee, 
                  date_inscription, derniere_connexion)
                 VALUES 
                 (:prenom, :nom, :email, :mot_de_passe, :telephone, :date_naissance,
-                 :type_utilisateur, :statut, :role, :societe_rattachee,
+                 'salarié', :statut, :role, :societe_rattachee,
                  NOW(), NULL)
                 RETURNING id, prenom, nom, email
             `, {
@@ -1844,25 +1856,41 @@ static async processAddEmployee(req, res) {
                     mot_de_passe: hashedPassword,
                     telephone: telephone || null,
                     date_naissance: date_naissance || null,
-                    type_utilisateur,
-                    statut,
-                    role,
+                    statut: validStatut,
+                    role: validRole,
                     societe_rattachee: companyId
+                }
+            });
+
+            const newUserId = result[0].id;
+
+            // Stocker le détail professionnel dans photo_profil (temporaire)
+            await sequelize.query(`
+                UPDATE users 
+                SET photo_profil = :profession_detail
+                WHERE id = :userId
+            `, {
+                type: QueryTypes.UPDATE,
+                transaction,
+                replacements: {
+                    userId: newUserId,
+                    profession_detail: profession_detail
                 }
             });
 
             await transaction.commit();
 
-            console.log(`✅ Salarié créé avec succès:`, newUser[0]);
+            console.log(`✅ Salarié créé avec succès:`, result[0]);
 
             res.json({
                 success: true,
                 message: 'Salarié ajouté avec succès !',
                 employee: {
-                    id: newUser[0].id,
-                    prenom: newUser[0].prenom,
-                    nom: newUser[0].nom,
-                    email: newUser[0].email
+                    id: newUserId,
+                    prenom: result[0].prenom,
+                    nom: result[0].nom,
+                    email: result[0].email,
+                    profession: profession_detail
                 }
             });
 
