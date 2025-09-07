@@ -5,137 +5,318 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= formation.titre %> | ADSIAM - Formation Détaillée</title>
+    <meta name="description" content="<%= formation.description.substring(0, 160) %>">
     <link rel="stylesheet" href="/css/formation.css">
+    <style>
+        /* Styles intégrés pour optimiser le chargement */
+        .formation-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 3rem;
+        }
+
+        .formation-header {
+            background: linear-gradient(135deg, #fce8ec, #e8f3f8);
+            border-radius: 25px;
+            padding: 3rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.08);
+        }
+
+        .formation-hero {
+            display: grid;
+            grid-template-columns: 1fr 150px;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .formation-title {
+            font-size: 2.5rem;
+            font-weight: 300;
+            color: #2f2f2f;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .formation-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .meta-badge {
+            padding: 0.6rem 1.5rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .formation-icon-large {
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(135deg, #e7a6b7, #a5bfd4);
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: white;
+            box-shadow: 0 15px 40px rgba(212, 165, 165, 0.3);
+        }
+
+        .module-item {
+            background: #f8f9fa;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .module-item:hover {
+            background: white;
+            border-color: #a5bfd4;
+            box-shadow: 0 10px 30px rgba(165, 201, 212, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .purchase-card {
+            background: white;
+            border-radius: 25px;
+            padding: 2.5rem;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 2rem;
+        }
+
+        .price-section {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid #f5f5f7;
+        }
+
+        .price-current {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #e7a6b7;
+            display: block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #e7a6b7, #a5bfd4);
+            color: white;
+            padding: 1.2rem 2rem;
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 50px rgba(212, 165, 165, 0.4);
+        }
+
+        @media (max-width: 1024px) {
+            .formation-container {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .formation-hero {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+        }
+    </style>
 </head>
 <body>
     <%- include('../partials/header') %>
-    <%- include('../partials/breadcrumb', { breadcrumb: [{ name: 'Formations', url: '/formations' }, { name: formation.titre }] }) %>
+    
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <div class="breadcrumb-container">
+            <nav class="breadcrumb-nav">
+                <a href="/">🏠 Accueil</a>
+                <span class="breadcrumb-separator">›</span>
+                <a href="/formations">Formations</a>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-current"><%= formation.titre %></span>
+            </nav>
+        </div>
+    </div>
 
-    <div class="main-content">
-        <!-- Left Column - Course Content -->
+    <div class="formation-container">
+        <!-- Contenu principal -->
         <div class="content-column">
-            <!-- Formation Header -->
+            <!-- En-tête de la formation -->
             <div class="formation-header fade-in">
                 <div class="formation-hero">
                     <div class="formation-info">
-                        <h1><%= formation.titre %></h1>
-                        <p class="formation-subtitle">Formation <%= formation.niveau %> • <%= formation.duree_heures %> heures • <%= formation.nombre_modules %> modules</p>
+                        <h1 class="formation-title"><%= formation.titre %></h1>
+                        <p class="formation-subtitle">
+                            Formation <%= formation.niveau %> • 
+                            <%= formation.duree_heures %> heures • 
+                            <%= formation.nombre_modules %> modules
+                        </p>
                         <p class="formation-description"><%= formation.description %></p>
+                        
                         <div class="formation-meta">
-                            <div class="meta-badge level">
+                            <div class="meta-badge" style="background: #e8f3f8; color: #a5bfd4;">
                                 📚 Niveau <%= formation.niveau %>
                             </div>
-                            <div class="meta-badge duration">
+                            <div class="meta-badge" style="background: #fce8ec; color: #e7a6b7;">
                                 ⏱️ <%= formation.duree_heures %> heures
                             </div>
-                            <div class="meta-badge modules">
+                            <div class="meta-badge" style="background: #f5f5f7; color: #6f6f6f;">
                                 🎯 <%= formation.nombre_modules %> modules
                             </div>
-                            <% if (formation.nombreAvis > 0) { %>
-                            <div class="meta-badge rating">
+                            <% if (formation.nombreAvis && formation.nombreAvis > 0) { %>
+                            <div class="meta-badge" style="background: #fff3cd; color: #856404;">
                                 ⭐ <%= formation.noteMoyenne %>/5 (<%= formation.nombreAvis %> avis)
                             </div>
                             <% } %>
                         </div>
                     </div>
                     <div class="formation-icon-large">
-                        <%= formation.icone %>
+                        <%= formation.icone || '📚' %>
                     </div>
                 </div>
             </div>
 
-            <!-- Course Content -->
+            <!-- Contenu du cours -->
             <div class="course-content fade-in">
-                <h2 class="section-title">
-                    <div class="section-icon">📋</div>
+                <h2 style="font-size: 1.8rem; font-weight: 600; color: #2f2f2f; margin-bottom: 2rem; display: flex; align-items: center; gap: 1rem;">
+                    <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #e8f3f8, #a5bfd4); border-radius: 15px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">📋</div>
                     Contenu de la formation
                 </h2>
+                
                 <div class="modules-list">
-                    <% formation.modules.forEach((module, index) => { %>
-                    <div class="module-item">
-                        <div class="module-header">
-                            <div class="module-title">
-                                <div class="module-number"><%= index + 1 %></div>
-                                <%= module.titre %>
+                    <% if (formation.modules && formation.modules.length > 0) { %>
+                        <% formation.modules.forEach((module, index) => { %>
+                        <div class="module-item" onclick="ouvrirModule(<%= module.id %>, '<%= module.titre %>', <%= module.disponible %>)">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                    <div style="width: 35px; height: 35px; background: linear-gradient(135deg, #e7a6b7, #a5bfd4); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.9rem;">
+                                        <%= index + 1 %>
+                                    </div>
+                                    <h3 style="font-size: 1.2rem; font-weight: 600; color: #2f2f2f; margin: 0;">
+                                        <%= module.titre %>
+                                    </h3>
+                                </div>
+                                <div style="padding: 0.4rem 1rem; border-radius: 15px; font-size: 0.8rem; font-weight: 600; <%= module.disponible ? 'background: #d4edda; color: #28a745;' : 'background: #f8d7da; color: #721c24;' %>">
+                                    <%= module.disponible ? 'Disponible' : 'Verrouillé' %>
+                                </div>
                             </div>
-                            <div class="module-status <%= module.disponible ? 'available' : 'locked' %>">
-                                <%= module.disponible ? 'Disponible' : 'Verrouillé' %>
+                            
+                            <p style="color: #6f6f6f; margin-bottom: 1rem; line-height: 1.6;">
+                                <%= module.description || 'Description du module à venir...' %>
+                            </p>
+                            
+                            <div style="display: flex; flex-wrap: wrap; gap: 1.5rem; font-size: 0.9rem; color: #6f6f6f;">
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <span style="color: #a5bfd4;">🎥</span>
+                                    <span><%= module.type_contenu.charAt(0).toUpperCase() + module.type_contenu.slice(1) %> <%= module.duree_minutes || 0 %> min</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <span style="color: #a5bfd4;">📄</span>
+                                    <span>PDF téléchargeable</span>
+                                </div>
+                                <% if (module.type_contenu === 'quiz') { %>
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <span style="color: #a5bfd4;">❓</span>
+                                    <span>Quiz d'évaluation</span>
+                                </div>
+                                <% } %>
                             </div>
                         </div>
-                        <p class="module-description"><%= module.description %></p>
-                        <div class="module-details">
-                            <div class="module-detail">
-                                <span class="detail-icon">🎥</span>
-                                <span><%= module.type_contenu.charAt(0).toUpperCase() + module.type_contenu.slice(1) %> <%= module.duree_minutes %> min</span>
-                            </div>
-                            <div class="module-detail">
-                                <span class="detail-icon">📄</span>
-                                <span>PDF téléchargeable</span>
-                            </div>
-                            <% if (module.type_contenu === 'quiz') { %>
-                            <div class="module-detail">
-                                <span class="detail-icon">❓</span>
-                                <span>Quiz d'évaluation</span>
-                            </div>
-                            <% } %>
+                        <% }); %>
+                    <% } else { %>
+                        <div style="text-align: center; padding: 3rem; background: #f8f9fa; border-radius: 20px; color: #6f6f6f;">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">📚</div>
+                            <p>Les modules de cette formation seront bientôt disponibles.</p>
                         </div>
-                    </div>
-                    <% }); %>
+                    <% } %>
                 </div>
             </div>
 
-            <!-- Reviews Section -->
+            <!-- Section avis -->
             <% if (formation.avis && formation.avis.length > 0) { %>
-            <div class="reviews-section fade-in">
-                <div class="reviews-header">
-                    <h2 class="section-title">
-                        <div class="section-icon">💬</div>
+            <div style="background: white; border-radius: 25px; padding: 3rem; margin-bottom: 2rem; box-shadow: 0 15px 50px rgba(0,0,0,0.08);" class="fade-in">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <h2 style="font-size: 1.8rem; font-weight: 600; color: #2f2f2f; margin: 0; display: flex; align-items: center; gap: 1rem;">
+                        <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #e8f3f8, #a5bfd4); border-radius: 15px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">💬</div>
                         Avis des apprenants
                     </h2>
-                    <div class="rating-overview">
-                        <div class="rating-score"><%= formation.noteMoyenne %></div>
-                        <div class="rating-details">
-                            <div class="stars">★★★★★</div>
-                            <div class="rating-count"><%= formation.nombreAvis %> avis vérifiés</div>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="font-size: 3rem; font-weight: 800; color: #e7a6b7;"><%= formation.noteMoyenne || 0 %></div>
+                        <div>
+                            <div style="color: #ffc107; font-size: 1.5rem;">★★★★★</div>
+                            <div style="color: #6f6f6f; font-size: 0.9rem;"><%= formation.nombreAvis %> avis vérifiés</div>
                         </div>
                     </div>
                 </div>
 
                 <% formation.avis.forEach(avis => { %>
-                <div class="review-item">
-                    <div class="review-header">
-                        <div class="reviewer-info">
-                            <div class="reviewer-avatar"><%= avis.nom_utilisateur.split(' ').map(n => n[0]).join('') %></div>
-                            <div class="reviewer-details">
-                                <h4><%= avis.nom_utilisateur %></h4>
-                                <div class="role"><%= avis.role %><%= avis.ville ? ` - ${avis.ville}` : '' %></div>
+                <div style="background: #f8f9fa; border-radius: 20px; padding: 2rem; margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div style="width: 45px; height: 45px; background: linear-gradient(135deg, #e8f3f8, #a5bfd4); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600;">
+                                <%= avis.nom_utilisateur.split(' ').map(n => n[0]).join('') %>
+                            </div>
+                            <div>
+                                <h4 style="color: #2f2f2f; font-size: 1rem; margin: 0 0 0.2rem 0;"><%= avis.nom_utilisateur %></h4>
+                                <div style="color: #6f6f6f; font-size: 0.9rem;"><%= avis.role %><%= avis.ville ? ` - ${avis.ville}` : '' %></div>
                             </div>
                         </div>
-                        <div class="review-rating">
+                        <div style="color: #ffc107; font-size: 1.2rem;">
                             <% for (let i = 1; i <= 5; i++) { %>
                                 <%= i <= avis.note ? '★' : '☆' %>
                             <% } %>
                         </div>
                     </div>
-                    <p class="review-text">"<%= avis.commentaire %>"</p>
+                    <p style="color: #6f6f6f; line-height: 1.6; margin: 0;">"<%= avis.commentaire %>"</p>
                 </div>
                 <% }); %>
             </div>
             <% } %>
 
-            <!-- Related Courses -->
+            <!-- Formations similaires -->
             <% if (formationsSimilaires && formationsSimilaires.length > 0) { %>
-            <div class="related-courses fade-in">
-                <h2 class="section-title">
-                    <div class="section-icon">🎯</div>
+            <div style="background: white; border-radius: 25px; padding: 3rem; box-shadow: 0 15px 50px rgba(0,0,0,0.08);" class="fade-in">
+                <h2 style="font-size: 1.8rem; font-weight: 600; color: #2f2f2f; margin-bottom: 2rem; display: flex; align-items: center; gap: 1rem;">
+                    <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #e8f3f8, #a5bfd4); border-radius: 15px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">🎯</div>
                     Formations recommandées
                 </h2>
-                <div class="related-grid">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
                     <% formationsSimilaires.forEach(f => { %>
-                    <div class="related-course" onclick="window.location.href='/formations/<%= f.id %>'">
-                        <div class="related-icon"><%= f.icone %></div>
-                        <h3 class="related-title"><%= f.titre %></h3>
-                        <div class="related-price">
+                    <div style="background: #f8f9fa; border-radius: 20px; padding: 2rem; text-align: center; transition: all 0.3s; cursor: pointer;" 
+                         onclick="window.location.href='/formations/<%= f.id %>'"
+                         onmouseover="this.style.background='white'; this.style.boxShadow='0 10px 30px rgba(0,0,0,0.1)'; this.style.transform='translateY(-5px)'"
+                         onmouseout="this.style.background='#f8f9fa'; this.style.boxShadow='none'; this.style.transform='translateY(0)'">
+                        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #e7a6b7, #a5bfd4); border-radius: 15px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.8rem; color: white;">
+                            <%= f.icone || '📚' %>
+                        </div>
+                        <h3 style="font-size: 1.1rem; font-weight: 600; color: #2f2f2f; margin-bottom: 0.5rem;"><%= f.titre %></h3>
+                        <div style="font-size: 1.2rem; font-weight: 700; color: #e7a6b7;">
                             <%= f.gratuit ? 'Gratuit' : Math.floor(f.prix) + '€' %>
                         </div>
                     </div>
@@ -145,88 +326,91 @@
             <% } %>
         </div>
 
-        <!-- Right Sidebar -->
+        <!-- Sidebar -->
         <div class="sidebar">
-            <!-- Purchase Card -->
+            <!-- Carte d'achat -->
             <div class="purchase-card fade-in">
                 <div class="price-section">
                     <% if (formation.gratuit) { %>
                     <span class="price-current">Gratuit</span>
-                    <div class="price-save">🎉 Formation offerte</div>
+                    <div style="background: #28a745; color: white; padding: 0.3rem 1rem; border-radius: 15px; font-size: 0.9rem; font-weight: 600; margin-top: 1rem; display: inline-block;">🎉 Formation offerte</div>
                     <% } else { %>
                     <span class="price-current"><%= Math.floor(formation.prix) %>€</span>
                     <% if (formation.prix_original) { %>
-                    <div class="price-original"><%= Math.floor(formation.prix_original) %>€</div>
-                    <div class="price-save">💰 Économisez <%= Math.floor(formation.prix_original - formation.prix) %>€</div>
+                    <div style="font-size: 1.2rem; color: #6f6f6f; text-decoration: line-through; margin-top: 0.5rem;"><%= Math.floor(formation.prix_original) %>€</div>
+                    <div style="background: #28a745; color: white; padding: 0.3rem 1rem; border-radius: 15px; font-size: 0.9rem; font-weight: 600; margin-top: 1rem; display: inline-block;">💰 Économisez <%= Math.floor(formation.prix_original - formation.prix) %>€</div>
                     <% } %>
                     <% } %>
                 </div>
 
-                <div class="purchase-features">
-                    <ul class="feature-list">
-                        <li class="feature-item">
-                            <div class="feature-icon">✓</div>
+                <div style="margin-bottom: 2rem;">
+                    <ul style="list-style: none; margin: 0; padding: 0;">
+                        <li style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem; font-size: 0.95rem;">
+                            <div style="width: 25px; height: 25px; background: #28a745; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.8rem; flex-shrink: 0;">✓</div>
                             <span>Accès immédiat à vie</span>
                         </li>
-                        <li class="feature-item">
-                            <div class="feature-icon">✓</div>
+                        <li style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem; font-size: 0.95rem;">
+                            <div style="width: 25px; height: 25px; background: #28a745; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.8rem; flex-shrink: 0;">✓</div>
                             <span><%= formation.nombre_modules %> modules interactifs</span>
                         </li>
-                        <li class="feature-item">
-                            <div class="feature-icon">✓</div>
+                        <li style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem; font-size: 0.95rem;">
+                            <div style="width: 25px; height: 25px; background: #28a745; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.8rem; flex-shrink: 0;">✓</div>
                             <span>Vidéos HD professionnelles</span>
                         </li>
-                        <li class="feature-item">
-                            <div class="feature-icon">✓</div>
+                        <li style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem; font-size: 0.95rem;">
+                            <div style="width: 25px; height: 25px; background: #28a745; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.8rem; flex-shrink: 0;">✓</div>
                             <span>PDF téléchargeables</span>
                         </li>
-                        <li class="feature-item">
-                            <div class="feature-icon">✓</div>
+                        <li style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem; font-size: 0.95rem;">
+                            <div style="width: 25px; height: 25px; background: #28a745; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.8rem; flex-shrink: 0;">✓</div>
                             <span>Quiz d'évaluation</span>
                         </li>
                         <% if (formation.certifiant) { %>
-                        <li class="feature-item">
-                            <div class="feature-icon">✓</div>
+                        <li style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem; font-size: 0.95rem;">
+                            <div style="width: 25px; height: 25px; background: #28a745; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.8rem; flex-shrink: 0;">✓</div>
                             <span>Certificat de réussite</span>
                         </li>
                         <% } %>
-                        <li class="feature-item">
-                            <div class="feature-icon">✓</div>
+                        <li style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem; font-size: 0.95rem;">
+                            <div style="width: 25px; height: 25px; background: #28a745; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.8rem; flex-shrink: 0;">✓</div>
                             <span>Support 7j/7</span>
                         </li>
                     </ul>
                 </div>
 
-                <div class="cta-buttons">
-                    <button class="btn btn-primary" onclick="commencerFormation(<%= formation.id %>, '<%= formation.titre %>', <%= formation.prix %>, <%= formation.gratuit %>)">
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <button class="btn-primary" onclick="commencerFormation(<%= formation.id %>, '<%= formation.titre %>', <%= formation.prix || 0 %>, <%= formation.gratuit %>)">
                         🚀 Commencer maintenant
                     </button>
-                    <button class="btn btn-secondary" onclick="voirProgramme()">
+                    <button style="background: transparent; color: #a5bfd4; border: 2px solid #a5bfd4; padding: 1rem 2rem; border-radius: 25px; font-weight: 600; cursor: pointer; transition: all 0.3s;" 
+                            onclick="voirProgramme()" 
+                            onmouseover="this.style.background='#a5bfd4'; this.style.color='white'"
+                            onmouseout="this.style.background='transparent'; this.style.color='#a5bfd4'">
                         📋 Programme détaillé
                     </button>
                 </div>
             </div>
 
-            <!-- Stats -->
-            <div class="instructor-card fade-in">
-                <h3 class="instructor-name">📊 Statistiques</h3>
-                <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem;">
+            <!-- Statistiques -->
+            <div style="background: white; border-radius: 25px; padding: 2rem; box-shadow: 0 15px 50px rgba(0,0,0,0.08); text-align: center;" class="fade-in">
+                <h3 style="color: #2f2f2f; margin-bottom: 1.5rem;">📊 Statistiques</h3>
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span>👥 Domaine</span>
-                        <strong style="color: var(--primary-pink); text-transform: capitalize;"><%= formation.domaine %></strong>
+                        <strong style="color: #e7a6b7; text-transform: capitalize;"><%= formation.domaine %></strong>
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span>⏱️ Durée totale</span>
-                        <strong style="color: var(--primary-blue);"><%= formation.duree_heures %>h</strong>
+                        <strong style="color: #a5bfd4;"><%= formation.duree_heures %>h</strong>
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span>🎯 Modules</span>
-                        <strong style="color: var(--primary-pink);"><%= formation.nombre_modules %></strong>
+                        <strong style="color: #e7a6b7;"><%= formation.nombre_modules %></strong>
                     </div>
                     <% if (formation.nombreAvis > 0) { %>
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span>⭐ Note moyenne</span>
-                        <strong style="color: var(--success);"><%= formation.noteMoyenne %>/5</strong>
+                        <strong style="color: #28a745;"><%= formation.noteMoyenne %>/5</strong>
                     </div>
                     <% } %>
                 </div>
@@ -235,21 +419,8 @@
     </div>
 
     <%- include('../partials/footer') %>
-    <%- include('../partials/chat-widget') %>
 
     <script>
-        function commencerFormation(id, titre, prix, gratuit) {
-            if (gratuit) {
-                alert(`🎉 Félicitations !\n\n✅ Accès immédiat à la formation :\n"${titre}"\n\n🚀 Redirection vers le premier module...`);
-            } else {
-                alert(`💳 Formation : ${titre}\nPrix : ${prix}€\n\n🛒 Redirection vers le paiement sécurisé...`);
-            }
-        }
-
-        function voirProgramme() {
-            alert('📋 Programme détaillé\n\n<%= formation.modules.map((m, i) => `Module ${i+1}: ${m.titre} (${m.duree_minutes} min)`).join('\\n') %>\n\n📄 Programme complet téléchargeable après inscription');
-        }
-
         // Animation au scroll
         const observerOptions = {
             threshold: 0.1,
@@ -268,7 +439,70 @@
             observer.observe(el);
         });
 
+        function commencerFormation(id, titre, prix, gratuit) {
+            if (gratuit) {
+                if (confirm(`🎉 Commencer la formation gratuite "${titre}" ?\n\nVous allez être redirigé vers le premier module.`)) {
+                    // Redirection vers la formation
+                    window.location.href = `/formations/${id}/commencer`;
+                }
+            } else {
+                if (confirm(`💳 Formation : ${titre}\nPrix : ${prix}€\n\nProcéder au paiement sécurisé ?`)) {
+                    // Redirection vers le paiement
+                    window.location.href = `/formations/${id}/acheter`;
+                }
+            }
+        }
+
+        function voirProgramme() {
+            const modules = [
+                <% if (formation.modules && formation.modules.length > 0) { %>
+                    <% formation.modules.forEach((module, index) => { %>
+                        "Module <%= index + 1 %>: <%= module.titre %> (<%= module.duree_minutes || 0 %> min)"<%= index < formation.modules.length - 1 ? ',' : '' %>
+                    <% }); %>
+                <% } %>
+            ];
+            
+            let programmeText = '📋 Programme détaillé\n\n';
+            if (modules.length > 0) {
+                programmeText += modules.join('\n');
+                programmeText += '\n\n📄 Programme complet téléchargeable après inscription';
+            } else {
+                programmeText += 'Programme en cours de finalisation.\nLes modules seront bientôt disponibles.';
+            }
+            
+            alert(programmeText);
+        }
+
+        function ouvrirModule(moduleId, titre, disponible) {
+            if (disponible) {
+                if (confirm(`📚 Ouvrir le module :\n"${titre}"\n\nCommencer la lecture ?`)) {
+                    // Redirection vers le module
+                    window.location.href = `/formations/<%= formation.id %>/modules/${moduleId}`;
+                }
+            } else {
+                alert(`🔒 Module verrouillé\n\n"${titre}"\n\n💡 Vous devez d'abord vous inscrire à cette formation pour accéder à ce module.`);
+            }
+        }
+
+        // Animation CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeInUp {
+                from { opacity: 0; transform: translateY(30px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            
+            .fade-in {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+        `;
+        document.head.appendChild(style);
+
         console.log('📚 Formation "<%= formation.titre %>" chargée');
+        console.log('🎯 Domaine: <%= formation.domaine %>');
+        console.log('⏱️ Durée: <%= formation.duree_heures %> heures');
+        console.log('🎯 Modules: <%= formation.nombre_modules %>');
     </script>
 </body>
 </html>

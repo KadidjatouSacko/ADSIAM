@@ -504,44 +504,492 @@ export class AdminController {
         }
     }
 
-    async createFormation(req, res) {
-        try {
-            const formationData = {
-                ...req.body,
-                prix: parseFloat(req.body.prix) || 0,
-                prix_original: parseFloat(req.body.prix_original) || null,
-                duree_heures: parseInt(req.body.duree_heures) || 0,
-                nombre_modules: parseInt(req.body.nombre_modules) || 0,
-                gratuit: req.body.gratuit === 'true',
-                populaire: req.body.populaire === 'true',
-                nouveau: req.body.nouveau === 'true',
-                certifiant: req.body.certifiant === 'true',
-                actif: req.body.actif !== 'false' // Par défaut actif
-            };
+  async createFormation(req, res) {
+    try {
+        console.log('📝 Création de formation - Données reçues:', req.body);
+        
+        const {
+            titre,
+            description,
+            domaine,
+            niveau,
+            prix,
+            duree_heures,
+            icone,
+            gratuit,
+            populaire,
+            nouveau,
+            certifiant,
+            actif,
+            modules_data
+        } = req.body;
 
-            const newFormation = await Formation.create(formationData);
-
-            req.session.flash = {
-                type: 'success',
-                message: `Formation "${newFormation.titre}" créée avec succès`
-            };
-
-            res.redirect('/admin/formations');
-        } catch (error) {
-            console.error('Erreur createFormation:', error);
-            res.status(500).render('admin/formations/create', {
-                title: 'Créer une formation - ADSIAM Admin',
-                admin: req.admin,
-                error: 'Erreur lors de la création de la formation',
-                formData: req.body,
-                currentPage: 'formations',
-                layout: 'layouts/admin'
+        // Validation des champs requis
+        if (!titre || !description || !domaine || !niveau) {
+            return res.status(400).json({
+                success: false,
+                message: 'Tous les champs obligatoires doivent être remplis'
             });
         }
-    }
 
-    // ====================== GESTION DES INSCRIPTIONS ======================
-    // Dans votre AdminController.js, remplacez la méthode getInscriptions par cette version corrigée :
+        // Préparer les données de la formation
+        const formationData = {
+            titre: titre.trim(),
+            description: description.trim(),
+            domaine,
+            niveau,
+            prix: parseFloat(prix) || 0,
+            duree_heures: parseInt(duree_heures) || 0,
+            nombre_modules: 0, // Sera calculé
+            icone: icone || '📚',
+            gratuit: gratuit === 'true' || parseFloat(prix) === 0,
+            populaire: populaire === 'true',
+            nouveau: nouveau === 'true',
+            certifiant: certifiant === 'true',
+            actif: actif !== 'false'
+        };
+
+        // Traitement des modules si fournis
+        let modulesArray = [];
+        if (modules_data) {
+            try {
+                modulesArray = JSON.parse(modules_data);
+                formationData.nombre_modules = modulesArray.length;
+                
+                // Recalculer la durée totale
+                const totalMinutes = modulesArray.reduce((total, module) => {
+                    return total + (parseInt(module.duree) || 0);
+                }, 0);
+                formationData.duree_heures = Math.ceil(totalMinutes / 60);
+            } catch (error) {
+                console.error('Erreur parsing modules_data:', error);
+            }
+        }
+
+        console.log('💾 Données formation préparées:', formationData);
+
+        // Créer la formation
+        const nouvelleFormation = await Formation.create(formationData);
+        console.log('✅ Formation créée avec ID:', nouvelleFormation.id);
+
+        // Créer les modules associés
+        if (modulesArray.length > 0) {
+            for (const [index, moduleData] of modulesArray.entries()) {
+                try {
+                    const module = await Module.create({
+                        formation_id: nouvelleFormation.id,
+                        titre: moduleData.titre || `Module ${index + 1}`,
+                        description: moduleData.description || '',
+                        duree_minutes: parseInt(moduleData.duree) || 0,
+                        ordre: parseInt(moduleData.ordre) || index + 1,
+                        type_contenu: 'video', // Par défaut
+                        disponible: true
+                    });
+
+                    console.log(`📚 Module ${index + 1} créé avec ID:`, module.id);
+
+                    // Créer les caractéristiques si il y a des parties/questions
+                    if (moduleData.parties && moduleData.parties.length > 0) {
+                        for (const partie of moduleData.parties) {
+                            if (partie.questions && partie.questions.length > 0) {
+                                // Créer une caractéristique pour le quiz
+                                await Caracteristique.create({
+                                    formation_id: nouvelleFormation.id,
+                                    titre: `Quiz - ${partie.titre}`,
+                                    icone: '❓'
+                                });
+                            }
+                        }
+                    }
+
+                } catch (moduleError) {
+                    console.error(`Erreur création module ${index + 1}:`, moduleError);
+                }
+            }
+        }
+
+        // Créer des caractéristiques de base pour la formation
+        const caracteristiquesBase = [
+            { titre: 'Accès immédiat', icone: '⚡' },
+            { titre: 'Certificat inclus', icone: '🏆' },
+            { titre: 'Support 24/7', icone: '🆘' },
+            { titre: 'Contenu premium', icone: '⭐' }
+        ];
+
+        for (const carac of caracteristiquesBase) {
+            try {
+                await Caracteristique.create({
+                    formation_id: nouvelleFormation.id,
+                    titre: carac.titre,
+                    icone: carac.icone
+                });
+            } catch (caracError) {
+                console.error('Erreur création caractéristique:', caracError);
+            }
+        }
+
+        // Réponse de succès
+        if (req.headers.accept && req.headers.accept.includes('application/json')) {
+            return res.json({
+                success: true,
+                message: `Formation "${nouvelleFormation.titre}" créée avec succès`,
+                formation: {
+                    id: nouvelleFormation.id,
+                    titre: nouvelleFormation.titre,
+                    modules: modulesArray.length
+                }
+            });
+        }
+
+        // Redirection pour formulaire HTML classique
+        req.session.flash = {
+            type: 'success',
+            message: `Formation "${nouvelleFormation.titre}" créée avec succès`
+        };
+        res.redirect('/admin/formations');
+
+    } catch (error) {
+        console.error('❌ Erreur création formation:', error);
+        
+        if (req.headers.accept && req.headers.accept.includes('application/json')) {
+            return res.status(500).json({
+                success: false,
+                message: 'Erreur lors de la création de la formation',
+                error: error.message
+            });
+        }
+
+        res.status(500).render('admin/formations/create', {
+            title: 'Créer une formation - ADSIAM Admin',
+            admin: req.admin,
+            error: 'Erreur lors de la création: ' + error.message,
+            formData: req.body,
+            currentPage: 'formations',
+            layout: 'layouts/admin'
+        });
+    }
+}
+
+async addDomain(req, res) {
+    try {
+        const { nom, description } = req.body;
+        
+        if (!nom) {
+            return res.status(400).json({
+                success: false,
+                message: 'Le nom du domaine est requis'
+            });
+        }
+
+        // Ici vous pourriez sauvegarder dans une table des domaines
+        // Pour l'instant, on retourne juste un succès
+        const domainId = nom.toLowerCase().replace(/\s+/g, '_');
+        
+        console.log('🏷️ Nouveau domaine ajouté:', { nom, description, id: domainId });
+
+        res.json({
+            success: true,
+            message: `Domaine "${nom}" ajouté avec succès`,
+            domain: {
+                id: domainId,
+                nom,
+                description
+            }
+        });
+
+    } catch (error) {
+        console.error('Erreur ajout domaine:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erreur lors de l\'ajout du domaine'
+        });
+    }
+}
+
+// Méthode pour obtenir la liste des domaines
+async getDomains(req, res) {
+    try {
+        // Récupérer les domaines uniques depuis la base
+        const { QueryTypes } = await import('sequelize');
+        const { sequelize } = await import('../models/index.js');
+
+        const domaines = await sequelize.query(`
+            SELECT DISTINCT domaine, COUNT(*) as count
+            FROM formations 
+            WHERE domaine IS NOT NULL AND domaine != ''
+            GROUP BY domaine
+            ORDER BY count DESC, domaine ASC
+        `, {
+            type: QueryTypes.SELECT
+        });
+
+        res.json({
+            success: true,
+            domains: domaines.map(d => ({
+                id: d.domaine,
+                nom: d.domaine.charAt(0).toUpperCase() + d.domaine.slice(1),
+                count: d.count
+            }))
+        });
+
+    } catch (error) {
+        console.error('Erreur récupération domaines:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erreur lors de la récupération des domaines'
+        });
+    }
+}
+
+async addDomain(req, res) {
+    try {
+        const { nom, description } = req.body;
+        
+        if (!nom || nom.trim().length < 2) {
+            return res.status(400).json({
+                success: false,
+                message: 'Le nom du domaine doit contenir au moins 2 caractères'
+            });
+        }
+
+        const nomClean = nom.trim().toLowerCase();
+        const domainId = nomClean.replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+        
+        // Vérifier si le domaine existe déjà
+        const { QueryTypes } = await import('sequelize');
+        const { sequelize } = await import('../models/index.js');
+
+        const existingDomain = await sequelize.query(`
+            SELECT COUNT(*) as count 
+            FROM formations 
+            WHERE domaine = :domainId
+        `, {
+            type: QueryTypes.SELECT,
+            replacements: { domainId }
+        });
+
+        if (parseInt(existingDomain[0].count) > 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Ce domaine existe déjà'
+            });
+        }
+
+        // Pour l'instant, on simule l'ajout. 
+        // Dans une vraie application, vous pourriez avoir une table 'domaines'
+        console.log('🏷️ Nouveau domaine à ajouter:', { 
+            id: domainId, 
+            nom: nomClean, 
+            description: description?.trim() || '',
+            display_name: nom.trim()
+        });
+
+        res.json({
+            success: true,
+            message: `Domaine "${nom}" ajouté avec succès`,
+            domain: {
+                id: domainId,
+                nom: nomClean,
+                display_name: nom.trim(),
+                description: description?.trim() || '',
+                formations_count: 0
+            }
+        });
+
+    } catch (error) {
+        console.error('Erreur addDomain:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erreur lors de l\'ajout du domaine'
+        });
+    }
+}
+
+async updateDomain(req, res) {
+    try {
+        const { id } = req.params;
+        const { nom, description } = req.body;
+        
+        if (!nom || nom.trim().length < 2) {
+            return res.status(400).json({
+                success: false,
+                message: 'Le nom du domaine doit contenir au moins 2 caractères'
+            });
+        }
+
+        const { QueryTypes } = await import('sequelize');
+        const { sequelize } = await import('../models/index.js');
+
+        // Vérifier que le domaine existe
+        const existingCount = await sequelize.query(`
+            SELECT COUNT(*) as count 
+            FROM formations 
+            WHERE domaine = :id
+        `, {
+            type: QueryTypes.SELECT,
+            replacements: { id }
+        });
+
+        if (parseInt(existingCount[0].count) === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Domaine non trouvé'
+            });
+        }
+
+        // Pour une vraie mise à jour, il faudrait mettre à jour toutes les formations
+        // avec ce domaine si on change l'ID du domaine
+        console.log('🔄 Mise à jour domaine:', { 
+            id, 
+            nouveauNom: nom.trim(),
+            description: description?.trim() || ''
+        });
+
+        res.json({
+            success: true,
+            message: `Domaine "${nom}" mis à jour avec succès`,
+            domain: {
+                id,
+                nom: nom.trim().toLowerCase(),
+                display_name: nom.trim(),
+                description: description?.trim() || ''
+            }
+        });
+
+    } catch (error) {
+        console.error('Erreur updateDomain:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erreur lors de la mise à jour du domaine'
+        });
+    }
+}
+
+async deleteDomain(req, res) {
+    try {
+        const { id } = req.params;
+        
+        const { QueryTypes } = await import('sequelize');
+        const { sequelize } = await import('../models/index.js');
+
+        // Vérifier combien de formations utilisent ce domaine
+        const formationsCount = await sequelize.query(`
+            SELECT COUNT(*) as count 
+            FROM formations 
+            WHERE domaine = :id
+        `, {
+            type: QueryTypes.SELECT,
+            replacements: { id }
+        });
+
+        const count = parseInt(formationsCount[0].count);
+
+        if (count === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Domaine non trouvé'
+            });
+        }
+
+        if (count > 0) {
+            return res.status(400).json({
+                success: false,
+                message: `Impossible de supprimer: ${count} formation(s) utilisent ce domaine`
+            });
+        }
+
+        // Si aucune formation n'utilise ce domaine, on peut le "supprimer"
+        // (dans notre cas, c'est juste symbolique car les domaines sont dérivés des formations)
+        
+        res.json({
+            success: true,
+            message: 'Domaine supprimé avec succès'
+        });
+
+    } catch (error) {
+        console.error('Erreur deleteDomain:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erreur lors de la suppression du domaine'
+        });
+    }
+}
+
+// Méthode pour dupliquer une formation
+async duplicateFormation(req, res) {
+    try {
+        const { id } = req.params;
+        
+        const formation = await Formation.findByPk(id, {
+            include: [
+                { model: Module, as: 'modules' },
+                { model: Caracteristique, as: 'caracteristiques' }
+            ]
+        });
+
+        if (!formation) {
+            return res.status(404).json({
+                success: false,
+                message: 'Formation non trouvée'
+            });
+        }
+
+        // Créer une copie
+        const copieData = {
+            ...formation.dataValues,
+            titre: `${formation.titre} (Copie)`,
+            id: undefined,
+            createdAt: undefined,
+            updatedAt: undefined,
+            actif: false // Désactivée par défaut
+        };
+
+        const nouvelleCopie = await Formation.create(copieData);
+
+        // Copier les modules
+        if (formation.modules) {
+            for (const module of formation.modules) {
+                await Module.create({
+                    ...module.dataValues,
+                    id: undefined,
+                    formation_id: nouvelleCopie.id,
+                    createdAt: undefined,
+                    updatedAt: undefined
+                });
+            }
+        }
+
+        // Copier les caractéristiques
+        if (formation.caracteristiques) {
+            for (const carac of formation.caracteristiques) {
+                await Caracteristique.create({
+                    ...carac.dataValues,
+                    id: undefined,
+                    formation_id: nouvelleCopie.id,
+                    createdAt: undefined,
+                    updatedAt: undefined
+                });
+            }
+        }
+
+        res.json({
+            success: true,
+            message: 'Formation dupliquée avec succès',
+            formation: nouvelleCopie
+        });
+
+    } catch (error) {
+        console.error('Erreur duplication formation:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erreur lors de la duplication'
+        });
+    }
+}
+
+
+// ====================== GESTION DES INSCRIPTIONS ======================
+// Dans votre AdminController.js, remplacez la méthode getInscriptions par cette version corrigée :
 
 async getInscriptions(req, res) {
     try {
@@ -928,17 +1376,7 @@ async viewEvent(req, res) {
         return { total, byRole, active };
     }
 
-    async getFormationStats() {
-        const total = await Formation.count();
-        const active = await Formation.count({ where: { actif: true } });
-        const byDomain = await Formation.findAll({
-            attributes: ['domaine', [Formation.sequelize.fn('COUNT', Formation.sequelize.col('domaine')), 'count']],
-            group: ['domaine'],
-            raw: true
-        });
-        
-        return { total, active, byDomain };
-    }
+   
 
     async getInscriptionStats() {
         const total = await Inscription.count();
@@ -1312,6 +1750,554 @@ async getSettings(req, res) {
             await this.generateUsersPDF(res, users);
         }
     }
+
+    // Méthodes supplémentaires pour AdminController.js
+
+// Voir une formation spécifique
+async viewFormation(req, res) {
+    try {
+        const { id } = req.params;
+        
+        const formation = await Formation.findByPk(id, {
+            include: [
+                { 
+                    model: Module, 
+                    as: 'modules',
+                    order: [['ordre', 'ASC']]
+                },
+                { model: Caracteristique, as: 'caracteristiques' },
+                { 
+                    model: Avis, 
+                    as: 'avis',
+                    limit: 10,
+                    order: [['createdat', 'DESC']]
+                }
+            ]
+        });
+
+        if (!formation) {
+            return res.status(404).render('errors/404', {
+                message: 'Formation non trouvée'
+            });
+        }
+
+        // Calculer les statistiques
+        const stats = {
+            totalInscriptions: await Inscription.count({ where: { formation_id: id } }),
+            inscriptionsActives: await Inscription.count({ 
+                where: { formation_id: id, statut: 'active' } 
+            }),
+            tauxCompletion: 85, // À calculer selon vos besoins
+            noteMoyenne: formation.avis?.length > 0 
+                ? (formation.avis.reduce((sum, avis) => sum + avis.note, 0) / formation.avis.length).toFixed(1)
+                : 0
+        };
+
+        res.render('admin/formations/view', {
+            title: `${formation.titre} - ADSIAM Admin`,
+            admin: req.admin,
+            formation,
+            stats,
+            currentPage: 'formations',
+            layout: 'layouts/admin'
+        });
+
+    } catch (error) {
+        console.error('Erreur viewFormation:', error);
+        res.status(500).render('errors/500', { error });
+    }
+}
+
+// Formulaire d'édition d'une formation
+async editFormationForm(req, res) {
+    try {
+        const { id } = req.params;
+        
+        const formation = await Formation.findByPk(id, {
+            include: [
+                { 
+                    model: Module, 
+                    as: 'modules',
+                    order: [['ordre', 'ASC']]
+                },
+                { model: Caracteristique, as: 'caracteristiques' }
+            ]
+        });
+
+        if (!formation) {
+            return res.status(404).render('errors/404', {
+                message: 'Formation non trouvée'
+            });
+        }
+
+        res.render('admin/formations/edit', {
+            title: `Modifier ${formation.titre} - ADSIAM Admin`,
+            admin: req.admin,
+            formation,
+            currentPage: 'formations',
+            layout: 'layouts/admin'
+        });
+
+    } catch (error) {
+        console.error('Erreur editFormationForm:', error);
+        res.status(500).render('errors/500', { error });
+    }
+}
+
+// Mettre à jour une formation
+async updateFormation(req, res) {
+    try {
+        const { id } = req.params;
+        const updateData = {
+            ...req.body,
+            prix: parseFloat(req.body.prix) || 0,
+            duree_heures: parseInt(req.body.duree_heures) || 0,
+            nombre_modules: parseInt(req.body.nombre_modules) || 0,
+            gratuit: req.body.gratuit === 'true',
+            populaire: req.body.populaire === 'true',
+            nouveau: req.body.nouveau === 'true',
+            certifiant: req.body.certifiant === 'true',
+            actif: req.body.actif !== 'false'
+        };
+
+        const [updatedRows] = await Formation.update(updateData, {
+            where: { id }
+        });
+
+        if (updatedRows === 0) {
+            return res.status(404).json({ 
+                success: false,
+                message: 'Formation non trouvée' 
+            });
+        }
+
+        if (req.headers.accept && req.headers.accept.includes('application/json')) {
+            return res.json({
+                success: true,
+                message: 'Formation mise à jour avec succès'
+            });
+        }
+
+        req.session.flash = {
+            type: 'success',
+            message: 'Formation mise à jour avec succès'
+        };
+        res.redirect('/admin/formations');
+
+    } catch (error) {
+        console.error('Erreur updateFormation:', error);
+        
+        if (req.headers.accept && req.headers.accept.includes('application/json')) {
+            return res.status(500).json({ 
+                success: false,
+                message: 'Erreur lors de la mise à jour' 
+            });
+        }
+        
+        res.status(500).render('errors/500', { error });
+    }
+}
+
+// Supprimer une formation
+async deleteFormation(req, res) {
+    try {
+        const { id } = req.params;
+        
+        // Vérifier si la formation a des inscriptions
+        const inscriptionsCount = await Inscription.count({ 
+            where: { formation_id: id } 
+        });
+
+        if (inscriptionsCount > 0) {
+            return res.status(400).json({
+                success: false,
+                message: `Impossible de supprimer: ${inscriptionsCount} inscription(s) active(s)`
+            });
+        }
+
+        // Supprimer les modules associés
+        await Module.destroy({ where: { formation_id: id } });
+        
+        // Supprimer les caractéristiques associées
+        await Caracteristique.destroy({ where: { formation_id: id } });
+        
+        // Supprimer la formation
+        const deleted = await Formation.destroy({ where: { id } });
+
+        if (deleted === 0) {
+            return res.status(404).json({ 
+                success: false,
+                message: 'Formation non trouvée' 
+            });
+        }
+
+        res.json({ 
+            success: true, 
+            message: 'Formation supprimée avec succès' 
+        });
+
+    } catch (error) {
+        console.error('Erreur deleteFormation:', error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Erreur lors de la suppression' 
+        });
+    }
+}
+
+// Basculer le statut actif/inactif d'une formation
+async toggleFormationStatus(req, res) {
+    try {
+        const { id } = req.params;
+        
+        const formation = await Formation.findByPk(id);
+        if (!formation) {
+            return res.status(404).json({ 
+                success: false,
+                message: 'Formation non trouvée' 
+            });
+        }
+
+        const newStatus = !formation.actif;
+        await formation.update({ actif: newStatus });
+
+        res.json({
+            success: true,
+            message: `Formation ${newStatus ? 'activée' : 'désactivée'} avec succès`,
+            newStatus
+        });
+
+    } catch (error) {
+        res.status(500).json({ 
+            success: false,
+            message: 'Erreur lors du changement de statut' 
+        });
+    }
+}
+
+// Obtenir les statistiques d'une formation
+async getFormationStats(req, res) {
+    try {
+        const { id } = req.params;
+        const { QueryTypes } = await import('sequelize');
+        const { sequelize } = await import('../models/index.js');
+
+        const stats = await sequelize.query(`
+            SELECT 
+                COUNT(DISTINCT i.id) as total_inscriptions,
+                COUNT(CASE WHEN i.statut = 'active' THEN 1 END) as inscriptions_actives,
+                COUNT(CASE WHEN i.statut = 'terminee' THEN 1 END) as inscriptions_terminees,
+                AVG(CASE WHEN a.note IS NOT NULL THEN a.note END) as note_moyenne,
+                COUNT(a.id) as nombre_avis
+            FROM formations f
+            LEFT JOIN inscriptions i ON f.id = i.formation_id
+            LEFT JOIN avis a ON f.id = a.formation_id
+            WHERE f.id = :formationId
+            GROUP BY f.id
+        `, {
+            type: QueryTypes.SELECT,
+            replacements: { formationId: id }
+        });
+
+        const evolutionInscriptions = await sequelize.query(`
+            SELECT 
+                DATE_TRUNC('month', i.date_inscription) as mois,
+                COUNT(*) as inscriptions
+            FROM inscriptions i
+            WHERE i.formation_id = :formationId
+            AND i.date_inscription >= NOW() - INTERVAL '12 months'
+            GROUP BY DATE_TRUNC('month', i.date_inscription)
+            ORDER BY mois ASC
+        `, {
+            type: QueryTypes.SELECT,
+            replacements: { formationId: id }
+        });
+
+        res.json({
+            success: true,
+            stats: stats[0] || {},
+            evolution: evolutionInscriptions
+        });
+
+    } catch (error) {
+        console.error('Erreur getFormationStats:', error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Erreur lors de la récupération des statistiques' 
+        });
+    }
+}
+
+// Aperçu d'une formation (pour les visiteurs)
+async previewFormation(req, res) {
+    try {
+        const { id } = req.params;
+        
+        const formation = await Formation.findByPk(id, {
+            include: [
+                { 
+                    model: Module, 
+                    as: 'modules',
+                    order: [['ordre', 'ASC']]
+                },
+                { model: Caracteristique, as: 'caracteristiques' }
+            ]
+        });
+
+        if (!formation) {
+            return res.status(404).json({ 
+                success: false,
+                message: 'Formation non trouvée' 
+            });
+        }
+
+        // Générer l'aperçu HTML
+        const previewHtml = `
+            <!DOCTYPE html>
+            <html lang="fr">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Aperçu - ${formation.titre}</title>
+                <link rel="stylesheet" href="/css/formation.css">
+            </head>
+            <body>
+                <div class="preview-container">
+                    <div class="preview-header">
+                        <h1>${formation.titre}</h1>
+                        <div class="formation-meta">
+                            <span class="badge">${formation.domaine}</span>
+                            <span class="badge">${formation.niveau}</span>
+                            <span class="badge">${formation.gratuit ? 'Gratuit' : formation.prix + '€'}</span>
+                        </div>
+                    </div>
+                    <div class="preview-content">
+                        <p>${formation.description}</p>
+                        <h3>Modules (${formation.modules.length})</h3>
+                        <ul>
+                            ${formation.modules.map(module => `
+                                <li>${module.titre} (${module.duree_minutes} min)</li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                    <div class="preview-footer">
+                        <button onclick="window.close()">Fermer l'aperçu</button>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
+
+        res.send(previewHtml);
+
+    } catch (error) {
+        console.error('Erreur previewFormation:', error);
+        res.status(500).send('Erreur lors de la génération de l\'aperçu');
+    }
+}
+
+// Gestion des modules
+async getFormationModules(req, res) {
+    try {
+        const { id } = req.params;
+        
+        const modules = await Module.findAll({
+            where: { formation_id: id },
+            order: [['ordre', 'ASC']]
+        });
+
+        res.json({
+            success: true,
+            modules
+        });
+
+    } catch (error) {
+        console.error('Erreur getFormationModules:', error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Erreur lors de la récupération des modules' 
+        });
+    }
+}
+
+async createModule(req, res) {
+    try {
+        const { id: formation_id } = req.params;
+        const {
+            titre,
+            description,
+            duree_minutes,
+            type_contenu,
+            ordre
+        } = req.body;
+
+        const module = await Module.create({
+            formation_id,
+            titre,
+            description,
+            duree_minutes: parseInt(duree_minutes) || 0,
+            type_contenu: type_contenu || 'video',
+            ordre: parseInt(ordre) || 1,
+            disponible: true
+        });
+
+        res.json({
+            success: true,
+            message: 'Module créé avec succès',
+            module
+        });
+
+    } catch (error) {
+        console.error('Erreur createModule:', error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Erreur lors de la création du module' 
+        });
+    }
+}
+
+async updateModule(req, res) {
+    try {
+        const { id } = req.params;
+        const updateData = req.body;
+
+        const [updatedRows] = await Module.update(updateData, {
+            where: { id }
+        });
+
+        if (updatedRows === 0) {
+            return res.status(404).json({ 
+                success: false,
+                message: 'Module non trouvé' 
+            });
+        }
+
+        res.json({
+            success: true,
+            message: 'Module mis à jour avec succès'
+        });
+
+    } catch (error) {
+        console.error('Erreur updateModule:', error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Erreur lors de la mise à jour du module' 
+        });
+    }
+}
+
+async deleteModule(req, res) {
+    try {
+        const { id } = req.params;
+        
+        const deleted = await Module.destroy({ where: { id } });
+
+        if (deleted === 0) {
+            return res.status(404).json({ 
+                success: false,
+                message: 'Module non trouvé' 
+            });
+        }
+
+        res.json({
+            success: true,
+            message: 'Module supprimé avec succès'
+        });
+
+    } catch (error) {
+        console.error('Erreur deleteModule:', error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Erreur lors de la suppression du module' 
+        });
+    }
+}
+
+async reorderModule(req, res) {
+    try {
+        const { id } = req.params;
+        const { ordre } = req.body;
+
+        await Module.update(
+            { ordre: parseInt(ordre) },
+            { where: { id } }
+        );
+
+        res.json({
+            success: true,
+            message: 'Ordre du module mis à jour'
+        });
+
+    } catch (error) {
+        console.error('Erreur reorderModule:', error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Erreur lors de la réorganisation' 
+        });
+    }
+}
+
+// Export des formations
+async exportFormations(req, res) {
+    try {
+        const { format } = req.params;
+        
+        const formations = await Formation.findAll({
+            include: [
+                { model: Module, as: 'modules' }
+            ],
+            order: [['createdAt', 'DESC']]
+        });
+
+        if (format === 'csv') {
+            const csvWriter = createObjectCsvWriter({
+                path: '/tmp/formations_export.csv',
+                header: [
+                    { id: 'id', title: 'ID' },
+                    { id: 'titre', title: 'Titre' },
+                    { id: 'domaine', title: 'Domaine' },
+                    { id: 'niveau', title: 'Niveau' },
+                    { id: 'prix', title: 'Prix' },
+                    { id: 'duree_heures', title: 'Durée (h)' },
+                    { id: 'nombre_modules', title: 'Modules' },
+                    { id: 'actif', title: 'Actif' },
+                    { id: 'createdAt', title: 'Date création' }
+                ]
+            });
+
+            const data = formations.map(f => ({
+                ...f.dataValues,
+                actif: f.actif ? 'Oui' : 'Non',
+                createdAt: f.createdAt.toLocaleDateString('fr-FR')
+            }));
+
+            await csvWriter.writeRecords(data);
+            res.download('/tmp/formations_export.csv', 'formations_adsiam.csv');
+
+        } else if (format === 'json') {
+            res.setHeader('Content-Type', 'application/json');
+            res.setHeader('Content-Disposition', 'attachment; filename=formations_adsiam.json');
+            res.json({
+                exportDate: new Date().toISOString(),
+                totalFormations: formations.length,
+                formations: formations
+            });
+
+        } else {
+            res.status(400).json({ 
+                success: false,
+                message: 'Format non supporté' 
+            });
+        }
+
+    } catch (error) {
+        console.error('Erreur exportFormations:', error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Erreur lors de l\'export' 
+        });
+    }
+}
 
     async exportFormationsReport(res, format) {
         const formations = await Formation.findAll({

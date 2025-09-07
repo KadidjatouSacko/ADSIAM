@@ -1,11 +1,11 @@
-<!DOCTYPE html>
+       <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Créer une nouvelle formation - ADSIAM Admin</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
         
         * {
             margin: 0;
@@ -25,13 +25,19 @@
             --success: #28a745;
             --danger: #dc3545;
             --warning: #ffc107;
+            --info: #17a2b8;
+            --gradient-main: linear-gradient(135deg, var(--primary-pink), var(--primary-blue));
+            --shadow-light: 0 4px 20px rgba(0,0,0,0.05);
+            --shadow-medium: 0 8px 30px rgba(0,0,0,0.1);
+            --shadow-heavy: 0 20px 60px rgba(0,0,0,0.15);
         }
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--soft-gray);
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
             line-height: 1.6;
             color: var(--text-dark);
+            min-height: 100vh;
         }
 
         .admin-layout {
@@ -47,6 +53,7 @@
             position: fixed;
             height: 100vh;
             overflow-y: auto;
+            z-index: 1000;
         }
 
         .sidebar-header {
@@ -58,6 +65,9 @@
             font-size: 1.5rem;
             font-weight: 700;
             color: var(--primary-pink);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .sidebar-menu {
@@ -76,68 +86,100 @@
             padding: 1rem 2rem;
             transition: all 0.3s;
             font-weight: 500;
+            border-left: 3px solid transparent;
         }
 
         .sidebar-menu a:hover,
         .sidebar-menu a.active {
             background: var(--primary-blue);
             color: white;
+            border-left-color: var(--primary-pink);
+            transform: translateX(5px);
         }
 
         .main-content {
             margin-left: 280px;
             flex: 1;
             padding: 2rem;
-            background: var(--soft-gray);
+            background: transparent;
         }
 
         .content-header {
             background: white;
-            padding: 2rem;
+            padding: 2rem 3rem;
             border-radius: 20px;
             margin-bottom: 2rem;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            box-shadow: var(--shadow-light);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border: 1px solid rgba(0,0,0,0.05);
         }
 
         .content-header h1 {
-            font-size: 2rem;
-            font-weight: 600;
+            font-size: 2.2rem;
+            font-weight: 700;
             color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-main);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
         }
 
         .form-container {
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            border-radius: 25px;
+            box-shadow: var(--shadow-medium);
             overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.05);
         }
 
         .form-tabs {
             display: flex;
-            background: var(--soft-gray);
-            padding: 0.5rem;
-            border-radius: 15px 15px 0 0;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 1rem;
+            border-radius: 20px 20px 0 0;
+            gap: 1rem;
         }
 
         .form-tab {
             flex: 1;
-            padding: 1rem 2rem;
+            padding: 1.2rem 2rem;
             background: transparent;
             border: none;
             cursor: pointer;
             font-weight: 600;
             color: var(--text-light);
-            border-radius: 10px;
+            border-radius: 15px;
             transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+            font-size: 0.95rem;
         }
 
         .form-tab.active {
             background: white;
             color: var(--primary-blue);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow-light);
+            transform: translateY(-2px);
+        }
+
+        .form-tab:hover:not(.active) {
+            background: rgba(255,255,255,0.7);
+            transform: translateY(-1px);
         }
 
         .tab-content {
@@ -147,12 +189,18 @@
 
         .tab-content.active {
             display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .form-section {
             margin-bottom: 3rem;
             padding-bottom: 2rem;
-            border-bottom: 1px solid var(--soft-gray);
+            border-bottom: 1px solid #eee;
         }
 
         .form-section:last-child {
@@ -161,13 +209,25 @@
         }
 
         .form-section h3 {
-            font-size: 1.4rem;
+            font-size: 1.6rem;
             font-weight: 600;
             color: var(--text-dark);
             margin-bottom: 1.5rem;
             display: flex;
             align-items: center;
-            gap: 0.8rem;
+            gap: 1rem;
+        }
+
+        .section-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-main);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: white;
         }
 
         .form-group {
@@ -177,31 +237,40 @@
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 1.5rem;
         }
 
         .form-label {
             display: block;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.8rem;
             font-weight: 600;
             color: var(--text-dark);
+            font-size: 0.95rem;
         }
 
         .form-label.required::after {
             content: ' *';
             color: var(--danger);
+            font-weight: 700;
         }
 
         .form-input,
         .form-textarea,
         .form-select {
             width: 100%;
-            padding: 1rem;
-            border: 2px solid var(--soft-gray);
-            border-radius: 10px;
+            padding: 1.2rem 1.5rem;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
             font-size: 1rem;
             transition: all 0.3s;
             font-family: inherit;
+            background: #f8f9fa;
         }
 
         .form-input:focus,
@@ -209,7 +278,9 @@
         .form-select:focus {
             outline: none;
             border-color: var(--primary-blue);
+            background: white;
             box-shadow: 0 0 0 3px rgba(165, 191, 212, 0.1);
+            transform: translateY(-1px);
         }
 
         .form-textarea {
@@ -217,33 +288,50 @@
             resize: vertical;
         }
 
+        .form-select {
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 1rem center;
+            background-repeat: no-repeat;
+            background-size: 1rem;
+            padding-right: 3rem;
+        }
+
         .btn {
-            padding: 1rem 2rem;
+            padding: 1.2rem 2.5rem;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.8rem;
             font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary-pink), var(--primary-blue));
+            background: var(--gradient-main);
             color: white;
+            box-shadow: var(--shadow-light);
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            box-shadow: var(--shadow-medium);
         }
 
         .btn-secondary {
-            background: var(--soft-gray);
-            color: var(--text-dark);
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
         }
 
         .btn-success {
@@ -251,14 +339,58 @@
             color: white;
         }
 
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
         .btn-danger {
             background: var(--danger);
             color: white;
         }
 
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
         .btn-small {
-            padding: 0.5rem 1rem;
+            padding: 0.8rem 1.5rem;
             font-size: 0.9rem;
+        }
+
+        .btn-icon {
+            padding: 0.8rem;
+            border-radius: 10px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 1rem 1.5rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .checkbox-item:hover {
+            background: var(--light-blue);
+            border-color: var(--primary-blue);
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin: 0;
         }
 
         /* Modules Builder */
@@ -266,23 +398,48 @@
             margin-top: 2rem;
         }
 
-        .module-item {
+        .add-module-btn {
+            width: 100%;
+            padding: 2rem;
+            border: 2px dashed var(--primary-blue);
             background: var(--light-blue);
             border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            color: var(--primary-blue);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .add-module-btn:hover {
+            background: white;
+            box-shadow: var(--shadow-light);
+            transform: translateY(-2px);
+        }
+
+        .module-item {
+            background: white;
+            border-radius: 20px;
             margin-bottom: 2rem;
             overflow: hidden;
-            border: 2px solid transparent;
+            border: 2px solid #e9ecef;
             transition: all 0.3s;
         }
 
-        .module-item:hover {
+        .module-item.expanded {
             border-color: var(--primary-blue);
+            box-shadow: var(--shadow-medium);
         }
 
         .module-header {
-            background: var(--primary-blue);
+            background: var(--gradient-main);
             color: white;
-            padding: 1.5rem;
+            padding: 1.5rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -291,7 +448,16 @@
 
         .module-title {
             font-weight: 600;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .drag-handle {
+            cursor: move;
+            font-size: 1.2rem;
+            opacity: 0.7;
         }
 
         .module-controls {
@@ -300,33 +466,41 @@
         }
 
         .module-content {
-            padding: 2rem;
+            padding: 2.5rem;
             display: none;
+            background: #fafbfc;
         }
 
         .module-content.expanded {
             display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .partie-item {
             background: white;
-            border-radius: 10px;
+            border-radius: 15px;
             margin-bottom: 1.5rem;
-            border: 1px solid var(--soft-gray);
+            border: 1px solid #e9ecef;
             overflow: hidden;
         }
 
         .partie-header {
             background: var(--light-pink);
-            padding: 1rem 1.5rem;
+            padding: 1.2rem 1.5rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
         }
 
         .partie-content {
-            padding: 1.5rem;
+            padding: 2rem;
             display: none;
         }
 
@@ -337,17 +511,26 @@
         .content-type-selector {
             display: flex;
             gap: 1rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 12px;
         }
 
         .content-type-btn {
-            padding: 0.8rem 1.5rem;
-            border: 2px solid var(--soft-gray);
+            flex: 1;
+            padding: 1rem 1.5rem;
+            border: 2px solid transparent;
             background: white;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
             transition: all 0.3s;
             font-weight: 500;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
         }
 
         .content-type-btn.active {
@@ -356,27 +539,32 @@
             color: var(--primary-blue);
         }
 
-        .content-item {
-            background: var(--soft-gray);
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            border: 1px dashed var(--text-light);
+        .content-type-btn:hover:not(.active) {
+            border-color: #dee2e6;
+            transform: translateY(-1px);
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
         }
 
         .video-upload {
             border: 2px dashed var(--primary-blue);
             background: var(--light-blue);
-            padding: 2rem;
+            padding: 3rem;
             text-align: center;
-            border-radius: 10px;
+            border-radius: 15px;
             cursor: pointer;
             transition: all 0.3s;
         }
 
         .video-upload:hover {
-            background: var(--primary-blue);
-            color: white;
+            background: white;
+            box-shadow: var(--shadow-light);
         }
 
         .video-upload input[type="file"] {
@@ -385,115 +573,161 @@
 
         .quiz-builder {
             background: var(--light-pink);
-            border-radius: 10px;
+            border-radius: 15px;
             padding: 2rem;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
         }
 
         .question-item {
             background: white;
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            border: 1px solid var(--soft-gray);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid #e9ecef;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
         }
 
         .answer-options {
-            margin-top: 1rem;
+            margin-top: 1.5rem;
         }
 
         .answer-option {
             display: flex;
             align-items: center;
             gap: 1rem;
-            margin-bottom: 0.8rem;
-            padding: 0.8rem;
-            background: var(--soft-gray);
-            border-radius: 6px;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .answer-option:hover {
+            border-color: var(--primary-blue);
         }
 
         .answer-option input[type="checkbox"] {
             width: 20px;
             height: 20px;
+            margin: 0;
         }
 
-        .file-list {
-            margin-top: 1rem;
-        }
-
-        .file-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.8rem;
-            background: white;
-            border-radius: 6px;
-            margin-bottom: 0.5rem;
-            border: 1px solid var(--soft-gray);
-        }
-
-        .form-actions {
-            padding: 2rem 3rem;
-            background: var(--soft-gray);
-            display: flex;
-            gap: 1rem;
-            justify-content: flex-end;
-        }
-
-        .collapse-toggle {
-            background: none;
+        .answer-option input[type="text"] {
             border: none;
-            color: white;
-            font-size: 1.2rem;
-            cursor: pointer;
+            background: transparent;
             padding: 0.5rem;
-            border-radius: 4px;
+            flex: 1;
+        }
+
+        .quiz-type-selector {
+            margin-bottom: 1.5rem;
+        }
+
+        .quiz-type-btn {
+            padding: 0.8rem 1.5rem;
+            border: 2px solid #e9ecef;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-right: 1rem;
             transition: all 0.3s;
         }
 
-        .collapse-toggle:hover {
-            background: rgba(255,255,255,0.1);
-        }
-
-        .drag-handle {
-            cursor: move;
-            color: var(--text-light);
-            margin-right: 0.5rem;
-        }
-
-        .sortable-ghost {
-            opacity: 0.5;
-        }
-
-        .preview-section {
+        .quiz-type-btn.active {
+            border-color: var(--primary-blue);
             background: var(--light-blue);
-            border-radius: 10px;
-            padding: 2rem;
-            margin-top: 2rem;
+            color: var(--primary-blue);
         }
 
-        .preview-module {
-            background: white;
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            border-left: 4px solid var(--primary-blue);
+        .form-actions {
+            padding: 3rem;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            display: flex;
+            gap: 1.5rem;
+            justify-content: flex-end;
+            border-top: 1px solid #e9ecef;
         }
 
         .progress-indicator {
-            background: var(--soft-gray);
-            height: 4px;
-            border-radius: 2px;
+            background: #e9ecef;
+            height: 6px;
+            border-radius: 3px;
             margin-bottom: 2rem;
             overflow: hidden;
         }
 
         .progress-bar {
             height: 100%;
-            background: linear-gradient(135deg, var(--primary-pink), var(--primary-blue));
+            background: var(--gradient-main);
             width: 33%;
             transition: width 0.3s ease;
+            border-radius: 3px;
         }
 
+        .preview-section {
+            background: var(--light-blue);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .preview-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--primary-blue);
+            box-shadow: var(--shadow-light);
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: var(--success);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            display: none;
+            text-align: center;
+            font-weight: 600;
+            border: 1px solid #c3e6cb;
+        }
+
+        .success-message.show {
+            display: block;
+            animation: slideDown 0.5s ease;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: var(--danger);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            display: none;
+            text-align: center;
+            font-weight: 600;
+            border: 1px solid #f5c6cb;
+        }
+
+        .error-message.show {
+            display: block;
+            animation: slideDown 0.5s ease;
+        }
+
+        /* Responsive Design */
         @media (max-width: 1024px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -504,8 +738,41 @@
                 margin-left: 0;
             }
 
-            .form-row {
+            .form-row,
+            .form-row-3 {
                 grid-template-columns: 1fr;
+            }
+
+            .content-header {
+                padding: 1.5rem 2rem;
+            }
+
+            .tab-content {
+                padding: 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .form-tabs {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .form-tab {
+                padding: 1rem;
+                font-size: 0.9rem;
+            }
+
+            .content-type-selector {
+                flex-direction: column;
+            }
+
+            .checkbox-group {
+                flex-direction: column;
+            }
+
+            .form-actions {
+                flex-direction: column;
             }
         }
     </style>
@@ -515,7 +782,7 @@
         <!-- Sidebar -->
         <nav class="sidebar">
             <div class="sidebar-header">
-                <h2>ADSIAM Admin</h2>
+                <h2>🎓 ADSIAM Admin</h2>
             </div>
             <ul class="sidebar-menu">
                 <li><a href="/admin">📊 Tableau de bord</a></li>
@@ -532,7 +799,10 @@
         <!-- Main Content -->
         <main class="main-content">
             <div class="content-header">
-                <h1>Créer une nouvelle formation</h1>
+                <div>
+                    <div class="header-icon">📚</div>
+                    <h1>Créer une nouvelle formation</h1>
+                </div>
                 <a href="/admin/formations" class="btn btn-secondary">← Retour à la liste</a>
             </div>
 
@@ -540,7 +810,15 @@
                 <div class="progress-bar" id="progressBar"></div>
             </div>
 
-            <form id="formationForm" class="form-container">
+            <!-- Messages -->
+            <div class="success-message" id="successMessage">
+                ✅ Formation créée avec succès !
+            </div>
+            <div class="error-message" id="errorMessage">
+                ❌ Erreur lors de la création de la formation
+            </div>
+
+            <form id="formationForm" class="form-container" method="POST" action="/admin/formations/nouvelle">
                 <!-- Form Tabs -->
                 <div class="form-tabs">
                     <button type="button" class="form-tab active" data-tab="basic">
@@ -557,16 +835,21 @@
                 <!-- Tab 1: Informations générales -->
                 <div class="tab-content active" id="basic">
                     <div class="form-section">
-                        <h3>📋 Informations de base</h3>
+                        <h3>
+                            <div class="section-icon">📋</div>
+                            Informations de base
+                        </h3>
                         
                         <div class="form-group">
                             <label for="titre" class="form-label required">Titre de la formation</label>
-                            <input type="text" id="titre" name="titre" class="form-input" required>
+                            <input type="text" id="titre" name="titre" class="form-input" required 
+                                   placeholder="Ex: Communication et relationnel en EHPAD">
                         </div>
 
                         <div class="form-group">
-                            <label for="description" class="form-label required">Description</label>
-                            <textarea id="description" name="description" class="form-textarea" rows="4" required></textarea>
+                            <label for="description" class="form-label required">Description détaillée</label>
+                            <textarea id="description" name="description" class="form-textarea" rows="4" required
+                                      placeholder="Décrivez les objectifs, compétences acquises et contenu de la formation..."></textarea>
                         </div>
 
                         <div class="form-row">
@@ -577,9 +860,11 @@
                                     <option value="communication">Communication</option>
                                     <option value="hygiene">Hygiène & Sécurité</option>
                                     <option value="ergonomie">Ergonomie</option>
-                                    <option value="urgences">Urgences</option>
-                                    <option value="nutrition">Nutrition</option>
-                                    <option value="pathologies">Pathologies</option>
+                                    <option value="urgences">Urgences & Premiers secours</option>
+                                    <option value="nutrition">Nutrition & Alimentation</option>
+                                    <option value="pathologies">Pathologies spécifiques</option>
+                                    <option value="deontologie">Déontologie & Éthique</option>
+                                    <option value="numerique">Outils numériques</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -594,35 +879,46 @@
                             </div>
                         </div>
 
-                        <div class="form-row">
+                        <div class="form-row-3">
                             <div class="form-group">
                                 <label for="prix" class="form-label">Prix (€)</label>
-                                <input type="number" id="prix" name="prix" class="form-input" min="0" step="0.01">
+                                <input type="number" id="prix" name="prix" class="form-input" min="0" step="0.01" 
+                                       placeholder="0.00">
+                            </div>
+                            <div class="form-group">
+                                <label for="duree_heures" class="form-label">Durée (heures)</label>
+                                <input type="number" id="duree_heures" name="duree_heures" class="form-input" min="1" 
+                                       placeholder="3">
                             </div>
                             <div class="form-group">
                                 <label for="icone" class="form-label">Icône (emoji)</label>
-                                <input type="text" id="icone" name="icone" class="form-input" maxlength="2" placeholder="🗣️">
+                                <input type="text" id="icone" name="icone" class="form-input" maxlength="2" 
+                                       placeholder="🗣️">
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Options</label>
-                            <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
-                                <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <label class="form-label">Options de la formation</label>
+                            <div class="checkbox-group">
+                                <label class="checkbox-item">
                                     <input type="checkbox" name="gratuit" value="true">
-                                    Formation gratuite
+                                    🆓 Formation gratuite
                                 </label>
-                                <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                <label class="checkbox-item">
                                     <input type="checkbox" name="populaire" value="true">
-                                    Formation populaire
+                                    ⭐ Formation populaire
                                 </label>
-                                <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                <label class="checkbox-item">
                                     <input type="checkbox" name="certifiant" value="true">
-                                    Formation certifiante
+                                    🏆 Formation certifiante
                                 </label>
-                                <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="nouveau" value="true">
+                                    🆕 Nouvelle formation
+                                </label>
+                                <label class="checkbox-item">
                                     <input type="checkbox" name="actif" value="true" checked>
-                                    Formation active
+                                    ✅ Formation active
                                 </label>
                             </div>
                         </div>
@@ -632,8 +928,12 @@
                 <!-- Tab 2: Modules et contenu -->
                 <div class="tab-content" id="modules">
                     <div class="form-section">
-                        <h3>📚 Structure de la formation</h3>
-                        <button type="button" class="btn btn-success" onclick="ajouterModule()">
+                        <h3>
+                            <div class="section-icon">📚</div>
+                            Structure de la formation
+                        </h3>
+                        
+                        <button type="button" class="add-module-btn" onclick="ajouterModule()">
                             ➕ Ajouter un module
                         </button>
                         
@@ -646,7 +946,10 @@
                 <!-- Tab 3: Aperçu -->
                 <div class="tab-content" id="preview">
                     <div class="form-section">
-                        <h3>👁️ Aperçu de la formation</h3>
+                        <h3>
+                            <div class="section-icon">👁️</div>
+                            Aperçu de la formation
+                        </h3>
                         <div class="preview-section" id="previewContent">
                             <p>Configurez d'abord les informations de base et les modules pour voir l'aperçu.</p>
                         </div>
@@ -665,6 +968,97 @@
             </form>
         </main>
     </div>
+
+    <!-- Modal pour ajouter un domaine -->
+    <div class="modal-overlay" id="domaineModal" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Ajouter un nouveau domaine</h3>
+                <button type="button" class="btn-close" onclick="fermerModal('domaineModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="nouveauDomaine" class="form-label">Nom du domaine</label>
+                    <input type="text" id="nouveauDomaine" class="form-input" placeholder="Ex: Bien-être au travail">
+                </div>
+                <div class="form-group">
+                    <label for="domaineDescription" class="form-label">Description (optionnel)</label>
+                    <textarea id="domaineDescription" class="form-textarea" rows="3" placeholder="Description du domaine..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="fermerModal('domaineModal')">Annuler</button>
+                <button type="button" class="btn btn-primary" onclick="confirmerAjoutDomaine()">Ajouter</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* Styles pour les modales */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-heavy);
+        }
+
+        .modal-header {
+            padding: 2rem 2rem 1rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.4rem;
+            color: var(--text-dark);
+        }
+
+        .btn-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            color: var(--text-light);
+            transition: all 0.3s;
+        }
+
+        .btn-close:hover {
+            background: #f8f9fa;
+            color: var(--danger);
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .modal-footer {
+            padding: 1rem 2rem 2rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+    </style>
 
     <script>
         let moduleCounter = 0;
@@ -719,8 +1113,10 @@
                             <span>Module ${moduleCounter}</span>
                         </div>
                         <div class="module-controls">
-                            <button type="button" class="collapse-toggle">▼</button>
-                            <button type="button" class="btn btn-danger btn-small" onclick="supprimerModule(${moduleCounter})">🗑️</button>
+                            <button type="button" class="btn btn-icon btn-secondary" onclick="event.stopPropagation(); toggleModule(${moduleCounter})">
+                                <span class="toggle-icon">▼</span>
+                            </button>
+                            <button type="button" class="btn btn-icon btn-danger" onclick="event.stopPropagation(); supprimerModule(${moduleCounter})">🗑️</button>
                         </div>
                     </div>
                     <div class="module-content" id="module-${moduleCounter}">
@@ -739,7 +1135,7 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">Durée (minutes)</label>
-                                <input type="number" class="form-input" name="modules[${moduleCounter}][duree]" min="1">
+                                <input type="number" class="form-input" name="modules[${moduleCounter}][duree]" min="1" placeholder="15">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Ordre</label>
@@ -747,10 +1143,12 @@
                             </div>
                         </div>
                         
-                        <h4 style="margin: 2rem 0 1rem; color: var(--primary-blue);">📑 Parties du module</h4>
-                        <button type="button" class="btn btn-success btn-small" onclick="ajouterPartie(${moduleCounter})">
-                            ➕ Ajouter une partie
-                        </button>
+                        <h4 style="margin: 2rem 0 1rem; color: var(--primary-blue); display: flex; align-items: center; gap: 0.5rem;">
+                            📑 Parties du module
+                            <button type="button" class="btn btn-success btn-small" onclick="ajouterPartie(${moduleCounter})">
+                                ➕ Ajouter une partie
+                            </button>
+                        </h4>
                         
                         <div class="parties-container" id="parties-${moduleCounter}">
                             <!-- Les parties seront ajoutées ici -->
@@ -767,9 +1165,12 @@
             const partieHtml = `
                 <div class="partie-item" data-partie-id="${partieCounter}">
                     <div class="partie-header" onclick="togglePartie(${partieCounter})">
-                        <div><span class="drag-handle">⋮⋮</span> Partie ${partieCounter}</div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span class="drag-handle">⋮⋮</span> 
+                            <span>Partie ${partieCounter}</span>
+                        </div>
                         <div>
-                            <button type="button" class="btn btn-danger btn-small" onclick="supprimerPartie(${partieCounter})">🗑️</button>
+                            <button type="button" class="btn btn-danger btn-small" onclick="event.stopPropagation(); supprimerPartie(${partieCounter})">🗑️</button>
                         </div>
                     </div>
                     <div class="partie-content" id="partie-${partieCounter}">
@@ -798,8 +1199,8 @@
                                        name="modules[${moduleId}][parties][${partieCounter}][video]" onchange="handleVideoUpload(${partieCounter}, this)">
                                 <div>
                                     <div style="font-size: 3rem; margin-bottom: 1rem;">🎥</div>
-                                    <div>Cliquez pour ajouter une vidéo</div>
-                                    <div style="font-size: 0.9rem; color: var(--text-light); margin-top: 0.5rem;">
+                                    <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem;">Cliquez pour ajouter une vidéo</div>
+                                    <div style="font-size: 0.9rem; color: var(--text-light);">
                                         Formats supportés: MP4, WebM, AVI (max 500MB)
                                     </div>
                                 </div>
@@ -812,11 +1213,21 @@
                         <!-- Contenu quiz -->
                         <div class="content-section" id="quiz-${partieCounter}" style="display: none;">
                             <div class="quiz-builder">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                                <div class="quiz-header">
                                     <h4>Quiz de la partie</h4>
                                     <button type="button" class="btn btn-success btn-small" onclick="ajouterQuestion(${partieCounter})">
                                         ➕ Ajouter une question
                                     </button>
+                                </div>
+                                <div class="quiz-type-selector">
+                                    <label class="form-label">Type de quiz</label>
+                                    <button type="button" class="quiz-type-btn active" onclick="selectQuizType(${partieCounter}, 'unique')" data-type="unique">
+                                        ⚪ Choix unique
+                                    </button>
+                                    <button type="button" class="quiz-type-btn" onclick="selectQuizType(${partieCounter}, 'multiple')" data-type="multiple">
+                                        ☑️ Choix multiple
+                                    </button>
+                                    <input type="hidden" name="modules[${moduleId}][parties][${partieCounter}][quiz_type]" value="unique" id="quiz-type-${partieCounter}">
                                 </div>
                                 <div class="questions-container" id="questions-${partieCounter}">
                                     <!-- Les questions seront ajoutées ici -->
@@ -830,7 +1241,7 @@
                                 <label class="form-label">Documents téléchargeables</label>
                                 <input type="file" class="form-input" multiple accept=".pdf,.doc,.docx,.ppt,.pptx" 
                                        name="modules[${moduleId}][parties][${partieCounter}][documents]" onchange="handleDocumentUpload(${partieCounter}, this)">
-                                <div class="file-list" id="documents-${partieCounter}">
+                                <div class="file-list" id="documents-${partieCounter}" style="margin-top: 1rem;">
                                     <!-- Liste des documents -->
                                 </div>
                             </div>
@@ -846,16 +1257,14 @@
             questionCounter++;
             const questionHtml = `
                 <div class="question-item" data-question-id="${questionCounter}">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                        <h5>Question ${questionCounter}</h5>
-                        <!-- ...tout le code existant au-dessus... -->
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <div class="question-header">
                         <h5>Question ${questionCounter}</h5>
                         <button type="button" class="btn btn-danger btn-small" onclick="supprimerQuestion(${questionCounter})">🗑️</button>
                     </div>
                     <div class="form-group">
                         <label class="form-label required">Intitulé de la question</label>
-                        <input type="text" class="form-input" name="questions[${partieId}][${questionCounter}][intitule]" required>
+                        <input type="text" class="form-input" name="questions[${partieId}][${questionCounter}][intitule]" 
+                               placeholder="Posez votre question ici..." required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Options de réponse</label>
@@ -869,57 +1278,102 @@
                                 <input type="text" class="form-input" name="questions[${partieId}][${questionCounter}][reponses][1][texte]" placeholder="Réponse 2" required>
                             </div>
                         </div>
-                        <button type="button" class="btn btn-secondary btn-small" onclick="ajouterReponse(${questionCounter})">➕ Ajouter une option</button>
+                        <button type="button" class="btn btn-secondary btn-small" onclick="ajouterReponse(${questionCounter}, ${partieId})">➕ Ajouter une option</button>
                     </div>
                 </div>
             `;
             document.getElementById(`questions-${partieId}`).insertAdjacentHTML('beforeend', questionHtml);
         }
 
-        function ajouterReponse(questionId) {
+        function ajouterReponse(questionId, partieId) {
             const answersContainer = document.getElementById(`answers-${questionId}`);
             const index = answersContainer.querySelectorAll('.answer-option').length;
             const answerHtml = `
                 <div class="answer-option">
-                    <input type="checkbox" name="questions[][${questionId}][reponses][${index}][correct]" value="true">
-                    <input type="text" class="form-input" name="questions[][${questionId}][reponses][${index}][texte]" placeholder="Réponse ${index + 1}" required>
+                    <input type="checkbox" name="questions[${partieId}][${questionId}][reponses][${index}][correct]" value="true">
+                    <input type="text" class="form-input" name="questions[${partieId}][${questionId}][reponses][${index}][texte]" placeholder="Réponse ${index + 1}" required>
                 </div>
             `;
             answersContainer.insertAdjacentHTML('beforeend', answerHtml);
         }
 
-        function supprimerModule(moduleId) {
-            const module = document.querySelector(`.module-item[data-module-id="${moduleId}"]`);
-            if (module) module.remove();
-        }
+        function selectQuizType(partieId, type) {
+            // Mettre à jour les boutons
+            const container = document.querySelector(`#quiz-${partieId} .quiz-type-selector`);
+            container.querySelectorAll('.quiz-type-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.type === type);
+            });
 
-        function supprimerPartie(partieId) {
-            const partie = document.querySelector(`.partie-item[data-partie-id="${partieId}"]`);
-            if (partie) partie.remove();
-        }
+            // Mettre à jour le champ caché
+            document.getElementById(`quiz-type-${partieId}`).value = type;
 
-        function supprimerQuestion(questionId) {
-            const question = document.querySelector(`.question-item[data-question-id="${questionId}"]`);
-            if (question) question.remove();
-        }
-
-        function toggleModule(moduleId) {
-            const content = document.getElementById(`module-${moduleId}`);
-            if (content) content.classList.toggle('expanded');
-        }
-
-        function togglePartie(partieId) {
-            const content = document.getElementById(`partie-${partieId}`);
-            if (content) content.classList.toggle('expanded');
+            // Gérer les checkboxes selon le type
+            const questions = document.querySelectorAll(`#questions-${partieId} .question-item`);
+            questions.forEach(question => {
+                const checkboxes = question.querySelectorAll('input[type="checkbox"]');
+                if (type === 'unique') {
+                    checkboxes.forEach(cb => cb.type = 'radio');
+                } else {
+                    checkboxes.forEach(cb => cb.type = 'checkbox');
+                }
+            });
         }
 
         function selectContentType(partieId, type) {
             ['video', 'quiz', 'document'].forEach(t => {
                 const section = document.getElementById(`${t}-${partieId}`);
-                if (section) section.style.display = (t === type) ? 'block' : 'none';
-                const btn = document.querySelector(`.partie-item[data-partie-id="${partieId}"] .content-type-btn:nth-child(${['video','quiz','document'].indexOf(t)+1})`);
-                if (btn) btn.classList.toggle('active', t === type);
+                if (section) {
+                    section.style.display = (t === type) ? 'block' : 'none';
+                    section.classList.toggle('active', t === type);
+                }
             });
+
+            // Mettre à jour les boutons
+            const buttons = document.querySelectorAll(`[data-partie-id="${partieId}"] .content-type-btn`);
+            buttons.forEach((btn, index) => {
+                const types = ['video', 'quiz', 'document'];
+                btn.classList.toggle('active', types[index] === type);
+            });
+        }
+
+        function toggleModule(moduleId) {
+            const content = document.getElementById(`module-${moduleId}`);
+            const module = document.querySelector(`[data-module-id="${moduleId}"]`);
+            const toggleIcon = module.querySelector('.toggle-icon');
+            
+            if (content && module) {
+                content.classList.toggle('expanded');
+                module.classList.toggle('expanded');
+                toggleIcon.textContent = content.classList.contains('expanded') ? '▲' : '▼';
+            }
+        }
+
+        function togglePartie(partieId) {
+            const content = document.getElementById(`partie-${partieId}`);
+            if (content) {
+                content.classList.toggle('expanded');
+            }
+        }
+
+        function supprimerModule(moduleId) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer ce module ?')) {
+                const module = document.querySelector(`.module-item[data-module-id="${moduleId}"]`);
+                if (module) module.remove();
+            }
+        }
+
+        function supprimerPartie(partieId) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer cette partie ?')) {
+                const partie = document.querySelector(`.partie-item[data-partie-id="${partieId}"]`);
+                if (partie) partie.remove();
+            }
+        }
+
+        function supprimerQuestion(questionId) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer cette question ?')) {
+                const question = document.querySelector(`.question-item[data-question-id="${questionId}"]`);
+                if (question) question.remove();
+            }
         }
 
         function handleVideoUpload(partieId, input) {
@@ -927,7 +1381,15 @@
             if (input.files && input.files[0]) {
                 const file = input.files[0];
                 const url = URL.createObjectURL(file);
-                preview.innerHTML = `<video src="${url}" controls style="max-width:100%;border-radius:8px;"></video>`;
+                preview.innerHTML = `
+                    <video src="${url}" controls style="max-width: 100%; border-radius: 12px; box-shadow: var(--shadow-light);">
+                        Votre navigateur ne supporte pas les vidéos HTML5.
+                    </video>
+                    <div style="margin-top: 1rem; padding: 1rem; background: var(--light-blue); border-radius: 10px;">
+                        <strong>Fichier :</strong> ${file.name}<br>
+                        <strong>Taille :</strong> ${(file.size / 1024 / 1024).toFixed(2)} MB
+                    </div>
+                `;
                 preview.style.display = 'block';
             } else {
                 preview.innerHTML = '';
@@ -938,40 +1400,347 @@
         function handleDocumentUpload(partieId, input) {
             const list = document.getElementById(`documents-${partieId}`);
             list.innerHTML = '';
-            Array.from(input.files).forEach(file => {
+            Array.from(input.files).forEach((file, index) => {
                 const item = document.createElement('div');
                 item.className = 'file-item';
-                item.innerHTML = `<span>${file.name}</span>`;
+                item.style.cssText = `
+                    display: flex; 
+                    justify-content: space-between; 
+                    align-items: center; 
+                    padding: 1rem; 
+                    background: #f8f9fa; 
+                    border-radius: 10px; 
+                    margin-bottom: 0.5rem;
+                    border: 1px solid #e9ecef;
+                `;
+                item.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 0.8rem;">
+                        <span style="font-size: 1.5rem;">📄</span>
+                        <div>
+                            <div style="font-weight: 600;">${file.name}</div>
+                            <div style="font-size: 0.85rem; color: var(--text-light);">${(file.size / 1024).toFixed(1)} KB</div>
+                        </div>
+                    </div>
+                    <button type="button" onclick="this.parentElement.remove()" style="background: none; border: none; color: var(--danger); cursor: pointer; padding: 0.5rem;">🗑️</button>
+                `;
                 list.appendChild(item);
             });
         }
 
+        function ajouterDomaine() {
+            document.getElementById('domaineModal').style.display = 'flex';
+            document.getElementById('nouveauDomaine').focus();
+        }
+
+        function fermerModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            // Réinitialiser les champs
+            if (modalId === 'domaineModal') {
+                document.getElementById('nouveauDomaine').value = '';
+                document.getElementById('domaineDescription').value = '';
+            }
+        }
+
+        function confirmerAjoutDomaine() {
+            const nom = document.getElementById('nouveauDomaine').value.trim();
+            if (!nom) {
+                alert('Veuillez saisir un nom de domaine');
+                return;
+            }
+
+            // Ajouter le domaine au select
+            const select = document.getElementById('domaine');
+            const option = document.createElement('option');
+            option.value = nom.toLowerCase().replace(/\s+/g, '_');
+            option.textContent = nom;
+            option.selected = true;
+            select.appendChild(option);
+
+            // Fermer la modal
+            fermerModal('domaineModal');
+
+            // Message de confirmation
+            showMessage('success', `Domaine "${nom}" ajouté avec succès !`);
+        }
+
         function sauvegarderBrouillon() {
-            alert('Fonction de sauvegarde en brouillon à implémenter.');
+            const formData = new FormData(document.getElementById('formationForm'));
+            localStorage.setItem('formation_brouillon', JSON.stringify(Object.fromEntries(formData)));
+            showMessage('success', 'Brouillon sauvegardé localement !');
         }
 
         function genererApercu() {
-            // Génère un aperçu de la formation à partir des champs remplis
-            const titre = document.getElementById('titre').value;
-            const description = document.getElementById('description').value;
-            const domaine = document.getElementById('domaine').value;
-            const niveau = document.getElementById('niveau').value;
+            const titre = document.getElementById('titre').value || 'Titre de la formation';
+            const description = document.getElementById('description').value || 'Description non renseignée';
+            const domaine = document.getElementById('domaine').value || 'Non spécifié';
+            const niveau = document.getElementById('niveau').value || 'Non spécifié';
+            const prix = document.getElementById('prix').value || '0';
             const modules = document.querySelectorAll('.module-item');
-            let html = `<h2>${titre}</h2><p>${description}</p><p><strong>Domaine :</strong> ${domaine} | <strong>Niveau :</strong> ${niveau}</p>`;
-            html += `<h3>Modules</h3><ul>`;
-            modules.forEach(module => {
-                const moduleTitle = module.querySelector('input[name*="[titre]"]').value;
-                html += `<li>${moduleTitle}</li>`;
-            });
-            html += `</ul>`;
+            
+            let html = `
+                <div class="preview-card">
+                    <h2 style="color: var(--primary-blue); margin-bottom: 1rem;">${titre}</h2>
+                    <p style="margin-bottom: 1rem;">${description}</p>
+                    <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                        <span style="background: var(--light-blue); padding: 0.5rem 1rem; border-radius: 20px; color: var(--primary-blue); font-weight: 600;">
+                            ${domaine}
+                        </span>
+                        <span style="background: var(--light-pink); padding: 0.5rem 1rem; border-radius: 20px; color: var(--primary-pink); font-weight: 600;">
+                            Niveau ${niveau}
+                        </span>
+                        <span style="background: #d4edda; padding: 0.5rem 1rem; border-radius: 20px; color: var(--success); font-weight: 600;">
+                            ${prix === '0' ? 'Gratuit' : prix + '€'}
+                        </span>
+                    </div>
+                </div>
+            `;
+            
+            if (modules.length > 0) {
+                html += `<div class="preview-card"><h3>Modules (${modules.length})</h3><ul style="margin-left: 1.5rem;">`;
+                modules.forEach((module, index) => {
+                    const moduleTitle = module.querySelector('input[name*="[titre]"]')?.value || `Module ${index + 1}`;
+                    const parties = module.querySelectorAll('.partie-item').length;
+                    html += `<li style="margin-bottom: 0.5rem;">${moduleTitle} ${parties > 0 ? `(${parties} parties)` : ''}</li>`;
+                });
+                html += `</ul></div>`;
+            }
+            
             document.getElementById('previewContent').innerHTML = html;
         }
 
-        // Initialisation
-        document.addEventListener('DOMContentLoaded', function() {
-            // Optionnel : ajouter un module par défaut
+        function showMessage(type, message) {
+            const messageEl = document.getElementById(type === 'success' ? 'successMessage' : 'errorMessage');
+            messageEl.textContent = message;
+            messageEl.classList.add('show');
+            setTimeout(() => {
+                messageEl.classList.remove('show');
+            }, 5000);
+        }
+
+        // Gestion de la soumission du formulaire
+        document.getElementById('formationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Validation basique
+            const titre = document.getElementById('titre').value.trim();
+            const description = document.getElementById('description').value.trim();
+            const domaine = document.getElementById('domaine').value;
+            const niveau = document.getElementById('niveau').value;
+            
+            if (!titre || !description || !domaine || !niveau) {
+                showMessage('error', 'Veuillez remplir tous les champs obligatoires');
+                return;
+            }
+
+            const modules = document.querySelectorAll('.module-item');
+            if (modules.length === 0) {
+                showMessage('error', 'Veuillez ajouter au moins un module à votre formation');
+                return;
+            }
+
+            // Validation des modules
+            let moduleValid = true;
+            modules.forEach(module => {
+                const moduleTitle = module.querySelector('input[name*="[titre]"]').value.trim();
+                if (!moduleTitle) {
+                    moduleValid = false;
+                }
+            });
+
+            if (!moduleValid) {
+                showMessage('error', 'Tous les modules doivent avoir un titre');
+                return;
+            }
+
+            // Affichage du loading
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '⏳ Création en cours...';
+            submitBtn.disabled = true;
+
+            try {
+                // Préparer les données du formulaire
+                const formData = new FormData(this);
+                
+                // Debug: Afficher toutes les données
+                console.log('Données du formulaire:');
+                for (let [key, value] of formData.entries()) {
+                    console.log(`${key}: ${value}`);
+                }
+                
+                // Ajouter les données des modules de manière structurée
+                const modulesData = [];
+                modules.forEach((module, index) => {
+                    const moduleData = {
+                        titre: module.querySelector('input[name*="[titre]"]')?.value || '',
+                        description: module.querySelector('textarea[name*="[description]"]')?.value || '',
+                        duree: parseInt(module.querySelector('input[name*="[duree]"]')?.value) || 0,
+                        ordre: parseInt(module.querySelector('input[name*="[ordre]"]')?.value) || index + 1,
+                        parties: []
+                    };
+
+                    // Récupérer les parties du module
+                    const parties = module.querySelectorAll('.partie-item');
+                    parties.forEach(partie => {
+                        const partieData = {
+                            titre: partie.querySelector('input[name*="[titre]"]')?.value || '',
+                            type_contenu: 'video', // Par défaut
+                            questions: []
+                        };
+
+                        // Récupérer les questions si c'est un quiz
+                        const questions = partie.querySelectorAll('.question-item');
+                        questions.forEach(question => {
+                            const questionData = {
+                                intitule: question.querySelector('input[name*="[intitule]"]')?.value || '',
+                                reponses: []
+                            };
+
+                            const reponses = question.querySelectorAll('.answer-option');
+                            reponses.forEach(reponse => {
+                                const reponseData = {
+                                    texte: reponse.querySelector('input[type="text"]')?.value || '',
+                                    correct: reponse.querySelector('input[type="checkbox"], input[type="radio"]')?.checked || false
+                                };
+                                questionData.reponses.push(reponseData);
+                            });
+
+                            partieData.questions.push(questionData);
+                        });
+
+                        moduleData.parties.push(partieData);
+                    });
+
+                    modulesData.push(moduleData);
+                });
+
+                // Ajouter les modules au FormData
+                formData.append('modules_data', JSON.stringify(modulesData));
+
+                // Calculer automatiquement nombre_modules et duree_heures
+                formData.append('nombre_modules', modules.length);
+                const totalDuree = modulesData.reduce((total, module) => total + (module.duree || 0), 0);
+                formData.append('duree_heures', Math.ceil(totalDuree / 60)); // Convertir minutes en heures
+
+                console.log('Modules data:', modulesData);
+                console.log('Total modules:', modules.length);
+                console.log('Durée totale:', Math.ceil(totalDuree / 60), 'heures');
+
+                // Envoyer les données
+                const response = await fetch('/admin/formations/nouvelle', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    showMessage('success', 'Formation créée avec succès !');
+                    setTimeout(() => {
+                        window.location.href = '/admin/formations';
+                    }, 2000);
+                } else {
+                    const errorData = await response.json().catch(() => ({}));
+                    showMessage('error', errorData.message || 'Erreur lors de la création de la formation');
+                }
+
+            } catch (error) {
+                console.error('Erreur:', error);
+                showMessage('error', 'Erreur de connexion au serveur');
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Fermer les modales avec Échap
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay').forEach(modal => {
+                    modal.style.display = 'none';
+                });
+            }
+        });
+
+        // Fermer les modales en cliquant sur l'overlay
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal-overlay')) {
+                e.target.style.display = 'none';
+            }
+        });
+
+        // Charger un brouillon sauvegardé au chargement de la page
+        window.addEventListener('load', function() {
+            // Test de connectivité au chargement
+            testerConnectivite().then(ok => {
+                if (!ok) {
+                    showMessage('error', 'Problème de connexion avec le serveur admin');
+                } else {
+                    console.log('Connexion admin OK');
+                }
+            });
+
+            const brouillon = localStorage.getItem('formation_brouillon');
+            if (brouillon && confirm('Un brouillon de formation a été trouvé. Voulez-vous le charger ?')) {
+                try {
+                    const data = JSON.parse(brouillon);
+                    Object.keys(data).forEach(key => {
+                        const element = document.querySelector(`[name="${key}"]`);
+                        if (element) {
+                            if (element.type === 'checkbox') {
+                                element.checked = data[key] === 'true';
+                            } else {
+                                element.value = data[key];
+                            }
+                        }
+                    });
+                    showMessage('success', 'Brouillon chargé avec succès !');
+                } catch (error) {
+                    console.error('Erreur lors du chargement du brouillon:', error);
+                }
+            }
+
+            // Ajouter un module par défaut
             ajouterModule();
+            
+            console.log('Créateur de formation ADSIAM chargé');
+            console.log('Interface moderne avec fonctionnalités complètes');
+        });
+
+        // Auto-sauvegarde du brouillon toutes les 30 secondes
+        setInterval(() => {
+            const formData = new FormData(document.getElementById('formationForm'));
+            const data = Object.fromEntries(formData);
+            if (Object.keys(data).length > 3) { // Seulement si il y a du contenu
+                localStorage.setItem('formation_brouillon', JSON.stringify(data));
+            }
+        }, 30000);
+
+        // Validation en temps réel
+        document.getElementById('titre').addEventListener('input', function() {
+            if (this.value.length > 100) {
+                this.style.borderColor = 'var(--warning)';
+                showMessage('error', 'Le titre ne doit pas dépasser 100 caractères');
+            } else {
+                this.style.borderColor = '#e9ecef';
+            }
+        });
+
+        document.getElementById('prix').addEventListener('input', function() {
+            const gratuitCheckbox = document.querySelector('input[name="gratuit"]');
+            if (this.value > 0) {
+                gratuitCheckbox.checked = false;
+            } else if (this.value == 0) {
+                gratuitCheckbox.checked = true;
+            }
+        });
+
+        // Synchroniser le checkbox gratuit avec le prix
+        document.querySelector('input[name="gratuit"]').addEventListener('change', function() {
+            const prixInput = document.getElementById('prix');
+            if (this.checked) {
+                prixInput.value = 0;
+            }
         });
     </script>
 </body>
 </html>
+     
