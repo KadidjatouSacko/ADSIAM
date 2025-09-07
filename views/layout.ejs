@@ -28,9 +28,11 @@
     <div id="loadingSpinner" class="loading-spinner">
         <div class="spinner"></div>
     </div>
-<% if (locals.isCompany) { %>
+
+    <% if (locals.isCompany) { %>
     <li><a href="/entreprise" class="nav-link">🏢 Espace Entreprise</a></li>
-<% } %>
+    <% } %>
+
     <!-- Main Content -->
     <%- body %>
 
@@ -48,28 +50,301 @@
     <script>
         // Global App Configuration
         window.ADSIAM = {
-            user: <%- JSON.stringify(typeof user !== 'undefined' ? {
-                id: user.id,
-                prenom: user.prenom,
-                nom: user.nom,
-                email: user.email,
-                type: user.type_utilisateur,
-                role: user.role,
-                avatar: user.avatar
-            } : null) %>,
+            // 🔧 CORRECTION SÉCURISÉE: Vérification complète de l'existence et validité de user
+            user: <%- JSON.stringify((function() {
+                // Vérifier si user existe et n'est pas null/undefined
+                if (typeof user !== 'undefined' && user !== null && user !== undefined) {
+                    // Construire l'objet utilisateur de manière sécurisée
+                    return {
+                        id: user.id || null,
+                        prenom: user.prenom || '',
+                        nom: user.nom || '',
+                        email: user.email || '',
+                        type: user.type_utilisateur || 'visiteur',
+                        role: user.role || 'user',
+                        avatar: user.avatar || null,
+                        isAuthenticated: true,
+                        displayName: (user.prenom || '') + ' ' + (user.nom || ''),
+                        initials: ((user.prenom || '').charAt(0) + (user.nom || '').charAt(0)).toUpperCase()
+                    };
+                } else {
+                    // Utilisateur non connecté - objet par défaut
+                    return {
+                        id: null,
+                        prenom: '',
+                        nom: '',
+                        email: '',
+                        type: 'visiteur',
+                        role: 'guest',
+                        avatar: null,
+                        isAuthenticated: false,
+                        displayName: 'Visiteur',
+                        initials: 'V'
+                    };
+                }
+            })()) %>,
+            
+            // Configuration de l'application
             apiUrl: '/api',
             socketUrl: '<%= typeof socketUrl !== 'undefined' ? socketUrl : '' %>',
-            environment: '<%= typeof environment !== 'undefined' ? environment : 'development' %>'
+            environment: '<%= typeof environment !== 'undefined' ? environment : 'development' %>',
+            
+            // Méthodes utilitaires
+            isLoggedIn: function() {
+                return this.user && this.user.isAuthenticated === true;
+            },
+            
+            isAdmin: function() {
+                return this.user && (this.user.role === 'admin' || this.user.role === 'administrateur');
+            },
+            
+            isFormateur: function() {
+                return this.user && this.user.role === 'formateur';
+            },
+            
+            getUserName: function() {
+                if (!this.isLoggedIn()) return 'Visiteur';
+                return this.user.displayName || 'Utilisateur';
+            },
+            
+            getUserInitials: function() {
+                return this.user ? this.user.initials : 'V';
+            },
+            
+            // Fonction de debug (à supprimer en production)
+            debug: function() {
+                console.log('🔍 ADSIAM Debug Info:', {
+                    userExists: !!this.user,
+                    isAuthenticated: this.isLoggedIn(),
+                    userRole: this.user ? this.user.role : 'none',
+                    environment: this.environment
+                });
+            }
         };
 
-        // Hide loading spinner when page loads
-        window.addEventListener('load', () => {
+        // Fonctions utilitaires globales
+        window.showToast = function(message, type = 'info', duration = 5000) {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+            
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `
+                <div class="toast-content">
+                    <span class="toast-icon">${type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️'}</span>
+                    <span class="toast-message">${message}</span>
+                    <button class="toast-close" onclick="this.parentElement.parentElement.remove()">×</button>
+                </div>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Auto-remove après la durée spécifiée
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.style.opacity = '0';
+                    setTimeout(() => toast.remove(), 300);
+                }
+            }, duration);
+        };
+
+        // Fonction de gestion des erreurs globales
+        window.handleError = function(error, context = 'Application') {
+            console.error(`❌ Erreur ${context}:`, error);
+            
+            // En développement, afficher l'erreur complète
+            if (window.ADSIAM.environment === 'development') {
+                window.showToast(`Erreur ${context}: ${error.message}`, 'error');
+            } else {
+                // En production, message générique
+                window.showToast('Une erreur inattendue s\'est produite. Veuillez réessayer.', 'error');
+            }
+        };
+
+        // Gestion globale des erreurs JavaScript
+        window.addEventListener('error', function(event) {
+            window.handleError(event.error, 'JavaScript');
+        });
+
+        // Gestion des erreurs de promesses non catchées
+        window.addEventListener('unhandledrejection', function(event) {
+            window.handleError(event.reason, 'Promise');
+            event.preventDefault(); // Empêche l'affichage dans la console
+        });
+
+        // Initialisation quand la page est chargée
+        window.addEventListener('load', function() {
+            // Masquer le spinner de chargement
             const spinner = document.getElementById('loadingSpinner');
             if (spinner) {
                 spinner.style.opacity = '0';
-                setTimeout(() => spinner.style.display = 'none', 300);
+                setTimeout(() => {
+                    spinner.style.display = 'none';
+                }, 300);
             }
+            
+            // Log d'initialisation
+            console.log('🚀 ADSIAM Application initialisée');
+            
+            // En mode développement, afficher les infos de debug
+            if (window.ADSIAM.environment === 'development') {
+                window.ADSIAM.debug();
+            }
+            
+            // Événement personnalisé pour signaler que l'app est prête
+            window.dispatchEvent(new CustomEvent('adsiam:ready', {
+                detail: {
+                    user: window.ADSIAM.user,
+                    timestamp: new Date().toISOString()
+                }
+            }));
         });
+
+        // Fonction utilitaire pour faire des requêtes API
+        window.apiRequest = async function(endpoint, options = {}) {
+            const defaultOptions = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            };
+            
+            const finalOptions = { ...defaultOptions, ...options };
+            
+            // Ajouter le token CSRF si disponible
+            const csrfToken = document.querySelector('meta[name="csrf-token"]');
+            if (csrfToken) {
+                finalOptions.headers['X-CSRF-Token'] = csrfToken.getAttribute('content');
+            }
+            
+            try {
+                const response = await fetch(window.ADSIAM.apiUrl + endpoint, finalOptions);
+                
+                if (!response.ok) {
+                    throw new Error(`Erreur HTTP: ${response.status}`);
+                }
+                
+                return await response.json();
+            } catch (error) {
+                window.handleError(error, 'API');
+                throw error;
+            }
+        };
+
+        // Fonction pour la navigation programmatique
+        window.navigateTo = function(url, newTab = false) {
+            if (newTab) {
+                window.open(url, '_blank');
+            } else {
+                window.location.href = url;
+            }
+        };
     </script>
+
+    <!-- Styles pour le spinner et les toasts -->
+    <style>
+        .loading-spinner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.3s ease;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #e7a6b7;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid;
+            min-width: 300px;
+            max-width: 500px;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .toast-success { border-left-color: #10b981; }
+        .toast-error { border-left-color: #ef4444; }
+        .toast-warning { border-left-color: #f59e0b; }
+        .toast-info { border-left-color: #3b82f6; }
+
+        .toast-content {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            gap: 12px;
+        }
+
+        .toast-icon {
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .toast-message {
+            flex: 1;
+            font-size: 14px;
+            color: #374151;
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: #9ca3af;
+            cursor: pointer;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .toast-close:hover {
+            color: #374151;
+        }
+
+        @media (max-width: 768px) {
+            .toast-container {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+            }
+            
+            .toast {
+                min-width: auto;
+                max-width: none;
+            }
+        }
+    </style>
 </body>
 </html>
