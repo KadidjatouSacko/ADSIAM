@@ -1,365 +1,991 @@
-<% locals.currentPage = 'inscriptions' %>
+<%
+// Définition des fonctions helper directement dans le template
+function capitalize(str) {
+    return str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
+}
 
-<div style="max-width: 1000px; margin: 0 auto;">
-    <!-- En-tête -->
-    <div style="margin-bottom: 2rem;">
-        <h2 style="margin: 0; color: var(--text-dark);">Nouvelle Inscription</h2>
-        <p style="margin: 0.5rem 0 0; color: var(--text-light);">
-            Inscrivez vos employés à des formations spécialisées
+function formatDate(date) {
+    return date ? new Date(date).toLocaleDateString('fr-FR') : '';
+}
+
+function getRelativeTime(date) {
+    if (!date) return '';
+    const now = new Date();
+    const diff = now - new Date(date);
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    
+    if (days === 0) return 'aujourd\'hui';
+    if (days === 1) return '1 jour';
+    if (days < 7) return `${days} jours`;
+    if (days < 30) return `${Math.floor(days / 7)} semaine${Math.floor(days / 7) > 1 ? 's' : ''}`;
+    if (days < 365) return `${Math.floor(days / 30)} mois`;
+    return `${Math.floor(days / 365)} an${Math.floor(days / 365) > 1 ? 's' : ''}`;
+}
+
+function formatDuration(minutes) {
+    if (!minutes) return '0min';
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hours > 0) {
+        return mins > 0 ? `${hours}h${mins}min` : `${hours}h`;
+    }
+    return `${mins}min`;
+}
+
+function getProgressColor(percentage) {
+    if (percentage >= 80) return '#28a745';
+    if (percentage >= 60) return '#ffc107';
+    if (percentage >= 40) return '#fd7e14';
+    return '#dc3545';
+}
+%>
+
+<div class="company-header">
+    <div class="company-info">
+        <h1 class="company-title">Nouvelle Inscription</h1>
+        <p class="company-subtitle">
+            <%= currentUser.societe_rattachee %> • 
+            Inscrire vos employés à des formations
         </p>
     </div>
+    <div class="company-actions">
+        <a href="/entreprise/inscriptions" class="btn btn-secondary">
+            ← Retour aux inscriptions
+        </a>
+    </div>
+</div>
 
-    <form action="/entreprise/inscriptions" method="POST" id="inscriptionForm">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
-            <!-- Sélection des employés -->
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Sélectionner les employés</h3>
+<!-- Statistiques de l'entreprise -->
+<div class="stats-grid">
+    <div class="stat-card primary">
+        <div class="stat-icon">👥</div>
+        <div class="stat-content">
+            <div class="stat-number"><%= companyStats.total_employees || 0 %></div>
+            <div class="stat-label">Employés</div>
+        </div>
+    </div>
+    <div class="stat-card info">
+        <div class="stat-icon">📚</div>
+        <div class="stat-content">
+            <div class="stat-number"><%= companyStats.total_inscriptions || 0 %></div>
+            <div class="stat-label">Inscriptions</div>
+        </div>
+    </div>
+    <div class="stat-card success">
+        <div class="stat-icon">✅</div>
+        <div class="stat-content">
+            <div class="stat-number"><%= companyStats.formations_terminees || 0 %></div>
+            <div class="stat-label">Terminées</div>
+        </div>
+    </div>
+    <div class="stat-card warning">
+        <div class="stat-icon">🎓</div>
+        <div class="stat-content">
+            <div class="stat-number"><%= companyStats.certifications_obtenues || 0 %></div>
+            <div class="stat-label">Certifiées</div>
+        </div>
+    </div>
+</div>
+
+<!-- Formulaire d'inscription -->
+<div class="inscription-form-container">
+    <form id="inscriptionForm" method="POST" action="/entreprise/inscriptions">
+        <div class="form-sections">
+            
+            <!-- Section 1: Sélection des employés -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <span class="section-number">1</span>
+                        Sélectionner les employés
+                    </h3>
+                    <p class="section-description">
+                        Choisissez les employés à inscrire à la formation
+                    </p>
                 </div>
-                <div class="card-body">
-                    <!-- Recherche employé -->
-                    <div style="margin-bottom: 1.5rem; position: relative;">
-                        <input type="text" id="searchEmployee" placeholder="Rechercher un employé..." 
-                               style="width: 100%; padding: 0.75rem 1rem 0.75rem 2.5rem; border: 2px solid var(--soft-gray); border-radius: 8px;">
-                        <span style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--text-light);">🔍</span>
-                    </div>
-
-                    <!-- Actions de sélection -->
-                    <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
-                        <button type="button" class="btn btn-secondary" onclick="selectAllEmployees()" style="font-size: 0.9rem; padding: 0.5rem 1rem;">
-                            Tout sélectionner
-                        </button>
-                        <button type="button" class="btn btn-secondary" onclick="clearSelection()" style="font-size: 0.9rem; padding: 0.5rem 1rem;">
-                            Tout désélectionner
-                        </button>
-                    </div>
-
-                    <!-- Liste des employés -->
-                    <div id="employeesList" style="max-height: 400px; overflow-y: auto; border: 1px solid var(--soft-gray); border-radius: 8px;">
-                        <% if (employees && employees.length > 0) { %>
+                
+                <div class="employees-selection">
+                    <% if (employees && employees.length > 0) { %>
+                        <div class="selection-controls">
+                            <button type="button" class="btn btn-secondary" onclick="selectAllEmployees()">
+                                Tout sélectionner
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="deselectAllEmployees()">
+                                Tout désélectionner
+                            </button>
+                            <span class="selection-count">
+                                <span id="selectedCount">0</span> employé(s) sélectionné(s)
+                            </span>
+                        </div>
+                        
+                        <div class="employees-grid">
                             <% employees.forEach(employee => { %>
-                                <label style="display: flex; align-items: center; gap: 1rem; padding: 1rem; border-bottom: 1px solid var(--soft-gray); cursor: pointer; transition: background 0.2s;"
-                                       onmouseover="this.style.background='var(--light-blue)'" 
-                                       onmouseout="this.style.background='white'">
-                                    <input type="checkbox" name="employeeIds" value="<%= employee.id %>" 
-                                           style="width: 18px; height: 18px; accent-color: var(--primary-blue);">
-                                    <div style="width: 40px; height: 40px; background: var(--gradient-contact); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600;">
-                                        <%= employee.prenom.charAt(0) %><%= employee.nom.charAt(0) %>
-                                    </div>
-                                    <div style="flex: 1;">
-                                        <div style="font-weight: 600; color: var(--text-dark);">
-                                            <%= employee.prenom %> <%= employee.nom %>
+                                <div class="employee-card">
+                                    <input type="checkbox" 
+                                           name="employeeIds" 
+                                           value="<%= employee.id %>" 
+                                           id="emp_<%= employee.id %>"
+                                           class="employee-checkbox">
+                                    <label for="emp_<%= employee.id %>" class="employee-label">
+                                        <div class="employee-avatar">
+                                            <%= employee.prenom.charAt(0) %><%= employee.nom.charAt(0) %>
                                         </div>
-                                        <div style="color: var(--text-light); font-size: 0.9rem;">
-                                            <%= employee.email %>
+                                        <div class="employee-info">
+                                            <div class="employee-name">
+                                                <%= employee.prenom %> <%= employee.nom %>
+                                            </div>
+                                            <div class="employee-email">
+                                                <%= employee.email %>
+                                            </div>
+                                            <div class="employee-type">
+                                                <%= capitalize(employee.type_utilisateur ? employee.type_utilisateur.replace('_', ' ') : 'Employé') %>
+                                            </div>
+                                            <% if (employee.nb_inscriptions_actives > 0) { %>
+                                                <div class="employee-inscriptions">
+                                                    <%= employee.nb_inscriptions_actives %> formation(s) en cours
+                                                </div>
+                                            <% } %>
                                         </div>
-                                        <span class="badge badge-info" style="font-size: 0.7rem;">
-                                            <%= capitalize(employee.type_utilisateur?.replace('_', ' ') || 'Non défini') %>
-                                        </span>
-                                    </div>
-                                </label>
+                                    </label>
+                                </div>
                             <% }) %>
-                        <% } else { %>
-                            <div style="text-align: center; padding: 2rem; color: var(--text-light);">
-                                Aucun employé disponible
-                            </div>
-                        <% } %>
-                    </div>
-
-                    <div id="selectedCount" style="margin-top: 1rem; padding: 0.75rem; background: var(--light-blue); border-radius: 8px; text-align: center; font-weight: 600; color: var(--primary-blue);">
-                        0 employé(s) sélectionné(s)
-                    </div>
+                        </div>
+                    <% } else { %>
+                        <div class="empty-state">
+                            <div class="empty-state-icon">👥</div>
+                            <h4>Aucun employé disponible</h4>
+                            <p>Vous devez d'abord ajouter des employés à votre entreprise</p>
+                            <a href="/entreprise/salaries" class="btn btn-primary">
+                                Gérer les employés
+                            </a>
+                        </div>
+                    <% } %>
                 </div>
             </div>
 
-            <!-- Sélection de la formation -->
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Choisir la formation</h3>
+            <!-- Section 2: Sélection de la formation -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <span class="section-number">2</span>
+                        Choisir la formation
+                    </h3>
+                    <p class="section-description">
+                        Sélectionnez la formation à suivre
+                    </p>
                 </div>
-                <div class="card-body">
-                    <!-- Filtre par domaine -->
-                    <div style="margin-bottom: 1.5rem;">
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Filtrer par domaine :</label>
-                        <select id="domainFilter" style="width: 100%; padding: 0.75rem; border: 2px solid var(--soft-gray); border-radius: 8px;">
-                            <option value="">Tous les domaines</option>
-                            <option value="communication">Communication</option>
-                            <option value="hygiene">Hygiène & Sécurité</option>
-                            <option value="ergonomie">Ergonomie</option>
-                            <option value="urgences">Urgences</option>
-                            <option value="nutrition">Nutrition</option>
-                            <option value="pathologies">Pathologies</option>
-                        </select>
-                    </div>
 
-                    <!-- Liste des formations -->
-                    <div id="formationsList" style="max-height: 400px; overflow-y: auto;">
-                        <% if (formations && formations.length > 0) { %>
+                <div class="formations-selection">
+                    <% if (formations && formations.length > 0) { %>
+                        <div class="formations-grid">
                             <% formations.forEach(formation => { %>
-                                <label style="display: block; margin-bottom: 1rem; cursor: pointer;" data-domain="<%= formation.domaine %>">
-                                    <input type="radio" name="formationId" value="<%= formation.id %>" 
-                                           style="display: none;" onchange="selectFormation(this)">
-                                    <div class="formation-option" style="border: 2px solid var(--soft-gray); border-radius: 12px; padding: 1.5rem; transition: all 0.3s;">
-                                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
-                                            <div style="font-size: 2.5rem;">
+                                <div class="formation-card">
+                                    <input type="radio" 
+                                           name="formationId" 
+                                           value="<%= formation.id %>" 
+                                           id="form_<%= formation.id %>"
+                                           class="formation-radio"
+                                           data-prix="<%= formation.prix || 0 %>">
+                                    <label for="form_<%= formation.id %>" class="formation-label">
+                                        <div class="formation-header">
+                                            <div class="formation-icon">
                                                 <%= formation.icone || '📚' %>
                                             </div>
-                                            <div style="flex: 1;">
-                                                <div style="font-weight: 600; color: var(--text-dark); margin-bottom: 0.25rem;">
-                                                    <%= formation.titre %>
+                                            <% if (formation.badge) { %>
+                                                <div class="formation-badge">
+                                                    <%= formation.badge %>
                                                 </div>
-                                                <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
-                                                    <span class="badge badge-info">
-                                                        <%= capitalize(formation.niveau || 'standard') %>
+                                            <% } %>
+                                        </div>
+                                        
+                                        <div class="formation-content">
+                                            <h4 class="formation-title">
+                                                <%= formation.titre %>
+                                            </h4>
+                                            
+                                            <div class="formation-meta">
+                                                <% if (formation.niveau) { %>
+                                                    <span class="meta-tag level-tag">
+                                                        <%= capitalize(formation.niveau) %>
                                                     </span>
-                                                    <span class="badge badge-secondary">
-                                                        <%= formation.duree_heures || 0 %>h
+                                                <% } %>
+                                                <% if (formation.duree_heures) { %>
+                                                    <span class="meta-tag duration-tag">
+                                                        <%= formation.duree_heures %>h
                                                     </span>
-                                                    <span class="badge badge-secondary">
-                                                        <%= capitalize(formation.domaine || 'général') %>
+                                                <% } %>
+                                                <% if (formation.nombre_modules) { %>
+                                                    <span class="meta-tag modules-tag">
+                                                        <%= formation.nombre_modules %> modules
                                                     </span>
-                                                </div>
+                                                <% } %>
+                                                <% if (formation.certifiant) { %>
+                                                    <span class="meta-tag certif-tag">
+                                                        Certifiante
+                                                    </span>
+                                                <% } %>
                                             </div>
-                                            <div style="text-align: right;">
-                                                <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary-pink);">
-                                                    <% if (formation.prix && formation.prix > 0) { %>
+                                            
+                                            <p class="formation-description">
+                                                <%= formation.description ? formation.description.substring(0, 120) + '...' : 'Formation professionnelle complète' %>
+                                            </p>
+                                            
+                                            <div class="formation-price">
+                                                <% if (formation.gratuit || formation.prix == 0) { %>
+                                                    <span class="price-free">Gratuit</span>
+                                                <% } else { %>
+                                                    <span class="price-current">
                                                         <%= formation.prix %>€
-                                                    <% } else { %>
-                                                        Gratuit
+                                                    </span>
+                                                    <% if (formation.prix_original && formation.prix_original > formation.prix) { %>
+                                                        <span class="price-original">
+                                                            <%= formation.prix_original %>€
+                                                        </span>
                                                     <% } %>
-                                                </div>
+                                                <% } %>
                                             </div>
+                                            
+                                            <% if (formation.nb_inscrits_entreprise > 0) { %>
+                                                <div class="formation-stats">
+                                                    <%= formation.nb_inscrits_entreprise %> de vos employés déjà inscrits
+                                                </div>
+                                            <% } %>
                                         </div>
-                                        <div style="color: var(--text-light); font-size: 0.9rem; line-height: 1.5;">
-                                            <%= truncateText(formation.description, 120) %>
-                                        </div>
-                                    </div>
-                                </label>
+                                    </label>
+                                </div>
                             <% }) %>
-                        <% } else { %>
-                            <div style="text-align: center; padding: 2rem; color: var(--text-light);">
-                                Aucune formation disponible
-                            </div>
-                        <% } %>
-                    </div>
+                        </div>
+                    <% } else { %>
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📚</div>
+                            <h4>Aucune formation disponible</h4>
+                            <p>Contactez-nous pour découvrir nos formations</p>
+                        </div>
+                    <% } %>
                 </div>
             </div>
-        </div>
 
-        <!-- Options additionnelles -->
-        <div class="card" style="margin-top: 2rem;">
-            <div class="card-header">
-                <h3 class="card-title">Options d'inscription</h3>
-            </div>
-            <div class="card-body">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
-                    <div>
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Date de fin prévue (optionnel) :</label>
-                        <input type="date" name="dateFinPrevue" 
-                               style="width: 100%; padding: 0.75rem; border: 2px solid var(--soft-gray); border-radius: 8px;"
+            <!-- Section 3: Options d'inscription -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <span class="section-number">3</span>
+                        Options d'inscription
+                    </h3>
+                    <p class="section-description">
+                        Configurez les paramètres de l'inscription
+                    </p>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="dateFinPrevue" class="form-label">
+                            Date de fin prévue (optionnel)
+                        </label>
+                        <input type="date" 
+                               id="dateFinPrevue" 
+                               name="dateFinPrevue" 
+                               class="form-control"
                                min="<%= new Date().toISOString().split('T')[0] %>">
-                        <div style="font-size: 0.8rem; color: var(--text-light); margin-top: 0.25rem;">
+                        <small class="form-help">
                             Laissez vide pour une formation sans limite de temps
+                        </small>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Notifications</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="notifyEmployees" value="1" checked>
+                                <span class="checkbox-text">
+                                    Notifier les employés par email
+                                </span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="sendReminders" value="1" checked>
+                                <span class="checkbox-text">
+                                    Envoyer des rappels automatiques
+                                </span>
+                            </label>
                         </div>
                     </div>
-                    <div>
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Priorité de l'inscription :</label>
-                        <select name="priorite" style="width: 100%; padding: 0.75rem; border: 2px solid var(--soft-gray); border-radius: 8px;">
-                            <option value="normale">Normale</option>
-                            <option value="haute">Haute</option>
-                            <option value="urgente">Urgente</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div style="margin-top: 1.5rem;">
-                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Notes (optionnel) :</label>
-                    <textarea name="notes" rows="3" placeholder="Informations complémentaires sur cette inscription..."
-                              style="width: 100%; padding: 0.75rem; border: 2px solid var(--soft-gray); border-radius: 8px; resize: vertical;"></textarea>
-                </div>
-
-                <div style="margin-top: 1.5rem;">
-                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                        <input type="checkbox" name="notifierEmployes" value="1" checked 
-                               style="width: 18px; height: 18px; accent-color: var(--primary-blue);">
-                        <span style="font-weight: 600;">Notifier les employés par email</span>
-                    </label>
                 </div>
             </div>
-        </div>
 
-        <!-- Récapitulatif et validation -->
-        <div class="card" style="margin-top: 2rem;">
-            <div class="card-header">
-                <h3 class="card-title">Récapitulatif</h3>
-            </div>
-            <div class="card-body">
-                <div id="summary" style="background: var(--soft-gray); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
-                    <div style="color: var(--text-light); text-align: center;">
-                        Sélectionnez des employés et une formation pour voir le récapitulatif
+            <!-- Résumé de l'inscription -->
+            <div class="inscription-summary" id="inscriptionSummary" style="display: none;">
+                <div class="summary-header">
+                    <h3>Résumé de l'inscription</h3>
+                </div>
+                
+                <div class="summary-content">
+                    <div class="summary-item">
+                        <span class="summary-label">Employés sélectionnés :</span>
+                        <span class="summary-value" id="summaryEmployees">0</span>
+                    </div>
+                    
+                    <div class="summary-item">
+                        <span class="summary-label">Formation :</span>
+                        <span class="summary-value" id="summaryFormation">-</span>
+                    </div>
+                    
+                    <div class="summary-item">
+                        <span class="summary-label">Coût total :</span>
+                        <span class="summary-value" id="summaryCost">0€</span>
                     </div>
                 </div>
+            </div>
 
-                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
-                    <a href="/entreprise/inscriptions" class="btn btn-secondary">
-                        Annuler
-                    </a>
-                    <button type="submit" class="btn btn-primary" id="submitBtn" disabled>
-                        Créer les inscriptions
-                    </button>
-                </div>
+            <!-- Boutons d'action -->
+            <div class="form-actions">
+                <a href="/entreprise/inscriptions" class="btn btn-secondary">
+                    Annuler
+                </a>
+                <button type="submit" class="btn btn-primary" id="submitBtn" disabled>
+                    Créer les inscriptions
+                </button>
             </div>
         </div>
     </form>
 </div>
 
+<style>
+:root {
+    --primary-blue: #3498db;
+    --primary-green: #2ecc71;
+    --primary-orange: #f39c12;
+    --primary-red: #e74c3c;
+    --text-dark: #2c3e50;
+    --text-light: #7f8c8d;
+    --bg-light: #f8f9fa;
+    --border-light: #e9ecef;
+    --shadow: 0 2px 10px rgba(0,0,0,0.1);
+    --radius: 12px;
+}
+
+.company-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding: 2rem;
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+.company-title {
+    font-size: 2rem;
+    color: var(--text-dark);
+    margin: 0;
+}
+
+.company-subtitle {
+    color: var(--text-light);
+    margin: 0.5rem 0 0 0;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-left: 4px solid var(--primary-blue);
+}
+
+.stat-card.primary { border-left-color: var(--primary-blue); }
+.stat-card.info { border-left-color: var(--primary-orange); }
+.stat-card.success { border-left-color: var(--primary-green); }
+.stat-card.warning { border-left-color: #f39c12; }
+
+.stat-icon {
+    font-size: 2rem;
+    opacity: 0.8;
+}
+
+.stat-number {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: var(--text-dark);
+}
+
+.stat-label {
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+.inscription-form-container {
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.form-sections {
+    padding: 2rem;
+}
+
+.form-section {
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.form-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.section-header {
+    margin-bottom: 2rem;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 1.5rem;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+}
+
+.section-number {
+    width: 40px;
+    height: 40px;
+    background: var(--primary-blue);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.section-description {
+    color: var(--text-light);
+    margin: 0;
+}
+
+.selection-controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: var(--bg-light);
+    border-radius: var(--radius);
+}
+
+.selection-count {
+    margin-left: auto;
+    font-weight: 600;
+    color: var(--primary-blue);
+}
+
+.employees-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.employee-card {
+    position: relative;
+}
+
+.employee-checkbox {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.employee-label {
+    display: block;
+    padding: 1.5rem;
+    border: 2px solid var(--border-light);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.employee-label:hover {
+    border-color: var(--primary-blue);
+    background: var(--bg-light);
+}
+
+.employee-checkbox:checked + .employee-label {
+    border-color: var(--primary-blue);
+    background: #e3f2fd;
+}
+
+.employee-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.employee-avatar {
+    width: 50px;
+    height: 50px;
+    background: var(--primary-blue);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+.employee-name {
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.employee-email {
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+.employee-type {
+    color: var(--primary-blue);
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.employee-inscriptions {
+    color: var(--primary-orange);
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.formations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+.formation-card {
+    position: relative;
+}
+
+.formation-radio {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.formation-label {
+    display: block;
+    border: 2px solid var(--border-light);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.3s;
+    overflow: hidden;
+}
+
+.formation-label:hover {
+    border-color: var(--primary-blue);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(52, 152, 219, 0.2);
+}
+
+.formation-radio:checked + .formation-label {
+    border-color: var(--primary-blue);
+    box-shadow: 0 5px 20px rgba(52, 152, 219, 0.3);
+}
+
+.formation-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.formation-icon {
+    font-size: 2rem;
+}
+
+.formation-badge {
+    background: rgba(255,255,255,0.2);
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.formation-content {
+    padding: 1.5rem;
+}
+
+.formation-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 1rem;
+}
+
+.formation-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.meta-tag {
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.level-tag {
+    background: #e8f5e8;
+    color: var(--primary-green);
+}
+
+.duration-tag {
+    background: #fff3e0;
+    color: var(--primary-orange);
+}
+
+.modules-tag {
+    background: #e3f2fd;
+    color: var(--primary-blue);
+}
+
+.certif-tag {
+    background: #fce4ec;
+    color: #e91e63;
+}
+
+.formation-description {
+    color: var(--text-light);
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.formation-price {
+    margin-bottom: 1rem;
+}
+
+.price-free {
+    color: var(--primary-green);
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.price-current {
+    color: var(--primary-blue);
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.price-original {
+    color: var(--text-light);
+    text-decoration: line-through;
+    margin-left: 0.5rem;
+}
+
+.formation-stats {
+    color: var(--primary-orange);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--text-dark);
+}
+
+.form-control {
+    padding: 0.8rem;
+    border: 2px solid var(--border-light);
+    border-radius: var(--radius);
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+}
+
+.form-help {
+    color: var(--text-light);
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+}
+
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    cursor: pointer;
+}
+
+.checkbox-text {
+    color: var(--text-dark);
+}
+
+.inscription-summary {
+    background: var(--bg-light);
+    border: 2px solid var(--primary-blue);
+    border-radius: var(--radius);
+    padding: 2rem;
+    margin: 2rem 0;
+}
+
+.summary-header h3 {
+    color: var(--primary-blue);
+    margin-bottom: 1rem;
+}
+
+.summary-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.summary-label {
+    font-weight: 500;
+    color: var(--text-dark);
+}
+
+.summary-value {
+    font-weight: 600;
+    color: var(--primary-blue);
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-light);
+}
+
+.btn {
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: var(--radius);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-primary {
+    background: var(--primary-blue);
+    color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: #2980b9;
+    transform: translateY(-2px);
+}
+
+.btn-primary:disabled {
+    background: var(--text-light);
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-light);
+}
+
+.empty-state-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.empty-state h4 {
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .company-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .employees-grid,
+    .formations-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .selection-controls {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}
+</style>
+
 <script>
-let selectedEmployees = [];
-let selectedFormation = null;
-
-// Recherche d'employés
-document.getElementById('searchEmployee').addEventListener('input', function(e) {
-    const searchTerm = e.target.value.toLowerCase();
-    const employeeLabels = document.querySelectorAll('#employeesList label');
-    
-    employeeLabels.forEach(label => {
-        const text = label.textContent.toLowerCase();
-        label.style.display = text.includes(searchTerm) ? 'flex' : 'none';
-    });
-});
-
-// Filtre formations par domaine
-document.getElementById('domainFilter').addEventListener('change', function(e) {
-    const selectedDomain = e.target.value;
-    const formationLabels = document.querySelectorAll('#formationsList label');
-    
-    formationLabels.forEach(label => {
-        const domain = label.getAttribute('data-domain');
-        label.style.display = (!selectedDomain || domain === selectedDomain) ? 'block' : 'none';
-    });
-});
-
-// Gestion sélection employés
-document.addEventListener('change', function(e) {
-    if (e.target.name === 'employeeIds') {
-        updateSelectedEmployees();
-    }
-});
-
-function updateSelectedEmployees() {
-    const checkboxes = document.querySelectorAll('input[name="employeeIds"]:checked');
-    selectedEmployees = Array.from(checkboxes).map(cb => ({
-        id: cb.value,
-        name: cb.closest('label').querySelector('div:nth-child(3) div:first-child').textContent.trim()
-    }));
-    
-    document.getElementById('selectedCount').textContent = `${selectedEmployees.length} employé(s) sélectionné(s)`;
-    updateSummary();
-}
-
-// Sélection formation
-function selectFormation(radio) {
-    // Retirer la sélection précédente
-    document.querySelectorAll('.formation-option').forEach(option => {
-        option.style.borderColor = 'var(--soft-gray)';
-        option.style.background = 'white';
-    });
-    
-    // Appliquer la nouvelle sélection
-    const option = radio.closest('label').querySelector('.formation-option');
-    option.style.borderColor = 'var(--primary-blue)';
-    option.style.background = 'var(--light-blue)';
-    
-    // Stocker la formation sélectionnée
-    const formationTitle = option.querySelector('div:nth-child(1) div:nth-child(2) div:first-child').textContent.trim();
-    const priceElement = option.querySelector('div:nth-child(1) div:nth-child(3) div');
-    const price = priceElement.textContent.trim();
-    
-    selectedFormation = {
-        id: radio.value,
-        title: formationTitle,
-        price: price
-    };
-    
-    updateSummary();
-}
-
-// Actions de sélection
-function selectAllEmployees() {
-    const visibleCheckboxes = document.querySelectorAll('#employeesList label:not([style*="display: none"]) input[type="checkbox"]');
-    visibleCheckboxes.forEach(cb => cb.checked = true);
-    updateSelectedEmployees();
-}
-
-function clearSelection() {
-    document.querySelectorAll('input[name="employeeIds"]').forEach(cb => cb.checked = false);
-    updateSelectedEmployees();
-}
-
-// Mise à jour du récapitulatif
-function updateSummary() {
-    const summaryDiv = document.getElementById('summary');
+document.addEventListener('DOMContentLoaded', function() {
+    const employeeCheckboxes = document.querySelectorAll('.employee-checkbox');
+    const formationRadios = document.querySelectorAll('.formation-radio');
     const submitBtn = document.getElementById('submitBtn');
+    const summary = document.getElementById('inscriptionSummary');
     
-    if (selectedEmployees.length === 0 || !selectedFormation) {
-        summaryDiv.innerHTML = '<div style="color: var(--text-light); text-align: center;">Sélectionnez des employés et une formation pour voir le récapitulatif</div>';
-        submitBtn.disabled = true;
-        return;
-    }
-    
-    const totalPrice = selectedFormation.price === 'Gratuit' ? 0 : 
-                      (parseFloat(selectedFormation.price.replace('€', '')) * selectedEmployees.length);
-    
-    summaryDiv.innerHTML = `
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
-            <div>
-                <h4 style="margin-bottom: 1rem; color: var(--text-dark);">Employés sélectionnés (${selectedEmployees.length})</h4>
-                <div style="max-height: 150px; overflow-y: auto;">
-                    ${selectedEmployees.map(emp => `
-                        <div style="padding: 0.5rem; background: white; border-radius: 6px; margin-bottom: 0.5rem;">
-                            ${emp.name}
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-            <div>
-                <h4 style="margin-bottom: 1rem; color: var(--text-dark);">Formation sélectionnée</h4>
-                <div style="padding: 1rem; background: white; border-radius: 8px;">
-                    <div style="font-weight: 600; margin-bottom: 0.5rem;">${selectedFormation.title}</div>
-                    <div style="color: var(--primary-pink); font-weight: 700; font-size: 1.2rem;">
-                        Prix unitaire : ${selectedFormation.price}
-                    </div>
-                    ${totalPrice > 0 ? `
-                        <div style="color: var(--text-dark); font-weight: 600; margin-top: 0.5rem;">
-                            Total : ${totalPrice}€
-                        </div>
-                    ` : ''}
-                </div>
-            </div>
-        </div>
-    `;
-    
-    submitBtn.disabled = false;
-}
+    let selectedEmployees = 0;
+    let selectedFormation = null;
+    let formationPrice = 0;
 
-// Validation du formulaire
-document.getElementById('inscriptionForm').addEventListener('submit', function(e) {
-    if (selectedEmployees.length === 0) {
-        e.preventDefault();
-        alert('Veuillez sélectionner au moins un employé');
-        return;
+    // Gestion de la sélection des employés
+    employeeCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateEmployeeSelection);
+    });
+
+    // Gestion de la sélection de formation
+    formationRadios.forEach(radio => {
+        radio.addEventListener('change', updateFormationSelection);
+    });
+
+    function updateEmployeeSelection() {
+        selectedEmployees = document.querySelectorAll('.employee-checkbox:checked').length;
+        document.getElementById('selectedCount').textContent = selectedEmployees;
+        document.getElementById('summaryEmployees').textContent = selectedEmployees;
+        updateSummaryDisplay();
+        validateForm();
     }
-    
-    if (!selectedFormation) {
-        e.preventDefault();
-        alert('Veuillez sélectionner une formation');
-        return;
+
+    function updateFormationSelection() {
+        const checkedFormation = document.querySelector('.formation-radio:checked');
+        if (checkedFormation) {
+            selectedFormation = checkedFormation.closest('.formation-label').querySelector('.formation-title').textContent.trim();
+            formationPrice = parseFloat(checkedFormation.dataset.prix) || 0;
+            
+            document.getElementById('summaryFormation').textContent = selectedFormation;
+            updateCostDisplay();
+        }
+        updateSummaryDisplay();
+        validateForm();
     }
-    
-    // Confirmation
-    const confirmMessage = `Confirmer la création de ${selectedEmployees.length} inscription(s) pour la formation "${selectedFormation.title}" ?`;
-    if (!confirm(confirmMessage)) {
-        e.preventDefault();
+
+    function updateCostDisplay() {
+        const totalCost = selectedEmployees * formationPrice;
+        const costText = totalCost === 0 ? 'Gratuit' : totalCost + '€';
+        document.getElementById('summaryCost').textContent = costText;
     }
+
+    function updateSummaryDisplay() {
+        if (selectedEmployees > 0 || selectedFormation) {
+            summary.style.display = 'block';
+            updateCostDisplay();
+        } else {
+            summary.style.display = 'none';
+        }
+    }
+
+    function validateForm() {
+        const isValid = selectedEmployees > 0 && selectedFormation;
+        submitBtn.disabled = !isValid;
+    }
+
+    // Boutons de sélection globale
+    window.selectAllEmployees = function() {
+        employeeCheckboxes.forEach(checkbox => {
+            checkbox.checked = true;
+        });
+        updateEmployeeSelection();
+    };
+
+    window.deselectAllEmployees = function() {
+        employeeCheckboxes.forEach(checkbox => {
+            checkbox.checked = false;
+        });
+        updateEmployeeSelection();
+    };
+
+    // Gestion du formulaire
+    document.getElementById('inscriptionForm').addEventListener('submit', function(e) {
+        if (selectedEmployees === 0) {
+            e.preventDefault();
+            alert('Veuillez sélectionner au moins un employé.');
+            return;
+        }
+        
+        if (!selectedFormation) {
+            e.preventDefault();
+            alert('Veuillez sélectionner une formation.');
+            return;
+        }
+        
+        // Confirmation avant soumission
+        const message = `Confirmer l'inscription de ${selectedEmployees} employé(s) à la formation "${selectedFormation}" ?`;
+        if (!confirm(message)) {
+            e.preventDefault();
+        }
+    });
+
+    console.log('📝 Page nouvelle inscription initialisée');
+    console.log(`👥 ${employeeCheckboxes.length} employés disponibles`);
+    console.log(`📚 ${formationRadios.length} formations disponibles`);
 });
 </script>

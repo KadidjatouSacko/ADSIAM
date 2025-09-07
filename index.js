@@ -291,6 +291,45 @@ app.use(async (req, res, next) => {
         res.locals.isCompany = false;
         next();
     }
+
+     // Fonction pour obtenir la classe CSS du badge de statut (version étendue)
+        res.locals.getStatusBadge = (status) => {
+            const badges = {
+                'actif': 'success',
+                'en_attente': 'warning', 
+                'inactif': 'secondary',
+                'suspendu': 'danger'
+            };
+            return badges[status] || 'secondary';
+        };
+
+        // Version alternative pour les classes CSS complètes
+        res.locals.getStatusBadgeClass = (status) => {
+            const badges = {
+                'en_cours': 'warning',
+                'termine': 'success',
+                'non_commence': 'info',
+                'suspendu': 'danger',
+                'actif': 'success',
+                'en_attente': 'warning',
+                'inactif': 'secondary'
+            };
+            return badges[status] || 'secondary';
+        };
+
+        // Fonction pour obtenir la couleur de la barre de progression
+        res.locals.getProgressColor = (percentage) => {
+            if (percentage >= 80) return 'var(--success)';
+            if (percentage >= 50) return 'var(--warning)';
+            if (percentage >= 25) return 'var(--info)';
+            return 'var(--primary-blue)';
+        };
+
+        // Fonction pour capitaliser (version améliorée)
+        res.locals.capitalize = (str) => {
+            if (!str) return '';
+            return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase().replace(/_/g, ' ');
+        };
 });
 
 // MIDDLEWARE DE DEBUG

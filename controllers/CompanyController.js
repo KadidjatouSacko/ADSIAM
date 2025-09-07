@@ -259,47 +259,99 @@ class CompanyController {
 }
 
 
-    static async newInscription(req, res) {
-        try {
-            const companyId = req.session.user.societe_rattachee;
+    // ========================================
+// 📋 NOUVELLE INSCRIPTION - PAGE
+// ========================================
+static async newInscription(req, res) {
+    try {
+        const companyId = req.session.user.societe_rattachee;
 
-            // Employés non inscrits à une formation spécifique
-            const employees = await sequelize.query(`
-                SELECT id, prenom, nom, email, type_utilisateur
-                FROM users 
-                WHERE societe_rattachee = :companyId 
-                AND role != 'societe'
-                AND statut = 'actif'
-                ORDER BY nom, prenom
-            `, {
-                type: QueryTypes.SELECT,
-                replacements: { companyId }
-            });
+        console.log(`📝 Chargement page nouvelle inscription pour l'entreprise: ${companyId}`);
 
-            // Formations disponibles
-            const formations = await sequelize.query(`
-                SELECT id, titre, description, icone, niveau, 
-                       duree_heures, prix, domaine
-                FROM formations 
-                WHERE actif = true
-                ORDER BY titre
-            `, {
-                type: QueryTypes.SELECT
-            });
+        // Employés disponibles
+        const employees = await sequelize.query(`
+            SELECT DISTINCT u.id, u.prenom, u.nom, u.email, u.telephone, u.type_utilisateur,
+                   COUNT(i.id) as nb_inscriptions_actives
+            FROM users u
+            LEFT JOIN inscriptions i ON u.id = i.user_id AND i.statut IN ('en_cours', 'non_commence')
+            WHERE u.societe_rattachee = :companyId 
+            AND u.role != 'societe'
+            AND u.statut = 'actif'
+            GROUP BY u.id, u.prenom, u.nom, u.email, u.telephone, u.type_utilisateur
+            ORDER BY u.nom, u.prenom
+        `, {
+            type: QueryTypes.SELECT,
+            replacements: { companyId }
+        });
 
-            res.render('entreprises/new-inscription', {
-                title: 'Nouvelle Inscription - ADSIAM',
-                layout: 'layouts/company',
-                employees,
-                formations
-            });
+        // Formations disponibles
+        const formations = await sequelize.query(`
+            SELECT 
+                f.id, f.titre, f.description, f.icone, f.niveau, 
+                f.duree_heures, f.nombre_modules, f.prix, f.prix_original,
+                f.gratuit, f.domaine, f.certifiant, f.badge, f.populaire,
+                COUNT(c.id) as nb_caracteristiques,
+                COUNT(DISTINCT i_company.id) as nb_inscrits_entreprise,
+                COUNT(DISTINCT i_total.id) as nb_inscrits_total
+            FROM formations f
+            LEFT JOIN caracteristiques c ON f.id = c.formation_id
+            LEFT JOIN inscriptions i_company ON f.id = i_company.formation_id
+            LEFT JOIN users u_company ON i_company.user_id = u_company.id AND u_company.societe_rattachee = :companyId
+            LEFT JOIN inscriptions i_total ON f.id = i_total.formation_id
+            WHERE f.actif = true
+            GROUP BY f.id
+            ORDER BY f.populaire DESC, f.titre ASC
+        `, {
+            type: QueryTypes.SELECT,
+            replacements: { companyId }
+        });
 
-        } catch (error) {
-            console.error('Erreur nouvelle inscription:', error);
-            req.flash('error', 'Erreur lors du chargement du formulaire.');
-            res.redirect('/entreprise/inscriptions');
-        }
+        // Stats de l'entreprise
+        const companyStats = await sequelize.query(`
+            SELECT 
+                COUNT(DISTINCT u.id) as total_employees,
+                COUNT(DISTINCT i.id) as total_inscriptions,
+                COUNT(DISTINCT i.formation_id) as formations_used,
+                COUNT(DISTINCT CASE WHEN i.statut = 'termine' THEN i.id END) as formations_terminees,
+                COUNT(DISTINCT CASE WHEN i.certifie = true THEN i.id END) as certifications_obtenues,
+                ROUND(AVG(i.progression_pourcentage), 1) as progression_moyenne
+            FROM users u
+            LEFT JOIN inscriptions i ON u.id = i.user_id
+            WHERE u.societe_rattachee = :companyId
+            AND u.role != 'societe'
+        `, {
+            type: QueryTypes.SELECT,
+            replacements: { companyId }
+        });
+
+        console.log(`📊 Données chargées:`, {
+            employees: employees.length,
+            formations: formations.length,
+            stats: companyStats[0]
+        });
+
+        // CORRECTION : Passer les données sans fonctions helper dans le contexte
+        res.render('entreprises/new-inscription', {
+            title: 'Nouvelle Inscription - ADSIAM',
+            layout: 'layouts/company',
+            employees,
+            formations,
+            availableFormations: formations.map(f => ({ id: f.id, titre: f.titre })),
+            companyStats: companyStats[0] || {},
+            currentUser: req.session.user,
+            // Retirer les helpers du contexte - les définir dans le template
+            stats: companyStats[0] || {},
+            pagination: null,
+            filters: null
+        });
+
+    } catch (error) {
+        console.error('💥 Erreur page nouvelle inscription:', error);
+        req.flash('error', 'Erreur lors du chargement du formulaire d\'inscription.');
+        res.redirect('/entreprise/inscriptions');
     }
+}
+
 
     static async processInscription(req, res) {
     try {
@@ -1676,6 +1728,401 @@ static async updateQuote(req, res) {
         });
     }
 }
+
+// ========================================
+// 👥 AJOUT D'UN NOUVEAU SALARIÉ
+// ========================================
+
+static async addEmployee(req, res) {
+    try {
+        const companyId = req.session.user.societe_rattachee;
+        
+        console.log(`📝 Affichage du formulaire d'ajout de salarié pour l'entreprise: ${companyId}`);
+
+        // Vérifier les limites de l'entreprise (optionnel)
+        // CORRECTION: Adapter la requête à votre structure de BDD
+        const companyLimits = await sequelize.query(`
+            SELECT 
+                e.nombre_licences_max,
+                e.nombre_licences_utilisees,
+                COUNT(u.id) as employes_actuels
+            FROM entreprises e
+            LEFT JOIN users u ON u.societe_rattachee = e.nom AND u.role != 'societe'
+            WHERE e.nom = :companyId
+            GROUP BY e.nombre_licences_max, e.nombre_licences_utilisees
+        `, {
+            type: QueryTypes.SELECT,
+            replacements: { companyId }
+        });
+
+        res.render('entreprises/add-employee', {
+            title: 'Ajouter un Salarié - ADSIAM',
+            layout: 'layouts/company',
+            currentUser: req.session.user,
+            companyLimits: companyLimits[0] || {}
+        });
+
+    } catch (error) {
+        console.error('💥 Erreur page ajout salarié:', error);
+        req.flash('error', 'Erreur lors du chargement du formulaire.');
+        res.redirect('/entreprise/salaries');
+    }
+}
+
+
+
+// Traitement de l'ajout d'un nouveau salarié
+static async processAddEmployee(req, res) {
+    try {
+        const {
+            prenom,
+            nom,
+            email,
+            telephone,
+            date_naissance,
+            type_utilisateur,
+            statut,
+            role,
+            mot_de_passe
+        } = req.body;
+
+        const companyId = req.session.user.societe_rattachee;
+
+        console.log(`📝 Traitement ajout salarié pour l'entreprise: ${companyId}`, {
+            prenom, nom, email, type_utilisateur
+        });
+
+        // Validations
+        if (!prenom || !nom || !email || !type_utilisateur || !statut || !role || !mot_de_passe) {
+            return res.status(400).json({
+                success: false,
+                message: 'Tous les champs obligatoires doivent être remplis.'
+            });
+        }
+
+        // Vérifier que l'email n'existe pas déjà
+        const existingUser = await sequelize.query(`
+            SELECT id FROM users WHERE email = :email
+        `, {
+            type: QueryTypes.SELECT,
+            replacements: { email }
+        });
+
+        if (existingUser.length > 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Un utilisateur avec cette adresse email existe déjà.'
+            });
+        }
+
+        // Hachage du mot de passe
+        const bcrypt = await import('bcrypt');
+        const hashedPassword = await bcrypt.hash(mot_de_passe, 12);
+
+        // Création de l'utilisateur avec transaction
+        const transaction = await sequelize.transaction();
+        
+        try {
+            // CORRECTION: Suppression des colonnes createdat et updatedat qui n'existent pas
+            const [newUser] = await sequelize.query(`
+                INSERT INTO users 
+                (prenom, nom, email, mot_de_passe, telephone, date_naissance, 
+                 type_utilisateur, statut, role, societe_rattachee, 
+                 date_inscription, derniere_connexion)
+                VALUES 
+                (:prenom, :nom, :email, :mot_de_passe, :telephone, :date_naissance,
+                 :type_utilisateur, :statut, :role, :societe_rattachee,
+                 NOW(), NULL)
+                RETURNING id, prenom, nom, email
+            `, {
+                type: QueryTypes.INSERT,
+                transaction,
+                replacements: {
+                    prenom,
+                    nom,
+                    email,
+                    mot_de_passe: hashedPassword,
+                    telephone: telephone || null,
+                    date_naissance: date_naissance || null,
+                    type_utilisateur,
+                    statut,
+                    role,
+                    societe_rattachee: companyId
+                }
+            });
+
+            await transaction.commit();
+
+            console.log(`✅ Salarié créé avec succès:`, newUser[0]);
+
+            res.json({
+                success: true,
+                message: 'Salarié ajouté avec succès !',
+                employee: {
+                    id: newUser[0].id,
+                    prenom: newUser[0].prenom,
+                    nom: newUser[0].nom,
+                    email: newUser[0].email
+                }
+            });
+
+        } catch (error) {
+            await transaction.rollback();
+            throw error;
+        }
+
+    } catch (error) {
+        console.error('💥 Erreur ajout salarié:', error);
+        
+        if (error.message && error.message.includes('email')) {
+            return res.status(400).json({
+                success: false,
+                message: 'Cette adresse email est déjà utilisée.'
+            });
+        }
+        
+        res.status(500).json({
+            success: false,
+            message: 'Erreur lors de l\'ajout du salarié. Veuillez réessayer.'
+        });
+    }
+}
+
+static async editEmployee(req, res) {
+    try {
+        const { id } = req.params;
+        const companyId = req.session.user.societe_rattachee;
+
+        const employee = await sequelize.query(`
+            SELECT * FROM users 
+            WHERE id = :id AND societe_rattachee = :companyId AND role != 'societe'
+        `, {
+            type: QueryTypes.SELECT,
+            replacements: { id, companyId }
+        });
+
+        if (!employee[0]) {
+            req.flash('error', 'Salarié non trouvé.');
+            return res.redirect('/entreprise/salaries');
+        }
+
+        res.render('entreprises/edit-employee', {
+            title: 'Modifier un Salarié - ADSIAM',
+            layout: 'layouts/company',
+            employee: employee[0],
+            currentUser: req.session.user
+        });
+
+    } catch (error) {
+        console.error('Erreur modification salarié:', error);
+        req.flash('error', 'Erreur lors du chargement du formulaire.');
+        res.redirect('/entreprise/salaries');
+    }
+}
+
+// Méthode pour mettre à jour un salarié
+static async updateEmployee(req, res) {
+    try {
+        const { id } = req.params;
+        const companyId = req.session.user.societe_rattachee;
+        const {
+            prenom,
+            nom,
+            email,
+            telephone,
+            date_naissance,
+            type_utilisateur,
+            statut,
+            role
+        } = req.body;
+
+        // Vérifier que l'employé appartient à l'entreprise
+        const employee = await sequelize.query(`
+            SELECT id FROM users 
+            WHERE id = :id AND societe_rattachee = :companyId AND role != 'societe'
+        `, {
+            type: QueryTypes.SELECT,
+            replacements: { id, companyId }
+        });
+
+        if (!employee[0]) {
+            return res.status(404).json({
+                success: false,
+                message: 'Salarié non trouvé.'
+            });
+        }
+
+        // Vérifier l'unicité de l'email (sauf pour l'employé actuel)
+        if (email) {
+            const existingUser = await sequelize.query(`
+                SELECT id FROM users 
+                WHERE email = :email AND id != :id
+            `, {
+                type: QueryTypes.SELECT,
+                replacements: { email, id }
+            });
+
+            if (existingUser.length > 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Cette adresse email est déjà utilisée par un autre utilisateur.'
+                });
+            }
+        }
+
+        // Mise à jour de l'employé
+        await sequelize.query(`
+            UPDATE users 
+            SET prenom = :prenom,
+                nom = :nom,
+                email = :email,
+                telephone = :telephone,
+                date_naissance = :date_naissance,
+                type_utilisateur = :type_utilisateur,
+                statut = :statut,
+                role = :role,
+                updatedat = NOW()
+            WHERE id = :id
+        `, {
+            type: QueryTypes.UPDATE,
+            replacements: {
+                id,
+                prenom,
+                nom,
+                email,
+                telephone: telephone || null,
+                date_naissance: date_naissance || null,
+                type_utilisateur,
+                statut,
+                role
+            }
+        });
+
+        res.json({
+            success: true,
+            message: 'Salarié mis à jour avec succès.'
+        });
+
+    } catch (error) {
+        console.error('Erreur mise à jour salarié:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erreur lors de la mise à jour du salarié.'
+        });
+    }
+}
+
+// Méthode pour supprimer un salarié (désactivation)
+static async deleteEmployee(req, res) {
+    try {
+        const { id } = req.params;
+        const companyId = req.session.user.societe_rattachee;
+
+        // Vérifier que l'employé appartient à l'entreprise
+        const employee = await sequelize.query(`
+            SELECT id, prenom, nom FROM users 
+            WHERE id = :id AND societe_rattachee = :companyId AND role != 'societe'
+        `, {
+            type: QueryTypes.SELECT,
+            replacements: { id, companyId }
+        });
+
+        if (!employee[0]) {
+            return res.status(404).json({
+                success: false,
+                message: 'Salarié non trouvé.'
+            });
+        }
+
+        // Désactivation plutôt que suppression physique
+        await sequelize.query(`
+            UPDATE users 
+            SET statut = 'inactif',
+                updatedat = NOW()
+            WHERE id = :id
+        `, {
+            type: QueryTypes.UPDATE,
+            replacements: { id }
+        });
+
+        // Décompter les licences utilisées si applicable
+        await sequelize.query(`
+            UPDATE entreprises 
+            SET nombre_licences_utilisees = GREATEST(nombre_licences_utilisees - 1, 0),
+                updatedat = NOW()
+            WHERE nom = :companyId
+        `, {
+            type: QueryTypes.UPDATE,
+            replacements: { companyId }
+        });
+
+        res.json({
+            success: true,
+            message: `${employee[0].prenom} ${employee[0].nom} a été désactivé.`
+        });
+
+    } catch (error) {
+        console.error('Erreur suppression salarié:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erreur lors de la suppression du salarié.'
+        });
+    }
+}
+
+// Méthode pour réactiver un salarié
+static async reactivateEmployee(req, res) {
+    try {
+        const { id } = req.params;
+        const companyId = req.session.user.societe_rattachee;
+
+        // Vérifier les limites de licences avant réactivation
+        const companyCheck = await sequelize.query(`
+            SELECT 
+                e.nombre_licences_max,
+                COUNT(u.id) as employes_actifs
+            FROM entreprises e
+            LEFT JOIN users u ON u.societe_rattachee = e.nom AND u.role != 'societe' AND u.statut = 'actif'
+            WHERE e.nom = :companyId
+            GROUP BY e.nombre_licences_max
+        `, {
+            type: QueryTypes.SELECT,
+            replacements: { companyId }
+        });
+
+        if (companyCheck[0] && companyCheck[0].nombre_licences_max) {
+            if (companyCheck[0].employes_actifs >= companyCheck[0].nombre_licences_max) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Limite de licences atteinte. Impossible de réactiver ce salarié.'
+                });
+            }
+        }
+
+        // Réactivation
+        await sequelize.query(`
+            UPDATE users 
+            SET statut = 'actif',
+                updatedat = NOW()
+            WHERE id = :id AND societe_rattachee = :companyId
+        `, {
+            type: QueryTypes.UPDATE,
+            replacements: { id, companyId }
+        });
+
+        res.json({
+            success: true,
+            message: 'Salarié réactivé avec succès.'
+        });
+
+    } catch (error) {
+        console.error('Erreur réactivation salarié:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erreur lors de la réactivation du salarié.'
+        });
+    }
+}
     static async invoices(req, res) {
         // Gestion des factures
         res.render('entreprises/invoices', {
@@ -1807,6 +2254,9 @@ export const updateCompanyStatus = async (req, res) => {
         req.flash('error', 'Erreur lors de la mise à jour du statut');
         res.redirect('/admin/entreprises');
     }
+
+    
 };
+
 
 export default CompanyController;

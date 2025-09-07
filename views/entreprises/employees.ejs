@@ -9,8 +9,8 @@
         </p>
     </div>
     <div style="display: flex; gap: 1rem;">
-        <a href="/entreprise/inscriptions/nouvelle" class="btn btn-primary">
-            ➕ Inscrire des salariés
+       <a href="/entreprise/salaries/nouveau" class="btn btn-primary">
+            ➕ Ajouter un salarié
         </a>
         <button class="btn btn-secondary" onclick="exportEmployeeData()">
             📊 Exporter les données
@@ -221,7 +221,9 @@
                                             </button>
                                             <button class="btn btn-primary" style="padding: 0.5rem; font-size: 0.8rem;" 
                                                     onclick="enrollEmployee('<%= employee.id %>')">
-                                                ➕ Inscrire
+                                                <a href="/entreprise/salaries/nouveau" class="btn btn-primary" style="margin-top: 1rem;">
+    ➕ Ajouter le premier salarié
+</a>
                                             </button>
                                         </div>
                                     </td>

@@ -17,9 +17,136 @@ router.get('/dashboard', CompanyController.dashboard);
 // ========================================
 // 👥 GESTION DES SALARIÉS
 // ========================================
+// ========================================
+// 👥 GESTION DES SALARIÉS - ORDRE CORRIGÉ
+// ========================================
+
+// IMPORTANT: Routes spécifiques AVANT les routes avec paramètres
+router.get('/salaries/nouveau', CompanyController.addEmployee);
+router.post('/salaries/nouveau', CompanyController.processAddEmployee);
+
+// Routes d'export (spécifiques)
+router.get('/salaries/export/:format', async (req, res) => {
+    try {
+        const { format } = req.params;
+        const companyId = req.session.user.societe_rattachee;
+        
+        const employees = await sequelize.query(`
+            SELECT 
+                u.prenom, u.nom, u.email, u.telephone,
+                u.type_utilisateur, u.statut, u.role,
+                u.date_inscription,
+                COUNT(DISTINCT i.id) as nb_formations,
+                COUNT(DISTINCT CASE WHEN i.statut = 'termine' THEN i.id END) as formations_terminees
+            FROM users u
+            LEFT JOIN inscriptions i ON u.id = i.user_id
+            WHERE u.societe_rattachee = :companyId AND u.role != 'societe'
+            GROUP BY u.id, u.prenom, u.nom, u.email, u.telephone, u.type_utilisateur, u.statut, u.role, u.date_inscription
+            ORDER BY u.nom, u.prenom
+        `, {
+            type: QueryTypes.SELECT,
+            replacements: { companyId }
+        });
+
+        const filename = `salaries-${companyId}-${new Date().toISOString().split('T')[0]}`;
+
+        if (format === 'csv') {
+            res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+            res.setHeader('Content-Disposition', `attachment; filename="${filename}.csv"`);
+            
+            const csvHeader = 'Prénom,Nom,Email,Téléphone,Profil,Statut,Rôle,Date inscription,Formations,Terminées\n';
+            const csvData = employees.map(e => 
+                `${e.prenom},${e.nom},${e.email},${e.telephone || ''},${e.type_utilisateur},${e.statut},${e.role},${new Date(e.date_inscription).toLocaleDateString('fr-FR')},${e.nb_formations},${e.formations_terminees}`
+            ).join('\n');
+            
+            res.send('\ufeff' + csvHeader + csvData); // BOM pour Excel
+        } else {
+            res.status(400).json({
+                success: false,
+                message: 'Format non supporté'
+            });
+        }
+
+    } catch (error) {
+        console.error('Erreur export salariés:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erreur lors de l\'export'
+        });
+    }
+});
+
+// Routes générales
 router.get('/salaries', CompanyController.listEmployees);
+
+// Routes avec paramètres (à la fin)
 router.get('/salaries/:id', CompanyController.employeeDetails);
-router.post('/salaries/:id/inscription', CompanyController.enrollEmployee);
+router.get('/salaries/:id/modifier', CompanyController.editEmployee);
+router.put('/salaries/:id', CompanyController.updateEmployee);
+router.post('/salaries/:id/desactiver', CompanyController.deleteEmployee);
+router.post('/salaries/:id/reactiver', CompanyController.reactivateEmployee);
+
+// Routes API pour les actions AJAX
+router.get('/api/salaries/search', CompanyController.searchEmployees);
+router.post('/api/salaries/bulk-action', async (req, res) => {
+    try {
+        const { action, employeeIds } = req.body;
+        const companyId = req.session.user.societe_rattachee;
+        
+        if (!employeeIds || !Array.isArray(employeeIds) || employeeIds.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Aucun employé sélectionné'
+            });
+        }
+
+        let message = '';
+        
+        switch (action) {
+            case 'activate':
+                await sequelize.query(`
+                    UPDATE users 
+                    SET statut = 'actif', updatedat = NOW()
+                    WHERE id = ANY(:ids) AND societe_rattachee = :companyId
+                `, {
+                    type: QueryTypes.UPDATE,
+                    replacements: { ids: employeeIds, companyId }
+                });
+                message = `${employeeIds.length} employé(s) activé(s)`;
+                break;
+                
+            case 'deactivate':
+                await sequelize.query(`
+                    UPDATE users 
+                    SET statut = 'inactif', updatedat = NOW()
+                    WHERE id = ANY(:ids) AND societe_rattachee = :companyId
+                `, {
+                    type: QueryTypes.UPDATE,
+                    replacements: { ids: employeeIds, companyId }
+                });
+                message = `${employeeIds.length} employé(s) désactivé(s)`;
+                break;
+                
+            default:
+                return res.status(400).json({
+                    success: false,
+                    message: 'Action non reconnue'
+                });
+        }
+
+        res.json({
+            success: true,
+            message
+        });
+
+    } catch (error) {
+        console.error('Erreur action groupée:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erreur lors de l\'action groupée'
+        });
+    }
+});
 
 // ========================================
 // 📝 INSCRIPTIONS & FORMATIONS
