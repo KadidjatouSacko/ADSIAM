@@ -36,59 +36,61 @@ router.put('/utilisateurs/:id',
 router.delete('/utilisateurs/:id', adminController.deleteUser.bind(adminController));
 
 // ====================== GESTION DES FORMATIONS ======================
-// ====================== GESTION DES FORMATIONS (complet) ======================
+// Liste des formations
 router.get('/formations', adminController.getFormations.bind(adminController));
+
+// Formulaire de création
 router.get('/formations/nouvelle', adminController.createFormationForm.bind(adminController));
 
-// Route POST avec upload pour les formations
-// Version simplifiée pour tester
-router.post('/formations/nouvelle', express.json(), express.urlencoded({ extended: true }), (req, res) => {
-    console.log('Route appelée - Method:', req.method);
-    console.log('Headers:', req.headers);
-    console.log('Body reçu:', req.body);
-    console.log('Content-Type:', req.headers['content-type']);
-    
-    // Test simple
-    if (!req.body.titre) {
-        return res.status(400).json({
-            success: false,
-            message: 'Titre manquant',
-            received: req.body
-        });
-    }
-    
-    res.json({
-        success: true,
-        message: 'Formation reçue avec succès',
-        data: {
-            titre: req.body.titre,
-            description: req.body.description,
-            domaine: req.body.domaine
+// Création de formation - Route corrigée pour gérer JSON et FormData
+router.post('/formations/nouvelle',
+    (req, res, next) => {
+        const contentType = req.headers['content-type'];
+        if (contentType && contentType.includes('application/json')) {
+            express.json({ limit: '10mb' })(req, res, next);
+        } else if (contentType && contentType.includes('multipart/form-data')) {
+            // ✅ Accept all files dynamically
+            processFormWithFiles()(req, res, next);
+        } else {
+            express.urlencoded({ extended: true, limit: '10mb' })(req, res, next);
         }
-    });
-});
+    },
+    parseFormData,
+    adminController.createFormation.bind(adminController)
+);
 
-// Routes CRUD complètes pour les formations
+
+// Détail d'une formation
 router.get('/formations/:id', adminController.viewFormation.bind(adminController));
+
+// Formulaire d'édition
 router.get('/formations/:id/modifier', adminController.editFormationForm.bind(adminController));
+
+// Mise à jour d'une formation
 router.put('/formations/:id', 
+    express.json(),
     parseFormData,
     adminController.updateFormation.bind(adminController)
 );
+
+// Suppression d'une formation
 router.delete('/formations/:id', adminController.deleteFormation.bind(adminController));
 
-// Actions supplémentaires pour les formations
+// Actions spéciales sur les formations
 router.post('/formations/:id/dupliquer', adminController.duplicateFormation.bind(adminController));
 router.patch('/formations/:id/toggle-status', adminController.toggleFormationStatus.bind(adminController));
+router.get('/formations/:id/preview', adminController.previewFormation.bind(adminController));
+router.get('/formations/:id/stats', adminController.getFormationStats.bind(adminController));
 
-// ====================== GESTION DES DOMAINES ======================
-router.get('/api/domaines', adminController.getDomains.bind(adminController));
-router.post('/api/domaines', adminController.addDomain.bind(adminController));
-router.put('/api/domaines/:id', adminController.updateDomain.bind(adminController));
-router.delete('/api/domaines/:id', adminController.deleteDomain.bind(adminController));
+// Export des formations
+router.get('/formations/export/:format', adminController.exportFormations.bind(adminController));
 
 // ====================== GESTION DES MODULES ======================
+
+// Modules d'une formation
 router.get('/formations/:id/modules', adminController.getFormationModules.bind(adminController));
+
+// Créer un module
 router.post('/formations/:id/modules', 
     processFormWithFiles([
         { name: 'video', maxCount: 1 },
@@ -97,14 +99,36 @@ router.post('/formations/:id/modules',
     parseFormData,
     adminController.createModule.bind(adminController)
 );
-router.put('/modules/:id', adminController.updateModule.bind(adminController));
-router.delete('/modules/:id', adminController.deleteModule.bind(adminController));
-router.patch('/modules/:id/reorder', adminController.reorderModule.bind(adminController));
 
-// ====================== EXPORT ET RAPPORTS FORMATIONS ======================
-router.get('/formations/export/:format', adminController.exportFormations.bind(adminController));
-router.get('/formations/:id/stats', adminController.getFormationStats.bind(adminController));
-router.get('/formations/:id/preview', adminController.previewFormation.bind(adminController));
+// Modifier un module
+router.put('/modules/:id', 
+    express.json(),
+    adminController.updateModule.bind(adminController)
+);
+
+// Supprimer un module
+router.delete('/modules/:id', adminController.deleteModule.bind(adminController));
+
+// Réorganiser les modules
+// router.patch('/modules/reorder', 
+//     express.json(),
+//     adminController.reorderModules.bind(adminController)
+// );
+
+// ====================== GESTION DES DOMAINES ======================
+
+// API pour les domaines
+router.get('/api/domaines', adminController.getDomains.bind(adminController));
+router.post('/api/domaines', 
+    express.json(),
+    adminController.addDomain.bind(adminController)
+);
+router.put('/api/domaines/:id', 
+    express.json(),
+    adminController.updateDomain.bind(adminController)
+);
+router.delete('/api/domaines/:id', adminController.deleteDomain.bind(adminController));
+
 
 // ====================== GESTION DES INSCRIPTIONS ======================
 router.get('/inscriptions', adminController.getInscriptions.bind(adminController));

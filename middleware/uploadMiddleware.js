@@ -44,18 +44,24 @@ const fileFilter = (req, file, cb) => {
 
     // Types de fichiers autorisés
     const allowedTypes = {
-        images: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
-        documents: [
-            'application/pdf',
-            'application/msword',
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'application/vnd.ms-excel',
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'text/plain'
-        ]
-    };
+    images: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
+    documents: [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'text/plain'
+    ],
+    videos: ['video/mp4', 'video/quicktime', 'video/x-msvideo', 'video/x-matroska']
+};
 
-    const allAllowedTypes = [...allowedTypes.images, ...allowedTypes.documents];
+
+const allAllowedTypes = [
+    ...allowedTypes.images,
+    ...allowedTypes.documents,
+    ...allowedTypes.videos
+];
 
     if (allAllowedTypes.includes(file.mimetype)) {
         cb(null, true);
@@ -69,10 +75,11 @@ const upload = multer({
     storage: storage,
     fileFilter: fileFilter,
     limits: {
-        fileSize: 10 * 1024 * 1024, // 10MB max
-        files: 5 // Maximum 5 fichiers à la fois
+        fileSize: 100 * 1024 * 1024, // 100MB
+        files: 5 // max 5 fichiers à la fois
     }
 });
+
 
 // Middleware pour gérer les erreurs d'upload
 export const handleUploadErrors = (err, req, res, next) => {
@@ -113,24 +120,32 @@ export const handleUploadErrors = (err, req, res, next) => {
 // Middleware pour traiter les formulaires avec fichiers
 export const processFormWithFiles = (fields) => {
     return (req, res, next) => {
-        const uploadHandler = upload.fields(fields);
-        
+        let uploadHandler;
+
+        if (fields && fields.length > 0) {
+            uploadHandler = upload.fields(fields); // champs connus
+        } else {
+            uploadHandler = upload.any(); // accepte tous les fichiers dynamiques
+        }
+
         uploadHandler(req, res, (err) => {
             if (err) {
                 return handleUploadErrors(err, req, res, next);
             }
-            
-            // Traiter les fichiers uploadés
+
             if (req.files) {
                 console.log('📂 Fichiers uploadés:', Object.keys(req.files));
-                
-                // Ajouter les chemins des fichiers au req.body pour sauvegarde en DB
-                Object.keys(req.files).forEach(fieldName => {
-                    req.body[`${fieldName}_paths`] = req.files[fieldName].map(file => file.path);
+
+                // Ajouter les chemins des fichiers au req.body
+                req.files.forEach(file => {
+                    if (!req.body[`${file.fieldname}_paths`]) {
+                        req.body[`${file.fieldname}_paths`] = [];
+                    }
+                    req.body[`${file.fieldname}_paths`].push(file.path);
                 });
             }
-            
-            // Parser les données JSON dans le formulaire
+
+            // Parser JSON si présent
             if (req.body.data) {
                 try {
                     const data = JSON.parse(req.body.data);
@@ -140,12 +155,13 @@ export const processFormWithFiles = (fields) => {
                     console.warn('Impossible de parser req.body.data comme JSON');
                 }
             }
-            
+
             console.log('📝 Body final après upload:', req.body);
             next();
         });
     };
 };
+
 
 // Middleware simple pour un seul fichier
 export const uploadSingle = (fieldName, destination = 'general') => {

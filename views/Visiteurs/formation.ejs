@@ -6,88 +6,361 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= formation.titre %> | ADSIAM - Formation Détaillée</title>
     <meta name="description" content="<%= formation.description.substring(0, 160) %>">
-    <link rel="stylesheet" href="/css/formation.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* Styles intégrés pour optimiser le chargement */
+        :root {
+            --primary-pink: #e7a6b7;
+            --primary-blue: #a5bfd4;
+            --light-pink: #fce8ec;
+            --light-blue: #e8f3f8;
+            --soft-gray: #f5f5f7;
+            --text-dark: #2f2f2f;
+            --text-light: #6f6f6f;
+            --white: #ffffff;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --gradient-main: linear-gradient(135deg, var(--primary-pink), var(--primary-blue));
+            --shadow-light: 0 4px 20px rgba(0,0,0,0.05);
+            --shadow-medium: 0 8px 30px rgba(0,0,0,0.1);
+            --shadow-heavy: 0 20px 60px rgba(0,0,0,0.15);
+            --border-radius: 16px;
+            --border-radius-lg: 24px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            line-height: 1.6;
+            color: var(--text-dark);
+            min-height: 100vh;
+        }
+
+        /* Breadcrumb amélioré */
+        .breadcrumb {
+            background: var(--white);
+            padding: 1rem 0;
+            border-bottom: 1px solid #e2e8f0;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            backdrop-filter: blur(10px);
+        }
+
+        .breadcrumb-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .breadcrumb-nav {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            flex-wrap: wrap;
+        }
+
+        .breadcrumb-nav a {
+            color: var(--text-light);
+            text-decoration: none;
+            transition: color 0.3s;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+        }
+
+        .breadcrumb-nav a:hover {
+            color: var(--primary-blue);
+            background: var(--light-blue);
+        }
+
+        .breadcrumb-separator {
+            color: var(--text-light);
+            margin: 0 0.25rem;
+        }
+
+        .breadcrumb-current {
+            color: var(--primary-pink);
+            font-weight: 500;
+            padding: 0.25rem 0.5rem;
+            background: var(--light-pink);
+            border-radius: 6px;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Container principal responsive */
         .formation-container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 2rem;
+            padding: 1rem;
             display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 3rem;
+            grid-template-columns: 1fr;
+            gap: 2rem;
         }
 
+        /* Header de formation modernisé */
         .formation-header {
-            background: linear-gradient(135deg, #fce8ec, #e8f3f8);
-            border-radius: 25px;
-            padding: 3rem;
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            padding: 2rem;
             margin-bottom: 2rem;
-            box-shadow: 0 15px 50px rgba(0,0,0,0.08);
+            box-shadow: var(--shadow-medium);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .formation-header::before {
+            content: '';
+            position: absolute;
+            top: -30%;
+            right: -20%;
+            width: 40%;
+            height: 160%;
+            background: var(--gradient-main);
+            border-radius: 50%;
+            opacity: 0.05;
+            transform: rotate(-15deg);
         }
 
         .formation-hero {
+            position: relative;
+            z-index: 2;
             display: grid;
-            grid-template-columns: 1fr 150px;
+            grid-template-columns: 1fr;
             gap: 2rem;
             align-items: start;
         }
 
+        .formation-info {
+            text-align: center;
+        }
+
         .formation-title {
-            font-size: 2.5rem;
-            font-weight: 300;
-            color: #2f2f2f;
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            font-weight: 700;
+            color: var(--text-dark);
             margin-bottom: 1rem;
             line-height: 1.2;
+        }
+
+        .formation-subtitle {
+            font-size: 1.1rem;
+            color: var(--primary-blue);
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+
+        .formation-description {
+            font-size: 1rem;
+            color: var(--text-light);
+            line-height: 1.7;
+            margin-bottom: 2rem;
+            max-width: 100%;
         }
 
         .formation-meta {
             display: flex;
             flex-wrap: wrap;
-            gap: 1rem;
+            gap: 0.75rem;
             margin-bottom: 2rem;
+            justify-content: center;
         }
 
         .meta-badge {
-            padding: 0.6rem 1.5rem;
-            border-radius: 25px;
-            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
             font-weight: 600;
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            white-space: nowrap;
         }
 
         .formation-icon-large {
-            width: 150px;
-            height: 150px;
-            background: linear-gradient(135deg, #e7a6b7, #a5bfd4);
-            border-radius: 25px;
+            width: 120px;
+            height: 120px;
+            background: var(--gradient-main);
+            border-radius: var(--border-radius-lg);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 4rem;
+            font-size: 3rem;
             color: white;
-            box-shadow: 0 15px 40px rgba(212, 165, 165, 0.3);
+            margin: 0 auto 1.5rem;
+            box-shadow: var(--shadow-medium);
+        }
+
+        /* Contenu responsive */
+        .content-column {
+            width: 100%;
+        }
+
+        .course-content {
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-light);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .section-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--gradient-main);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .section-title {
+            font-size: clamp(1.3rem, 3vw, 1.8rem);
+            font-weight: 600;
+            color: var(--text-dark);
+            margin: 0;
+        }
+
+        /* Modules améliorés pour mobile */
+        .modules-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
         }
 
         .module-item {
-            background: #f8f9fa;
-            border-radius: 20px;
-            padding: 2rem;
-            margin-bottom: 1.5rem;
-            transition: all 0.3s;
+            background: var(--soft-gray);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
             border: 2px solid transparent;
+            position: relative;
         }
 
         .module-item:hover {
-            background: white;
-            border-color: #a5bfd4;
-            box-shadow: 0 10px 30px rgba(165, 201, 212, 0.2);
-            transform: translateY(-3px);
+            background: var(--white);
+            border-color: var(--primary-blue);
+            box-shadow: var(--shadow-medium);
+            transform: translateY(-2px);
         }
 
+        .module-item.locked {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .module-item.locked:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .module-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            gap: 1rem;
+        }
+
+        .module-title-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .module-number {
+            width: 32px;
+            height: 32px;
+            background: var(--gradient-main);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .module-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin: 0;
+            line-height: 1.3;
+            word-break: break-word;
+        }
+
+        .module-status {
+            padding: 0.3rem 0.8rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .module-status.available {
+            background: #dcfce7;
+            color: var(--success);
+        }
+
+        .module-status.locked {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .module-description {
+            color: var(--text-light);
+            margin-bottom: 1rem;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .module-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+
+        .module-detail {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .module-detail-icon {
+            color: var(--primary-blue);
+            font-size: 1rem;
+        }
+
+        /* Sidebar sticky pour desktop */
         .sidebar {
             display: flex;
             flex-direction: column;
@@ -95,56 +368,462 @@
         }
 
         .purchase-card {
-            background: white;
-            border-radius: 25px;
-            padding: 2.5rem;
-            box-shadow: 0 15px 50px rgba(0,0,0,0.08);
-            position: sticky;
-            top: 2rem;
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            padding: 2rem;
+            box-shadow: var(--shadow-medium);
+            border: 1px solid #e2e8f0;
         }
 
         .price-section {
             text-align: center;
             margin-bottom: 2rem;
             padding-bottom: 2rem;
-            border-bottom: 2px solid #f5f5f7;
+            border-bottom: 2px solid var(--soft-gray);
         }
 
         .price-current {
-            font-size: 3rem;
+            font-size: clamp(2rem, 5vw, 3rem);
             font-weight: 800;
-            color: #e7a6b7;
+            color: var(--primary-pink);
             display: block;
+            line-height: 1;
+        }
+
+        .price-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+
+        .price-badge.free {
+            background: var(--success);
+            color: white;
+        }
+
+        .price-badge.discount {
+            background: var(--success);
+            color: white;
+        }
+
+        .features-list {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+        }
+
+        .feature-check {
+            width: 22px;
+            height: 22px;
+            background: var(--success);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.7rem;
+            flex-shrink: 0;
+            font-weight: 700;
+        }
+
+        /* Boutons CTA améliorés */
+        .cta-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 1rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 1rem;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-decoration: none;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #e7a6b7, #a5bfd4);
+            background: var(--gradient-main);
             color: white;
-            padding: 1.2rem 2rem;
-            border: none;
-            border-radius: 25px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            width: 100%;
-            margin-bottom: 1rem;
+            box-shadow: var(--shadow-light);
         }
 
         .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 20px 50px rgba(212, 165, 165, 0.4);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-heavy);
         }
 
-        @media (max-width: 1024px) {
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary-blue);
+            border: 2px solid var(--primary-blue);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        /* Stats card */
+        .stats-card {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-light);
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--soft-gray);
+        }
+
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .stat-value {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        /* Avis section */
+        .reviews-section {
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-light);
+        }
+
+        .reviews-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .rating-overview {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .rating-score {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 800;
+            color: var(--primary-pink);
+        }
+
+        .rating-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .stars {
+            color: #fbbf24;
+            font-size: 1.3rem;
+        }
+
+        .rating-count {
+            color: var(--text-light);
+            font-size: 0.85rem;
+        }
+
+        .review-item {
+            background: var(--soft-gray);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            gap: 1rem;
+        }
+
+        .reviewer-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .reviewer-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-main);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .reviewer-details h4 {
+            color: var(--text-dark);
+            font-size: 1rem;
+            margin: 0 0 0.2rem 0;
+            font-weight: 600;
+        }
+
+        .reviewer-role {
+            color: var(--text-light);
+            font-size: 0.85rem;
+            margin: 0;
+        }
+
+        .review-rating {
+            color: #fbbf24;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .review-text {
+            color: var(--text-light);
+            line-height: 1.6;
+            font-style: italic;
+        }
+
+        /* Formations similaires */
+        .similar-formations {
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            padding: 2rem;
+            box-shadow: var(--shadow-light);
+        }
+
+        .similar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .similar-card {
+            background: var(--soft-gray);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .similar-card:hover {
+            background: var(--white);
+            border-color: var(--primary-blue);
+            box-shadow: var(--shadow-medium);
+            transform: translateY(-4px);
+        }
+
+        .similar-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--gradient-main);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.8rem;
+            color: white;
+        }
+
+        .similar-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+        }
+
+        .similar-price {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-pink);
+        }
+
+        /* État vide */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            background: var(--soft-gray);
+            border-radius: var(--border-radius);
+            color: var(--text-light);
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.7;
+        }
+
+        /* Responsive Design */
+        @media (min-width: 768px) {
             .formation-container {
-                grid-template-columns: 1fr;
-                gap: 2rem;
+                padding: 2rem;
+                grid-template-columns: 2fr 1fr;
+                gap: 3rem;
             }
-            
+
+            .formation-header {
+                padding: 3rem;
+            }
+
             .formation-hero {
-                grid-template-columns: 1fr;
-                text-align: center;
+                grid-template-columns: 1fr auto;
+                text-align: left;
             }
+
+            .formation-info {
+                text-align: left;
+            }
+
+            .formation-meta {
+                justify-content: flex-start;
+            }
+
+            .formation-icon-large {
+                margin: 0;
+            }
+
+            .course-content {
+                padding: 2.5rem;
+            }
+
+            .purchase-card {
+                position: sticky;
+                top: 2rem;
+            }
+
+            .module-header {
+                align-items: center;
+            }
+
+            .stats-grid {
+                flex-direction: column;
+            }
+
+            .breadcrumb-current {
+                max-width: none;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .formation-container {
+                padding: 3rem 2rem;
+            }
+
+            .similar-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        /* Animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* États de loading */
+        .loading {
+            position: relative;
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid var(--primary-blue);
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Accessibilité */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* Focus styles */
+        .btn:focus-visible,
+        .module-item:focus-visible,
+        .similar-card:focus-visible {
+            outline: 2px solid var(--primary-blue);
+            outline-offset: 2px;
         }
     </style>
 </head>
@@ -154,11 +833,11 @@
     <!-- Breadcrumb -->
     <div class="breadcrumb">
         <div class="breadcrumb-container">
-            <nav class="breadcrumb-nav">
+            <nav class="breadcrumb-nav" aria-label="Fil d'Ariane">
                 <a href="/">🏠 Accueil</a>
-                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-separator" aria-hidden="true">›</span>
                 <a href="/formations">Formations</a>
-                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-separator" aria-hidden="true">›</span>
                 <span class="breadcrumb-current"><%= formation.titre %></span>
             </nav>
         </div>
@@ -180,18 +859,23 @@
                         <p class="formation-description"><%= formation.description %></p>
                         
                         <div class="formation-meta">
-                            <div class="meta-badge" style="background: #e8f3f8; color: #a5bfd4;">
+                            <div class="meta-badge" style="background: var(--light-blue); color: var(--primary-blue);">
                                 📚 Niveau <%= formation.niveau %>
                             </div>
-                            <div class="meta-badge" style="background: #fce8ec; color: #e7a6b7;">
-                                ⏱️ <%= formation.duree_heures %> heures
+                            <div class="meta-badge" style="background: var(--light-pink); color: var(--primary-pink);">
+                                ⏱️ <%= formation.duree_heures %>h
                             </div>
-                            <div class="meta-badge" style="background: #f5f5f7; color: #6f6f6f;">
+                            <div class="meta-badge" style="background: var(--soft-gray); color: var(--text-dark);">
                                 🎯 <%= formation.nombre_modules %> modules
                             </div>
                             <% if (formation.nombreAvis && formation.nombreAvis > 0) { %>
-                            <div class="meta-badge" style="background: #fff3cd; color: #856404;">
-                                ⭐ <%= formation.noteMoyenne %>/5 (<%= formation.nombreAvis %> avis)
+                            <div class="meta-badge" style="background: #fef3c7; color: #d97706;">
+                                ⭐ <%= formation.noteMoyenne %>/5 (<%= formation.nombreAvis %>)
+                            </div>
+                            <% } %>
+                            <% if (formation.certifiant) { %>
+                            <div class="meta-badge" style="background: #f3e8ff; color: #7c3aed;">
+                                🏆 Certifiante
                             </div>
                             <% } %>
                         </div>
@@ -204,55 +888,64 @@
 
             <!-- Contenu du cours -->
             <div class="course-content fade-in">
-                <h2 style="font-size: 1.8rem; font-weight: 600; color: #2f2f2f; margin-bottom: 2rem; display: flex; align-items: center; gap: 1rem;">
-                    <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #e8f3f8, #a5bfd4); border-radius: 15px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">📋</div>
-                    Contenu de la formation
-                </h2>
+                <div class="section-header">
+                    <div class="section-icon">📋</div>
+                    <h2 class="section-title">Contenu de la formation</h2>
+                </div>
                 
                 <div class="modules-list">
                     <% if (formation.modules && formation.modules.length > 0) { %>
                         <% formation.modules.forEach((module, index) => { %>
-                        <div class="module-item" onclick="ouvrirModule(<%= module.id %>, '<%= module.titre %>', <%= module.disponible %>)">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                                <div style="display: flex; align-items: center; gap: 1rem;">
-                                    <div style="width: 35px; height: 35px; background: linear-gradient(135deg, #e7a6b7, #a5bfd4); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.9rem;">
-                                        <%= index + 1 %>
-                                    </div>
-                                    <h3 style="font-size: 1.2rem; font-weight: 600; color: #2f2f2f; margin: 0;">
-                                        <%= module.titre %>
-                                    </h3>
+                        <div class="module-item <%= !module.disponible ? 'locked' : '' %>" 
+                             onclick="ouvrirModule(<%= module.id %>, '<%= module.titre.replace(/'/g, "\\'") %>', <%= module.disponible %>)"
+                             role="button" 
+                             tabindex="0"
+                             aria-label="Module <%= index + 1 %>: <%= module.titre %>"
+                             onkeydown="if(event.key==='Enter'||event.key===' ') { this.click(); }">
+                            
+                            <div class="module-header">
+                                <div class="module-title-group">
+                                    <div class="module-number"><%= index + 1 %></div>
+                                    <h3 class="module-title"><%= module.titre %></h3>
                                 </div>
-                                <div style="padding: 0.4rem 1rem; border-radius: 15px; font-size: 0.8rem; font-weight: 600; <%= module.disponible ? 'background: #d4edda; color: #28a745;' : 'background: #f8d7da; color: #721c24;' %>">
+                                <div class="module-status <%= module.disponible ? 'available' : 'locked' %>">
                                     <%= module.disponible ? 'Disponible' : 'Verrouillé' %>
                                 </div>
                             </div>
                             
-                            <p style="color: #6f6f6f; margin-bottom: 1rem; line-height: 1.6;">
+                            <p class="module-description">
                                 <%= module.description || 'Description du module à venir...' %>
                             </p>
                             
-                            <div style="display: flex; flex-wrap: wrap; gap: 1.5rem; font-size: 0.9rem; color: #6f6f6f;">
-                                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                    <span style="color: #a5bfd4;">🎥</span>
+                            <div class="module-details">
+                                <div class="module-detail">
+                                    <span class="module-detail-icon">🎥</span>
                                     <span><%= module.type_contenu.charAt(0).toUpperCase() + module.type_contenu.slice(1) %> <%= module.duree_minutes || 0 %> min</span>
                                 </div>
-                                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                    <span style="color: #a5bfd4;">📄</span>
-                                    <span>PDF téléchargeable</span>
+                                <div class="module-detail">
+                                    <span class="module-detail-icon">📄</span>
+                                    <span>Ressources téléchargeables</span>
                                 </div>
-                                <% if (module.type_contenu === 'quiz') { %>
-                                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                    <span style="color: #a5bfd4;">❓</span>
+                                <% if (module.type_contenu === 'quiz' || module.type_contenu === 'evaluation') { %>
+                                <div class="module-detail">
+                                    <span class="module-detail-icon">❓</span>
                                     <span>Quiz d'évaluation</span>
+                                </div>
+                                <% } %>
+                                <% if (formation.certifiant && index === formation.modules.length - 1) { %>
+                                <div class="module-detail">
+                                    <span class="module-detail-icon">🏆</span>
+                                    <span>Certificat de réussite</span>
                                 </div>
                                 <% } %>
                             </div>
                         </div>
                         <% }); %>
                     <% } else { %>
-                        <div style="text-align: center; padding: 3rem; background: #f8f9fa; border-radius: 20px; color: #6f6f6f;">
-                            <div style="font-size: 3rem; margin-bottom: 1rem;">📚</div>
+                        <div class="empty-state">
+                            <div class="empty-icon">📚</div>
                             <p>Les modules de cette formation seront bientôt disponibles.</p>
+                            <p style="font-size: 0.9rem; margin-top: 0.5rem;">Inscrivez-vous pour être notifié de leur publication.</p>
                         </div>
                     <% } %>
                 </div>
@@ -260,40 +953,40 @@
 
             <!-- Section avis -->
             <% if (formation.avis && formation.avis.length > 0) { %>
-            <div style="background: white; border-radius: 25px; padding: 3rem; margin-bottom: 2rem; box-shadow: 0 15px 50px rgba(0,0,0,0.08);" class="fade-in">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                    <h2 style="font-size: 1.8rem; font-weight: 600; color: #2f2f2f; margin: 0; display: flex; align-items: center; gap: 1rem;">
-                        <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #e8f3f8, #a5bfd4); border-radius: 15px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">💬</div>
-                        Avis des apprenants
-                    </h2>
-                    <div style="display: flex; align-items: center; gap: 1rem;">
-                        <div style="font-size: 3rem; font-weight: 800; color: #e7a6b7;"><%= formation.noteMoyenne || 0 %></div>
-                        <div>
-                            <div style="color: #ffc107; font-size: 1.5rem;">★★★★★</div>
-                            <div style="color: #6f6f6f; font-size: 0.9rem;"><%= formation.nombreAvis %> avis vérifiés</div>
+            <div class="reviews-section fade-in">
+                <div class="reviews-header">
+                    <div class="section-header" style="margin-bottom: 0;">
+                        <div class="section-icon">💬</div>
+                        <h2 class="section-title">Avis des apprenants</h2>
+                    </div>
+                    <div class="rating-overview">
+                        <div class="rating-score"><%= formation.noteMoyenne || 0 %></div>
+                        <div class="rating-details">
+                            <div class="stars">★★★★★</div>
+                            <div class="rating-count"><%= formation.nombreAvis %> avis vérifiés</div>
                         </div>
                     </div>
                 </div>
 
                 <% formation.avis.forEach(avis => { %>
-                <div style="background: #f8f9fa; border-radius: 20px; padding: 2rem; margin-bottom: 1.5rem;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                        <div style="display: flex; align-items: center; gap: 1rem;">
-                            <div style="width: 45px; height: 45px; background: linear-gradient(135deg, #e8f3f8, #a5bfd4); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600;">
+                <div class="review-item">
+                    <div class="review-header">
+                        <div class="reviewer-info">
+                            <div class="reviewer-avatar">
                                 <%= avis.nom_utilisateur.split(' ').map(n => n[0]).join('') %>
                             </div>
-                            <div>
-                                <h4 style="color: #2f2f2f; font-size: 1rem; margin: 0 0 0.2rem 0;"><%= avis.nom_utilisateur %></h4>
-                                <div style="color: #6f6f6f; font-size: 0.9rem;"><%= avis.role %><%= avis.ville ? ` - ${avis.ville}` : '' %></div>
+                            <div class="reviewer-details">
+                                <h4><%= avis.nom_utilisateur %></h4>
+                                <p class="reviewer-role"><%= avis.role %><%= avis.ville ? ` - ${avis.ville}` : '' %></p>
                             </div>
                         </div>
-                        <div style="color: #ffc107; font-size: 1.2rem;">
+                        <div class="review-rating">
                             <% for (let i = 1; i <= 5; i++) { %>
                                 <%= i <= avis.note ? '★' : '☆' %>
                             <% } %>
                         </div>
                     </div>
-                    <p style="color: #6f6f6f; line-height: 1.6; margin: 0;">"<%= avis.commentaire %>"</p>
+                    <p class="review-text">"<%= avis.commentaire %>"</p>
                 </div>
                 <% }); %>
             </div>
@@ -301,22 +994,24 @@
 
             <!-- Formations similaires -->
             <% if (formationsSimilaires && formationsSimilaires.length > 0) { %>
-            <div style="background: white; border-radius: 25px; padding: 3rem; box-shadow: 0 15px 50px rgba(0,0,0,0.08);" class="fade-in">
-                <h2 style="font-size: 1.8rem; font-weight: 600; color: #2f2f2f; margin-bottom: 2rem; display: flex; align-items: center; gap: 1rem;">
-                    <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #e8f3f8, #a5bfd4); border-radius: 15px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">🎯</div>
-                    Formations recommandées
-                </h2>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+            <div class="similar-formations fade-in">
+                <div class="section-header">
+                    <div class="section-icon">🎯</div>
+                    <h2 class="section-title">Formations recommandées</h2>
+                </div>
+                <div class="similar-grid">
                     <% formationsSimilaires.forEach(f => { %>
-                    <div style="background: #f8f9fa; border-radius: 20px; padding: 2rem; text-align: center; transition: all 0.3s; cursor: pointer;" 
+                    <div class="similar-card" 
                          onclick="window.location.href='/formations/<%= f.id %>'"
-                         onmouseover="this.style.background='white'; this.style.boxShadow='0 10px 30px rgba(0,0,0,0.1)'; this.style.transform='translateY(-5px)'"
-                         onmouseout="this.style.background='#f8f9fa'; this.style.boxShadow='none'; this.style.transform='translateY(0)'">
-                        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #e7a6b7, #a5bfd4); border-radius: 15px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.8rem; color: white;">
+                         role="button"
+                         tabindex="0"
+                         aria-label="Formation <%= f.titre %>"
+                         onkeydown="if(event.key==='Enter'||event.key===' ') { this.click(); }">
+                        <div class="similar-icon">
                             <%= f.icone || '📚' %>
                         </div>
-                        <h3 style="font-size: 1.1rem; font-weight: 600; color: #2f2f2f; margin-bottom: 0.5rem;"><%= f.titre %></h3>
-                        <div style="font-size: 1.2rem; font-weight: 700; color: #e7a6b7;">
+                        <h3 class="similar-title"><%= f.titre %></h3>
+                        <div class="similar-price">
                             <%= f.gratuit ? 'Gratuit' : Math.floor(f.prix) + '€' %>
                         </div>
                     </div>
@@ -328,92 +1023,149 @@
 
         <!-- Sidebar -->
         <div class="sidebar">
-            <!-- Carte d'achat -->
+            <!-- Carte d'inscription -->
             <div class="purchase-card fade-in">
                 <div class="price-section">
                     <% if (formation.gratuit) { %>
                     <span class="price-current">Gratuit</span>
-                    <div style="background: #28a745; color: white; padding: 0.3rem 1rem; border-radius: 15px; font-size: 0.9rem; font-weight: 600; margin-top: 1rem; display: inline-block;">🎉 Formation offerte</div>
+                    <div class="price-badge free">🎉 Formation offerte</div>
                     <% } else { %>
                     <span class="price-current"><%= Math.floor(formation.prix) %>€</span>
-                    <% if (formation.prix_original) { %>
-                    <div style="font-size: 1.2rem; color: #6f6f6f; text-decoration: line-through; margin-top: 0.5rem;"><%= Math.floor(formation.prix_original) %>€</div>
-                    <div style="background: #28a745; color: white; padding: 0.3rem 1rem; border-radius: 15px; font-size: 0.9rem; font-weight: 600; margin-top: 1rem; display: inline-block;">💰 Économisez <%= Math.floor(formation.prix_original - formation.prix) %>€</div>
+                    <% if (formation.prix_original && formation.prix_original > formation.prix) { %>
+                    <div style="font-size: 1.1rem; color: var(--text-light); text-decoration: line-through; margin-top: 0.5rem;">
+                        <%= Math.floor(formation.prix_original) %>€
+                    </div>
+                    <div class="price-badge discount">
+                        💰 Économisez <%= Math.floor(formation.prix_original - formation.prix) %>€
+                    </div>
                     <% } %>
                     <% } %>
                 </div>
 
-                <div style="margin-bottom: 2rem;">
-                    <ul style="list-style: none; margin: 0; padding: 0;">
-                        <li style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem; font-size: 0.95rem;">
-                            <div style="width: 25px; height: 25px; background: #28a745; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.8rem; flex-shrink: 0;">✓</div>
-                            <span>Accès immédiat à vie</span>
-                        </li>
-                        <li style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem; font-size: 0.95rem;">
-                            <div style="width: 25px; height: 25px; background: #28a745; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.8rem; flex-shrink: 0;">✓</div>
-                            <span><%= formation.nombre_modules %> modules interactifs</span>
-                        </li>
-                        <li style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem; font-size: 0.95rem;">
-                            <div style="width: 25px; height: 25px; background: #28a745; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.8rem; flex-shrink: 0;">✓</div>
-                            <span>Vidéos HD professionnelles</span>
-                        </li>
-                        <li style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem; font-size: 0.95rem;">
-                            <div style="width: 25px; height: 25px; background: #28a745; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.8rem; flex-shrink: 0;">✓</div>
-                            <span>PDF téléchargeables</span>
-                        </li>
-                        <li style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem; font-size: 0.95rem;">
-                            <div style="width: 25px; height: 25px; background: #28a745; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.8rem; flex-shrink: 0;">✓</div>
-                            <span>Quiz d'évaluation</span>
-                        </li>
-                        <% if (formation.certifiant) { %>
-                        <li style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem; font-size: 0.95rem;">
-                            <div style="width: 25px; height: 25px; background: #28a745; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.8rem; flex-shrink: 0;">✓</div>
-                            <span>Certificat de réussite</span>
-                        </li>
-                        <% } %>
-                        <li style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem; font-size: 0.95rem;">
-                            <div style="width: 25px; height: 25px; background: #28a745; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.8rem; flex-shrink: 0;">✓</div>
-                            <span>Support 7j/7</span>
-                        </li>
-                    </ul>
-                </div>
+                <ul class="features-list">
+                    <li class="feature-item">
+                        <div class="feature-check">✓</div>
+                        <span>Accès immédiat à vie</span>
+                    </li>
+                    <li class="feature-item">
+                        <div class="feature-check">✓</div>
+                        <span><%= formation.nombre_modules %> modules interactifs</span>
+                    </li>
+                    <li class="feature-item">
+                        <div class="feature-check">✓</div>
+                        <span>Vidéos HD professionnelles</span>
+                    </li>
+                    <li class="feature-item">
+                        <div class="feature-check">✓</div>
+                        <span>Ressources téléchargeables</span>
+                    </li>
+                    <li class="feature-item">
+                        <div class="feature-check">✓</div>
+                        <span>Quiz d'évaluation</span>
+                    </li>
+                    <% if (formation.certifiant) { %>
+                    <li class="feature-item">
+                        <div class="feature-check">✓</div>
+                        <span>Certificat de réussite</span>
+                    </li>
+                    <% } %>
+                    <li class="feature-item">
+                        <div class="feature-check">✓</div>
+                        <span>Support expert 24/7</span>
+                    </li>
+                    <li class="feature-item">
+                        <div class="feature-check">✓</div>
+                        <span>Accès mobile & desktop</span>
+                    </li>
+                </ul>
 
-                <div style="display: flex; flex-direction: column; gap: 1rem;">
-                    <button class="btn-primary" onclick="commencerFormation(<%= formation.id %>, '<%= formation.titre %>', <%= formation.prix || 0 %>, <%= formation.gratuit %>)">
-                        🚀 Commencer maintenant
-                    </button>
-                    <button style="background: transparent; color: #a5bfd4; border: 2px solid #a5bfd4; padding: 1rem 2rem; border-radius: 25px; font-weight: 600; cursor: pointer; transition: all 0.3s;" 
-                            onclick="voirProgramme()" 
-                            onmouseover="this.style.background='#a5bfd4'; this.style.color='white'"
-                            onmouseout="this.style.background='transparent'; this.style.color='#a5bfd4'">
-                        📋 Programme détaillé
-                    </button>
-                </div>
+                <div class="cta-buttons">
+    <button class="btn btn-primary" 
+            onclick="commencerFormation(<%= formation.id %>, '<%= formation.titre.replace(/'/g, "\\'") %>', <%= formation.prix || 0 %>, <%= formation.gratuit %>)"
+            aria-label="Commencer la formation <%= formation.titre %>">
+        🚀 Commencer maintenant
+    </button>
+    <button class="btn btn-secondary" 
+            onclick="voirProgramme()"
+            aria-label="Voir le programme détaillé">
+        📋 Programme détaillé
+    </button>
+    <!-- 🔧 CORRECTION: Vérifier si user existe avant d'accéder à ses propriétés -->
+    <% if (typeof user !== 'undefined' && user && user.role === 'admin') { %>
+    <a href="/admin/formations/<%= formation.id %>/modifier" class="btn btn-secondary">
+        ✏️ Modifier (Admin)
+    </a>
+    <% } %>
+</div>
             </div>
 
             <!-- Statistiques -->
-            <div style="background: white; border-radius: 25px; padding: 2rem; box-shadow: 0 15px 50px rgba(0,0,0,0.08); text-align: center;" class="fade-in">
-                <h3 style="color: #2f2f2f; margin-bottom: 1.5rem;">📊 Statistiques</h3>
-                <div style="display: flex; flex-direction: column; gap: 1rem;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span>👥 Domaine</span>
-                        <strong style="color: #e7a6b7; text-transform: capitalize;"><%= formation.domaine %></strong>
+            <div class="stats-card fade-in">
+                <h3 style="color: var(--text-dark); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                    📊 Informations
+                </h3>
+                <div class="stats-grid">
+                    <div class="stat-row">
+                        <span class="stat-label">Domaine</span>
+                        <span class="stat-value" style="color: var(--primary-pink); text-transform: capitalize;">
+                            <%= formation.domaine %>
+                        </span>
                     </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span>⏱️ Durée totale</span>
-                        <strong style="color: #a5bfd4;"><%= formation.duree_heures %>h</strong>
+                    <div class="stat-row">
+                        <span class="stat-label">Durée totale</span>
+                        <span class="stat-value" style="color: var(--primary-blue);">
+                            <%= formation.duree_heures %>h
+                        </span>
                     </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span>🎯 Modules</span>
-                        <strong style="color: #e7a6b7;"><%= formation.nombre_modules %></strong>
+                    <div class="stat-row">
+                        <span class="stat-label">Modules</span>
+                        <span class="stat-value" style="color: var(--primary-pink);">
+                            <%= formation.nombre_modules %>
+                        </span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Niveau</span>
+                        <span class="stat-value" style="text-transform: capitalize;">
+                            <%= formation.niveau %>
+                        </span>
                     </div>
                     <% if (formation.nombreAvis > 0) { %>
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span>⭐ Note moyenne</span>
-                        <strong style="color: #28a745;"><%= formation.noteMoyenne %>/5</strong>
+                    <div class="stat-row">
+                        <span class="stat-label">Note moyenne</span>
+                        <span class="stat-value" style="color: var(--success);">
+                            <%= formation.noteMoyenne %>/5
+                        </span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Avis</span>
+                        <span class="stat-value">
+                            <%= formation.nombreAvis %>
+                        </span>
                     </div>
                     <% } %>
+                    <div class="stat-row">
+                        <span class="stat-label">Dernière MAJ</span>
+                        <span class="stat-value">
+                            <%= new Date(formation.updatedAt).toLocaleDateString('fr-FR') %>
+                        </span>
+                    </div>
                 </div>
+            </div>
+
+            <!-- Support -->
+            <div class="stats-card fade-in" style="background: linear-gradient(135deg, var(--light-blue), var(--light-pink)); border: 1px solid var(--primary-blue);">
+                <h3 style="color: var(--primary-blue); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                    💬 Besoin d'aide ?
+                </h3>
+                <p style="color: var(--text-dark); margin-bottom: 1.5rem; font-size: 0.9rem; line-height: 1.5;">
+                    Notre équipe est là pour vous accompagner dans votre parcours de formation.
+                </p>
+                <button class="btn btn-secondary" 
+                        onclick="ouvrirSupport()"
+                        style="width: 100%;"
+                        aria-label="Contacter le support">
+                    📞 Contacter le support
+                </button>
             </div>
         </div>
     </div>
@@ -421,88 +1173,352 @@
     <%- include('../partials/footer') %>
 
     <script>
-        // Animation au scroll
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
+        // Gestionnaire d'animations au scroll
+        class ScrollAnimator {
+            constructor() {
+                this.observer = new IntersectionObserver(
+                    (entries) => this.handleIntersection(entries),
+                    { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+                );
+                this.init();
+            }
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.animation = 'fadeInUp 0.8s ease forwards';
+            init() {
+                document.querySelectorAll('.fade-in').forEach(el => {
+                    this.observer.observe(el);
+                });
+            }
+
+            handleIntersection(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        this.observer.unobserve(entry.target);
+                    }
+                });
+            }
+        }
+
+        // Gestionnaire de la formation
+        class FormationManager {
+            constructor() {
+                this.formationId = <%= formation.id %>;
+                this.formationTitle = '<%= formation.titre.replace(/'/g, "\\'") %>';
+                this.modules = [
+                    <% if (formation.modules && formation.modules.length > 0) { %>
+                        <% formation.modules.forEach((module, index) => { %>
+                            {
+                                id: <%= module.id %>,
+                                title: '<%= module.titre.replace(/'/g, "\\'") %>',
+                                duration: <%= module.duree_minutes || 0 %>,
+                                available: <%= module.disponible %>,
+                                order: <%= index + 1 %>
+                            }<%= index < formation.modules.length - 1 ? ',' : '' %>
+                        <% }); %>
+                    <% } %>
+                ];
+            }
+
+            generateProgramDetails() {
+                let programText = `📋 Programme détaillé - ${this.formationTitle}\n\n`;
+                
+                if (this.modules.length > 0) {
+                    programText += `📚 ${this.modules.length} modules :\n\n`;
+                    this.modules.forEach(module => {
+                        const status = module.available ? '✅' : '🔒';
+                        programText += `${status} Module ${module.order}: ${module.title}`;
+                        if (module.duration > 0) {
+                            programText += ` (${module.duration} min)`;
+                        }
+                        programText += '\n';
+                    });
+                    programText += '\n📄 Ressources téléchargeables incluses';
+                    <% if (formation.certifiant) { %>
+                    programText += '\n🏆 Certificat de réussite à la fin';
+                    <% } %>
+                } else {
+                    programText += 'Programme en cours de finalisation.\n';
+                    programText += 'Les modules seront bientôt disponibles.\n\n';
+                    programText += '💡 Inscrivez-vous pour être notifié !';
                 }
-            });
-        }, observerOptions);
+                
+                return programText;
+            }
 
-        document.querySelectorAll('.fade-in').forEach(el => {
-            observer.observe(el);
-        });
-
-        function commencerFormation(id, titre, prix, gratuit) {
-            if (gratuit) {
-                if (confirm(`🎉 Commencer la formation gratuite "${titre}" ?\n\nVous allez être redirigé vers le premier module.`)) {
-                    // Redirection vers la formation
-                    window.location.href = `/formations/${id}/commencer`;
+            showLoadingState(button) {
+                if (button) {
+                    button.classList.add('loading');
+                    button.disabled = true;
+                    const originalText = button.innerHTML;
+                    button.setAttribute('data-original', originalText);
+                    button.innerHTML = originalText.replace(/🚀|📋|📞/, '⏳');
                 }
-            } else {
-                if (confirm(`💳 Formation : ${titre}\nPrix : ${prix}€\n\nProcéder au paiement sécurisé ?`)) {
-                    // Redirection vers le paiement
-                    window.location.href = `/formations/${id}/acheter`;
+            }
+
+            hideLoadingState(button) {
+                if (button) {
+                    button.classList.remove('loading');
+                    button.disabled = false;
+                    const originalText = button.getAttribute('data-original');
+                    if (originalText) {
+                        button.innerHTML = originalText;
+                    }
                 }
             }
         }
 
+        // Fonctions globales
+        function commencerFormation(id, titre, prix, gratuit) {
+            const button = event.target;
+            const manager = new FormationManager();
+            
+            manager.showLoadingState(button);
+            
+            // Simulation d'un délai de traitement
+            setTimeout(() => {
+                if (gratuit) {
+                    const confirmed = confirm(
+                        `🎉 Démarrer la formation gratuite ?\n\n` +
+                        `"${titre}"\n\n` +
+                        `✅ Accès immédiat à tous les modules\n` +
+                        `📱 Compatible mobile et desktop\n` +
+                        `🏆 Certificat de réussite inclus\n\n` +
+                        `Commencer maintenant ?`
+                    );
+                    
+                    if (confirmed) {
+                        // Redirection vers la première leçon ou tableau de bord
+                        window.location.href = `/formations/${id}/commencer`;
+                    }
+                } else {
+                    const confirmed = confirm(
+                        `💳 Inscription à la formation\n\n` +
+                        `"${titre}"\n` +
+                        `Prix : ${prix}€\n\n` +
+                        `✅ Accès à vie\n` +
+                        `🔒 Paiement sécurisé\n` +
+                        `↩️ Garantie satisfait ou remboursé\n\n` +
+                        `Procéder au paiement ?`
+                    );
+                    
+                    if (confirmed) {
+                        // Redirection vers la page de paiement
+                        window.location.href = `/formations/${id}/acheter`;
+                    }
+                }
+                
+                manager.hideLoadingState(button);
+            }, 1000);
+        }
+
         function voirProgramme() {
-            const modules = [
-                <% if (formation.modules && formation.modules.length > 0) { %>
-                    <% formation.modules.forEach((module, index) => { %>
-                        "Module <%= index + 1 %>: <%= module.titre %> (<%= module.duree_minutes || 0 %> min)"<%= index < formation.modules.length - 1 ? ',' : '' %>
-                    <% }); %>
-                <% } %>
-            ];
-            
-            let programmeText = '📋 Programme détaillé\n\n';
-            if (modules.length > 0) {
-                programmeText += modules.join('\n');
-                programmeText += '\n\n📄 Programme complet téléchargeable après inscription';
-            } else {
-                programmeText += 'Programme en cours de finalisation.\nLes modules seront bientôt disponibles.';
-            }
-            
-            alert(programmeText);
+            const manager = new FormationManager();
+            const programDetails = manager.generateProgramDetails();
+            alert(programDetails);
         }
 
         function ouvrirModule(moduleId, titre, disponible) {
             if (disponible) {
-                if (confirm(`📚 Ouvrir le module :\n"${titre}"\n\nCommencer la lecture ?`)) {
+                const confirmed = confirm(
+                    `📚 Accéder au module\n\n` +
+                    `"${titre}"\n\n` +
+                    `▶️ Commencer la lecture ?\n` +
+                    `💡 Votre progression sera sauvegardée`
+                );
+                
+                if (confirmed) {
                     // Redirection vers le module
                     window.location.href = `/formations/<%= formation.id %>/modules/${moduleId}`;
                 }
             } else {
-                alert(`🔒 Module verrouillé\n\n"${titre}"\n\n💡 Vous devez d'abord vous inscrire à cette formation pour accéder à ce module.`);
+                alert(
+                    `🔒 Module verrouillé\n\n` +
+                    `"${titre}"\n\n` +
+                    `💡 Inscrivez-vous à la formation pour accéder à ce contenu.\n\n` +
+                    `✅ Accès immédiat après inscription\n` +
+                    `📱 Disponible sur tous vos appareils`
+                );
             }
         }
 
-        // Animation CSS
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes fadeInUp {
-                from { opacity: 0; transform: translateY(30px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
+        function ouvrirSupport() {
+            const supportMessage = 
+                `💬 Support ADSIAM\n\n` +
+                `🎯 Formation : "<%= formation.titre %>"\n\n` +
+                `Comment pouvons-nous vous aider ?\n\n` +
+                `📧 Email : support@adsiam.org\n` +
+                `📞 Téléphone : 06 50 84 81 75\n` +
+                `💬 Chat en direct disponible\n\n` +
+                `⏰ Disponible 7j/7 de 9h à 19h`;
             
-            .fade-in {
-                opacity: 0;
-                transform: translateY(30px);
+            const openSupport = confirm(supportMessage + '\n\nOuvrir le chat support ?');
+            
+            if (openSupport) {
+                // Ici vous pourriez ouvrir votre widget de chat ou rediriger vers la page contact
+                window.open('/contact?formation=<%= formation.id %>', '_blank');
             }
-        `;
-        document.head.appendChild(style);
+        }
 
-        console.log('📚 Formation "<%= formation.titre %>" chargée');
-        console.log('🎯 Domaine: <%= formation.domaine %>');
-        console.log('⏱️ Durée: <%= formation.duree_heures %> heures');
-        console.log('🎯 Modules: <%= formation.nombre_modules %>');
+        // Gestion du clavier pour l'accessibilité
+        document.addEventListener('keydown', function(e) {
+            // Échap pour fermer les modales/alertes
+            if (e.key === 'Escape') {
+                // Fermer toute modal ouverte
+                const modals = document.querySelectorAll('[role="dialog"]');
+                modals.forEach(modal => modal.style.display = 'none');
+            }
+        });
+
+        // Gestion des erreurs JavaScript
+        window.addEventListener('error', function(e) {
+            console.error('Erreur JavaScript:', e.error);
+            // En production, vous pourriez envoyer ces erreurs à un service de monitoring
+        });
+
+        // Analytics et suivi
+        function trackEvent(action, details = {}) {
+            console.log(`📊 Event: ${action}`, details);
+            // Ici vous pourriez envoyer à Google Analytics, Mixpanel, etc.
+            
+            // Exemple pour Google Analytics 4
+            if (typeof gtag !== 'undefined') {
+                gtag('event', action, {
+                    formation_id: <%= formation.id %>,
+                    formation_title: '<%= formation.titre.replace(/'/g, "\\'") %>',
+                    ...details
+                });
+            }
+        }
+
+        // Suivi des interactions importantes
+        document.addEventListener('click', function(e) {
+            if (e.target.matches('.btn-primary')) {
+                trackEvent('formation_start_clicked', {
+                    formation_price: <%= formation.prix || 0 %>,
+                    is_free: <%= formation.gratuit %>
+                });
+            } else if (e.target.matches('.module-item')) {
+                const moduleTitle = e.target.querySelector('.module-title')?.textContent;
+                trackEvent('module_clicked', {
+                    module_title: moduleTitle
+                });
+            }
+        });
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialiser les animations
+            new ScrollAnimator();
+            
+            // Suivi du temps passé sur la page
+            const startTime = Date.now();
+            
+            window.addEventListener('beforeunload', function() {
+                const timeSpent = Math.round((Date.now() - startTime) / 1000);
+                trackEvent('page_view_duration', {
+                    duration_seconds: timeSpent
+                });
+            });
+
+            // Suivi de la progression de lecture
+            let maxScroll = 0;
+            window.addEventListener('scroll', function() {
+                const scrollPercent = Math.round(
+                    (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100
+                );
+                
+                if (scrollPercent > maxScroll && scrollPercent % 25 === 0) {
+                    maxScroll = scrollPercent;
+                    trackEvent('scroll_depth', {
+                        percent: scrollPercent
+                    });
+                }
+            });
+
+            // Détection mobile pour ajustements UX
+            const isMobile = window.innerWidth < 768;
+            if (isMobile) {
+                document.body.classList.add('mobile');
+                
+                // Ajuster le comportement du sticky sur mobile
+                const purchaseCard = document.querySelector('.purchase-card');
+                if (purchaseCard) {
+                    purchaseCard.style.position = 'static';
+                }
+            }
+
+            console.log('📚 Formation "<%= formation.titre %>" chargée');
+            console.log('🎯 Domaine: <%= formation.domaine %>');
+            console.log('⏱️ Durée: <%= formation.duree_heures %> heures');
+            console.log('📝 Modules: <%= formation.nombre_modules %>');
+            
+            trackEvent('formation_page_viewed', {
+                formation_domain: '<%= formation.domaine %>',
+                formation_level: '<%= formation.niveau %>',
+                is_mobile: isMobile
+            });
+        });
+
+        // Optimisations des performances
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(() => {
+                // Précharger les images des formations similaires
+                <% if (formationsSimilaires && formationsSimilaires.length > 0) { %>
+                const preloadImages = [
+                    // Ajouter ici les URLs des images si vous en avez
+                ];
+                preloadImages.forEach(url => {
+                    const link = document.createElement('link');
+                    link.rel = 'prefetch';
+                    link.href = url;
+                    document.head.appendChild(link);
+                });
+                <% } %>
+            });
+        }
     </script>
+
+    <!-- Schema.org pour le SEO -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Course",
+        "name": "<%= formation.titre %>",
+        "description": "<%= formation.description %>",
+        "provider": {
+            "@type": "Organization",
+            "name": "ADSIAM",
+            "url": "https://adsiam.org"
+        },
+        <% if (!formation.gratuit) { %>
+        "offers": {
+            "@type": "Offer",
+            "price": "<%= formation.prix %>",
+            "priceCurrency": "EUR"
+        },
+        <% } %>
+        "courseMode": "online",
+        "educationalLevel": "<%= formation.niveau %>",
+        "timeRequired": "PT<%= formation.duree_heures %>H",
+        "numberOfCredits": "<%= formation.nombre_modules %>",
+        <% if (formation.nombreAvis > 0) { %>
+        "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "<%= formation.noteMoyenne %>",
+            "reviewCount": "<%= formation.nombreAvis %>"
+        },
+        <% } %>
+        "hasCourseInstance": {
+            "@type": "CourseInstance",
+            "courseMode": "online",
+            "instructor": {
+                "@type": "Organization",
+                "name": "ADSIAM"
+            }
+        }
+    }
+    </script>
+
+    
 </body>
 </html>

@@ -504,171 +504,296 @@ export class AdminController {
         }
     }
 
-  async createFormation(req, res) {
+async createFormation(req, res) {
     try {
-        console.log('📝 Création de formation - Données reçues:', req.body);
+        console.log('📝 Création de formation - Content-Type:', req.headers['content-type']);
+        console.log('📝 Body reçu:', req.body);
+        
+        // Gérer les données selon le format
+        let formationData;
         
         const {
-            titre,
-            description,
-            domaine,
-            niveau,
-            prix,
-            duree_heures,
-            icone,
-            gratuit,
-            populaire,
-            nouveau,
-            certifiant,
-            actif,
+            titre, description, domaine, niveau, prix, duree_heures,
+            icone, gratuit, populaire, nouveau, certifiant, actif,
             modules_data
         } = req.body;
 
-        // Validation des champs requis
-        if (!titre || !description || !domaine || !niveau) {
-            return res.status(400).json({
-                success: false,
-                message: 'Tous les champs obligatoires doivent être remplis'
-            });
+        // CORRECTION 1: Gérer le cas où duree_heures est un tableau
+        let dureeHeuresValue = duree_heures;
+        if (Array.isArray(duree_heures)) {
+            dureeHeuresValue = parseInt(duree_heures[0]) || 0;
+            console.log('🔧 duree_heures était un tableau, prise du premier élément:', dureeHeuresValue);
         }
 
-        // Préparer les données de la formation
-        const formationData = {
-            titre: titre.trim(),
-            description: description.trim(),
+        formationData = {
+            titre: titre?.trim(),
+            description: description?.trim(),
             domaine,
             niveau,
             prix: parseFloat(prix) || 0,
-            duree_heures: parseInt(duree_heures) || 0,
-            nombre_modules: 0, // Sera calculé
+            duree_heures: parseInt(dureeHeuresValue) || 0,
             icone: icone || '📚',
-            gratuit: gratuit === 'true' || parseFloat(prix) === 0,
-            populaire: populaire === 'true',
-            nouveau: nouveau === 'true',
-            certifiant: certifiant === 'true',
-            actif: actif !== 'false'
+            gratuit: gratuit === 'true' || gratuit === true || parseFloat(prix) === 0,
+            populaire: populaire === 'true' || populaire === true,
+            nouveau: nouveau === 'true' || nouveau === true,
+            certifiant: certifiant === 'true' || certifiant === true,
+            actif: actif !== 'false' && actif !== false
         };
 
-        // Traitement des modules si fournis
-        let modulesArray = [];
+        // Parser les modules si fournis en JSON
         if (modules_data) {
             try {
-                modulesArray = JSON.parse(modules_data);
-                formationData.nombre_modules = modulesArray.length;
-                
-                // Recalculer la durée totale
-                const totalMinutes = modulesArray.reduce((total, module) => {
-                    return total + (parseInt(module.duree) || 0);
-                }, 0);
-                formationData.duree_heures = Math.ceil(totalMinutes / 60);
+                formationData.modules = JSON.parse(modules_data);
+                console.log('✅ Modules parsés avec succès:', formationData.modules.length, 'modules');
             } catch (error) {
-                console.error('Erreur parsing modules_data:', error);
+                console.error('❌ Erreur parsing modules_data:', error);
+                formationData.modules = [];
             }
+        } else {
+            formationData.modules = [];
         }
 
-        console.log('💾 Données formation préparées:', formationData);
+        console.log('📊 Données formation traitées:', formationData);
 
-        // Créer la formation
-        const nouvelleFormation = await Formation.create(formationData);
-        console.log('✅ Formation créée avec ID:', nouvelleFormation.id);
+        // CORRECTION 2: Validation plus robuste
+        if (!formationData.titre || formationData.titre.length < 3) {
+            console.error('❌ Titre invalide:', formationData.titre);
+            return res.status(400).json({
+                success: false,
+                message: 'Le titre doit contenir au moins 3 caractères'
+            });
+        }
 
-        // Créer les modules associés
-        if (modulesArray.length > 0) {
-            for (const [index, moduleData] of modulesArray.entries()) {
-                try {
-                    const module = await Module.create({
-                        formation_id: nouvelleFormation.id,
-                        titre: moduleData.titre || `Module ${index + 1}`,
-                        description: moduleData.description || '',
-                        duree_minutes: parseInt(moduleData.duree) || 0,
-                        ordre: parseInt(moduleData.ordre) || index + 1,
-                        type_contenu: 'video', // Par défaut
-                        disponible: true
-                    });
+        if (!formationData.description || formationData.description.length < 10) {
+            console.error('❌ Description invalide:', formationData.description);
+            return res.status(400).json({
+                success: false,
+                message: 'La description doit contenir au moins 10 caractères'
+            });
+        }
 
-                    console.log(`📚 Module ${index + 1} créé avec ID:`, module.id);
+        if (!formationData.domaine || !formationData.niveau) {
+            console.error('❌ Domaine ou niveau manquant:', {
+                domaine: formationData.domaine,
+                niveau: formationData.niveau
+            });
+            return res.status(400).json({
+                success: false,
+                message: 'Le domaine et le niveau sont obligatoires'
+            });
+        }
 
-                    // Créer les caractéristiques si il y a des parties/questions
-                    if (moduleData.parties && moduleData.parties.length > 0) {
-                        for (const partie of moduleData.parties) {
-                            if (partie.questions && partie.questions.length > 0) {
-                                // Créer une caractéristique pour le quiz
-                                await Caracteristique.create({
-                                    formation_id: nouvelleFormation.id,
-                                    titre: `Quiz - ${partie.titre}`,
-                                    icone: '❓'
-                                });
-                            }
-                        }
+        console.log('✅ Validation réussie, préparation des données DB...');
+
+        // CORRECTION 3: Préparer les données pour la base avec gestion d'erreurs
+        const dbFormationData = {
+            titre: formationData.titre,
+            description: formationData.description,
+            domaine: formationData.domaine,
+            niveau: formationData.niveau,
+            prix: formationData.prix || 0,
+            duree_heures: formationData.duree_heures || 0,
+            nombre_modules: formationData.modules?.length || 0,
+            icone: formationData.icone || '📚',
+            gratuit: formationData.gratuit || formationData.prix === 0,
+            populaire: formationData.populaire || false,
+            nouveau: formationData.nouveau || true,
+            certifiant: formationData.certifiant || false,
+            actif: formationData.actif !== false
+        };
+
+        console.log('💾 Données finales pour la DB:', dbFormationData);
+
+        // CORRECTION 4: Import des modèles avec gestion d'erreur
+        let Formation, Module, Caracteristique;
+        try {
+            const models = await import('../models/index.js');
+            Formation = models.Formation;
+            Module = models.Module;
+            Caracteristique = models.Caracteristique;
+            console.log('✅ Modèles importés avec succès');
+        } catch (importError) {
+            console.error('❌ Erreur import modèles:', importError);
+            return res.status(500).json({
+                success: false,
+                message: 'Erreur d\'import des modèles de données'
+            });
+        }
+
+        // CORRECTION 5: Transaction pour assurer la cohérence
+        const { sequelize } = await import('../models/index.js');
+        const transaction = await sequelize.transaction();
+        
+        try {
+            console.log('🚀 Début de la transaction, création de la formation...');
+            
+            // Créer la formation
+            const nouvelleFormation = await Formation.create(dbFormationData, { transaction });
+            console.log('✅ Formation créée avec ID:', nouvelleFormation.id);
+
+            // Créer les modules associés
+            if (formationData.modules && formationData.modules.length > 0) {
+                console.log(`📚 Création de ${formationData.modules.length} modules...`);
+                
+                for (const [index, moduleData] of formationData.modules.entries()) {
+                    try {
+                        const moduleDbData = {
+                            formation_id: nouvelleFormation.id,
+                            titre: moduleData.titre || `Module ${index + 1}`,
+                            description: moduleData.description || '',
+                            duree_minutes: parseInt(moduleData.duree) || 0,
+                            ordre: parseInt(moduleData.ordre) || index + 1,
+                            type_contenu: 'video', // Par défaut
+                            disponible: true
+                        };
+
+                        const moduleDb = await Module.create(moduleDbData, { transaction });
+                        console.log(`📖 Module "${moduleDb.titre}" créé avec ID:`, moduleDb.id);
+
+                    } catch (moduleError) {
+                        console.error(`❌ Erreur création module ${index + 1}:`, moduleError);
+                        // Ne pas faire échouer toute la transaction pour un module
                     }
-
-                } catch (moduleError) {
-                    console.error(`Erreur création module ${index + 1}:`, moduleError);
                 }
             }
-        }
 
-        // Créer des caractéristiques de base pour la formation
-        const caracteristiquesBase = [
-            { titre: 'Accès immédiat', icone: '⚡' },
-            { titre: 'Certificat inclus', icone: '🏆' },
-            { titre: 'Support 24/7', icone: '🆘' },
-            { titre: 'Contenu premium', icone: '⭐' }
-        ];
+            // Créer des caractéristiques de base
+            const caracteristiquesBase = [
+                { titre: 'Accès immédiat', icone: '⚡' },
+                { titre: 'Certificat inclus', icone: '🏆' },
+                { titre: 'Support 24/7', icone: '🆘' },
+                { titre: 'Contenu interactif', icone: '🎯' }
+            ];
 
-        for (const carac of caracteristiquesBase) {
-            try {
-                await Caracteristique.create({
-                    formation_id: nouvelleFormation.id,
-                    titre: carac.titre,
-                    icone: carac.icone
-                });
-            } catch (caracError) {
-                console.error('Erreur création caractéristique:', caracError);
+            for (const carac of caracteristiquesBase) {
+                try {
+                    await Caracteristique.create({
+                        formation_id: nouvelleFormation.id,
+                        titre: carac.titre,
+                        icone: carac.icone
+                    }, { transaction });
+                } catch (caracError) {
+                    console.error('❌ Erreur création caractéristique:', caracError);
+                }
             }
-        }
 
-        // Réponse de succès
-        if (req.headers.accept && req.headers.accept.includes('application/json')) {
-            return res.json({
+            // Valider la transaction
+            await transaction.commit();
+            console.log('✅ Transaction validée avec succès');
+
+            // Réponse de succès
+            const responseData = {
                 success: true,
                 message: `Formation "${nouvelleFormation.titre}" créée avec succès`,
                 formation: {
                     id: nouvelleFormation.id,
                     titre: nouvelleFormation.titre,
-                    modules: modulesArray.length
+                    modules: formationData.modules?.length || 0,
+                    domaine: nouvelleFormation.domaine,
+                    niveau: nouvelleFormation.niveau,
+                    prix: nouvelleFormation.prix,
+                    gratuit: nouvelleFormation.gratuit
                 }
-            });
-        }
+            };
 
-        // Redirection pour formulaire HTML classique
-        req.session.flash = {
-            type: 'success',
-            message: `Formation "${nouvelleFormation.titre}" créée avec succès`
-        };
-        res.redirect('/admin/formations');
+            console.log('🎉 Formation créée avec succès:', responseData);
+
+            // CORRECTION 6: Déterminer le type de réponse plus robuste
+            const acceptsJson = req.headers.accept?.includes('application/json');
+            const isJsonRequest = req.headers['content-type']?.includes('application/json');
+            
+            if (acceptsJson || isJsonRequest) {
+                return res.status(201).json(responseData);
+            }
+
+            // Redirection pour formulaire HTML classique
+            req.session.flash = {
+                type: 'success',
+                message: responseData.message
+            };
+            
+            return res.redirect('/admin/formations');
+
+        } catch (dbError) {
+            // Annuler la transaction en cas d'erreur
+            await transaction.rollback();
+            console.error('❌ Erreur base de données, transaction annulée:', dbError);
+            throw dbError; // Re-lancer pour être traité dans le catch principal
+        }
 
     } catch (error) {
         console.error('❌ Erreur création formation:', error);
-        
-        if (req.headers.accept && req.headers.accept.includes('application/json')) {
-            return res.status(500).json({
-                success: false,
-                message: 'Erreur lors de la création de la formation',
-                error: error.message
+        console.error('Stack trace complète:', error.stack);
+
+        // CORRECTION 7: Log détaillé des erreurs Sequelize
+        if (error.name === 'SequelizeValidationError') {
+            console.error('🔍 Erreurs de validation Sequelize:');
+            error.errors.forEach(err => {
+                console.error(`- ${err.path}: ${err.message}`);
             });
         }
 
-        res.status(500).render('admin/formations/create', {
+        if (error.name === 'SequelizeDatabaseError') {
+            console.error('🔍 Erreur SQL:', error.sql);
+            console.error('🔍 Paramètres SQL:', error.parameters);
+        }
+
+        const errorResponse = {
+            success: false,
+            message: 'Erreur lors de la création de la formation',
+            error: process.env.NODE_ENV === 'development' ? error.message : 'Erreur interne du serveur',
+            details: process.env.NODE_ENV === 'development' ? {
+                name: error.name,
+                stack: error.stack,
+                code: error.code,
+                sql: error.sql
+            } : undefined
+        };
+
+        const acceptsJson = req.headers.accept?.includes('application/json');
+        const isJsonRequest = req.headers['content-type']?.includes('application/json');
+        
+        if (acceptsJson || isJsonRequest) {
+            return res.status(500).json(errorResponse);
+        }
+
+        // Pour les requêtes HTML, renvoyer la page avec erreur
+        return res.status(500).render('admin/formations/create', {
             title: 'Créer une formation - ADSIAM Admin',
             admin: req.admin,
-            error: 'Erreur lors de la création: ' + error.message,
+            error: errorResponse.message,
             formData: req.body,
             currentPage: 'formations',
             layout: 'layouts/admin'
         });
     }
 }
+
+// Méthode utilitaire pour générer un slug
+generateSlug(title) {
+    return title
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '') // Supprimer les accents
+        .replace(/[^a-z0-9\s-]/g, '') // Supprimer les caractères spéciaux
+        .replace(/\s+/g, '-') // Remplacer les espaces par des tirets
+        .replace(/-+/g, '-') // Supprimer les tirets multiples
+        .trim('-'); // Supprimer les tirets en début/fin
+}
+
+// Méthode utilitaire pour obtenir l'icône du type de contenu
+getContentIcon(contentType) {
+    const icons = {
+        'video': '🎥',
+        'document': '📄',
+        'quiz': '❓',
+        'text': '📝',
+        'audio': '🎵',
+        'image': '🖼️'
+    };
+    return icons[contentType] || '📚';
+}
+
 
 async addDomain(req, res) {
     try {
@@ -1754,46 +1879,51 @@ async getSettings(req, res) {
     // Méthodes supplémentaires pour AdminController.js
 
 // Voir une formation spécifique
+// Méthode pour gérer la route de détail de formation
 async viewFormation(req, res) {
     try {
         const { id } = req.params;
-        
+        const { Formation, Module, Caracteristique, Avis } = await import('../models/index.js');
+
         const formation = await Formation.findByPk(id, {
             include: [
-                { 
-                    model: Module, 
+                {
+                    model: Module,
                     as: 'modules',
                     order: [['ordre', 'ASC']]
                 },
-                { model: Caracteristique, as: 'caracteristiques' },
-                { 
-                    model: Avis, 
+                {
+                    model: Caracteristique,
+                    as: 'caracteristiques',
+                    limit: 6
+                },
+                {
+                    model: Avis,
                     as: 'avis',
-                    limit: 10,
-                    order: [['createdat', 'DESC']]
+                    limit: 5,
+                    order: [['createdAt', 'DESC']]
                 }
             ]
         });
 
         if (!formation) {
             return res.status(404).render('errors/404', {
-                message: 'Formation non trouvée'
+                title: 'Formation non trouvée',
+                message: 'La formation demandée n\'existe pas ou a été supprimée.'
             });
         }
 
         // Calculer les statistiques
         const stats = {
-            totalInscriptions: await Inscription.count({ where: { formation_id: id } }),
-            inscriptionsActives: await Inscription.count({ 
-                where: { formation_id: id, statut: 'active' } 
-            }),
-            tauxCompletion: 85, // À calculer selon vos besoins
-            noteMoyenne: formation.avis?.length > 0 
-                ? (formation.avis.reduce((sum, avis) => sum + avis.note, 0) / formation.avis.length).toFixed(1)
-                : 0
+            averageRating: formation.avis.length > 0 
+                ? formation.avis.reduce((sum, avis) => sum + avis.note, 0) / formation.avis.length 
+                : 0,
+            totalReviews: formation.avis.length,
+            totalDuration: formation.modules.reduce((sum, module) => sum + (module.duree_minutes || 0), 0),
+            completionRate: 85 // Simulé
         };
 
-        res.render('admin/formations/view', {
+        res.render('admin/formations/detail', {
             title: `${formation.titre} - ADSIAM Admin`,
             admin: req.admin,
             formation,
@@ -1804,7 +1934,88 @@ async viewFormation(req, res) {
 
     } catch (error) {
         console.error('Erreur viewFormation:', error);
-        res.status(500).render('errors/500', { error });
+        res.status(500).render('errors/500', { 
+            error: 'Erreur lors du chargement de la formation',
+            layout: 'layouts/admin'
+        });
+    }
+}
+
+async publicViewFormation(req, res) {
+    try {
+        const { id } = req.params;
+        const { Formation, Module, Caracteristique, Avis } = await import('../models/index.js');
+
+        const formation = await Formation.findOne({
+            where: { 
+                id, 
+                actif: true 
+            },
+            include: [
+                {
+                    model: Module,
+                    as: 'modules',
+                    where: { disponible: true },
+                    required: false,
+                    order: [['ordre', 'ASC']]
+                },
+                {
+                    model: Caracteristique,
+                    as: 'caracteristiques'
+                },
+                {
+                    model: Avis,
+                    as: 'avis',
+                    where: { verifie: true },
+                    required: false,
+                    order: [['createdAt', 'DESC']],
+                    limit: 10
+                }
+            ]
+        });
+
+        if (!formation) {
+            return res.status(404).render('errors/404', {
+                title: 'Formation non trouvée',
+                message: 'La formation demandée n\'existe pas ou n\'est plus disponible.'
+            });
+        }
+
+        // Calculer les statistiques
+        const stats = {
+            averageRating: formation.avis.length > 0 
+                ? formation.avis.reduce((sum, avis) => sum + avis.note, 0) / formation.avis.length 
+                : 0,
+            totalReviews: formation.avis.length,
+            studentsCount: Math.floor(Math.random() * 1000) + 500, // Simulé
+            completionRate: 92 // Simulé
+        };
+
+        // Formations similaires
+        const relatedFormations = await Formation.findAll({
+            where: { 
+                domaine: formation.domaine,
+                actif: true,
+                id: { [Op.ne]: formation.id }
+            },
+            limit: 3,
+            order: [['populaire', 'DESC'], ['createdAt', 'DESC']]
+        });
+
+        res.render('formations/detail', {
+            title: `${formation.titre} - ADSIAM`,
+            formation,
+            stats,
+            relatedFormations,
+            user: req.user || null,
+            layout: 'layouts/main'
+        });
+
+    } catch (error) {
+        console.error('Erreur publicViewFormation:', error);
+        res.status(500).render('errors/500', { 
+            error: 'Erreur lors du chargement de la formation'
+        });
     }
 }
 
