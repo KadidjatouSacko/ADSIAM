@@ -13,6 +13,7 @@ router.use(checkCompany);
 router.get('/', CompanyController.dashboard);
 router.get('/dashboard', CompanyController.dashboard);
 
+
 // ========================================
 // 👥 GESTION DES SALARIÉS
 // ========================================

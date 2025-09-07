@@ -24,7 +24,6 @@ import adminRoutes from './routes/adminRoutes.js';
 import { sequelize } from './models/index.js';
 import methodOverride from 'method-override';
 
-
 // Configuration ES6 pour __dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -82,6 +81,7 @@ app.use(session({
 // Configuration Flash messages
 app.use(flash());
 app.use(methodOverride('_method'));
+
 // ========================================
 // 🛡️ SÉCURITÉ
 // ========================================
@@ -93,91 +93,108 @@ app.use((req, res, next) => {
     next();
 });
 
-
-
 // ========================================
-// 🌐 MIDDLEWARE GLOBAUX
+// 🌐 MIDDLEWARE GLOBAUX - VERSION CORRIGÉE
 // ========================================
 
-// Middleware global pour les variables locales
+// CORRECTION: Un seul middleware global pour gérer l'utilisateur
 app.use(async (req, res, next) => {
-    // Flash messages
-    res.locals.success = req.flash('success');
-    res.locals.error = req.flash('error');
-    res.locals.warning = req.flash('warning');
-    res.locals.info = req.flash('info');
-    
-    // Helpers globaux pour les vues EJS
-    res.locals.formatDate = (date) => {
-        return new Date(date).toLocaleDateString('fr-FR', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
-    };
-    
-    res.locals.formatTime = (date) => {
-        return new Date(date).toLocaleTimeString('fr-FR', {
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    };
-    
-    res.locals.capitalize = (str) => {
-        return str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
-    };
-
-    res.locals.formatDuration = (minutes) => {
-        if (!minutes) return '0min';
-        const hours = Math.floor(minutes / 60);
-        const mins = minutes % 60;
-        if (hours > 0) {
-            return `${hours}h${mins > 0 ? ` ${mins}min` : ''}`;
-        }
-        return `${mins}min`;
-    };
-
-    res.locals.getProgressColor = (percentage) => {
-        if (percentage >= 80) return 'var(--success)';
-        if (percentage >= 50) return 'var(--warning)';
-        return 'var(--info)';
-    };
-
-    res.locals.getStatusBadgeClass = (status) => {
-        const badges = {
-            'en_cours': 'status-current',
-            'termine': 'status-completed',
-            'non_commence': 'status-locked',
-            'suspendu': 'status-locked'
+    try {
+        // Flash messages
+        res.locals.success = req.flash('success');
+        res.locals.error = req.flash('error');
+        res.locals.warning = req.flash('warning');
+        res.locals.info = req.flash('info');
+        
+        // Helpers globaux pour les vues EJS
+        res.locals.formatDate = (date) => {
+            return new Date(date).toLocaleDateString('fr-FR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
         };
-        return badges[status] || 'status-locked';
-    };
+        
+        res.locals.formatTime = (date) => {
+            return new Date(date).toLocaleTimeString('fr-FR', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        };
+        
+        res.locals.capitalize = (str) => {
+            return str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
+        };
 
-    res.locals.truncateText = (text, length = 100) => {
-        if (!text) return '';
-        return text.length > length ? text.substring(0, length) + '...' : text;
-    };
+        res.locals.formatDuration = (minutes) => {
+            if (!minutes) return '0min';
+            const hours = Math.floor(minutes / 60);
+            const mins = minutes % 60;
+            if (hours > 0) {
+                return `${hours}h${mins > 0 ? ` ${mins}min` : ''}`;
+            }
+            return `${mins}min`;
+        };
 
-    // Variables d'authentification
-    res.locals.isAuthenticated = !!req.session?.userId;
-    res.locals.currentUser = null;
-    
-    // Enrichir les données utilisateur
-    if (req.session?.userId) {
-        try {
-            if (!req.session.user || !req.session.user.type_display) {
+        res.locals.getProgressColor = (percentage) => {
+            if (percentage >= 80) return 'var(--success)';
+            if (percentage >= 50) return 'var(--warning)';
+            return 'var(--info)';
+        };
+
+        res.locals.getStatusBadgeClass = (status) => {
+            const badges = {
+                'en_cours': 'status-current',
+                'termine': 'status-completed',
+                'non_commence': 'status-locked',
+                'suspendu': 'status-locked'
+            };
+            return badges[status] || 'status-locked';
+        };
+
+        res.locals.truncateText = (text, length = 100) => {
+            if (!text) return '';
+            return text.length > length ? text.substring(0, length) + '...' : text;
+        };
+
+        res.locals.getStatusBadge = (status) => {
+            const badges = {
+                'actif': 'badge-success',
+                'en_attente': 'badge-warning', 
+                'inactif': 'badge-secondary',
+                'suspendu': 'badge-danger'
+            };
+            return badges[status] || 'badge-secondary';
+        };
+
+        // CORRECTION: Variables d'authentification unifiées
+        res.locals.isAuthenticated = !!req.session?.userId;
+        res.locals.currentUser = null;
+        res.locals.user = null; // Pour compatibilité
+        res.locals.admin = null;
+        
+        // CORRECTION: Enrichir les données utilisateur depuis la table 'users'
+        if (req.session?.userId) {
+            // Vérifier si on a déjà les données en session
+            if (!req.session.user || !req.session.user.role) {
+                console.log('🔄 Récupération des données utilisateur depuis la table users');
                 const { QueryTypes } = await import('sequelize');
                 
+                // CORRECTION: Utiliser la table 'users' au lieu de 'utilisateurs'
                 const userData = await sequelize.query(`
                     SELECT 
-                        u.*,
+                        u.id, u.prenom, u.nom, u.email, u.role, u.statut,
+                        u.type_utilisateur, u.societe_rattachee, u.telephone,
+                        u.date_inscription, u.derniere_connexion,
                         CASE 
                             WHEN u.type_utilisateur = 'aide_domicile' THEN 'Aide à domicile'
                             WHEN u.type_utilisateur = 'aide_soignant' THEN 'Aide-soignant'
                             WHEN u.type_utilisateur = 'formateur' THEN 'Formateur'
+                            WHEN u.role = 'societe' THEN 'Entreprise'
+                            WHEN u.role = 'admin' THEN 'Administrateur'
                             ELSE 'Étudiant'
                         END as type_display
-                    FROM utilisateurs u 
+                    FROM users u 
                     WHERE u.id = :userId
                 `, {
                     type: QueryTypes.SELECT,
@@ -186,77 +203,95 @@ app.use(async (req, res, next) => {
                 
                 if (userData[0]) {
                     req.session.user = userData[0];
+                    console.log(`✅ Données utilisateur récupérées: ${userData[0].prenom} ${userData[0].nom} (${userData[0].role})`);
+                } else {
+                    console.log('❌ Utilisateur non trouvé, destruction session');
+                    req.session.destroy();
+                    return next();
                 }
             }
             
-            res.locals.currentUser = req.session.user;
-            res.locals.hasRole = (role) => req.session.user?.type_utilisateur === role;
-            res.locals.isActive = () => req.session.user?.statut === 'actif';
-            res.locals.isAdmin = req.session.user?.role === 'admin';
+            // Définir toutes les variables utilisateur
+            const user = req.session.user;
+            res.locals.currentUser = user;
+            res.locals.user = user; // Pour compatibilité avec les anciennes vues
+            res.locals.admin = user.role === 'admin' ? user : null;
             
-        } catch (error) {
-            console.error('Erreur enrichissement utilisateur global:', error);
+            // Helpers pour les rôles
+            res.locals.hasRole = (role) => user.type_utilisateur === role || user.role === role;
+            res.locals.isActive = () => user.statut === 'actif';
+            res.locals.isAdmin = user.role === 'admin';
+            res.locals.isCompany = user.role === 'societe';
+            
+            console.log(`👤 Utilisateur en session: ${user.prenom} ${user.nom} (Role: ${user.role}, Statut: ${user.statut})`);
+        } else {
+            // Utilisateur non connecté - définir les helpers par défaut
+            res.locals.hasRole = () => false;
+            res.locals.isActive = () => false;
+            res.locals.isAdmin = false;
+            res.locals.isCompany = false;
         }
-    }
-    
-    // Helpers pour les rôles par défaut
-    res.locals.hasRole = res.locals.hasRole || (() => false);
-    res.locals.isActive = res.locals.isActive || (() => false);
-    res.locals.isAdmin = res.locals.isAdmin || false;
-    res.locals.getStatusBadge = (status) => {
-        const badges = {
-            'actif': 'badge-success',
-            'en_attente': 'badge-warning', 
-            'inactif': 'badge-secondary',
-            'suspendu': 'badge-danger'
+
+        // CORRECTION: Fonctions utilitaires pour les entreprises
+        res.locals.getCompanyEmployeeCount = async (companyName) => {
+            try {
+                const { QueryTypes } = await import('sequelize');
+                const result = await sequelize.query(`
+                    SELECT COUNT(*) as count 
+                    FROM users 
+                    WHERE societe_rattachee = :company 
+                    AND role != 'societe'
+                `, {
+                    type: QueryTypes.SELECT,
+                    replacements: { company: companyName }
+                });
+                return result[0]?.count || 0;
+            } catch (error) {
+                console.error('Erreur count employés:', error);
+                return 0;
+            }
         };
-        return badges[status] || 'badge-secondary';
-    };
-res.locals.getCompanyEmployeeCount = async (companyName) => {
-    try {
-        const result = await sequelize.query(`
-            SELECT COUNT(*) as count 
-            FROM users 
-            WHERE societe_rattachee = :company 
-            AND role != 'societe'
-        `, {
-            type: QueryTypes.SELECT,
-            replacements: { company: companyName }
-        });
-        return result[0]?.count || 0;
-    } catch (error) {
-        console.error('Erreur count employés:', error);
-        return 0;
-    }
-};
 
-res.locals.getCompanyStats = async (companyName) => {
-    try {
-        const stats = await sequelize.query(`
-            SELECT 
-                COUNT(DISTINCT u.id) as employes,
-                COUNT(DISTINCT i.id) as inscriptions,
-                COUNT(DISTINCT CASE WHEN i.statut = 'termine' THEN i.id END) as terminees,
-                ROUND(AVG(i.progression_pourcentage), 1) as progression
-            FROM users u
-            LEFT JOIN inscriptions i ON u.id = i.user_id  
-            WHERE u.societe_rattachee = :company
-            AND u.role != 'societe'
-        `, {
-            type: QueryTypes.SELECT,
-            replacements: { company: companyName }
-        });
-        return stats[0] || {};
-    } catch (error) {
-        console.error('Erreur stats entreprise:', error);
-        return {};
-    }
-};
+        res.locals.getCompanyStats = async (companyName) => {
+            try {
+                const { QueryTypes } = await import('sequelize');
+                const stats = await sequelize.query(`
+                    SELECT 
+                        COUNT(DISTINCT u.id) as employes,
+                        COUNT(DISTINCT i.id) as inscriptions,
+                        COUNT(DISTINCT CASE WHEN i.statut = 'termine' THEN i.id END) as terminees,
+                        ROUND(AVG(i.progression_pourcentage), 1) as progression
+                    FROM users u
+                    LEFT JOIN inscriptions i ON u.id = i.user_id  
+                    WHERE u.societe_rattachee = :company
+                    AND u.role != 'societe'
+                `, {
+                    type: QueryTypes.SELECT,
+                    replacements: { company: companyName }
+                });
+                return stats[0] || {};
+            } catch (error) {
+                console.error('Erreur stats entreprise:', error);
+                return {};
+            }
+        };
 
-    next();
+        next();
+        
+    } catch (error) {
+        console.error('💥 Erreur middleware global:', error);
+        // En cas d'erreur, continuer sans bloquer l'application
+        res.locals.isAuthenticated = false;
+        res.locals.currentUser = null;
+        res.locals.user = null;
+        res.locals.admin = null;
+        res.locals.hasRole = () => false;
+        res.locals.isActive = () => false;
+        res.locals.isAdmin = false;
+        res.locals.isCompany = false;
+        next();
+    }
 });
-
-
 
 // MIDDLEWARE DE DEBUG
 if (process.env.NODE_ENV !== 'production') {
@@ -280,7 +315,7 @@ if (process.env.NODE_ENV !== 'production') {
         }
         
         if (req.session?.userId) {
-            console.log(`👤 User connecté: ID ${req.session.userId}`);
+            console.log(`👤 User connecté: ID ${req.session.userId}, Role: ${req.session.user?.role}`);
         }
         
         next();
@@ -298,7 +333,8 @@ app.get('/test-server', (req, res) => {
         timestamp: new Date(),
         nodeEnv: process.env.NODE_ENV,
         authenticated: !!req.session?.userId,
-        sessionId: req.sessionID
+        sessionId: req.sessionID,
+        userRole: req.session?.user?.role
     });
 });
 
@@ -309,7 +345,8 @@ app.post('/test-auth', (req, res) => {
         success: true,
         message: 'Test auth API OK',
         receivedData: req.body,
-        authenticated: !!req.session?.userId
+        authenticated: !!req.session?.userId,
+        userRole: req.session?.user?.role
     });
 });
 
@@ -327,6 +364,10 @@ app.use('/auth', authRoutes);
 console.log('👑 Montage des routes administrateur sur /admin');
 app.use('/admin', adminRoutes);
 
+// 🏢 CORRECTION: Routes entreprise (AVANT les autres pour éviter les conflits)
+console.log('🏢 Montage des routes Espace Entreprise sur /entreprise');
+app.use('/entreprise', companyRoutes);
+
 // 📊 Routes Dashboard
 console.log('📊 Montage des routes Dashboard');
 app.use('/', dashboardRoutes);
@@ -339,15 +380,13 @@ app.use('/', formationRoutes);
 console.log('👥 Montage de etudiantsRoutes sur /');
 app.use('/', etudiantsRoutes);
 
-console.log('🏢 Montage des routes Espace Entreprise sur /entreprise');
-app.use('/entreprise', companyRoutes);
-
 // ========================================
 // 🏠 ROUTES PRINCIPALES
 // ========================================
 
 // Page d'accueil
 app.get('/', (req, res) => {
+    console.log('🏠 Accès page d\'accueil');
     if (req.session?.userId) {
         res.render('home', {
             title: 'ADSIAM - Formation Excellence Aide à Domicile & EHPAD',
@@ -363,8 +402,7 @@ app.get('/', (req, res) => {
     }
 });
 
-// Dashboard avec redirection selon authentification
-// Dashboard avec redirection selon authentification
+// CORRECTION: Dashboard avec redirection selon authentification
 app.get('/dashboard', async (req, res, next) => {
     console.log('📊 Accès route /dashboard');
     
@@ -374,35 +412,16 @@ app.get('/dashboard', async (req, res, next) => {
         return res.redirect('/auth/login');
     }
     
-    // Récupérer les données utilisateur si pas en session
-    if (!req.session.user?.role) {
-        console.log('🔄 Récupération données utilisateur pour redirection');
-        try {
-            const { QueryTypes } = await import('sequelize');
-            const userData = await sequelize.query(`
-                SELECT id, prenom, nom, role, statut, societe_rattachee, type_utilisateur 
-                FROM users 
-                WHERE id = :userId
-            `, {
-                type: QueryTypes.SELECT,
-                replacements: { userId: req.session.userId }
-            });
-            
-            if (userData[0]) {
-                req.session.user = userData[0];
-                console.log(`👤 Données utilisateur récupérées: ${userData[0].prenom} ${userData[0].nom} (${userData[0].role})`);
-            } else {
-                console.log('❌ Utilisateur non trouvé, destruction session');
-                req.session.destroy();
-                return res.redirect('/auth/login');
-            }
-        } catch (error) {
-            console.error('💥 Erreur récupération utilisateur:', error);
-            return res.redirect('/auth/login');
-        }
+    // CORRECTION: Les données utilisateur sont déjà récupérées par le middleware global
+    const user = req.session.user;
+    
+    if (!user || !user.role) {
+        console.log('❌ Données utilisateur manquantes, redirection login');
+        req.session.destroy();
+        return res.redirect('/auth/login');
     }
     
-    const userRole = req.session.user.role;
+    const userRole = user.role;
     console.log(`🎯 Role utilisateur: ${userRole}`);
     
     // Redirection selon le rôle
@@ -435,6 +454,7 @@ app.get('/dashboard', async (req, res, next) => {
 
 // Route de déconnexion rapide
 app.get('/logout', (req, res) => {
+    console.log('🚪 Déconnexion utilisateur');
     req.session.destroy((err) => {
         if (err) {
             console.error('Erreur destruction session:', err);
@@ -488,7 +508,6 @@ app.get('/api/company/quick-stats', async (req, res) => {
         res.status(500).json({ success: false, error: 'Erreur serveur' });
     }
 });
-
 
 // ========================================
 // 🚫 GESTION DES ERREURS
@@ -562,25 +581,11 @@ async function startServer() {
             console.log(`📝 Inscription: http://localhost:${PORT}/auth/register`);
             console.log(`📊 Dashboard: http://localhost:${PORT}/dashboard`);
             console.log(`👑 Admin: http://localhost:${PORT}/admin`);
+            console.log(`🏢 Entreprise: http://localhost:${PORT}/entreprise`);
             
             console.log('\n🧪 Routes de test:');
             console.log(`  GET  http://localhost:${PORT}/test-server`);
             console.log(`  POST http://localhost:${PORT}/test-auth`);
-            
-            console.log('\n📊 API Dashboard:');
-            console.log('  GET  /api/dashboard/quick-stats     - Stats rapides');
-            
-            console.log('\n🔐 Routes d\'authentification principales:');
-            console.log('  GET  /auth/login    - Page de connexion');
-            console.log('  POST /auth/login    - Traitement connexion');
-            console.log('  GET  /auth/register - Page d\'inscription');
-            console.log('  POST /auth/register - Traitement inscription');
-            
-            console.log('\n👑 Routes administrateur:');
-            console.log('  GET  /admin                     - Dashboard admin');
-            console.log('  GET  /admin/utilisateurs        - Gestion utilisateurs');
-            console.log('  GET  /admin/formations          - Gestion formations');
-            console.log('  GET  /admin/inscriptions        - Gestion inscriptions');
             
             if (process.env.NODE_ENV !== 'production') {
                 console.log('\n🚨 Mode développement activé - Logs détaillés disponibles');
