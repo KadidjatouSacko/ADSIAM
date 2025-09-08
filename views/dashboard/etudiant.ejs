@@ -10,6 +10,7 @@
 <% } %>
 
 <style>
+    /* Votre CSS existant reste identique */
     :root {
         /* Vos couleurs ADSIAM exactes */
         --primary-pink: #e7a6b7;
@@ -49,6 +50,7 @@
         background: var(--soft-gray);
     }
 
+    /* Votre CSS existant... (je vais garder tout le CSS identique pour ne pas casser le design) */
     /* Layout Principal */
     .dashboard-layout {
         display: flex;
@@ -1171,20 +1173,38 @@
                     <% if (typeof formationEnCours !== 'undefined' && formationEnCours) { %>
                         <div class="formation-current">
                             <div class="formation-badge">En cours</div>
-                            <h3 class="formation-title"><%= formationEnCours.formation.titre %></h3>
+                            <!-- CORRECTION: Vérification sécurisée des propriétés -->
+                            <h3 class="formation-title">
+                                <% if (formationEnCours.formation && formationEnCours.formation.titre) { %>
+                                    <%= formationEnCours.formation.titre %>
+                                <% } else if (formationEnCours.titre) { %>
+                                    <%= formationEnCours.titre %>
+                                <% } else { %>
+                                    Formation sans titre
+                                <% } %>
+                            </h3>
                             <div class="formation-meta">
-                                <span>📚 Module <%= formationEnCours.module_actuel || 1 %>/<%= formationEnCours.formation.nombre_modules %></span>
-                                <span>⏱️ <%= (formationEnCours.formation.duree_heures || 0) - Math.floor((formationEnCours.temps_total_minutes || 0) / 60) %>h restantes</span>
+                                <span>📚 Module 
+                                    <%= formationEnCours.module_actuel || 1 %>/<%= 
+                                    (formationEnCours.formation && formationEnCours.formation.nombre_modules) || 
+                                    formationEnCours.nombre_modules || 1 %>
+                                </span>
+                                <span>⏱️ 
+                                    <%= Math.max(0, 
+                                        ((formationEnCours.formation && formationEnCours.formation.duree_heures) || 
+                                         formationEnCours.duree_heures || 0) - 
+                                        Math.floor((formationEnCours.temps_total_minutes || 0) / 60)) %>h restantes
+                                </span>
                                 <span>🎯 <%= formationEnCours.progression_pourcentage || 0 %>% complété</span>
                             </div>
                             <div class="formation-progress-bar">
                                 <div class="progress-fill" style="width: <%= formationEnCours.progression_pourcentage || 0 %>%;"></div>
                             </div>
                             <div class="formation-actions">
-                                <a href="/formation/<%= formationEnCours.formation.id %>/module/<%= formationEnCours.module_actuel || 1 %>" class="btn btn-primary">
+                                <a href="/formation/<%= (formationEnCours.formation && formationEnCours.formation.id) || formationEnCours.id || formationEnCours.formation_id %>/module/<%= formationEnCours.module_actuel || 1 %>" class="btn btn-primary">
                                     ▶️ Continuer
                                 </a>
-                                <a href="/formation/<%= formationEnCours.formation.id %>" class="btn btn-secondary">
+                                <a href="/formation/<%= (formationEnCours.formation && formationEnCours.formation.id) || formationEnCours.id || formationEnCours.formation_id %>" class="btn btn-secondary">
                                     📋 Voir le programme
                                 </a>
                             </div>
@@ -1196,9 +1216,9 @@
                                     <div class="module-item" data-module-id="<%= module.id %>">
                                         <div class="module-number"><%= index + 1 %></div>
                                         <div class="module-info">
-                                            <div class="module-title"><%= module.titre %></div>
+                                            <div class="module-title"><%= module.titre || 'Module sans titre' %></div>
                                             <div class="module-duration">
-                                                <%= typeof formatDuration !== 'undefined' ? formatDuration(module.duree_minutes) : module.duree_minutes + ' minutes' %>
+                                                <%= typeof formatDuration !== 'undefined' ? formatDuration(module.duree_minutes) : (module.duree_minutes || 0) + ' minutes' %>
                                             </div>
                                         </div>
                                         <div class="module-status <%= module.statut === 'termine' ? 'status-completed' : (module.statut === 'en_cours' ? 'status-current' : 'status-locked') %>">
@@ -1329,71 +1349,6 @@
                     </div>
                 </div>
             <% } %>
-
-            <!-- Événements à venir -->
-            <% if (typeof evenementsProchains !== 'undefined' && evenementsProchains.length > 0) { %>
-                <div class="current-formation fade-in" style="margin-bottom: 2rem;">
-                    <h2 class="section-title">
-                        <div class="section-icon">📅</div>
-                        Événements à venir
-                    </h2>
-
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
-                        <% evenementsProchains.forEach((event, index) => { %>
-                            <div style="border-radius: 15px; padding: 1.5rem; color: white; position: relative; overflow: hidden; background: <%= index % 3 === 0 ? 'var(--gradient-blue)' : (index % 3 === 1 ? 'var(--gradient-orange)' : 'var(--gradient-contact)') %>; cursor: pointer;" onclick="rejoindreEvenement('<%= event.id %>')">
-                                <div style="background: rgba(255,255,255,0.2); padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.8rem; font-weight: 600; display: inline-block; margin-bottom: 1rem;">
-                                    <%= event.type_evenement === 'webinaire' ? 'Webinaire' : (event.type_evenement === 'atelier' ? 'Atelier Pratique' : 'Conférence') %>
-                                </div>
-                                <h4 style="margin-bottom: 0.5rem; font-weight: 600;"><%= event.titre %></h4>
-                                <p style="opacity: 0.9; margin-bottom: 1rem; font-size: 0.9rem;">
-                                    <%= typeof truncateText !== 'undefined' ? truncateText(event.description, 100) : event.description %>
-                                </p>
-                                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem;">
-                                    <span>📅 <%= typeof formatDate !== 'undefined' ? formatDate(event.date_debut) : new Date(event.date_debut).toLocaleDateString('fr-FR') %></span>
-                                    <span>👥 <%= event.participants_count || 0 %> inscrits</span>
-                                </div>
-                            </div>
-                        <% }) %>
-                    </div>
-                </div>
-            <% } %>
-
-            <!-- Messages récents -->
-            <% if (typeof messagesRecents !== 'undefined' && messagesRecents.length > 0) { %>
-                <div class="current-formation fade-in">
-                    <h2 class="section-title">
-                        <div class="section-icon">💬</div>
-                        Messages récents
-                    </h2>
-
-                    <div style="display: flex; flex-direction: column; gap: 1rem;">
-                        <% messagesRecents.forEach(message => { %>
-                            <div style="background: var(--white); padding: 1.5rem; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); cursor: pointer; transition: all 0.3s;" 
-                                 onclick="ouvrirMessage('<%= message.id %>')"
-                                 onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 10px 25px rgba(0,0,0,0.12)'"
-                                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 5px 15px rgba(0,0,0,0.08)'">
-                                <div style="display: flex; justify-content: between; align-items: start; margin-bottom: 0.5rem;">
-                                    <h4 style="color: var(--text-dark); font-weight: 600; flex: 1;"><%= message.sujet %></h4>
-                                    <span style="color: var(--text-light); font-size: 0.85rem;">
-                                        <%= typeof formatDate !== 'undefined' ? formatDate(message.createdat) : new Date(message.createdat).toLocaleDateString('fr-FR') %>
-                                    </span>
-                                </div>
-                                <p style="color: var(--text-light); margin-bottom: 1rem; line-height: 1.6;">
-                                    <%= typeof truncateText !== 'undefined' ? truncateText(message.contenu, 100) : (message.contenu.length > 100 ? message.contenu.substring(0, 100) + '...' : message.contenu) %>
-                                </p>
-                                <div style="display: flex; align-items: center; gap: 1rem;">
-                                    <span style="background: <%= message.lu ? 'var(--light-green)' : 'var(--light-pink)' %>; color: <%= message.lu ? 'var(--success)' : 'var(--primary-pink)' %>; padding: 0.3rem 0.8rem; border-radius: 12px; font-size: 0.8rem; font-weight: 600;">
-                                        <%= message.lu ? '📖 Lu' : '📬 Non lu' %>
-                                    </span>
-                                    <span style="color: var(--text-light); font-size: 0.85rem;">
-                                        <%= message.type_message || 'Message' %>
-                                    </span>
-                                </div>
-                            </div>
-                        <% }) %>
-                    </div>
-                </div>
-            <% } %>
         </div>
     </main>
 </div>
@@ -1411,20 +1366,22 @@ document.addEventListener('DOMContentLoaded', function() {
     const sidebar = document.getElementById('sidebar');
     const sidebarToggle = document.getElementById('sidebarToggle');
 
-    sidebarToggle.addEventListener('click', () => {
-        sidebar.classList.toggle('collapsed');
-        sidebarToggle.textContent = sidebar.classList.contains('collapsed') ? '›' : '‹';
-        localStorage.setItem('adsiam_sidebar_collapsed', sidebar.classList.contains('collapsed'));
-    });
+    if (sidebar && sidebarToggle) {
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+            sidebarToggle.textContent = sidebar.classList.contains('collapsed') ? '›' : '‹';
+            localStorage.setItem('adsiam_sidebar_collapsed', sidebar.classList.contains('collapsed'));
+        });
 
-    // Charger l'état du sidebar
-    if (localStorage.getItem('adsiam_sidebar_collapsed') === 'true') {
-        sidebar.classList.add('collapsed');
-        sidebarToggle.textContent = '›';
+        // Charger l'état du sidebar
+        if (localStorage.getItem('adsiam_sidebar_collapsed') === 'true') {
+            sidebar.classList.add('collapsed');
+            sidebarToggle.textContent = '›';
+        }
     }
 
     // Mobile Sidebar
-    if (window.innerWidth <= 1024) {
+    if (window.innerWidth <= 1024 && sidebar) {
         sidebar.classList.add('collapsed');
         
         const mobileToggle = document.createElement('button');
@@ -1514,7 +1471,8 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.module-item').forEach(module => {
         module.addEventListener('click', function() {
             const moduleId = this.getAttribute('data-module-id');
-            const status = this.querySelector('.module-status').textContent;
+            const statusElement = this.querySelector('.module-status');
+            const status = statusElement ? statusElement.textContent : '';
             
             if (status.includes('En cours') || status.includes('Terminé')) {
                 window.location.href = `/module/${moduleId}`;
@@ -1556,29 +1514,6 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => console.error('Erreur refresh stats:', error));
     }
-
-    // Server-Sent Events pour notifications temps réel
-    if (typeof EventSource !== 'undefined') {
-        const eventSource = new EventSource('/api/sse/notifications');
-        
-        eventSource.onmessage = function(event) {
-            const data = JSON.parse(event.data);
-            if (data.type === 'notification_count') {
-                const badge = document.querySelector('.notification-badge');
-                if (badge) {
-                    badge.textContent = data.count;
-                    badge.style.display = data.count > 0 ? 'flex' : 'none';
-                }
-            }
-        };
-
-        eventSource.onerror = function(error) {
-            console.log('SSE error, reconnecting...');
-            setTimeout(() => {
-                eventSource.close();
-            }, 5000);
-        };
-    }
 });
 
 // Fonctions utilitaires
@@ -1618,32 +1553,6 @@ function partagerCertificat(certId) {
             showNotification('📋 Lien de partage copié !', 'success');
         });
     }
-}
-
-function rejoindreEvenement(eventId) {
-    if (confirm('Voulez-vous vous inscrire à cet événement ?')) {
-        fetch('/api/evenements/' + eventId + '/inscription', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showNotification('✅ Inscription confirmée !', 'success');
-            } else {
-                showNotification('❌ ' + data.message, 'warning');
-            }
-        })
-        .catch(error => {
-            showNotification('❌ Erreur de connexion', 'warning');
-        });
-    }
-}
-
-function ouvrirMessage(messageId) {
-    window.location.href = '/mes-messages/' + messageId;
 }
 
 // Animations CSS
