@@ -160,7 +160,11 @@ router.put('/inscriptions/:id/statut', CompanyController.updateInscriptionStatus
 // Inscription groupée
 router.get('/inscriptions/groupee', CompanyController.groupInscription);
 router.post('/inscriptions/groupee', CompanyController.processGroupInscription);
+// Affichage du formulaire d'inscription groupée
+router.get('/inscriptions/groupee', CompanyController.groupInscription);
 
+// Traitement de l'inscription groupée
+router.post('/inscriptions/groupee', CompanyController.processGroupInscription);
 // ========================================
 // 💰 FACTURATION & DEVIS
 // ========================================

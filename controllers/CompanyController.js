@@ -1079,18 +1079,7 @@ static async viewInvoice(req, res) {
         res.json({ message: 'À implémenter' });
     }
 
-    static async groupInscription(req, res) {
-        // Page d'inscription groupée
-        res.render('entreprises/group-inscription', {
-            title: 'Inscription Groupée - ADSIAM',
-            layout: 'layouts/company'
-        });
-    }
 
-    static async processGroupInscription(req, res) {
-        // Traitement inscription groupée
-        res.json({ message: 'À implémenter' });
-    }
 
    static async quotes(req, res) {
     try {
@@ -1913,6 +1902,372 @@ static async processAddEmployee(req, res) {
             success: false,
             message: 'Erreur lors de l\'ajout du salarié. Veuillez réessayer.'
         });
+    }
+}
+
+// Dans CompanyController.js
+static async groupInscription(req, res) {
+    try {
+        const companyId = req.session.user.societe_rattachee;
+        
+        console.log(`📝 Chargement inscription groupée pour l'entreprise: ${companyId}`);
+
+        // Récupérer les employés actifs avec protection des données
+        const employees = await sequelize.query(`
+            SELECT DISTINCT 
+                u.id, 
+                COALESCE(u.prenom, '') as prenom, 
+                COALESCE(u.nom, '') as nom, 
+                COALESCE(u.email, '') as email, 
+                COALESCE(u.photo_profil, '') as photo_profil, 
+                COALESCE(u.statut, 'inactif') as statut,
+                COALESCE(u.type_utilisateur, 'salarié') as type_utilisateur
+            FROM users u
+            WHERE u.societe_rattachee = :companyId 
+            AND u.role != 'societe' 
+            AND u.statut IN ('actif', 'en_attente')
+            ORDER BY u.nom, u.prenom
+        `, {
+            type: QueryTypes.SELECT,
+            replacements: { companyId }
+        });
+
+        // Récupérer les formations disponibles avec prix sécurisés
+        const formations = await sequelize.query(`
+            SELECT 
+                f.id, 
+                COALESCE(f.titre, 'Formation sans titre') as titre, 
+                COALESCE(f.description, '') as description, 
+                COALESCE(f.icone, '📚') as icone, 
+                COALESCE(f.niveau, 'debutant') as niveau, 
+                COALESCE(f.duree_heures, 0) as duree_heures, 
+                COALESCE(f.nombre_modules, 0) as nombre_modules, 
+                COALESCE(f.prix, 0) as prix,
+                COALESCE(f.gratuit, false) as gratuit,
+                CASE 
+                    WHEN f.gratuit = true OR f.prix = 0 OR f.prix IS NULL THEN true
+                    ELSE false
+                END as est_gratuit
+            FROM formations f
+            WHERE f.actif = true
+            ORDER BY f.titre
+        `, {
+            type: QueryTypes.SELECT
+        });
+
+        // Stats de l'entreprise
+        const stats = await sequelize.query(`
+            SELECT 
+                COUNT(DISTINCT u.id) as total_employees,
+                COUNT(DISTINCT i.id) as total_inscriptions,
+                COUNT(DISTINCT CASE WHEN i.statut IN ('termine', 'valide') THEN i.id END) as formations_terminees,
+                COUNT(DISTINCT CASE WHEN i.certifie = true THEN i.id END) as certifications_obtenues
+            FROM users u
+            LEFT JOIN inscriptions i ON u.id = i.user_id
+            WHERE u.societe_rattachee = :companyId
+            AND u.role != 'societe'
+        `, {
+            type: QueryTypes.SELECT,
+            replacements: { companyId }
+        });
+
+        console.log(`✅ Données chargées: ${employees.length} employés, ${formations.length} formations`);
+
+        res.render('entreprises/group-inscription', {
+            title: 'Inscription Groupée - ADSIAM',
+            layout: 'layouts/company',
+            currentUser: req.session.user,
+            employees: employees || [],
+            formations: formations || [],
+            stats: stats[0] || {}
+        });
+
+    } catch (error) {
+        console.error('💥 Erreur inscription groupée:', error);
+        req.flash('error', 'Erreur lors du chargement de la page.');
+        res.redirect('/entreprise/inscriptions');
+    }
+}
+
+static async processGroupInscription(req, res) {
+    try {
+        const { employees: employeeIds, formations: formationIds } = req.body;
+        const companyId = req.session.user.societe_rattachee;
+
+        console.log('📋 Données reçues:', { employeeIds, formationIds, companyId });
+
+        // Validation des données d'entrée
+        if (!employeeIds || !formationIds || 
+            !Array.isArray(employeeIds) || !Array.isArray(formationIds) ||
+            employeeIds.length === 0 || formationIds.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Veuillez sélectionner au moins un employé et une formation.'
+            });
+        }
+
+        // Convertir en entiers et valider
+        const validEmployeeIds = employeeIds
+            .map(id => parseInt(id))
+            .filter(id => !isNaN(id) && id > 0);
+            
+        const validFormationIds = formationIds
+            .map(id => parseInt(id))
+            .filter(id => !isNaN(id) && id > 0);
+
+        if (validEmployeeIds.length === 0 || validFormationIds.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'IDs employés ou formations invalides.'
+            });
+        }
+
+        // CORRECTION: Utiliser WHERE IN au lieu de ANY pour la compatibilité
+        const validEmployees = await sequelize.query(`
+            SELECT id, prenom, nom 
+            FROM users 
+            WHERE id IN (${validEmployeeIds.map(() => '?').join(',')})
+            AND societe_rattachee = ?
+            AND role != 'societe'
+            AND statut IN ('actif', 'en_attente')
+        `, {
+            type: QueryTypes.SELECT,
+            replacements: [...validEmployeeIds, companyId]
+        });
+
+        if (validEmployees.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Aucun employé valide trouvé pour cette entreprise.'
+            });
+        }
+
+        // Vérifier que les formations existent et sont actives
+        const validFormations = await sequelize.query(`
+            SELECT id, titre 
+            FROM formations 
+            WHERE id IN (${validFormationIds.map(() => '?').join(',')})
+            AND actif = true
+        `, {
+            type: QueryTypes.SELECT,
+            replacements: validFormationIds
+        });
+
+        if (validFormations.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Aucune formation valide sélectionnée.'
+            });
+        }
+
+        // Déterminer le statut valide pour les inscriptions
+        let statutInscription = 'en_cours'; // Valeur par défaut
+
+        // Essayer de détecter les statuts valides
+        try {
+            const statutsExistants = await sequelize.query(`
+                SELECT DISTINCT statut 
+                FROM inscriptions 
+                WHERE statut IS NOT NULL 
+                LIMIT 5
+            `, {
+                type: QueryTypes.SELECT
+            });
+
+            if (statutsExistants.length > 0) {
+                const statutsDisponibles = statutsExistants.map(row => row.statut);
+                console.log('Statuts existants trouvés:', statutsDisponibles);
+                
+                if (statutsDisponibles.includes('non_commence')) {
+                    statutInscription = 'non_commence';
+                } else if (statutsDisponibles.includes('inscrit')) {
+                    statutInscription = 'inscrit';
+                } else if (statutsDisponibles.includes('en_cours')) {
+                    statutInscription = 'en_cours';
+                } else {
+                    statutInscription = statutsDisponibles[0]; // Premier statut disponible
+                }
+            }
+        } catch (statutError) {
+            console.log('Impossible de détecter les statuts, utilisation de la valeur par défaut');
+        }
+
+        console.log('Statut d\'inscription utilisé:', statutInscription);
+
+        const transaction = await sequelize.transaction();
+        
+        try {
+            let totalCreated = 0;
+            let totalSkipped = 0;
+            const results = [];
+
+            for (const employee of validEmployees) {
+                for (const formation of validFormations) {
+                    try {
+                        // Vérifier si l'inscription existe déjà
+                        const existing = await sequelize.query(`
+                            SELECT id FROM inscriptions 
+                            WHERE user_id = ? AND formation_id = ?
+                        `, {
+                            type: QueryTypes.SELECT,
+                            transaction,
+                            replacements: [employee.id, formation.id]
+                        });
+
+                        if (existing.length === 0) {
+                            // Créer l'inscription
+                            const [inscriptionResult] = await sequelize.query(`
+                                INSERT INTO inscriptions 
+                                (user_id, formation_id, date_inscription, statut, 
+                                 progression_pourcentage, temps_total_minutes, certifie, 
+                                 createdat, updatedat)
+                                VALUES 
+                                (?, ?, NOW(), ?, 0, 0, false, NOW(), NOW())
+                                RETURNING id
+                            `, {
+                                type: QueryTypes.INSERT,
+                                transaction,
+                                replacements: [
+                                    employee.id, 
+                                    formation.id,
+                                    statutInscription
+                                ]
+                            });
+
+                            results.push({
+                                employeeId: employee.id,
+                                employeeName: `${employee.prenom} ${employee.nom}`,
+                                formationId: formation.id,
+                                formationName: formation.titre,
+                                inscriptionId: inscriptionResult[0]?.id,
+                                status: 'created'
+                            });
+                            totalCreated++;
+
+                        } else {
+                            results.push({
+                                employeeId: employee.id,
+                                employeeName: `${employee.prenom} ${employee.nom}`,
+                                formationId: formation.id,
+                                formationName: formation.titre,
+                                status: 'skipped',
+                                reason: 'Inscription existante'
+                            });
+                            totalSkipped++;
+                        }
+
+                    } catch (inscriptionError) {
+                        console.error(`❌ Erreur inscription ${employee.id} -> ${formation.id}:`, inscriptionError);
+                        results.push({
+                            employeeId: employee.id,
+                            employeeName: `${employee.prenom} ${employee.nom}`,
+                            formationId: formation.id,
+                            formationName: formation.titre,
+                            status: 'error',
+                            reason: inscriptionError.message
+                        });
+                    }
+                }
+            }
+
+            await transaction.commit();
+
+            // Construire le message de réponse
+            let message;
+            if (totalCreated > 0 && totalSkipped === 0) {
+                message = `${totalCreated} inscription(s) créée(s) avec succès !`;
+            } else if (totalCreated > 0 && totalSkipped > 0) {
+                message = `${totalCreated} inscription(s) créée(s) avec succès (${totalSkipped} ignorée(s) car déjà existante(s))`;
+            } else if (totalCreated === 0 && totalSkipped > 0) {
+                message = `Aucune nouvelle inscription créée (${totalSkipped} déjà existante(s))`;
+            } else {
+                message = 'Aucune inscription créée';
+            }
+
+            console.log(`✅ Traitement terminé: ${totalCreated} créées, ${totalSkipped} ignorées`);
+
+            res.json({
+                success: true,
+                message,
+                data: {
+                    totalCreated,
+                    totalSkipped,
+                    totalProcessed: totalCreated + totalSkipped,
+                    results,
+                    statutUtilise: statutInscription,
+                    employeesProcessed: validEmployees.length,
+                    formationsProcessed: validFormations.length
+                }
+            });
+
+        } catch (transactionError) {
+            await transaction.rollback();
+            console.error('💥 Erreur transaction:', transactionError);
+            throw transactionError;
+        }
+
+    } catch (error) {
+        console.error('💥 Erreur traitement inscription groupée:', error);
+        
+        let errorMessage = 'Erreur lors de la création des inscriptions.';
+        
+        // Messages d'erreur spécifiques
+        if (error.message && error.message.includes('ANY')) {
+            errorMessage = 'Erreur de syntaxe SQL. Problème corrigé.';
+        } else if (error.message && error.message.includes('constraint')) {
+            errorMessage = 'Erreur de contrainte de base de données. Veuillez contacter le support.';
+        } else if (error.message && error.message.includes('statut')) {
+            errorMessage = 'Statut d\'inscription invalide.';
+        } else if (error.message && error.message.includes('tableau')) {
+            errorMessage = 'Erreur de format des données.';
+        }
+
+        res.status(500).json({
+            success: false,
+            message: errorMessage,
+            details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    }
+}
+
+static async checkExistingInscriptions(req, res) {
+    try {
+        const { employees: employeeIds, formations: formationIds } = req.body;
+        const companyId = req.session.user.societe_rattachee;
+
+        if (!employeeIds || !formationIds || 
+            !Array.isArray(employeeIds) || !Array.isArray(formationIds)) {
+            return res.json({ success: true, existing: [] });
+        }
+
+        // Vérifier les inscriptions existantes
+        const existing = await sequelize.query(`
+            SELECT 
+                i.user_id as employee_id,
+                i.formation_id,
+                u.prenom,
+                u.nom,
+                f.titre as formation_titre,
+                i.statut
+            FROM inscriptions i
+            JOIN users u ON i.user_id = u.id
+            JOIN formations f ON i.formation_id = f.id
+            WHERE i.user_id IN (${employeeIds.map(() => '?').join(',')})
+            AND i.formation_id IN (${formationIds.map(() => '?').join(',')})
+            AND u.societe_rattachee = ?
+        `, {
+            type: QueryTypes.SELECT,
+            replacements: [...employeeIds, ...formationIds, companyId]
+        });
+
+        res.json({
+            success: true,
+            existing: existing || []
+        });
+
+    } catch (error) {
+        console.error('Erreur vérification doublons:', error);
+        res.json({ success: true, existing: [] });
     }
 }
 
