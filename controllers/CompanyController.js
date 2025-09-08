@@ -2230,6 +2230,7 @@ static async processGroupInscription(req, res) {
     }
 }
 
+// À ajouter dans CompanyController.js
 static async checkExistingInscriptions(req, res) {
     try {
         const { employees: employeeIds, formations: formationIds } = req.body;
@@ -2237,6 +2238,13 @@ static async checkExistingInscriptions(req, res) {
 
         if (!employeeIds || !formationIds || 
             !Array.isArray(employeeIds) || !Array.isArray(formationIds)) {
+            return res.json({ success: true, existing: [] });
+        }
+
+        const validEmployeeIds = employeeIds.map(id => parseInt(id)).filter(id => !isNaN(id));
+        const validFormationIds = formationIds.map(id => parseInt(id)).filter(id => !isNaN(id));
+
+        if (validEmployeeIds.length === 0 || validFormationIds.length === 0) {
             return res.json({ success: true, existing: [] });
         }
 
@@ -2252,12 +2260,12 @@ static async checkExistingInscriptions(req, res) {
             FROM inscriptions i
             JOIN users u ON i.user_id = u.id
             JOIN formations f ON i.formation_id = f.id
-            WHERE i.user_id IN (${employeeIds.map(() => '?').join(',')})
-            AND i.formation_id IN (${formationIds.map(() => '?').join(',')})
+            WHERE i.user_id IN (${validEmployeeIds.map(() => '?').join(',')})
+            AND i.formation_id IN (${validFormationIds.map(() => '?').join(',')})
             AND u.societe_rattachee = ?
         `, {
             type: QueryTypes.SELECT,
-            replacements: [...employeeIds, ...formationIds, companyId]
+            replacements: [...validEmployeeIds, ...validFormationIds, companyId]
         });
 
         res.json({
