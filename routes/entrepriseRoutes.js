@@ -252,4 +252,84 @@ router.get('/entreprises/export/csv', requireAuth, requireAdminOrFormateur, asyn
     }
 });
 
+// Route pour terminer une formation
+router.post('/api/formation/complete', async (req, res) => {
+    try {
+        const { formationId } = req.body;
+        const userId = req.session.userId;
+
+        await sequelize.query(`
+            UPDATE inscriptions 
+            SET statut = 'termine', 
+                progression_pourcentage = 100,
+                certifie = true,
+                date_certification = NOW()
+            WHERE formation_id = :formationId AND user_id = :userId
+        `, {
+            replacements: { formationId, userId }
+        });
+
+        res.json({ success: true, message: 'Formation terminée' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+});
+
+// Route pour continuer une formation (redirige vers le dernier module en cours)
+router.get('/formation/:formationId/continuer', isStudent, async (req, res) => {
+    try {
+        const { formationId } = req.params;
+        const userId = req.session.userId;
+
+        // Trouver le dernier module en cours ou le premier non terminé
+        const dernierModule = await sequelize.query(`
+            SELECT m.ordre 
+            FROM modules m
+            LEFT JOIN progressions_modules pm ON m.id = pm.module_id AND pm.user_id = :userId
+            WHERE m.formation_id = :formationId
+            AND (pm.statut IS NULL OR pm.statut != 'termine')
+            ORDER BY m.ordre ASC
+            LIMIT 1
+        `, {
+            type: QueryTypes.SELECT,
+            replacements: { formationId, userId }
+        });
+
+        const moduleNumber = dernierModule[0]?.ordre || 1;
+        
+        // Rediriger vers le module approprié
+        res.redirect(`/formation/${formationId}/module/${moduleNumber}`);
+        
+    } catch (error) {
+        console.error('Erreur route continuer:', error);
+        res.redirect(`/formation/${formationId}`);
+    }
+});
+
+// Route pour commencer une formation (redirige vers le premier module)
+router.get('/formation/:formationId/commencer', isStudent, async (req, res) => {
+    try {
+        const { formationId } = req.params;
+        
+        // Créer l'inscription si elle n'existe pas
+        const userId = req.session.userId;
+        
+        await sequelize.query(`
+            INSERT INTO inscriptions (user_id, formation_id, date_inscription, statut, progression_pourcentage, createdat, updatedat)
+            VALUES (:userId, :formationId, NOW(), 'en_cours', 0, NOW(), NOW())
+            ON CONFLICT (user_id, formation_id) DO NOTHING
+        `, {
+            replacements: { userId, formationId }
+        });
+
+        // Rediriger vers le premier module
+        res.redirect(`/formation/${formationId}/module/1`);
+        
+    } catch (error) {
+        console.error('Erreur route commencer:', error);
+        res.redirect(`/formation/${formationId}`);
+    }
+});
+
+
 export default router;

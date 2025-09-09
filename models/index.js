@@ -25,6 +25,7 @@ import VueVideoModel from './VueVideo.js';
 import TelechargementDocumentModel from './TelechargementDocument.js';
 import EvaluationModuleModel from './EvaluationModule.js';
 import EtudiantModel from './Etudiant.js';
+import ContenusModuleModel from './ContenusModule.js';
 
 // Charger les variables d'environnement
 dotenv.config();
@@ -76,6 +77,7 @@ const VueVideo = VueVideoModel(sequelize);
 const TelechargementDocument = TelechargementDocumentModel(sequelize);
 const EvaluationModule = EvaluationModuleModel(sequelize);
 const Caracteristique = CaracteristiqueModel(sequelize);
+const ContenusModule = ContenusModuleModel(sequelize);
 const Avis = AvisModel(sequelize);
 const User = UserModel(sequelize);
 const Inscription = InscriptionModel(sequelize);
@@ -442,6 +444,16 @@ User.hasMany(Message, {
     onDelete: 'CASCADE'
 });
 
+// MODULE -> CONTENUS
+Module.hasMany(ContenusModule, {
+    foreignKey: 'module_id',
+    as: 'contenus',
+    onDelete: 'CASCADE'
+});
+ContenusModule.belongsTo(Module, {
+    foreignKey: 'module_id',
+    as: 'module'
+});
 // Test de connexion à la base de données
 (async () => {
   try {
@@ -487,6 +499,7 @@ export {
   VueVideo,
   TelechargementDocument,
   EvaluationModule,
+  ContenusModule,
   
   // Modèles Communication
   Message,

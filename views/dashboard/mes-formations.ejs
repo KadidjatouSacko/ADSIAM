@@ -430,14 +430,14 @@
                                             🔄 Revoir
                                         </a>
                                     <% } else if (inscription.statut === 'en_cours') { %>
-                                        <a href="/formation/<%= inscription.formation.id %>/continuer" class="btn-formation btn-continuer">
-                                            ▶️ Continuer
-                                        </a>
+                                                <a href="/formation/<%= inscription.formation.id %>/continuer" class="btn-formation btn-continuer">
+                                                    ▶️ Continuer
+                                                </a>
                                         <a href="/formation/<%= inscription.formation.id %>" class="btn-formation btn-voir">
                                             📋 Détails
                                         </a>
                                     <% } else { %>
-                                        <a href="/formation/<%= inscription.formation.id %>/commencer" class="btn-formation btn-continuer">
+                                       <a href="/formation/<%= inscription.formation.id %>/commencer" class="btn-formation btn-continuer">
                                             🚀 Commencer
                                         </a>
                                         <a href="/formation/<%= inscription.formation.id %>" class="btn-formation btn-voir">

@@ -1,0 +1,488 @@
+views/formations/formation-interactive.ejs
+<%- include('../partials/header') %>
+
+<!-- Votre template existant jusqu'à la section documents -->
+
+                <!-- Documents Section -->
+                <% if (currentModule && currentModule.documents && currentModule.documents.length > 0) { %>
+                    <div class="documents-section fade-in">
+                        <div class="documents-header">
+                            <h2 class="documents-title">Documents et ressources</h2>
+                        </div>
+                        
+                        <div class="documents-grid">
+                            <% currentModule.documents.forEach(document => { %>
+                                <div class="document-item" onclick="downloadDocument('<%= document.id %>')">
+                                    <div class="document-icon">
+                                        <% if (document.type_document === 'pdf') { %>
+                                            📄
+                                        <% } else if (document.type_document === 'word') { %>
+                                            📝
+                                        <% } else { %>
+                                            📋
+                                        <% } %>
+                                    </div>
+                                    <div class="document-title"><%= document.titre %></div>
+                                    <div class="document-meta">
+                                        <%= document.type_document ? document.type_document.toUpperCase() : 'PDF' %> • 
+                                        <%= document.taille_fichier ? Math.round(document.taille_fichier / 1024) + ' KB' : 'N/A' %>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        </div>
+                    </div>
+                <% } else { %>
+                    <div class="documents-section fade-in">
+                        <div class="documents-header">
+                            <h2 class="documents-title">Documents et ressources</h2>
+                        </div>
+                        
+                        <div class="documents-grid">
+                            <div class="document-item" onclick="alert('Document en cours de préparation')">
+                                <div class="document-icon">📄</div>
+                                <div class="document-title">Guide pratique - <%= currentModule ? currentModule.titre : 'Module' %></div>
+                                <div class="document-meta">PDF • 250 KB</div>
+                            </div>
+                            <div class="document-item" onclick="alert('Document en cours de préparation')">
+                                <div class="document-icon">📋</div>
+                                <div class="document-title">Fiche récapitulative</div>
+                                <div class="document-meta">PDF • 180 KB</div>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Variables globales
+        let currentModuleIndex = <%= currentModuleIndex || 0 %>;
+        let totalModules = <%= modules ? modules.length : 0 %>;
+        let videoWatched = <%= videoWatched || false %>;
+        let currentQuestionIndex = 0;
+        let totalQuestions = <%= quiz && quiz.questions ? quiz.questions.length : 3 %>;
+        let userAnswers = [];
+        let quizScore = 0;
+        let quizCompleted = false;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Formation interactive chargée');
+            console.log('Module actuel:', currentModuleIndex + 1, '/', totalModules);
+            
+            initializeFormation();
+            setupEventListeners();
+        });
+
+        function initializeFormation() {
+            // Sidebar toggle
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebar = document.getElementById('formationSidebar');
+            
+            if (sidebarToggle && sidebar) {
+                sidebarToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('open');
+                });
+
+                // Fermer sidebar en cliquant en dehors
+                document.addEventListener('click', (e) => {
+                    if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
+                        sidebar.classList.remove('open');
+                    }
+                });
+            }
+
+            // Initialiser le lecteur vidéo
+            initializeVideoPlayer();
+            
+            // Initialiser le quiz
+            initializeQuiz();
+            
+            // Navigation modules
+            updateNavigationButtons();
+        }
+
+        function setupEventListeners() {
+            // Navigation modules sidebar
+            document.querySelectorAll('.module-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const moduleIndex = parseInt(this.dataset.moduleIndex);
+                    const isLocked = this.classList.contains('locked');
+                    
+                    if (!isLocked) {
+                        loadModule(moduleIndex);
+                    } else {
+                        showNotification('Ce module est verrouillé. Terminez d\'abord le module précédent.', 'warning');
+                    }
+                });
+            });
+
+            // Boutons navigation
+            const prevBtn = document.getElementById('previousModule');
+            const nextBtn = document.getElementById('nextModule');
+            
+            if (prevBtn) {
+                prevBtn.addEventListener('click', () => {
+                    if (currentModuleIndex > 0) {
+                        loadModule(currentModuleIndex - 1);
+                    }
+                });
+            }
+
+            if (nextBtn) {
+                nextBtn.addEventListener('click', () => {
+                    if (currentModuleIndex < totalModules - 1) {
+                        loadModule(currentModuleIndex + 1);
+                    }
+                });
+            }
+        }
+
+        function initializeVideoPlayer() {
+            const video = document.getElementById('mainVideo');
+            if (!video) return;
+
+            const progressBar = document.getElementById('videoProgress');
+            const currentTimeSpan = document.getElementById('currentTime');
+
+            video.addEventListener('timeupdate', function() {
+                const progress = (video.currentTime / video.duration) * 100;
+                if (progressBar) {
+                    progressBar.style.width = progress + '%';
+                }
+                
+                if (currentTimeSpan) {
+                    const minutes = Math.floor(video.currentTime / 60);
+                    const seconds = Math.floor(video.currentTime % 60);
+                    currentTimeSpan.textContent = 
+                        String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+                }
+                
+                // Débloquer le quiz quand la vidéo est terminée à 90%
+                if (progress >= 90 && !videoWatched) {
+                    unlockQuiz();
+                    videoWatched = true;
+                }
+            });
+
+            video.addEventListener('ended', function() {
+                unlockQuiz();
+                videoWatched = true;
+                showNotification('Vidéo terminée ! Le quiz est maintenant disponible.', 'success');
+            });
+        }
+
+        function togglePlayPause() {
+            const video = document.getElementById('mainVideo');
+            if (video) {
+                if (video.paused) {
+                    video.play();
+                } else {
+                    video.pause();
+                }
+            }
+        }
+
+        function toggleFullscreen() {
+            const video = document.getElementById('mainVideo');
+            if (video && video.requestFullscreen) {
+                video.requestFullscreen();
+            }
+        }
+
+        function unlockQuiz() {
+            const quizContainer = document.getElementById('quizContainer');
+            if (quizContainer) {
+                quizContainer.classList.add('unlocked');
+                
+                const overlay = quizContainer.querySelector('.quiz-locked-overlay');
+                if (overlay) {
+                    overlay.style.display = 'none';
+                }
+            }
+        }
+
+        function initializeQuiz() {
+            // Gestion des réponses
+            document.querySelectorAll('.answer-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const questionDiv = this.closest('.quiz-question');
+                    const questionIndex = parseInt(questionDiv.dataset.questionIndex);
+                    
+                    // Désélectionner les autres réponses
+                    questionDiv.querySelectorAll('.answer-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    
+                    // Sélectionner cette réponse
+                    this.classList.add('selected');
+                    
+                    // Enregistrer la réponse
+                    userAnswers[questionIndex] = {
+                        answerId: this.dataset.answerId || this.querySelector('.answer-letter').textContent,
+                        isCorrect: this.dataset.isCorrect === 'true'
+                    };
+                    
+                    // Activer le bouton suivant
+                    const nextBtn = document.getElementById('nextQuestion');
+                    if (nextBtn) nextBtn.disabled = false;
+                });
+            });
+
+            // Navigation quiz
+            const nextBtn = document.getElementById('nextQuestion');
+            const prevBtn = document.getElementById('previousQuestion');
+            const submitBtn = document.getElementById('submitQuiz');
+            
+            if (nextBtn) nextBtn.addEventListener('click', nextQuestion);
+            if (prevBtn) prevBtn.addEventListener('click', previousQuestion);
+            if (submitBtn) submitBtn.addEventListener('click', submitQuiz);
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < totalQuestions - 1) {
+                currentQuestionIndex++;
+                showQuestion(currentQuestionIndex);
+                updateQuizNavigation();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                showQuestion(currentQuestionIndex);
+                updateQuizNavigation();
+            }
+        }
+
+        function showQuestion(index) {
+            document.querySelectorAll('.quiz-question').forEach((q, i) => {
+                q.classList.toggle('active', i === index);
+            });
+            
+            // Mettre à jour les points de progression
+            document.querySelectorAll('.progress-dot').forEach((dot, i) => {
+                dot.classList.toggle('current', i === index);
+                dot.classList.toggle('completed', i < index);
+            });
+        }
+
+        function updateQuizNavigation() {
+            const prevBtn = document.getElementById('previousQuestion');
+            const nextBtn = document.getElementById('nextQuestion');
+            const submitBtn = document.getElementById('submitQuiz');
+
+            if (prevBtn) prevBtn.disabled = currentQuestionIndex === 0;
+            
+            if (currentQuestionIndex === totalQuestions - 1) {
+                if (nextBtn) nextBtn.style.display = 'none';
+                if (submitBtn) submitBtn.style.display = 'inline-block';
+            } else {
+                if (nextBtn) nextBtn.style.display = 'inline-block';
+                if (submitBtn) submitBtn.style.display = 'none';
+            }
+        }
+
+        function submitQuiz() {
+            calculateScore();
+            showQuizResults();
+            
+            // Envoyer les résultats au serveur
+            fetch('/api/quiz/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    moduleId: <%= currentModule ? currentModule.id : 'null' %>,
+                    answers: userAnswers,
+                    score: quizScore
+                })
+            });
+        }
+
+        function calculateScore() {
+            let correctAnswers = 0;
+            userAnswers.forEach(answer => {
+                if (answer && answer.isCorrect) {
+                    correctAnswers++;
+                }
+            });
+            
+            quizScore = Math.round((correctAnswers / totalQuestions) * 100);
+        }
+
+        function showQuizResults() {
+            const quizContent = document.getElementById('quizContent');
+            const quizNav = document.querySelector('.quiz-navigation');
+            const resultsDiv = document.getElementById('quizResults');
+            
+            if (quizContent) quizContent.style.display = 'none';
+            if (quizNav) quizNav.style.display = 'none';
+            
+            if (resultsDiv) {
+                const scoreSpan = document.getElementById('resultsScore');
+                const messageDiv = document.getElementById('resultsMessage');
+                const iconDiv = document.getElementById('resultsIcon');
+                
+                if (scoreSpan) scoreSpan.textContent = quizScore + '%';
+                
+                if (quizScore >= 70) {
+                    if (scoreSpan) scoreSpan.className = 'results-score success';
+                    if (iconDiv) {
+                        iconDiv.className = 'results-icon success';
+                        iconDiv.textContent = '🎉';
+                    }
+                    if (messageDiv) messageDiv.textContent = 'Félicitations ! Vous avez réussi ce module.';
+                    
+                    // Débloquer le module suivant
+                    unlockNextModule();
+                } else {
+                    if (scoreSpan) scoreSpan.className = 'results-score failure';
+                    if (iconDiv) {
+                        iconDiv.className = 'results-icon failure';
+                        iconDiv.textContent = '🔄';
+                    }
+                    if (messageDiv) messageDiv.textContent = 'Score insuffisant. Révisez le contenu et retentez le quiz.';
+                }
+                
+                resultsDiv.classList.add('show');
+                quizCompleted = true;
+            }
+        }
+
+        function retryQuiz() {
+            currentQuestionIndex = 0;
+            userAnswers = [];
+            quizScore = 0;
+            
+            const quizContent = document.getElementById('quizContent');
+            const quizNav = document.querySelector('.quiz-navigation');
+            const resultsDiv = document.getElementById('quizResults');
+            
+            if (quizContent) quizContent.style.display = 'block';
+            if (quizNav) quizNav.style.display = 'flex';
+            if (resultsDiv) resultsDiv.classList.remove('show');
+            
+            showQuestion(0);
+            updateQuizNavigation();
+            
+            // Réinitialiser les sélections
+            document.querySelectorAll('.answer-option').forEach(option => {
+                option.classList.remove('selected', 'correct', 'incorrect');
+            });
+        }
+
+        function unlockNextModule() {
+            if (currentModuleIndex < totalModules - 1) {
+                const nextModuleItem = document.querySelector(`[data-module-index="${currentModuleIndex + 1}"]`);
+                if (nextModuleItem) {
+                    nextModuleItem.classList.remove('locked');
+                    nextModuleItem.classList.add('unlocked');
+                }
+            }
+        }
+
+        function loadModule(moduleIndex) {
+            // Rediriger vers le module spécifique
+            const formationId = <%= formation ? formation.id : 'null' %>;
+            window.location.href = `/formation/${formationId}/module/${moduleIndex + 1}`;
+        }
+
+        function updateNavigationButtons() {
+            const prevBtn = document.getElementById('previousModule');
+            const nextBtn = document.getElementById('nextModule');
+            
+            if (prevBtn) prevBtn.disabled = currentModuleIndex === 0;
+            if (nextBtn) nextBtn.disabled = currentModuleIndex === totalModules - 1;
+        }
+
+        function nextModule() {
+            if (currentModuleIndex < totalModules - 1) {
+                loadModule(currentModuleIndex + 1);
+            }
+        }
+
+        function downloadDocument(documentId) {
+            window.open(`/api/documents/${documentId}/download`, '_blank');
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 2rem;
+                right: 2rem;
+                background: ${type === 'success' ? 'var(--success)' : (type === 'warning' ? 'var(--warning)' : 'var(--info)')};
+                color: white;
+                padding: 1rem 2rem;
+                border-radius: 10px;
+                z-index: 10000;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                animation: slideInRight 0.3s ease;
+                max-width: 300px;
+                font-weight: 500;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 4000);
+        }
+
+        // Suivi du temps passé sur le module
+        let startTime = Date.now();
+        let timeSpent = 0;
+
+        setInterval(() => {
+            timeSpent = Math.floor((Date.now() - startTime) / 1000);
+            
+            // Envoyer le temps passé toutes les 30 secondes
+            if (timeSpent % 30 === 0) {
+                fetch('/api/progress/time', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        moduleId: <%= currentModule ? currentModule.id : 'null' %>,
+                        timeSpent: timeSpent
+                    })
+                });
+            }
+        }, 1000);
+
+        // Sauvegarder la progression en quittant
+        window.addEventListener('beforeunload', () => {
+            navigator.sendBeacon('/api/progress/save', JSON.stringify({
+                moduleId: <%= currentModule ? currentModule.id : 'null' %>,
+                timeSpent: timeSpent,
+                videoWatched: videoWatched,
+                quizCompleted: quizCompleted,
+                quizScore: quizScore
+            }));
+        });
+
+        // Animations CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            
+            @keyframes slideOutRight {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        console.log('🎓 Formation interactive ADSIAM initialisée');
+        console.log('📚 Module actuel:', currentModuleIndex + 1, '/', totalModules);
+        console.log('🎯 Formation:', '<%= formation ? formation.titre : "N/A" %>');
+    </script>
+</body>
+</html>

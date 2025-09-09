@@ -411,13 +411,14 @@ app.use('/entreprise', companyRoutes);
 console.log('📊 Montage des routes Dashboard');
 app.use('/', dashboardRoutes);
 
+// 👥 Routes étudiants existantes
+console.log('👥 Montage de etudiantsRoutes sur /');
+app.use('/', etudiantsRoutes);
+
 // 📋 Routes de formation existantes
 console.log('📋 Montage de formationRoutes sur /');
 app.use('/', formationRoutes);
 
-// 👥 Routes étudiants existantes
-console.log('👥 Montage de etudiantsRoutes sur /');
-app.use('/', etudiantsRoutes);
 
 // ========================================
 // 🏠 ROUTES PRINCIPALES
