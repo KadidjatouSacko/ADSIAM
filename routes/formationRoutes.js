@@ -155,28 +155,35 @@ router.get('/formation/:id/continuer', async (req, res) => {
             return res.redirect('/mes-formations');
         }
 
-        // === RÉCUPÉRER LE CONTENU DU MODULE ===
+        // === RÉCUPÉRER TOUTES LES SOUS-PARTIES DU MODULE ===
         let contenuModule = [];
+        let allDocuments = [];
 
-        // Essayer d'abord avec contenus_module
+        console.log(`🔍 Récupération du contenu pour le module ${moduleActuel.id}`);
+
+        // 1. Récupérer toutes les parties du module
         try {
-            const contenuQuery = `
+            const partiesQuery = `
                 SELECT
-                    cm.*,
+                    pm.*,
+                    pp.statut as progression_statut,
+                    pp.progression_pourcentage,
+                    pp.temps_passe_minutes,
+                    pp.note as note_obtenue,
                     CASE
                         WHEN pp.statut = 'termine' THEN true
                         ELSE false
                     END as termine
-                FROM contenus_module cm
+                FROM parties_modules pm
                 LEFT JOIN progressions_parties pp ON (
-                    pp.partie_id = cm.id
+                    pp.partie_id = pm.id
                     AND pp.user_id = :userId
                 )
-                WHERE cm.module_id = :moduleId
-                ORDER BY cm.ordre ASC
+                WHERE pm.module_id = :moduleId AND pm.actif = true
+                ORDER BY pm.ordre ASC
             `;
 
-            contenuModule = await sequelize.query(contenuQuery, {
+            const parties = await sequelize.query(partiesQuery, {
                 type: QueryTypes.SELECT,
                 replacements: {
                     userId: userId,
@@ -184,43 +191,177 @@ router.get('/formation/:id/continuer', async (req, res) => {
                 }
             });
 
-            // Adapter le format pour le template
-            contenuModule = contenuModule.map(c => ({
-                id: c.id,
-                titre: c.titre,
-                description: c.description,
-                type: c.type_contenu || 'texte',
-                url: c.video_url || c.fichier_path,
-                contenu: c.description, // Pour le contenu texte
-                duree_minutes: c.duree_minutes,
-                ordre: c.ordre,
-                termine: c.termine
-            }));
+            console.log(`📋 ${parties.length} parties trouvées pour le module`);
+
+            // 2. Pour chaque partie, récupérer le contenu détaillé
+            for (const partie of parties) {
+                console.log(`📄 Traitement de la partie: ${partie.titre} (Type: ${partie.type_contenu})`);
+
+                let contenuPartie = {
+                    id: partie.id,
+                    titre: partie.titre,
+                    description: partie.description,
+                    type: partie.type_contenu || 'texte',
+                    ordre: partie.ordre,
+                    duree_minutes: partie.duree_minutes,
+                    termine: partie.termine,
+                    progression_pourcentage: partie.progression_pourcentage || 0,
+                    note_obtenue: partie.note_obtenue
+                };
+
+                // Récupérer le contenu spécifique selon le type
+                if (partie.type_contenu === 'video') {
+                    // Récupérer les vidéos associées
+                    try {
+                        const videoQuery = `
+                            SELECT * FROM videos_parties
+                            WHERE partie_id = :partieId AND actif = true
+                            ORDER BY ordre ASC
+                        `;
+                        const videos = await sequelize.query(videoQuery, {
+                            type: QueryTypes.SELECT,
+                            replacements: { partieId: partie.id }
+                        });
+
+                        if (videos.length > 0) {
+                            contenuPartie.url = videos[0].chemin_fichier;
+                            contenuPartie.video_titre = videos[0].titre;
+                            contenuPartie.video_description = videos[0].description;
+                            contenuPartie.duree_seconds = videos[0].duree_seconds;
+                        }
+                        console.log(`🎥 Vidéo trouvée: ${contenuPartie.url}`);
+                    } catch (error) {
+                        console.log(`❌ Erreur récupération vidéo pour partie ${partie.id}`);
+                    }
+
+                } else if (partie.type_contenu === 'texte') {
+                    // Récupérer le contenu texte
+                    try {
+                        const texteQuery = `
+                            SELECT * FROM contenus_texte
+                            WHERE partie_id = :partieId AND actif = true
+                        `;
+                        const textes = await sequelize.query(texteQuery, {
+                            type: QueryTypes.SELECT,
+                            replacements: { partieId: partie.id }
+                        });
+
+                        if (textes.length > 0) {
+                            contenuPartie.contenu = textes[0].contenu_html || textes[0].contenu_text;
+                        } else {
+                            contenuPartie.contenu = partie.description;
+                        }
+                    } catch (error) {
+                        contenuPartie.contenu = partie.description;
+                    }
+
+                } else if (partie.type_contenu === 'quiz') {
+                    // Récupérer les questions du quiz
+                    try {
+                        const quizQuery = `
+                            SELECT
+                                q.*,
+                                r.reponse_text,
+                                r.est_correcte,
+                                r.ordre as reponse_ordre
+                            FROM questions_quiz q
+                            LEFT JOIN reponses_quiz r ON q.id = r.question_id
+                            WHERE q.partie_id = :partieId AND q.actif = true
+                            ORDER BY q.ordre ASC, r.ordre ASC
+                        `;
+                        const quizData = await sequelize.query(quizQuery, {
+                            type: QueryTypes.SELECT,
+                            replacements: { partieId: partie.id }
+                        });
+
+                        // Grouper les questions et réponses
+                        const questionsMap = {};
+                        quizData.forEach(row => {
+                            if (!questionsMap[row.id]) {
+                                questionsMap[row.id] = {
+                                    id: row.id,
+                                    question: row.question_text,
+                                    ordre: row.ordre,
+                                    answers: []
+                                };
+                            }
+                            if (row.reponse_text) {
+                                questionsMap[row.id].answers.push({
+                                    id: `${row.id}_${row.reponse_ordre}`,
+                                    text: row.reponse_text,
+                                    correct: row.est_correcte
+                                });
+                            }
+                        });
+
+                        contenuPartie.questions = Object.values(questionsMap);
+                        console.log(`❓ ${contenuPartie.questions.length} questions trouvées`);
+                    } catch (error) {
+                        console.log(`❌ Erreur récupération quiz pour partie ${partie.id}`);
+                        contenuPartie.questions = [];
+                    }
+                }
+
+                // 3. Récupérer les documents de cette partie
+                try {
+                    const documentsQuery = `
+                        SELECT * FROM documents_parties
+                        WHERE partie_id = :partieId AND actif = true
+                        ORDER BY titre ASC
+                    `;
+                    const docs = await sequelize.query(documentsQuery, {
+                        type: QueryTypes.SELECT,
+                        replacements: { partieId: partie.id }
+                    });
+
+                    if (docs.length > 0) {
+                        const docsFormatted = docs.map(d => ({
+                            id: d.id,
+                            titre: d.titre,
+                            description: d.description,
+                            type: d.type_document || 'pdf',
+                            url: d.chemin_fichier,
+                            taille: d.taille_fichier ? `${Math.round(d.taille_fichier / 1024)} KB` : 'N/A',
+                            partie_id: partie.id
+                        }));
+
+                        contenuPartie.documents = docsFormatted;
+                        allDocuments.push(...docsFormatted);
+                        console.log(`📄 ${docs.length} documents trouvés pour cette partie`);
+                    }
+                } catch (error) {
+                    console.log(`❌ Erreur récupération documents pour partie ${partie.id}`);
+                }
+
+                contenuModule.push(contenuPartie);
+            }
 
         } catch (error) {
-            console.log('Erreur contenus_module, essai avec parties_modules');
+            console.error('❌ Erreur récupération parties:', error);
         }
 
-        // Si pas de contenu dans contenus_module, essayer parties_modules
+        // Fallback si aucune partie trouvée - essayer contenus_module
         if (contenuModule.length === 0) {
             try {
-                const partiesQuery = `
+                const contenuQuery = `
                     SELECT
-                        pm.*,
+                        cm.*,
+                        pp.statut as progression_statut,
+                        pp.progression_pourcentage,
                         CASE
                             WHEN pp.statut = 'termine' THEN true
                             ELSE false
                         END as termine
-                    FROM parties_modules pm
+                    FROM contenus_module cm
                     LEFT JOIN progressions_parties pp ON (
-                        pp.partie_id = pm.id
+                        pp.partie_id = cm.id
                         AND pp.user_id = :userId
                     )
-                    WHERE pm.module_id = :moduleId AND pm.actif = true
-                    ORDER BY pm.ordre ASC
+                    WHERE cm.module_id = :moduleId
+                    ORDER BY cm.ordre ASC
                 `;
 
-                const parties = await sequelize.query(partiesQuery, {
+                const contenus = await sequelize.query(contenuQuery, {
                     type: QueryTypes.SELECT,
                     replacements: {
                         userId: userId,
@@ -228,41 +369,53 @@ router.get('/formation/:id/continuer', async (req, res) => {
                     }
                 });
 
-                // Adapter le format pour le template
-                contenuModule = parties.map(p => ({
-                    id: p.id,
-                    titre: p.titre,
-                    description: p.description,
-                    type: p.type_contenu || 'texte',
-                    contenu: p.description,
-                    ordre: p.ordre,
-                    termine: p.termine
+                contenuModule = contenus.map(c => ({
+                    id: c.id,
+                    titre: c.titre,
+                    description: c.description,
+                    type: c.type_contenu || 'texte',
+                    url: c.video_url || c.fichier_path,
+                    contenu: c.contenu_html || c.description,
+                    duree_minutes: c.duree_minutes,
+                    ordre: c.ordre,
+                    termine: c.termine,
+                    progression_pourcentage: c.progression_pourcentage || 0
                 }));
 
+                console.log(`📋 Fallback: ${contenuModule.length} contenus trouvés dans contenus_module`);
+
             } catch (error) {
-                console.log('Erreur parties_modules, utilisation données par défaut');
+                console.log('❌ Erreur contenus_module fallback');
             }
         }
 
-        // Si toujours pas de contenu, créer du contenu par défaut
+        // Si toujours aucun contenu, créer du contenu de démonstration
         if (contenuModule.length === 0) {
+            console.log('⚠️ Aucun contenu trouvé, création de contenu de démonstration');
             contenuModule = [
                 {
                     id: 1,
                     titre: `Introduction - ${moduleActuel.titre}`,
                     type: 'texte',
                     contenu: `
-                        <h3>${moduleActuel.titre}</h3>
-                        <p>${moduleActuel.description || 'Module de formation ADSIAM'}</p>
-                        <h4>Objectifs du module :</h4>
-                        <ul>
-                            <li>Acquérir les connaissances essentielles</li>
-                            <li>Développer les compétences pratiques</li>
-                            <li>Valider les acquis par un quiz</li>
-                        </ul>
+                        <div class="intro-content">
+                            <h3>${moduleActuel.titre}</h3>
+                            <p>${moduleActuel.description || 'Module de formation ADSIAM'}</p>
+                            <h4>Objectifs du module :</h4>
+                            <ul>
+                                <li>Acquérir les connaissances essentielles</li>
+                                <li>Développer les compétences pratiques</li>
+                                <li>Valider les acquis par un quiz</li>
+                            </ul>
+                            <div class="alert alert-info">
+                                <strong>Note :</strong> Ce contenu est généré automatiquement.
+                                Veuillez ajouter du contenu réel via l'interface d'administration.
+                            </div>
+                        </div>
                     `,
                     ordre: 1,
-                    termine: false
+                    termine: false,
+                    progression_pourcentage: 0
                 },
                 {
                     id: 2,
@@ -271,19 +424,31 @@ router.get('/formation/:id/continuer', async (req, res) => {
                     questions: [
                         {
                             id: 1,
-                            question: `Question sur le module : ${moduleActuel.titre}`,
+                            question: `Avez-vous bien compris les objectifs du module "${moduleActuel.titre}" ?`,
                             answers: [
-                                { id: 1, text: "Réponse A", correct: true },
-                                { id: 2, text: "Réponse B", correct: false },
-                                { id: 3, text: "Réponse C", correct: false }
+                                { id: 1, text: "Oui, parfaitement", correct: true },
+                                { id: 2, text: "En partie", correct: false },
+                                { id: 3, text: "Non, j'ai besoin de relire", correct: false }
+                            ]
+                        },
+                        {
+                            id: 2,
+                            question: "Que devez-vous faire après ce module ?",
+                            answers: [
+                                { id: 1, text: "Passer au module suivant", correct: true },
+                                { id: 2, text: "Arrêter la formation", correct: false },
+                                { id: 3, text: "Recommencer depuis le début", correct: false }
                             ]
                         }
                     ],
                     ordre: 2,
-                    termine: false
+                    termine: false,
+                    progression_pourcentage: 0
                 }
             ];
         }
+
+        console.log(`✅ Total: ${contenuModule.length} éléments de contenu chargés`);
 
         // === DÉTERMINER L'ÉLÉMENT ACTUEL ===
         let elementActuel;
@@ -299,45 +464,101 @@ router.get('/formation/:id/continuer', async (req, res) => {
         const elementPrecedent = currentIndex > 0 ? contenuModule[currentIndex - 1] : null;
         const elementSuivant = currentIndex < contenuModule.length - 1 ? contenuModule[currentIndex + 1] : null;
 
-        // === CALCULER LES STATISTIQUES ===
+        // === CALCULER LES STATISTIQUES DÉTAILLÉES ===
+
+        // 1. Progression par module
         const modulesTermines = modules.filter(m => m.progression_statut === 'termine').length;
+        const modulesEnCours = modules.filter(m => m.progression_statut === 'en_cours').length;
         const progressionFormation = modules.length > 0 ? (modulesTermines / modules.length) * 100 : 0;
         const tempsTotal = modules.reduce((acc, m) => acc + (m.temps_passe_minutes || 0), 0);
 
-        // === RÉCUPÉRER LES DOCUMENTS ===
-        let documents = [];
-        try {
-            const documentsQuery = `
-                SELECT *
-                FROM documents_parties dp
-                JOIN parties_modules pm ON dp.partie_id = pm.id
-                WHERE pm.module_id = :moduleId
-                ORDER BY dp.titre ASC
-            `;
+        // 2. Progression détaillée du module actuel
+        const partiesTerminees = contenuModule.filter(c => c.termine).length;
+        const progressionModule = contenuModule.length > 0 ? (partiesTerminees / contenuModule.length) * 100 : 0;
 
-            const docsResult = await sequelize.query(documentsQuery, {
-                type: QueryTypes.SELECT,
-                replacements: { moduleId: moduleActuel.id }
-            });
+        // 3. Marquer l'accessibilité des éléments
+        contenuModule.forEach((element, index) => {
+            // Le premier élément est toujours accessible
+            if (index === 0) {
+                element.accessible = true;
+            } else {
+                // Un élément est accessible si le précédent est terminé ou si c'est un document
+                const elementPrecedent = contenuModule[index - 1];
+                element.accessible = elementPrecedent.termine || element.type === 'document';
+            }
 
-            documents = docsResult.map(d => ({
-                id: d.id,
-                titre: d.titre,
-                description: d.description,
-                type: d.type_document || 'pdf',
-                url: d.chemin_fichier,
-                taille: d.taille_fichier ? `${Math.round(d.taille_fichier / 1024)} KB` : 'N/A'
-            }));
+            // Ajouter des informations de progression
+            element.progressionText = element.termine ? 'Terminé' :
+                                    element.accessible ? 'Disponible' : 'Verrouillé';
 
-        } catch (error) {
-            console.log('Aucun document trouvé');
-            documents = [];
+            // Calculer le nombre d'éléments (pour les quiz)
+            if (element.type === 'quiz' && element.questions) {
+                element.nombre_questions = element.questions.length;
+            }
+        });
+
+        // === UTILISER LES DOCUMENTS DÉJÀ RÉCUPÉRÉS ===
+        let documents = allDocuments;
+
+        // Si pas de documents dans les parties, essayer une requête globale
+        if (documents.length === 0) {
+            try {
+                const documentsQuery = `
+                    SELECT
+                        dp.*,
+                        pm.titre as partie_titre
+                    FROM documents_parties dp
+                    JOIN parties_modules pm ON dp.partie_id = pm.id
+                    WHERE pm.module_id = :moduleId AND dp.actif = true
+                    ORDER BY dp.titre ASC
+                `;
+
+                const docsResult = await sequelize.query(documentsQuery, {
+                    type: QueryTypes.SELECT,
+                    replacements: { moduleId: moduleActuel.id }
+                });
+
+                documents = docsResult.map(d => ({
+                    id: d.id,
+                    titre: d.titre,
+                    description: d.description,
+                    type: d.type_document || 'pdf',
+                    url: d.chemin_fichier,
+                    taille: d.taille_fichier ? `${Math.round(d.taille_fichier / 1024)} KB` : 'N/A',
+                    partie_titre: d.partie_titre
+                }));
+
+                console.log(`📄 ${documents.length} documents trouvés globalement`);
+
+            } catch (error) {
+                console.log('❌ Aucun document trouvé globalement');
+                documents = [];
+            }
         }
+
+        // === AJOUTER DES STATISTIQUES AVANCÉES ===
+        const statistiques = {
+            formation: {
+                progression: progressionFormation,
+                modulesTotal: modules.length,
+                modulesTermines: modulesTermines,
+                modulesEnCours: modulesEnCours,
+                tempsTotal: tempsTotal
+            },
+            module: {
+                progression: progressionModule,
+                partiesTotal: contenuModule.length,
+                partiesTerminees: partiesTerminees,
+                partiesAccessibles: contenuModule.filter(c => c.accessible).length,
+                documentsTotal: documents.length
+            }
+        };
 
         // Notes par défaut
         const notesUtilisateur = '';
 
         console.log(`📖 Formation player chargé: Formation ${id}, Module ${moduleActuel.id}, Element ${elementActuel?.id}`);
+        console.log(`📊 Statistiques: ${progressionFormation.toFixed(1)}% formation, ${progressionModule.toFixed(1)}% module`);
 
         // === RENDRE LA VUE ===
         res.render('formations/formation-player', {
@@ -350,9 +571,11 @@ router.get('/formation/:id/continuer', async (req, res) => {
             elementSuivant,
             modulesTermines,
             progressionFormation,
+            progressionModule, // Progression du module actuel
             tempsTotal,
             documents,
             notesUtilisateur,
+            statistiques, // Statistiques détaillées
             mode: 'continuer', // Mode continuer
             resultats: null, // Pas de résultats en mode continuer
             user: req.session.user,

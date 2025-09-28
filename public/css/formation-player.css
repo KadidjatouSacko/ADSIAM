@@ -1453,3 +1453,410 @@ body {
 .revoir-actions .btn {
     min-width: 180px;
 }
+
+/* === AMÉLIORATIONS INTERFACE === */
+
+/* En-tête de contenu */
+.content-header-info {
+    background: var(--white);
+    padding: 1rem 2rem;
+    margin-bottom: 1.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-light);
+    border-left: 4px solid var(--primary-pink);
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-light);
+    margin-bottom: 0.5rem;
+}
+
+.breadcrumb .formation-name,
+.breadcrumb .module-name {
+    color: var(--text-dark);
+    font-weight: 500;
+}
+
+.breadcrumb .element-name {
+    color: var(--primary-pink);
+    font-weight: 600;
+}
+
+.content-type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.content-type-badge.video {
+    background: #e8f5e8;
+    color: #2d5a2d;
+}
+
+.content-type-badge.quiz {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.content-type-badge.document {
+    background: #e8f3f8;
+    color: #0c5460;
+}
+
+.content-type-badge.texte {
+    background: var(--light-pink);
+    color: var(--primary-pink);
+}
+
+/* Progression détaillée du module */
+.module-progress-detail {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: var(--light-blue);
+    border-radius: 8px;
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.progress-bar-module {
+    height: 8px;
+    background: var(--white);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-bar-module .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-pink), var(--primary-blue));
+    transition: width 0.3s ease;
+}
+
+/* Liste du contenu du module */
+.module-content-list {
+    border-top: 1px solid #e5e7eb;
+    padding-top: 1rem;
+}
+
+.module-content-list h4 {
+    font-size: 1rem;
+    color: var(--text-dark);
+    margin-bottom: 1rem;
+    padding: 0 1rem;
+}
+
+.content-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.content-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    margin: 0 0.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: var(--transition);
+    border: 1px solid transparent;
+}
+
+.content-item:hover {
+    background: var(--light-blue);
+}
+
+.content-item.active {
+    background: var(--light-pink);
+    border-color: var(--primary-pink);
+}
+
+.content-item.locked {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.content-item.completed {
+    background: #f0f9ff;
+    border-color: var(--success);
+}
+
+.content-icon {
+    font-size: 1.25rem;
+    width: 24px;
+    text-align: center;
+}
+
+.video-icon {
+    color: #059669;
+}
+
+.quiz-icon {
+    color: #d97706;
+}
+
+.document-icon {
+    color: #0369a1;
+}
+
+.text-icon {
+    color: var(--primary-pink);
+}
+
+.content-info {
+    flex: 1;
+}
+
+.content-title {
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+}
+
+.content-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.75rem;
+    color: var(--text-light);
+}
+
+.content-progress {
+    margin-top: 0.25rem;
+}
+
+.progress-bar.mini {
+    height: 3px;
+    background: #e5e7eb;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.progress-bar.mini .progress-fill {
+    height: 100%;
+    background: var(--primary-pink);
+}
+
+.content-status {
+    font-size: 1rem;
+}
+
+.content-status .completed {
+    color: var(--success);
+}
+
+.content-status .available {
+    color: var(--primary-blue);
+}
+
+.content-status .locked {
+    color: var(--text-light);
+}
+
+/* Placeholders pour contenu manquant */
+.video-placeholder,
+.document-placeholder {
+    background: var(--soft-gray);
+    border: 2px dashed #d1d5db;
+    border-radius: var(--border-radius);
+    padding: 3rem 2rem;
+    text-align: center;
+    margin: 2rem 0;
+}
+
+.placeholder-content {
+    color: var(--text-light);
+}
+
+.placeholder-content i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: var(--primary-blue);
+}
+
+.placeholder-content h3 {
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+}
+
+.placeholder-content small {
+    font-family: monospace;
+    background: var(--white);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    color: var(--text-light);
+}
+
+/* Documents associés */
+.related-documents {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-light);
+}
+
+.related-documents h4 {
+    color: var(--text-dark);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.documents-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.document-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--soft-gray);
+    border-radius: 8px;
+    transition: var(--transition);
+}
+
+.document-card:hover {
+    background: var(--light-blue);
+    transform: translateY(-1px);
+}
+
+.document-card .doc-icon {
+    font-size: 1.5rem;
+    color: var(--primary-blue);
+}
+
+.document-card .doc-info {
+    flex: 1;
+}
+
+.document-card .doc-info h5 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    color: var(--text-dark);
+}
+
+.document-card .doc-info p {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    margin-bottom: 0.25rem;
+}
+
+.document-card .doc-size {
+    font-size: 0.75rem;
+    color: var(--text-light);
+}
+
+.document-card .doc-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Image viewer */
+.image-viewer {
+    text-align: center;
+    padding: 1rem;
+}
+
+.image-viewer img {
+    max-width: 100%;
+    max-height: 600px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-medium);
+}
+
+/* Debug info */
+.debug-info {
+    margin-top: 2rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: var(--border-radius);
+    font-family: monospace;
+    font-size: 0.75rem;
+}
+
+.debug-info summary {
+    cursor: pointer;
+    font-weight: 600;
+    padding: 0.5rem;
+    background: #e9ecef;
+    border-radius: 4px;
+}
+
+.debug-content {
+    margin-top: 1rem;
+}
+
+.debug-content h5 {
+    color: #495057;
+    margin: 1rem 0 0.5rem 0;
+    font-size: 0.875rem;
+}
+
+.debug-content pre {
+    background: #ffffff;
+    padding: 0.75rem;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+    max-height: 200px;
+    overflow: auto;
+    font-size: 0.7rem;
+}
+
+.debug-content ul {
+    margin: 0;
+    padding-left: 1rem;
+}
+
+.debug-content li {
+    margin-bottom: 0.25rem;
+    color: #6c757d;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .content-header-info {
+        padding: 0.75rem 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .breadcrumb {
+        flex-wrap: wrap;
+        font-size: 0.75rem;
+    }
+
+    .documents-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .document-card {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .related-documents {
+        padding: 1rem;
+    }
+}

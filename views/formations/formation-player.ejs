@@ -48,7 +48,32 @@
                         <i class="fas fa-clock"></i>
                         <span><%= Math.round(tempsTotal / 60) %>h passées</span>
                     </div>
+                    <% if(typeof progressionModule !== 'undefined') { %>
+                    <div class="stat-item">
+                        <i class="fas fa-chart-line"></i>
+                        <span><%= Math.round(progressionModule) %>% module actuel</span>
+                    </div>
+                    <% } %>
+                    <% if(typeof statistiques !== 'undefined' && statistiques.module) { %>
+                    <div class="stat-item">
+                        <i class="fas fa-file-alt"></i>
+                        <span><%= statistiques.module.partiesTerminees %>/<%= statistiques.module.partiesTotal %> parties</span>
+                    </div>
+                    <% } %>
                 </div>
+
+                <!-- Progression détaillée du module actuel -->
+                <% if(typeof progressionModule !== 'undefined') { %>
+                <div class="module-progress-detail">
+                    <div class="progress-header">
+                        <span>Module: <%= moduleActuel.titre %></span>
+                        <span class="progress-percent"><%= Math.round(progressionModule) %>%</span>
+                    </div>
+                    <div class="progress-bar-module">
+                        <div class="progress-fill" style="width: <%= progressionModule %>%"></div>
+                    </div>
+                </div>
+                <% } %>
             </div>
 
             <div class="modules-list">
@@ -94,6 +119,57 @@
                 <% }); %>
             </div>
 
+            <!-- Sous-parties du module actuel -->
+            <div class="module-content-list">
+                <h4>Contenu du module</h4>
+                <div class="content-items">
+                    <% contenuModule.forEach((element, index) => { %>
+                    <div class="content-item <%= element.id === elementActuel?.id ? 'active' : '' %> <%= element.accessible ? 'accessible' : 'locked' %> <%= element.termine ? 'completed' : '' %>"
+                         data-element-id="<%= element.id %>" onclick="<%= element.accessible ? `loadElement(${element.id})` : '' %>">
+                        <div class="content-icon">
+                            <% if(element.type === 'video') { %>
+                                <i class="fas fa-play-circle video-icon"></i>
+                            <% } else if(element.type === 'quiz') { %>
+                                <i class="fas fa-question-circle quiz-icon"></i>
+                            <% } else if(element.type === 'document') { %>
+                                <i class="fas fa-file-pdf document-icon"></i>
+                            <% } else { %>
+                                <i class="fas fa-file-text text-icon"></i>
+                            <% } %>
+                        </div>
+                        <div class="content-info">
+                            <div class="content-title"><%= element.titre %></div>
+                            <div class="content-meta">
+                                <span class="content-type"><%= element.type %></span>
+                                <% if(element.duree_minutes) { %>
+                                <span class="content-duration"><%= element.duree_minutes %>min</span>
+                                <% } %>
+                                <% if(element.nombre_questions) { %>
+                                <span class="content-questions"><%= element.nombre_questions %> questions</span>
+                                <% } %>
+                            </div>
+                            <% if(element.progression_pourcentage > 0) { %>
+                            <div class="content-progress">
+                                <div class="progress-bar mini">
+                                    <div class="progress-fill" style="width: <%= element.progression_pourcentage %>%"></div>
+                                </div>
+                            </div>
+                            <% } %>
+                        </div>
+                        <div class="content-status">
+                            <% if(element.termine) { %>
+                                <i class="fas fa-check-circle completed"></i>
+                            <% } else if(element.accessible) { %>
+                                <i class="fas fa-play available"></i>
+                            <% } else { %>
+                                <i class="fas fa-lock locked"></i>
+                            <% } %>
+                        </div>
+                    </div>
+                    <% }); %>
+                </div>
+            </div>
+
             <!-- Actions Sidebar -->
             <div class="sidebar-actions">
                 <button class="btn btn-secondary" onclick="showDocuments()">
@@ -112,12 +188,38 @@
             <!-- Zone de Contenu Dynamique -->
             <div class="content-area" id="contentArea">
 
+                <!-- En-tête de l'élément actuel -->
+                <div class="content-header-info">
+                    <div class="breadcrumb">
+                        <span class="formation-name"><%= formation.titre %></span>
+                        <i class="fas fa-chevron-right"></i>
+                        <span class="module-name"><%= moduleActuel.titre %></span>
+                        <i class="fas fa-chevron-right"></i>
+                        <span class="element-name"><%= elementActuel?.titre || 'Chargement...' %></span>
+                    </div>
+                    <div class="content-type-badge <%= elementActuel?.type %>">
+                        <% if(elementActuel?.type === 'video') { %>
+                            <i class="fas fa-play-circle"></i> Vidéo
+                        <% } else if(elementActuel?.type === 'quiz') { %>
+                            <i class="fas fa-question-circle"></i> Quiz
+                        <% } else if(elementActuel?.type === 'document') { %>
+                            <i class="fas fa-file-pdf"></i> Document
+                        <% } else { %>
+                            <i class="fas fa-file-text"></i> Texte
+                        <% } %>
+                    </div>
+                </div>
+
                 <!-- Contenu Vidéo -->
                 <% if(elementActuel?.type === 'video') { %>
                 <div class="video-container">
+                    <% if(elementActuel.url) { %>
                     <div class="video-player">
                         <video id="mainVideo" controls controlsList="nodownload" onloadedmetadata="initVideoPlayer()">
                             <source src="<%= elementActuel.url %>" type="video/mp4">
+                            <% if(elementActuel.url.includes('.webm')) { %>
+                            <source src="<%= elementActuel.url %>" type="video/webm">
+                            <% } %>
                             Votre navigateur ne supporte pas la lecture vidéo.
                         </video>
                         <div class="video-overlay" id="videoOverlay">
@@ -126,11 +228,29 @@
                             </button>
                         </div>
                     </div>
+                    <% } else { %>
+                    <div class="video-placeholder">
+                        <div class="placeholder-content">
+                            <i class="fas fa-video"></i>
+                            <h3>Vidéo non disponible</h3>
+                            <p>La vidéo pour cette section n'a pas encore été ajoutée.</p>
+                            <small>URL: <%= elementActuel.url || 'Non définie' %></small>
+                        </div>
+                    </div>
+                    <% } %>
+
                     <div class="video-controls">
                         <div class="video-info">
                             <h3><%= elementActuel.titre %></h3>
-                            <p><%= elementActuel.description || 'Vidéo de formation' %></p>
+                            <p><%= elementActuel.description || elementActuel.video_description || 'Vidéo de formation' %></p>
+                            <% if(elementActuel.duree_seconds) { %>
+                            <span class="video-duration">
+                                <i class="fas fa-clock"></i>
+                                Durée: <%= Math.floor(elementActuel.duree_seconds / 60) %>:<%= String(elementActuel.duree_seconds % 60).padStart(2, '0') %>
+                            </span>
+                            <% } %>
                         </div>
+                        <% if(elementActuel.url) { %>
                         <div class="video-actions">
                             <button class="btn-control" onclick="toggleSpeed()">
                                 <i class="fas fa-tachometer-alt"></i>
@@ -145,6 +265,7 @@
                                 Plein écran
                             </button>
                         </div>
+                        <% } %>
                     </div>
                 </div>
                 <% } %>
@@ -205,6 +326,7 @@
                 <div class="document-container">
                     <div class="document-header">
                         <h2><%= elementActuel.titre %></h2>
+                        <% if(elementActuel.url) { %>
                         <div class="document-actions">
                             <button class="btn btn-primary" onclick="downloadDocument('<%= elementActuel.url %>')">
                                 <i class="fas fa-download"></i>
@@ -214,17 +336,101 @@
                                 <i class="fas fa-print"></i>
                                 Imprimer
                             </button>
-                        </div>
-                    </div>
-                    <div class="document-viewer">
-                        <% if(elementActuel.url?.endsWith('.pdf')) { %>
-                        <iframe src="<%= elementActuel.url %>" frameborder="0"></iframe>
-                        <% } else { %>
-                        <div class="document-content">
-                            <%- elementActuel.contenu || '<p>Document non disponible</p>' %>
+                            <button class="btn btn-info" onclick="viewDocument('<%= elementActuel.url %>')">
+                                <i class="fas fa-external-link-alt"></i>
+                                Ouvrir dans un nouvel onglet
+                            </button>
                         </div>
                         <% } %>
                     </div>
+                    <div class="document-viewer">
+                        <% if(elementActuel.url) { %>
+                            <% if(elementActuel.url.endsWith('.pdf')) { %>
+                            <iframe src="<%= elementActuel.url %>" frameborder="0"></iframe>
+                            <% } else if(elementActuel.url.match(/\.(jpg|jpeg|png|gif)$/i)) { %>
+                            <div class="image-viewer">
+                                <img src="<%= elementActuel.url %>" alt="<%= elementActuel.titre %>" />
+                            </div>
+                            <% } else { %>
+                            <div class="document-content">
+                                <%- elementActuel.contenu || '<p>Contenu du document non disponible. <a href="' + elementActuel.url + '" target="_blank">Cliquez ici pour ouvrir le document</a>.</p>' %>
+                            </div>
+                            <% } %>
+                        <% } else { %>
+                        <div class="document-placeholder">
+                            <div class="placeholder-content">
+                                <i class="fas fa-file-pdf"></i>
+                                <h3>Document non disponible</h3>
+                                <p>Le document pour cette section n'a pas encore été ajouté.</p>
+                                <small>URL: <%= elementActuel.url || 'Non définie' %></small>
+                            </div>
+                        </div>
+                        <% } %>
+                    </div>
+                </div>
+                <% } %>
+
+                <!-- Documents associés à l'élément actuel -->
+                <% if(elementActuel?.documents && elementActuel.documents.length > 0) { %>
+                <div class="related-documents">
+                    <h4><i class="fas fa-paperclip"></i> Documents associés</h4>
+                    <div class="documents-grid">
+                        <% elementActuel.documents.forEach(doc => { %>
+                        <div class="document-card">
+                            <div class="doc-icon">
+                                <% if(doc.type === 'pdf') { %>
+                                    <i class="fas fa-file-pdf"></i>
+                                <% } else if(doc.type === 'word' || doc.type === 'docx') { %>
+                                    <i class="fas fa-file-word"></i>
+                                <% } else if(doc.type === 'excel' || doc.type === 'xlsx') { %>
+                                    <i class="fas fa-file-excel"></i>
+                                <% } else if(doc.type === 'powerpoint' || doc.type === 'pptx') { %>
+                                    <i class="fas fa-file-powerpoint"></i>
+                                <% } else { %>
+                                    <i class="fas fa-file"></i>
+                                <% } %>
+                            </div>
+                            <div class="doc-info">
+                                <h5><%= doc.titre %></h5>
+                                <p><%= doc.description %></p>
+                                <span class="doc-size"><%= doc.taille || 'Taille inconnue' %></span>
+                            </div>
+                            <div class="doc-actions">
+                                <button class="btn btn-sm btn-primary" onclick="downloadDocument('<%= doc.url %>')">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                                <button class="btn btn-sm btn-secondary" onclick="viewDocument('<%= doc.url %>')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <% }); %>
+                    </div>
+                </div>
+                <% } %>
+
+                <!-- Affichage de débogage (seulement en mode développement) -->
+                <% if(process.env.NODE_ENV === 'development' || true) { %>
+                <div class="debug-info">
+                    <details>
+                        <summary>🔧 Informations de débogage</summary>
+                        <div class="debug-content">
+                            <h5>Élément actuel:</h5>
+                            <pre><%= JSON.stringify(elementActuel, null, 2) %></pre>
+                            <h5>Tous les éléments du module:</h5>
+                            <ul>
+                                <% contenuModule.forEach(el => { %>
+                                <li><strong><%= el.titre %></strong> - Type: <%= el.type %> - URL: <%= el.url || 'Non définie' %> - Accessible: <%= el.accessible ? 'Oui' : 'Non' %></li>
+                                <% }); %>
+                            </ul>
+                            <h5>Documents disponibles:</h5>
+                            <ul>
+                                <% documents.forEach(doc => { %>
+                                <li><strong><%= doc.titre %></strong> - URL: <%= doc.url %></li>
+                                <% }); %>
+                            </ul>
+                        </div>
+                    </details>
                 </div>
                 <% } %>
 
