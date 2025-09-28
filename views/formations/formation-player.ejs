@@ -188,6 +188,27 @@
             <!-- Zone de Contenu Dynamique -->
             <div class="content-area" id="contentArea">
 
+                <% if(!elementActuel) { %>
+                <!-- Message d'erreur si aucun élément actuel -->
+                <div class="error-container">
+                    <div class="error-content">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Aucun contenu disponible</h3>
+                        <p>Il semble qu'il n'y ait pas de contenu défini pour ce module.</p>
+                        <p><strong>Module:</strong> <%= moduleActuel.titre %></p>
+                        <p><strong>Nombre d'éléments:</strong> <%= contenuModule.length %></p>
+                        <% if(contenuModule.length > 0) { %>
+                        <p><strong>Éléments disponibles:</strong></p>
+                        <ul>
+                            <% contenuModule.forEach(c => { %>
+                            <li><a href="/formation/<%= formation.id %>/continuer?element=<%= c.id %>"><%= c.titre %></a> (Type: <%= c.type %>)</li>
+                            <% }); %>
+                        </ul>
+                        <% } %>
+                    </div>
+                </div>
+                <% } else { %>
+
                 <!-- En-tête de l'élément actuel -->
                 <div class="content-header-info">
                     <div class="breadcrumb">
@@ -195,14 +216,14 @@
                         <i class="fas fa-chevron-right"></i>
                         <span class="module-name"><%= moduleActuel.titre %></span>
                         <i class="fas fa-chevron-right"></i>
-                        <span class="element-name"><%= elementActuel?.titre || 'Chargement...' %></span>
+                        <span class="element-name"><%= elementActuel.titre %></span>
                     </div>
-                    <div class="content-type-badge <%= elementActuel?.type %>">
-                        <% if(elementActuel?.type === 'video') { %>
+                    <div class="content-type-badge <%= elementActuel.type %>">
+                        <% if(elementActuel.type === 'video') { %>
                             <i class="fas fa-play-circle"></i> Vidéo
-                        <% } else if(elementActuel?.type === 'quiz') { %>
+                        <% } else if(elementActuel.type === 'quiz') { %>
                             <i class="fas fa-question-circle"></i> Quiz
-                        <% } else if(elementActuel?.type === 'document') { %>
+                        <% } else if(elementActuel.type === 'document') { %>
                             <i class="fas fa-file-pdf"></i> Document
                         <% } else { %>
                             <i class="fas fa-file-text"></i> Texte
@@ -215,13 +236,26 @@
                 <div class="video-container">
                     <% if(elementActuel.url) { %>
                     <div class="video-player">
+                        <%
+                        // Assurer que l'URL est absolue
+                        let videoUrl = elementActuel.url;
+                        if (videoUrl && !videoUrl.startsWith('http') && !videoUrl.startsWith('/')) {
+                            videoUrl = '/' + videoUrl;
+                        }
+                        %>
                         <video id="mainVideo" controls controlsList="nodownload" onloadedmetadata="initVideoPlayer()">
-                            <source src="<%= elementActuel.url %>" type="video/mp4">
-                            <% if(elementActuel.url.includes('.webm')) { %>
-                            <source src="<%= elementActuel.url %>" type="video/webm">
+                            <source src="<%= videoUrl %>" type="video/mp4">
+                            <% if(videoUrl && videoUrl.includes('.webm')) { %>
+                            <source src="<%= videoUrl %>" type="video/webm">
                             <% } %>
                             Votre navigateur ne supporte pas la lecture vidéo.
                         </video>
+                        <% if(process.env.NODE_ENV === 'development' || true) { %>
+                        <small class="debug-url" style="display: block; margin-top: 0.5rem; font-family: monospace; color: #666;">
+                            🎥 URL originale: <%= elementActuel.url %><br>
+                            🎥 URL finale: <%= videoUrl %>
+                        </small>
+                        <% } %>
                         <div class="video-overlay" id="videoOverlay">
                             <button class="play-button" onclick="playVideo()">
                                 <i class="fas fa-play"></i>
@@ -434,6 +468,8 @@
                 </div>
                 <% } %>
 
+                <% } %> <!-- Fin de la condition elementActuel -->
+
             </div>
 
             <!-- Résultats Mode Revoir -->
@@ -597,7 +633,7 @@
                 <div class="nav-center">
                     <div class="element-indicator">
                         <% contenuModule.forEach((element, index) => { %>
-                        <span class="indicator <%= element.id === elementActuel.id ? 'active' : '' %> <%= element.termine ? 'completed' : '' %>"
+                        <span class="indicator <%= element.id === elementActuel?.id ? 'active' : '' %> <%= element.termine ? 'completed' : '' %>"
                               onclick="loadElement(<%= element.id %>)"></span>
                         <% }); %>
                     </div>

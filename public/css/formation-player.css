@@ -1835,6 +1835,62 @@ body {
     color: #6c757d;
 }
 
+/* Message d'erreur */
+.error-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+    padding: 2rem;
+}
+
+.error-content {
+    text-align: center;
+    background: var(--white);
+    padding: 3rem 2rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-light);
+    border-left: 4px solid var(--danger);
+    max-width: 600px;
+}
+
+.error-content i {
+    font-size: 3rem;
+    color: var(--danger);
+    margin-bottom: 1rem;
+}
+
+.error-content h3 {
+    color: var(--text-dark);
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+}
+
+.error-content p {
+    color: var(--text-light);
+    margin-bottom: 0.75rem;
+}
+
+.error-content ul {
+    text-align: left;
+    margin: 1rem 0;
+    padding-left: 1.5rem;
+}
+
+.error-content ul li {
+    margin-bottom: 0.5rem;
+}
+
+.error-content ul li a {
+    color: var(--primary-pink);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.error-content ul li a:hover {
+    text-decoration: underline;
+}
+
 /* Responsive improvements */
 @media (max-width: 768px) {
     .content-header-info {

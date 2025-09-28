@@ -215,8 +215,8 @@ router.get('/formation/:id/continuer', async (req, res) => {
                     try {
                         const videoQuery = `
                             SELECT * FROM videos_parties
-                            WHERE partie_id = :partieId AND actif = true
-                            ORDER BY ordre ASC
+                            WHERE partie_id = :partieId
+                            ORDER BY id ASC
                         `;
                         const videos = await sequelize.query(videoQuery, {
                             type: QueryTypes.SELECT,
@@ -224,14 +224,16 @@ router.get('/formation/:id/continuer', async (req, res) => {
                         });
 
                         if (videos.length > 0) {
-                            contenuPartie.url = videos[0].chemin_fichier;
+                            contenuPartie.url = videos[0].chemin_fichier || videos[0].url_video;
                             contenuPartie.video_titre = videos[0].titre;
                             contenuPartie.video_description = videos[0].description;
-                            contenuPartie.duree_seconds = videos[0].duree_seconds;
+                            contenuPartie.duree_seconds = videos[0].duree_secondes; // Correct column name
+                            console.log(`🎥 Vidéo trouvée pour partie ${partie.id}: ${contenuPartie.url}`);
+                        } else {
+                            console.log(`⚠️ Aucune vidéo trouvée pour partie ${partie.id}`);
                         }
-                        console.log(`🎥 Vidéo trouvée: ${contenuPartie.url}`);
                     } catch (error) {
-                        console.log(`❌ Erreur récupération vidéo pour partie ${partie.id}`);
+                        console.log(`❌ Erreur récupération vidéo pour partie ${partie.id}:`, error.message);
                     }
 
                 } else if (partie.type_contenu === 'texte') {
@@ -256,48 +258,67 @@ router.get('/formation/:id/continuer', async (req, res) => {
                     }
 
                 } else if (partie.type_contenu === 'quiz') {
-                    // Récupérer les questions du quiz
+                    // Récupérer le quiz et ses questions
                     try {
+                        // D'abord récupérer le quiz associé à cette partie
                         const quizQuery = `
-                            SELECT
-                                q.*,
-                                r.reponse_text,
-                                r.est_correcte,
-                                r.ordre as reponse_ordre
-                            FROM questions_quiz q
-                            LEFT JOIN reponses_quiz r ON q.id = r.question_id
-                            WHERE q.partie_id = :partieId AND q.actif = true
-                            ORDER BY q.ordre ASC, r.ordre ASC
+                            SELECT * FROM quiz WHERE partie_id = :partieId
                         `;
-                        const quizData = await sequelize.query(quizQuery, {
+                        const quizs = await sequelize.query(quizQuery, {
                             type: QueryTypes.SELECT,
                             replacements: { partieId: partie.id }
                         });
 
-                        // Grouper les questions et réponses
-                        const questionsMap = {};
-                        quizData.forEach(row => {
-                            if (!questionsMap[row.id]) {
-                                questionsMap[row.id] = {
-                                    id: row.id,
-                                    question: row.question_text,
-                                    ordre: row.ordre,
-                                    answers: []
-                                };
-                            }
-                            if (row.reponse_text) {
-                                questionsMap[row.id].answers.push({
-                                    id: `${row.id}_${row.reponse_ordre}`,
-                                    text: row.reponse_text,
-                                    correct: row.est_correcte
-                                });
-                            }
-                        });
+                        if (quizs.length > 0) {
+                            const quiz = quizs[0];
+                            contenuPartie.quiz_id = quiz.id;
+                            contenuPartie.quiz_titre = quiz.titre;
 
-                        contenuPartie.questions = Object.values(questionsMap);
-                        console.log(`❓ ${contenuPartie.questions.length} questions trouvées`);
+                            // Récupérer les questions de ce quiz
+                            const questionsQuery = `
+                                SELECT
+                                    q.*,
+                                    r.reponse_text,
+                                    r.est_correcte,
+                                    r.ordre as reponse_ordre
+                                FROM questions_quiz q
+                                LEFT JOIN reponses_quiz r ON q.id = r.question_id
+                                WHERE q.quiz_id = :quizId
+                                ORDER BY q.ordre ASC, r.ordre ASC
+                            `;
+                            const quizData = await sequelize.query(questionsQuery, {
+                                type: QueryTypes.SELECT,
+                                replacements: { quizId: quiz.id }
+                            });
+
+                            // Grouper les questions et réponses
+                            const questionsMap = {};
+                            quizData.forEach(row => {
+                                if (!questionsMap[row.id]) {
+                                    questionsMap[row.id] = {
+                                        id: row.id,
+                                        question: row.question,
+                                        ordre: row.ordre,
+                                        answers: []
+                                    };
+                                }
+                                if (row.reponse_text) {
+                                    questionsMap[row.id].answers.push({
+                                        id: `${row.id}_${row.reponse_ordre}`,
+                                        text: row.reponse_text,
+                                        correct: row.est_correcte
+                                    });
+                                }
+                            });
+
+                            contenuPartie.questions = Object.values(questionsMap);
+                            console.log(`❓ ${contenuPartie.questions.length} questions trouvées pour partie ${partie.id} (Quiz: ${quiz.titre})`);
+                        } else {
+                            console.log(`⚠️ Aucun quiz trouvé pour partie ${partie.id}`);
+                            contenuPartie.questions = [];
+                        }
                     } catch (error) {
-                        console.log(`❌ Erreur récupération quiz pour partie ${partie.id}`);
+                        console.log(`❌ Erreur récupération quiz pour partie ${partie.id}:`, error.message);
                         contenuPartie.questions = [];
                     }
                 }
@@ -306,7 +327,7 @@ router.get('/formation/:id/continuer', async (req, res) => {
                 try {
                     const documentsQuery = `
                         SELECT * FROM documents_parties
-                        WHERE partie_id = :partieId AND actif = true
+                        WHERE partie_id = :partieId
                         ORDER BY titre ASC
                     `;
                     const docs = await sequelize.query(documentsQuery, {
@@ -327,10 +348,12 @@ router.get('/formation/:id/continuer', async (req, res) => {
 
                         contenuPartie.documents = docsFormatted;
                         allDocuments.push(...docsFormatted);
-                        console.log(`📄 ${docs.length} documents trouvés pour cette partie`);
+                        console.log(`📄 ${docs.length} documents trouvés pour partie ${partie.id}: ${docs.map(d => d.titre).join(', ')}`);
+                    } else {
+                        console.log(`⚠️ Aucun document trouvé pour partie ${partie.id}`);
                     }
                 } catch (error) {
-                    console.log(`❌ Erreur récupération documents pour partie ${partie.id}`);
+                    console.log(`❌ Erreur récupération documents pour partie ${partie.id}:`, error.message);
                 }
 
                 contenuModule.push(contenuPartie);
@@ -451,13 +474,26 @@ router.get('/formation/:id/continuer', async (req, res) => {
         console.log(`✅ Total: ${contenuModule.length} éléments de contenu chargés`);
 
         // === DÉTERMINER L'ÉLÉMENT ACTUEL ===
+        console.log(`🎯 Recherche elementActuel: elementId=${elementId}, contenuModule.length=${contenuModule.length}`);
+
         let elementActuel;
         if (elementId) {
             elementActuel = contenuModule.find(c => c.id == elementId);
+            console.log(`🔍 Recherche par ID ${elementId}: ${elementActuel ? 'trouvé' : 'non trouvé'}`);
         } else {
             // Premier élément non terminé ou le premier
             elementActuel = contenuModule.find(c => !c.termine) || contenuModule[0];
+            console.log(`🔍 Premier élément: ${elementActuel ? elementActuel.titre : 'aucun'}`);
         }
+
+        // Si toujours pas d'élément, forcer le premier
+        if (!elementActuel && contenuModule.length > 0) {
+            elementActuel = contenuModule[0];
+            console.log(`🔄 Fallback vers premier élément: ${elementActuel.titre}`);
+        }
+
+        console.log(`✅ Element actuel final: ${elementActuel ? elementActuel.titre : 'AUCUN'}`);
+        console.log(`📋 Tous les éléments disponibles:`, contenuModule.map(c => `${c.id}:${c.titre}`));
 
         // Élément précédent et suivant
         const currentIndex = contenuModule.findIndex(c => c.id === elementActuel?.id);

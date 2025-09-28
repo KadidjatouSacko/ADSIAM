@@ -48,6 +48,9 @@ app.set('layout', 'layout');
 
 // Middleware pour fichiers statiques et parsing JSON/URL
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Servir les fichiers uploads (vidéos et documents)
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
