@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= formation.titre %> - Module <%= moduleActuel.ordre %> | ADSIAM</title>
+    <link rel="stylesheet" href="/css/formation-player.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header de Formation -->
+    <header class="formation-header">
+        <div class="header-left">
+            <button class="btn-back" onclick="goBack()">
+                <i class="fas fa-arrow-left"></i>
+                Retour
+            </button>
+            <div class="formation-info">
+                <h1><%= formation.titre %></h1>
+                <span class="formation-progress">Module <%= moduleActuel.ordre %>/<%= formation.nombre_modules %></span>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: <%= progressionFormation %>%"></div>
+                </div>
+                <span class="progress-text"><%= Math.round(progressionFormation) %>%</span>
+            </div>
+            <button class="btn-menu" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Container Principal -->
+    <div class="formation-container">
+        <!-- Sidebar Navigation -->
+        <aside class="formation-sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3>Modules de formation</h3>
+                <div class="formation-stats">
+                    <div class="stat-item">
+                        <i class="fas fa-play-circle"></i>
+                        <span><%= modulesTermines %>/<%= formation.nombre_modules %> modules</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-clock"></i>
+                        <span><%= Math.round(tempsTotal / 60) %>h passées</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modules-list">
+                <% modules.forEach((module, index) => { %>
+                <div class="module-item <%= module.id === moduleActuel.id ? 'active' : '' %> <%= module.statut || 'locked' %>"
+                     data-module-id="<%= module.id %>" onclick="loadModule(<%= module.id %>)">
+                    <div class="module-header">
+                        <div class="module-number">
+                            <% if(module.statut === 'termine') { %>
+                                <i class="fas fa-check-circle completed"></i>
+                            <% } else if(module.statut === 'en_cours') { %>
+                                <i class="fas fa-play-circle current"></i>
+                            <% } else if(module.accessible) { %>
+                                <span class="number"><%= module.ordre %></span>
+                            <% } else { %>
+                                <i class="fas fa-lock locked"></i>
+                            <% } %>
+                        </div>
+                        <div class="module-content">
+                            <h4 class="module-title"><%= module.titre %></h4>
+                            <div class="module-meta">
+                                <span class="duration">
+                                    <i class="fas fa-clock"></i>
+                                    <%= module.duree_minutes %>min
+                                </span>
+                                <% if(module.nombre_elements) { %>
+                                <span class="elements">
+                                    <i class="fas fa-list"></i>
+                                    <%= module.nombre_elements %> éléments
+                                </span>
+                                <% } %>
+                            </div>
+                            <% if(module.progression_pourcentage && module.progression_pourcentage > 0) { %>
+                            <div class="module-progress">
+                                <div class="progress-bar small">
+                                    <div class="progress-fill" style="width: <%= module.progression_pourcentage %>%"></div>
+                                </div>
+                            </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+                <% }); %>
+            </div>
+
+            <!-- Actions Sidebar -->
+            <div class="sidebar-actions">
+                <button class="btn btn-secondary" onclick="showDocuments()">
+                    <i class="fas fa-file-pdf"></i>
+                    Documents
+                </button>
+                <button class="btn btn-info" onclick="showNotes()">
+                    <i class="fas fa-sticky-note"></i>
+                    Mes notes
+                </button>
+            </div>
+        </aside>
+
+        <!-- Contenu Principal -->
+        <main class="formation-main">
+            <!-- Zone de Contenu Dynamique -->
+            <div class="content-area" id="contentArea">
+
+                <!-- Contenu Vidéo -->
+                <% if(elementActuel?.type === 'video') { %>
+                <div class="video-container">
+                    <div class="video-player">
+                        <video id="mainVideo" controls controlsList="nodownload" onloadedmetadata="initVideoPlayer()">
+                            <source src="<%= elementActuel.url %>" type="video/mp4">
+                            Votre navigateur ne supporte pas la lecture vidéo.
+                        </video>
+                        <div class="video-overlay" id="videoOverlay">
+                            <button class="play-button" onclick="playVideo()">
+                                <i class="fas fa-play"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="video-controls">
+                        <div class="video-info">
+                            <h3><%= elementActuel.titre %></h3>
+                            <p><%= elementActuel.description || 'Vidéo de formation' %></p>
+                        </div>
+                        <div class="video-actions">
+                            <button class="btn-control" onclick="toggleSpeed()">
+                                <i class="fas fa-tachometer-alt"></i>
+                                <span id="speedText">1x</span>
+                            </button>
+                            <button class="btn-control" onclick="toggleCaptions()">
+                                <i class="fas fa-closed-captioning"></i>
+                                Sous-titres
+                            </button>
+                            <button class="btn-control" onclick="toggleFullscreen()">
+                                <i class="fas fa-expand"></i>
+                                Plein écran
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <% } %>
+
+                <!-- Contenu Texte -->
+                <% if(elementActuel?.type === 'texte') { %>
+                <div class="text-content">
+                    <div class="content-header">
+                        <h2><%= elementActuel.titre %></h2>
+                        <div class="reading-time">
+                            <i class="fas fa-clock"></i>
+                            Temps de lecture: <%= Math.ceil(elementActuel.contenu?.length / 1000) || 5 %>min
+                        </div>
+                    </div>
+                    <div class="content-body">
+                        <%- elementActuel.contenu || '<p>Contenu en cours de préparation...</p>' %>
+                    </div>
+                </div>
+                <% } %>
+
+                <!-- Quiz -->
+                <% if(elementActuel?.type === 'quiz') { %>
+                <div class="quiz-container" id="quizContainer">
+                    <div class="quiz-header">
+                        <h2><%= elementActuel.titre %></h2>
+                        <div class="quiz-info">
+                            <span class="question-counter">Question <span id="currentQuestion">1</span>/<span id="totalQuestions"><%= elementActuel.questions?.length || 1 %></span></span>
+                            <div class="quiz-timer" id="quizTimer">
+                                <i class="fas fa-clock"></i>
+                                <span id="timeLeft">05:00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="quiz-content" id="quizContent">
+                        <!-- Questions seront chargées dynamiquement -->
+                    </div>
+
+                    <div class="quiz-actions">
+                        <button class="btn btn-secondary" onclick="previousQuestion()" id="prevBtn" disabled>
+                            <i class="fas fa-arrow-left"></i>
+                            Précédent
+                        </button>
+                        <button class="btn btn-primary" onclick="nextQuestion()" id="nextBtn">
+                            Suivant
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                        <button class="btn btn-success" onclick="submitQuiz()" id="submitBtn" style="display: none;">
+                            <i class="fas fa-check"></i>
+                            Terminer le quiz
+                        </button>
+                    </div>
+                </div>
+                <% } %>
+
+                <!-- Document -->
+                <% if(elementActuel?.type === 'document') { %>
+                <div class="document-container">
+                    <div class="document-header">
+                        <h2><%= elementActuel.titre %></h2>
+                        <div class="document-actions">
+                            <button class="btn btn-primary" onclick="downloadDocument('<%= elementActuel.url %>')">
+                                <i class="fas fa-download"></i>
+                                Télécharger
+                            </button>
+                            <button class="btn btn-secondary" onclick="printDocument()">
+                                <i class="fas fa-print"></i>
+                                Imprimer
+                            </button>
+                        </div>
+                    </div>
+                    <div class="document-viewer">
+                        <% if(elementActuel.url?.endsWith('.pdf')) { %>
+                        <iframe src="<%= elementActuel.url %>" frameborder="0"></iframe>
+                        <% } else { %>
+                        <div class="document-content">
+                            <%- elementActuel.contenu || '<p>Document non disponible</p>' %>
+                        </div>
+                        <% } %>
+                    </div>
+                </div>
+                <% } %>
+
+            </div>
+
+            <!-- Résultats Mode Revoir -->
+            <% if(mode === 'revoir' && resultats) { %>
+            <div class="revoir-results">
+                <div class="results-header">
+                    <h2><i class="fas fa-chart-line"></i> Vos derniers résultats</h2>
+                    <span class="completion-date">Complété le <%= resultats.dateCompletion ? new Date(resultats.dateCompletion).toLocaleDateString('fr-FR') : 'Date inconnue' %></span>
+                </div>
+
+                <div class="results-grid">
+                    <!-- Score Global -->
+                    <div class="result-card global-score">
+                        <div class="card-header">
+                            <i class="fas fa-trophy"></i>
+                            <h3>Score Global</h3>
+                        </div>
+                        <div class="score-display">
+                            <div class="score-circle <%= resultats.scoreGlobal >= 70 ? 'success' : resultats.scoreGlobal >= 50 ? 'warning' : 'danger' %>">
+                                <span class="score-value"><%= Math.round(resultats.scoreGlobal || 0) %>%</span>
+                            </div>
+                            <div class="score-details">
+                                <div class="detail-item">
+                                    <span class="label">Temps passé:</span>
+                                    <span class="value"><%= Math.round((resultats.tempsTotal || 0) / 60) %>h <%= Math.round((resultats.tempsTotal || 0) % 60) %>min</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="label">Modules terminés:</span>
+                                    <span class="value"><%= resultats.modulesTermines || 0 %>/<%= formation.nombre_modules %></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Résultats par Module -->
+                    <% if(resultats.modules && resultats.modules.length > 0) { %>
+                    <div class="result-card modules-results">
+                        <div class="card-header">
+                            <i class="fas fa-list-check"></i>
+                            <h3>Résultats par Module</h3>
+                        </div>
+                        <div class="modules-grid">
+                            <% resultats.modules.forEach(module => { %>
+                            <div class="module-result">
+                                <div class="module-info">
+                                    <h4><%= module.titre %></h4>
+                                    <div class="module-stats">
+                                        <span class="stat">
+                                            <i class="fas fa-percent"></i>
+                                            <%= Math.round(module.score || 0) %>%
+                                        </span>
+                                        <span class="stat">
+                                            <i class="fas fa-clock"></i>
+                                            <%= Math.round((module.temps || 0) / 60) %>min
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="module-status">
+                                    <% if(module.statut === 'termine') { %>
+                                        <i class="fas fa-check-circle success"></i>
+                                    <% } else if(module.statut === 'en_cours') { %>
+                                        <i class="fas fa-play-circle warning"></i>
+                                    <% } else { %>
+                                        <i class="fas fa-circle danger"></i>
+                                    <% } %>
+                                </div>
+                            </div>
+                            <% }); %>
+                        </div>
+                    </div>
+                    <% } %>
+
+                    <!-- Résultats Quiz -->
+                    <% if(resultats.quiz && resultats.quiz.length > 0) { %>
+                    <div class="result-card quiz-results">
+                        <div class="card-header">
+                            <i class="fas fa-question-circle"></i>
+                            <h3>Résultats des Quiz</h3>
+                        </div>
+                        <div class="quiz-grid">
+                            <% resultats.quiz.forEach(quiz => { %>
+                            <div class="quiz-result">
+                                <div class="quiz-info">
+                                    <h4><%= quiz.titre %></h4>
+                                    <div class="quiz-score <%= quiz.score >= 70 ? 'success' : quiz.score >= 50 ? 'warning' : 'danger' %>">
+                                        <%= Math.round(quiz.score || 0) %>%
+                                    </div>
+                                </div>
+                                <div class="quiz-details">
+                                    <span><%= quiz.bonnesReponses || 0 %>/<%= quiz.totalQuestions || 0 %> bonnes réponses</span>
+                                    <span>Temps: <%= Math.round((quiz.temps || 0) / 60) %>min</span>
+                                </div>
+                            </div>
+                            <% }); %>
+                        </div>
+                    </div>
+                    <% } %>
+
+                    <!-- Recommandations -->
+                    <div class="result-card recommendations">
+                        <div class="card-header">
+                            <i class="fas fa-lightbulb"></i>
+                            <h3>Recommandations</h3>
+                        </div>
+                        <div class="recommendations-list">
+                            <% if(resultats.scoreGlobal >= 80) { %>
+                                <div class="recommendation success">
+                                    <i class="fas fa-medal"></i>
+                                    <span>Excellent travail ! Vos résultats sont exemplaires.</span>
+                                </div>
+                            <% } else if(resultats.scoreGlobal >= 60) { %>
+                                <div class="recommendation warning">
+                                    <i class="fas fa-chart-line"></i>
+                                    <span>Bon travail ! Quelques points peuvent encore être améliorés.</span>
+                                </div>
+                            <% } else { %>
+                                <div class="recommendation danger">
+                                    <i class="fas fa-redo"></i>
+                                    <span>Il serait bénéfique de revoir certains modules pour consolider vos acquis.</span>
+                                </div>
+                            <% } %>
+
+                            <% if(resultats.modulesARevoir && resultats.modulesARevoir.length > 0) { %>
+                                <div class="recommendation info">
+                                    <i class="fas fa-book"></i>
+                                    <span>Modules à revoir: <%= resultats.modulesARevoir.join(', ') %></span>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="revoir-actions">
+                    <button class="btn btn-primary" onclick="refaireFormation()">
+                        <i class="fas fa-redo"></i>
+                        Refaire la formation
+                    </button>
+                    <button class="btn btn-secondary" onclick="telechargerCertificat()">
+                        <i class="fas fa-certificate"></i>
+                        Télécharger le certificat
+                    </button>
+                    <button class="btn btn-outline" onclick="exporterResultats()">
+                        <i class="fas fa-download"></i>
+                        Exporter les résultats
+                    </button>
+                </div>
+            </div>
+            <% } %>
+
+            <!-- Navigation du Module -->
+            <div class="module-navigation">
+                <div class="nav-left">
+                    <% if(elementPrecedent) { %>
+                    <button class="btn btn-outline" onclick="loadElement(<%= elementPrecedent.id %>)">
+                        <i class="fas fa-arrow-left"></i>
+                        <%= elementPrecedent.titre %>
+                    </button>
+                    <% } %>
+                </div>
+
+                <div class="nav-center">
+                    <div class="element-indicator">
+                        <% contenuModule.forEach((element, index) => { %>
+                        <span class="indicator <%= element.id === elementActuel.id ? 'active' : '' %> <%= element.termine ? 'completed' : '' %>"
+                              onclick="loadElement(<%= element.id %>)"></span>
+                        <% }); %>
+                    </div>
+                </div>
+
+                <div class="nav-right">
+                    <% if(elementSuivant) { %>
+                    <button class="btn btn-primary" onclick="loadElement(<%= elementSuivant.id %>)">
+                        <%= elementSuivant.titre %>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                    <% } else { %>
+                    <button class="btn btn-success" onclick="completeModule()">
+                        <i class="fas fa-check"></i>
+                        Terminer le module
+                    </button>
+                    <% } %>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Documents -->
+    <div class="modal" id="documentsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Documents de formation</h3>
+                <button class="btn-close" onclick="closeModal('documentsModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="documents-list">
+                    <% if(documents && documents.length > 0) { %>
+                        <% documents.forEach(doc => { %>
+                        <div class="document-item">
+                            <div class="doc-icon">
+                                <% if(doc.type === 'pdf') { %>
+                                    <i class="fas fa-file-pdf"></i>
+                                <% } else if(doc.type === 'word') { %>
+                                    <i class="fas fa-file-word"></i>
+                                <% } else { %>
+                                    <i class="fas fa-file"></i>
+                                <% } %>
+                            </div>
+                            <div class="doc-info">
+                                <h4><%= doc.titre %></h4>
+                                <p><%= doc.description %></p>
+                                <span class="doc-size"><%= doc.taille || '1.2 MB' %></span>
+                            </div>
+                            <div class="doc-actions">
+                                <button class="btn btn-sm btn-primary" onclick="downloadDocument('<%= doc.url %>')">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                                <button class="btn btn-sm btn-secondary" onclick="viewDocument('<%= doc.url %>')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <% }); %>
+                    <% } else { %>
+                        <div class="no-documents">
+                            <i class="fas fa-folder-open"></i>
+                            <p>Aucun document disponible pour cette formation</p>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Notes -->
+    <div class="modal" id="notesModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Mes notes</h3>
+                <button class="btn-close" onclick="closeModal('notesModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="notes-container">
+                    <textarea id="notesTextarea" placeholder="Écrivez vos notes ici..."><%= notesUtilisateur || '' %></textarea>
+                    <div class="notes-actions">
+                        <button class="btn btn-primary" onclick="saveNotes()">
+                            <i class="fas fa-save"></i>
+                            Sauvegarder
+                        </button>
+                        <button class="btn btn-secondary" onclick="exportNotes()">
+                            <i class="fas fa-download"></i>
+                            Exporter PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/formation-player.js"></script>
+    <script>
+        // Variables globales
+        const formationData = {
+            id: <%= formation.id %>,
+            moduleId: <%= moduleActuel.id %>,
+            elementId: <%= elementActuel?.id || 'null' %>,
+            userId: <%= user?.id || 'null' %>
+        };
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            initFormationPlayer();
+            trackTime();
+
+            <% if(elementActuel?.type === 'quiz') { %>
+            initQuiz();
+            <% } %>
+        });
+    </script>
+</body>
+</html>

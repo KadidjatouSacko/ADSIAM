@@ -1162,73 +1162,67 @@
             <!-- Dashboard Grid -->
             <div class="dashboard-grid">
                 <!-- Formation en cours -->
-                <div class="current-formation fade-in">
-                    <h2 class="section-title">
-                        <div class="section-icon">🎯</div>
-                        Formation en cours
-                    </h2>
+               <!-- Formation en cours -->
+<div class="current-formation fade-in">
+    <h2 class="section-title">
+        <div class="section-icon">🎯</div>
+        Formation en cours
+    </h2>
 
-                    <% if (typeof formationEnCours !== 'undefined' && formationEnCours) { %>
-                        <div class="formation-current">
-                            <div class="formation-badge">En cours</div>
-                            <h3 class="formation-title"><%= formationEnCours.formation.titre %></h3>
-                            <div class="formation-meta">
-                                <span>📚 Module <%= formationEnCours.module_actuel || 1 %>/<%= formationEnCours.formation.nombre_modules %></span>
-                                <span>⏱️ <%= (formationEnCours.formation.duree_heures || 0) - Math.floor((formationEnCours.temps_total_minutes || 0) / 60) %>h restantes</span>
-                                <span>🎯 <%= formationEnCours.progression_pourcentage || 0 %>% complété</span>
-                            </div>
-                            <div class="formation-progress-bar">
-                                <div class="progress-fill" style="width: <%= formationEnCours.progression_pourcentage || 0 %>%;"></div>
-                            </div>
-                            <div class="formation-actions">
-                                <a href="/formation/<%= formationEnCours.formation.id %>/module/<%= formationEnCours.module_actuel || 1 %>" class="btn btn-primary">
-                                    ▶️ Continuer
-                                </a>
-                                <a href="/formation/<%= formationEnCours.formation.id %>" class="btn btn-secondary">
-                                    📋 Voir le programme
-                                </a>
+    <% if (formationEnCours && formationEnCours.formation) { %>
+        <!-- Info formation -->
+        <div class="formation-current">
+            <div class="formation-badge">En cours</div>
+            <h3 class="formation-title"><%= formationEnCours.formation.titre %></h3>
+            <div class="formation-meta">
+                <span>📚 Module <%= formationEnCours.module_actuel || 1 %>/<%= formationEnCours.formation.nombre_modules %></span>
+                <span>⏱️ <%= (formationEnCours.formation.duree_heures || 0) - Math.floor((formationEnCours.temps_total_minutes || 0) / 60) %>h restantes</span>
+            </div>
+        </div>
+
+        <!-- Progression des modules -->
+        <div class="modules-progress">
+            <% if (typeof modulesProgression !== 'undefined' && modulesProgression.length > 0) { %>
+                <% modulesProgression.forEach((module, index) => { %>
+                    <div class="module-item" data-module-id="<%= module.id %>">
+                        <div class="module-number"><%= index + 1 %></div>
+                        <div class="module-info">
+                            <div class="module-title"><%= module.titre %></div>
+                            <div class="module-duration">
+                                <%= typeof formatDuration !== 'undefined' ? formatDuration(module.duree_minutes) : module.duree_minutes + ' minutes' %>
                             </div>
                         </div>
-
-                        <div class="modules-progress">
-                            <% if (typeof modulesProgression !== 'undefined' && modulesProgression.length > 0) { %>
-                                <% modulesProgression.forEach((module, index) => { %>
-                                    <div class="module-item" data-module-id="<%= module.id %>">
-                                        <div class="module-number"><%= index + 1 %></div>
-                                        <div class="module-info">
-                                            <div class="module-title"><%= module.titre %></div>
-                                            <div class="module-duration">
-                                                <%= typeof formatDuration !== 'undefined' ? formatDuration(module.duree_minutes) : module.duree_minutes + ' minutes' %>
-                                            </div>
-                                        </div>
-                                        <div class="module-status <%= module.statut === 'termine' ? 'status-completed' : (module.statut === 'en_cours' ? 'status-current' : 'status-locked') %>">
-                                            <% if (module.statut === 'termine') { %>
-                                                ✓ Terminé
-                                            <% } else if (module.statut === 'en_cours') { %>
-                                                🎯 En cours
-                                            <% } else { %>
-                                                🔒 Verrouillé
-                                            <% } %>
-                                        </div>
-                                    </div>
-                                <% }) %>
+                        <div class="module-status <%= module.statut === 'termine' ? 'status-completed' : (module.statut === 'en_cours' ? 'status-current' : 'status-locked') %>">
+                            <% if (module.statut === 'termine') { %>
+                                ✓ Terminé
+                            <% } else if (module.statut === 'en_cours') { %>
+                                🎯 En cours
                             <% } else { %>
-                                <p style="text-align: center; color: var(--text-light); padding: 2rem;">
-                                    Aucun module disponible pour le moment
-                                </p>
+                                🔒 Verrouillé
                             <% } %>
                         </div>
-                    <% } else { %>
-                        <div class="empty-state">
-                            <div class="empty-state-icon">📚</div>
-                            <h3>Aucune formation en cours</h3>
-                            <p>Commencez une nouvelle formation pour débuter votre apprentissage</p>
-                            <a href="/mes-formations" class="btn" style="background: var(--gradient-contact); color: white;">
-                                🚀 Découvrir les formations
-                            </a>
-                        </div>
-                    <% } %>
-                </div>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <p style="text-align: center; color: var(--text-light); padding: 2rem;">
+                    Aucun module disponible pour le moment
+                </p>
+            <% } %>
+        </div>
+
+    <% } else { %>
+        <!-- Bloc vide si pas de formation -->
+        <div class="empty-state">
+            <div class="empty-state-icon">📚</div>
+            <h3>Aucune formation en cours</h3>
+            <p>Commencez une nouvelle formation pour débuter votre apprentissage</p>
+            <a href="/mes-formations" class="btn" style="background: var(--gradient-contact); color: white;">
+                🚀 Découvrir les formations
+            </a>
+        </div>
+    <% } %>
+</div>
+
 
                 <!-- Activity Feed -->
                 <div class="activity-feed fade-in">

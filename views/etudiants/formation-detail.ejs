@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= formation.titre %> | ADSIAM Étudiant</title>
+    <link rel="stylesheet" href="/css/formation-detail.css">
+    <link rel="stylesheet" href="/css/video-player.css">
+</head>
+<body>
+    <!-- Header -->
+    <%- include('../partials/header-etudiant') %>
+
+    <!-- Main Container -->
+    <div class="formation-container">
+        <!-- Sidebar Navigation -->
+        <nav class="formation-sidebar">
+            <div class="formation-header">
+                <div class="formation-icon">
+                    <% if(formation.domaine === 'communication'){ %>🗣️<% } 
+                    else if(formation.domaine === 'hygiene'){ %>🛡️<% } 
+                    else if(formation.domaine === 'urgences'){ %>🚨<% } 
+                    else { %>📚<% } %>
+                </div>
+                <div class="formation-info">
+                    <h1><%= formation.titre %></h1>
+                    <div class="formation-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: <%= inscription?.progression_pourcentage || 0 %>%"></div>
+                        </div>
+                        <span class="progress-text"><%= inscription?.progression_pourcentage || 0 %>% terminé</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modules List -->
+            <div class="modules-list">
+                <% formation.modules?.forEach((module, moduleIndex) => { %>
+                <div class="module-item" data-module-id="<%= module.id %>">
+                    <div class="module-header" onclick="toggleModule(<%= module.id %>)">
+                        <div class="module-title">
+                            <span class="module-number"><%= moduleIndex + 1 %></span>
+                            <span class="module-name"><%= module.titre %></span>
+                        </div>
+                        <div class="module-status">
+                            <% const moduleProgress = progressions.find(p => p.module_id === module.id); %>
+                            <% if(moduleProgress?.statut === 'terminee'){ %>
+                                <span class="status-completed">✓</span>
+                            <% } else if(moduleProgress?.statut === 'en_cours'){ %>
+                                <span class="status-progress">⏵</span>
+                            <% } else { %>
+                                <span class="status-locked">🔒</span>
+                            <% } %>
+                        </div>
+                    </div>
+
+                    <!-- Parties du module -->
+                    <div class="module-content" id="module-<%= module.id %>">
+                        <% module.parties?.forEach((partie, partieIndex) => { %>
+                        <div class="partie-item" data-partie-id="<%= partie.id %>">
+                            <div class="partie-header" onclick="loadPartie(<%= partie.id %>, '<%= partie.type_contenu %>')">
+                                <div class="partie-icon">
+                                    <% if(partie.type_contenu === 'video'){ %>🎥<% } 
+                                    else if(partie.type_contenu === 'document'){ %>📄<% } 
+                                    else if(partie.type_contenu === 'quiz'){ %>❓<% } 
+                                    else if(partie.type_contenu === 'texte'){ %>📝<% } 
+                                    else { %>📌<% } %>
+                                </div>
+                                <div class="partie-info">
+                                    <div class="partie-title"><%= partie.titre %></div>
+                                    <div class="partie-type">
+                                        <% if(partie.type_contenu === 'video'){ %>Vidéo<% } 
+                                        else if(partie.type_contenu === 'document'){ %>Document<% } 
+                                        else if(partie.type_contenu === 'quiz'){ %>Quiz<% } 
+                                        else if(partie.type_contenu === 'texte'){ %>Lecture<% } 
+                                        else { %>Contenu<% } %>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <% }) %>
+                    </div>
+                </div>
+                <% }) %>
+            </div>
+
+            <!-- Actions sidebar -->
+            <div class="sidebar-actions">
+                <button class="btn btn-primary" onclick="showCertificat()">
+                    🎓 Certificat
+                </button>
+                <button class="btn btn-secondary" onclick="downloadResources()">
+                    📥 Ressources
+                </button>
+                <button class="btn btn-outline" onclick="showNotes()">
+                    📝 Mes Notes
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="formation-content">
+            <!-- Content Header -->
+            <div class="content-header">
+                <div class="breadcrumb">
+                    <a href="/formations">Mes Formations</a>
+                    <span>›</span>
+                    <span><%= formation.titre %></span>
+                    <span id="current-section">›</span>
+                </div>
+                <div class="content-actions">
+                    <button class="action-btn" onclick="toggleFullscreen()" title="Plein écran">⛶</button>
+                    <button class="action-btn" onclick="toggleNotes()" title="Notes">📝</button>
+                    <button class="action-btn" onclick="toggleSettings()" title="Paramètres">⚙️</button>
+                </div>
+            </div>
+
+            <!-- Dynamic Content Area -->
+            <div class="content-area" id="contentArea">
+                <!-- Welcome Screen -->
+                <div class="welcome-content">
+                    <div class="welcome-header">
+                        <h2>Bienvenue dans la formation</h2>
+                        <h1><%= formation.titre %></h1>
+                    </div>
+                    
+                    <div class="formation-overview">
+                        <div class="overview-item">
+                            <div class="overview-icon">📚</div>
+                            <div class="overview-info">
+                                <div class="overview-label">Modules</div>
+                                <div class="overview-value"><%= formation.nombre_modules %></div>
+                            </div>
+                        </div>
+                        <div class="overview-item">
+                            <div class="overview-icon">⏱️</div>
+                            <div class="overview-info">
+                                <div class="overview-label">Durée</div>
+                                <div class="overview-value"><%= formation.duree_heures %>h</div>
+                            </div>
+                        </div>
+                        <div class="overview-item">
+                            <div class="overview-icon">🎯</div>
+                            <div class="overview-info">
+                                <div class="overview-label">Niveau</div>
+                                <div class="overview-value"><%= formation.niveau %></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="formation-description">
+                        <p><%= formation.description %></p>
+                    </div>
+
+                    <div class="welcome-actions">
+                        <button class="btn btn-primary btn-large" onclick="startFormation()">
+                            🚀 Commencer la formation
+                        </button>
+                        <% if(inscription && inscription.progression_pourcentage > 0){ %>
+                        <button class="btn btn-secondary btn-large" onclick="continueFormation()">
+                            ▶️ Reprendre où vous vous êtes arrêté
+                        </button>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Controls -->
+            <div class="content-navigation">
+                <button class="nav-btn nav-prev" onclick="previousContent()" disabled>
+                    ← Précédent
+                </button>
+                <div class="nav-info">
+                    <span id="nav-current">-</span> / <span id="nav-total">-</span>
+                </div>
+                <button class="nav-btn nav-next" onclick="nextContent()">
+                    Suivant →
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Video Player Modal -->
+    <div class="video-modal" id="videoModal">
+        <div class="video-container">
+            <div class="video-header">
+                <h3 id="videoTitle">Titre de la vidéo</h3>
+                <button class="close-btn" onclick="closeVideo()">×</button>
+            </div>
+            <div class="video-player">
+                <video id="mainVideo" controls preload="metadata">
+                    <source src="" type="video/mp4">
+                    Votre navigateur ne supporte pas la lecture de vidéos.
+                </video>
+                <div class="video-controls">
+                    <div class="video-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="videoProgressFill"></div>
+                        </div>
+                        <div class="time-display">
+                            <span id="currentTime">00:00</span> / <span id="totalTime">00:00</span>
+                        </div>
+                    </div>
+                    <div class="video-actions">
+                        <button onclick="togglePlay()">⏯️</button>
+                        <button onclick="changeSpeed()">1x</button>
+                        <button onclick="toggleSubtitles()">CC</button>
+                        <button onclick="toggleFullscreen()">⛶</button>
+                    </div>
+                </div>
+            </div>
+            <div class="video-notes">
+                <h4>Notes de la vidéo</h4>
+                <textarea placeholder="Ajoutez vos notes ici..." id="videoNotes"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Modal -->
+    <div class="quiz-modal" id="quizModal">
+        <div class="quiz-container">
+            <div class="quiz-header">
+                <h3 id="quizTitle">Quiz</h3>
+                <div class="quiz-progress">
+                    <span id="quizProgress">Question 1/5</span>
+                </div>
+            </div>
+            <div class="quiz-content">
+                <div class="question-container">
+                    <h4 id="questionText">Question...</h4>
+                    <div class="answers-list" id="answersList">
+                        <!-- Réponses générées dynamiquement -->
+                    </div>
+                </div>
+                <div class="quiz-actions">
+                    <button class="btn btn-secondary" onclick="previousQuestion()">Précédent</button>
+                    <button class="btn btn-primary" onclick="nextQuestion()" id="nextBtn">Suivant</button>
+                </div>
+            </div>
+            <div class="quiz-results" id="quizResults" style="display: none;">
+                <div class="results-summary">
+                    <h3>Résultats du quiz</h3>
+                    <div class="score-display">
+                        <div class="score-circle">
+                            <span id="scorePercentage">85%</span>
+                        </div>
+                        <div class="score-details">
+                            <div>Score: <span id="scorePoints">17/20</span></div>
+                            <div>Temps: <span id="quizTime">5m 32s</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="quiz-actions">
+                    <button class="btn btn-secondary" onclick="retryQuiz()">Refaire le quiz</button>
+                    <button class="btn btn-primary" onclick="closeQuiz()">Continuer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Document Viewer Modal -->
+    <div class="document-modal" id="documentModal">
+        <div class="document-container">
+            <div class="document-header">
+                <h3 id="documentTitle">Document</h3>
+                <div class="document-actions">
+                    <button onclick="downloadDocument()">📥 Télécharger</button>
+                    <button onclick="printDocument()">🖨️ Imprimer</button>
+                    <button class="close-btn" onclick="closeDocument()">×</button>
+                </div>
+            </div>
+            <div class="document-viewer">
+                <iframe id="documentFrame" src=""></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notes Panel -->
+    <div class="notes-panel" id="notesPanel">
+        <div class="notes-header">
+            <h3>Mes Notes</h3>
+            <button onclick="toggleNotes()">×</button>
+        </div>
+        <div class="notes-content">
+            <textarea placeholder="Prenez vos notes ici..." id="globalNotes"></textarea>
+        </div>
+        <div class="notes-actions">
+            <button class="btn btn-primary" onclick="saveNotes()">💾 Sauvegarder</button>
+        </div>
+    </div>
+
+    <script src="/js/formation-player.js"></script>
+    <script>
+        // Variables globales
+        let currentFormationId = <%= formation.id %>;
+        let currentUserId = <%= userId %>;
+        let currentModuleId = null;
+        let currentPartieId = null;
+        let formationData = <%- JSON.stringify(formation) %>;
+        let progressionData = <%- JSON.stringify(progressions) %>;
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeFormation();
+            loadSavedProgress();
+            setupEventListeners();
+        });
+
+        function initializeFormation() {
+            console.log('🎓 Formation initialisée:', formationData.titre);
+            updateNavigationInfo();
+        }
+
+        function toggleModule(moduleId) {
+            const moduleContent = document.getElementById(`module-${moduleId}`);
+            const isOpen = moduleContent.style.display === 'block';
+            
+            // Fermer tous les autres modules
+            document.querySelectorAll('.module-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            
+            // Ouvrir/fermer le module sélectionné
+            if (!isOpen) {
+                moduleContent.style.display = 'block';
+                currentModuleId = moduleId;
+            } else {
+                currentModuleId = null;
+            }
+        }
+
+        function loadPartie(partieId, typeContenu) {
+            currentPartieId = partieId;
+            document.getElementById('current-section').textContent = `› ${typeContenu}`;
+
+            // Mettre à jour les styles d'état
+            document.querySelectorAll('.partie-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelector(`[data-partie-id="${partieId}"]`).classList.add('active');
+
+            // Charger le contenu selon le type
+            switch(typeContenu) {
+                case 'video':
+                    loadVideoContent(partieId);
+                    break;
+                case 'document':
+                    loadDocumentContent(partieId);
+                    break;
+                case 'quiz':
+                    loadQuizContent(partieId);
+                    break;
+                case 'texte':
+                    loadTextContent(partieId);
+                    break;
+                default:
+                    loadDefaultContent(partieId);
+            }
+
+            updateProgress(partieId);
+        }
+
+        function loadVideoContent(partieId) {
+            // Trouver la vidéo dans les données
+            const partie = findPartieById(partieId);
+            if (!partie || !partie.videos || partie.videos.length === 0) return;
+
+            const video = partie.videos[0];
+            
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = `
+                <div class="video-content">
+                    <div class="video-wrapper">
+                        <video id="formationVideo" controls preload="metadata" onloadedmetadata="initVideoPlayer()">
+                            <source src="${video.chemin_fichier}" type="video/mp4">
+                            Votre navigateur ne supporte pas la lecture de vidéos.
+                        </video>
+                    </div>
+                    <div class="video-info">
+                        <h2>${partie.titre}</h2>
+                        <p>${partie.description || ''}</p>
+                        <div class="video-meta">
+                            <span>⏱️ ${formatDuration(video.duree_secondes)}</span>
+                            <span>🎥 ${video.qualite || 'HD'}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            setTimeout(() => setupVideoTracking(), 500);
+        }
+
+        function loadDocumentContent(partieId) {
+            const partie = findPartieById(partieId);
+            if (!partie || !partie.documents || partie.documents.length === 0) return;
+
+            const document = partie.documents[0];
+            
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = `
+                <div class="document-content">
+                    <div class="document-header">
+                        <h2>${partie.titre}</h2>
+                        <div class="document-actions">
+                            <button class="btn btn-outline" onclick="downloadDocument('${document.chemin_fichier}', '${document.nom_fichier}')">
+                                📥 Télécharger
+                            </button>
+                            <button class="btn btn-outline" onclick="printDocument()">
+                                🖨️ Imprimer
+                            </button>
+                        </div>
+                    </div>
+                    <div class="document-viewer">
+                        <iframe src="${document.chemin_fichier}" width="100%" height="600px"></iframe>
+                    </div>
+                    <div class="document-info">
+                        <p>${partie.description || ''}</p>
+                        <div class="document-meta">
+                            <span>📄 ${document.type_document}</span>
+                            <span>💾 ${formatFileSize(document.taille_fichier)}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function loadQuizContent(partieId) {
+            const partie = findPartieById(partieId);
+            if (!partie || !partie.quiz || partie.quiz.length === 0) return;
+
+            const quiz = partie.quiz[0];
+            
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = `
+                <div class="quiz-content">
+                    <div class="quiz-intro">
+                        <h2>${partie.titre}</h2>
+                        <p>${partie.description || ''}</p>
+                        <div class="quiz-info">
+                            <div class="quiz-stat">
+                                <span class="stat-icon">❓</span>
+                                <span>${quiz.questions?.length || 0} questions</span>
+                            </div>
+                            <div class="quiz-stat">
+                                <span class="stat-icon">⏱️</span>
+                                <span>${quiz.duree_limite_minutes || 'Illimité'}</span>
+                            </div>
+                            <div class="quiz-stat">
+                                <span class="stat-icon">🎯</span>
+                                <span>Note de passage: ${quiz.note_passage || 70}%</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary btn-large" onclick="startQuiz(${quiz.id})">
+                            🚀 Commencer le quiz
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function loadTextContent(partieId) {
+            const partie = findPartieById(partieId);
+            if (!partie) return;
+
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = `
+                <div class="text-content">
+                    <h2>${partie.titre}</h2>
+                    <div class="text-body">
+                        ${partie.description || ''}
+                    </div>
+                    <div class="reading-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="readingProgress"></div>
+                        </div>
+                        <span class="progress-text">Progression de lecture</span>
+                    </div>
+                </div>
+            `;
+
+            // Simuler la progression de lecture
+            setTimeout(() => trackReadingProgress(), 1000);
+        }
+
+        function findPartieById(partieId) {
+            for (let module of formationData.modules) {
+                for (let partie of module.parties) {
+                    if (partie.id == partieId) {
+                        return partie;
+                    }
+                }
+            }
+            return null;
+        }
+
+        function startFormation() {
+            // Ouvrir le premier module
+            const firstModule = formationData.modules[0];
+            if (firstModule) {
+                toggleModule(firstModule.id);
+                if (firstModule.parties && firstModule.parties.length > 0) {
+                    loadPartie(firstModule.parties[0].id, firstModule.parties[0].type_contenu);
+                }
+            }
+        }
+
+        function continueFormation() {
+            // Reprendre là où l'utilisateur s'est arrêté
+            const lastProgression = progressionData.find(p => p.statut === 'en_cours');
+            if (lastProgression) {
+                const module = formationData.modules.find(m => m.id === lastProgression.module_id);
+                if (module) {
+                    toggleModule(module.id);
+                    // Charger la première partie non terminée
+                    const firstIncompletePartie = module.parties[0];
+                    if (firstIncompletePartie) {
+                        loadPartie(firstIncompletePartie.id, firstIncompletePartie.type_contenu);
+                    }
+                }
+            } else {
+                startFormation();
+            }
+        }
+
+        function setupVideoTracking() {
+            const video = document.getElementById('formationVideo');
+            if (!video) return;
+
+            let watchedTime = 0;
+            let totalTime = 0;
+
+            video.addEventListener('loadedmetadata', function() {
+                totalTime = video.duration;
+            });
+
+            video.addEventListener('timeupdate', function() {
+                watchedTime = video.currentTime;
+                const progress = Math.floor((watchedTime / totalTime) * 100);
+                
+                // Mettre à jour la progression en temps réel
+                if (progress > 0 && progress % 25 === 0) {
+                    updateVideoProgress(currentPartieId, progress, watchedTime);
+                }
+            });
+
+            video.addEventListener('ended', function() {
+                updateVideoProgress(currentPartieId, 100, totalTime);
+                showNextContent();
+            });
+        }
+
+        function updateVideoProgress(partieId, percentage, watchedSeconds) {
+            fetch('/api/progression/video', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    partieId: partieId,
+                    moduleId: currentModuleId,
+                    progression: percentage,
+                    tempsVisionne: Math.floor(watchedSeconds)
+                })
+            }).catch(error => console.error('Erreur sauvegarde progression:', error));
+        }
+
+        function startQuiz(quizId) {
+            fetch(`/api/quiz/${quizId}/questions`)
+                .then(response => response.json())
+                .then(data => {
+                    openQuizModal(data);
+                })
+                .catch(error => console.error('Erreur chargement quiz:', error));
+        }
+
+        function openQuizModal(quizData) {
+            const modal = document.getElementById('quizModal');
+            modal.style.display = 'flex';
+            
+            currentQuizData = quizData;
+            currentQuestionIndex = 0;
+            userAnswers = [];
+            
+            displayQuestion();
+        }
+
+        function displayQuestion() {
+            const question = currentQuizData.questions[currentQuestionIndex];
+            document.getElementById('questionText').textContent = question.question;
+            document.getElementById('quizProgress').textContent = 
+                `Question ${currentQuestionIndex + 1}/${currentQuizData.questions.length}`;
+            
+            const answersList = document.getElementById('answersList');
+            answersList.innerHTML = '';
+            
+            question.reponses.forEach((reponse, index) => {
+                const answerElement = document.createElement('div');
+                answerElement.className = 'answer-option';
+                answerElement.innerHTML = `
+                    <input type="radio" name="answer" value="${index}" id="answer${index}">
+                    <label for="answer${index}">${reponse.texte_reponse}</label>
+                `;
+                answersList.appendChild(answerElement);
+            });
+        }
+
+        function nextQuestion() {
+            const selectedAnswer = document.querySelector('input[name="answer"]:checked');
+            if (!selectedAnswer) {
+                alert('Veuillez sélectionner une réponse');
+                return;
+            }
+            
+            userAnswers[currentQuestionIndex] = parseInt(selectedAnswer.value);
+            
+            if (currentQuestionIndex < currentQuizData.questions.length - 1) {
+                currentQuestionIndex++;
+                displayQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            // Calculer le score
+            let correctAnswers = 0;
+            currentQuizData.questions.forEach((question, index) => {
+                const correctIndex = question.reponses.findIndex(r => r.est_correcte);
+                if (userAnswers[index] === correctIndex) {
+                    correctAnswers++;
+                }
+            });
+            
+            const scorePercentage = Math.round((correctAnswers / currentQuizData.questions.length) * 100);
+            
+            // Afficher les résultats
+            document.querySelector('.quiz-content').style.display = 'none';
+            document.getElementById('quizResults').style.display = 'block';
+            document.getElementById('scorePercentage').textContent = `${scorePercentage}%`;
+            document.getElementById('scorePoints').textContent = `${correctAnswers}/${currentQuizData.questions.length}`;
+            
+            // Sauvegarder le résultat
+            saveQuizResult(currentQuizData.id, scorePercentage, correctAnswers);
+        }
+
+        function saveQuizResult(quizId, score, correctAnswers) {
+            fetch('/api/quiz/result', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    quizId: quizId,
+                    partieId: currentPartieId,
+                    moduleId: currentModuleId,
+                    score: score,
+                    correctAnswers: correctAnswers,
+                    totalQuestions: currentQuizData.questions.length,
+                    userAnswers: userAnswers
+                })
+            }).catch(error => console.error('Erreur sauvegarde quiz:', error));
+        }
+
+        function updateProgress(partieId) {
+            fetch('/api/progression/partie', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    partieId: partieId,
+                    moduleId: currentModuleId,
+                    formationId: currentFormationId,
+                    action: 'start'
+                })
+            }).catch(error => console.error('Erreur mise à jour progression:', error));
+        }
+
+        function downloadDocument(filePath, fileName) {
+            const link = document.createElement('a');
+            link.href = filePath;
+            link.download = fileName;
+            link.click();
+        }
+
+        function saveNotes() {
+            const notes = document.getElementById('globalNotes').value;
+            fetch('/api/notes/save', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    formationId: currentFormationId,
+                    moduleId: currentModuleId,
+                    partieId: currentPartieId,
+                    notes: notes
+                })
+            }).then(() => {
+                showNotification('Notes sauvegardées !');
+            }).catch(error => console.error('Erreur sauvegarde notes:', error));
+        }
+
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Utilitaires
+        function formatDuration(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins}m ${secs}s`;
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Événements globaux
+        function setupEventListeners() {
+            // Raccourcis clavier
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeModals();
+                }
+                if (e.key === 'n' && e.ctrlKey) {
+                    e.preventDefault();
+                    toggleNotes();
+                }
+            });
+            
+            // Sauvegarde automatique des notes
+            const notesArea = document.getElementById('globalNotes');
+            if (notesArea) {
+                let saveTimeout;
+                notesArea.addEventListener('input', function() {
+                    clearTimeout(saveTimeout);
+                    saveTimeout = setTimeout(saveNotes, 2000);
+                });
+            }
+        }
+
+        function closeModals() {
+            document.getElementById('videoModal').style.display = 'none';
+            document.getElementById('quizModal').style.display = 'none';
+            document.getElementById('documentModal').style.display = 'none';
+        }
+
+        function toggleNotes() {
+            const panel = document.getElementById('notesPanel');
+            panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+        }
+
+        // Variables pour le quiz
+        let currentQuizData = null;
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+
+        console.log('🎓 Formation ADSIAM initialisée avec succès');
+    </script>
+</body>
+</html>

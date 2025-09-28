@@ -121,10 +121,16 @@ export async function showDashboard(req, res) {
             heure: evt.date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
             lieu: evt.lieu
         }));
+        // Trouver la formation en cours
+       // Trouver la formation en cours
+const formationEnCours = user.inscriptions.find(ins => ins.statut === 'in-progress') || null;
+
+
 
         res.render('etudiants/dashboard-etudiant',{
-        user: { ...user.dataValues, stats, activites, actionsRapides, evenements }, 
-            progressions 
+            user: { ...user.dataValues, stats, activites, actionsRapides, evenements }, 
+            progressions,
+            formationEnCours
         });
 
     } catch (err) {

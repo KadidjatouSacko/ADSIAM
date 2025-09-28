@@ -304,6 +304,7 @@ router.get('/dashboard', requireAuth, enrichUserData, async (req, res) => {
         console.log(`📊 Dashboard chargé pour utilisateur ${userId}`);
 
         res.render('dashboard/etudiant', {
+             formationEnCours: formationEnCours || null,
             user: req.user,
             stats,
             layout: false,
@@ -326,6 +327,84 @@ router.get('/dashboard', requireAuth, enrichUserData, async (req, res) => {
             message: 'Erreur lors du chargement du dashboard',
             error: process.env.NODE_ENV === 'development' ? error : {}
         });
+    }
+});
+
+// Route: Détail d'une formation dans le dashboard
+router.get('/dashboard/formations/:id', requireAuth, enrichUserData, async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        const formationId = req.params.id;
+        const mode = req.query.mode || 'normal'; // 'normal', 'revoir'
+
+        console.log(`📖 Chargement formation ${formationId} pour utilisateur ${userId} (mode: ${mode})`);
+
+        // Vérifier que l'utilisateur est inscrit à cette formation
+        const inscriptionQuery = `
+            SELECT
+                i.*,
+                f.titre, f.description, f.icone, f.nombre_modules, f.duree_heures
+            FROM inscriptions i
+            JOIN formations f ON i.formation_id = f.id
+            WHERE i.user_id = :userId AND i.formation_id = :formationId
+        `;
+
+        const inscription = await sequelize.query(inscriptionQuery, {
+            type: QueryTypes.SELECT,
+            replacements: { userId, formationId }
+        });
+
+        if (!inscription.length) {
+            req.flash('error', 'Vous n\'êtes pas inscrit à cette formation');
+            return res.redirect('/mes-formations');
+        }
+
+        const formationData = inscription[0];
+
+        // Récupérer les modules avec progression
+        const modulesQuery = `
+            SELECT
+                m.*,
+                pm.statut as progression_statut,
+                pm.progression_pourcentage,
+                pm.temps_passe_minutes,
+                pm.date_debut,
+                pm.date_fin
+            FROM modules m
+            LEFT JOIN progressions_modules pm ON (
+                pm.module_id = m.id
+                AND pm.inscription_id = :inscriptionId
+            )
+            WHERE m.formation_id = :formationId
+            ORDER BY m.ordre ASC
+        `;
+
+        const modules = await sequelize.query(modulesQuery, {
+            type: QueryTypes.SELECT,
+            replacements: {
+                inscriptionId: formationData.id,
+                formationId: formationId
+            }
+        });
+
+        // Déterminer le module actuel (premier non terminé)
+        const moduleActuel = modules.find(m => m.progression_statut !== 'termine') || modules[0];
+
+        res.render('dashboard/formation-detail', {
+            user: req.user,
+            formation: formationData,
+            modules,
+            moduleActuel,
+            mode,
+            currentPage: 'formations',
+            pageTitle: `Formation: ${formationData.titre}`,
+            ...templateHelpers
+        });
+
+    } catch (error) {
+        console.error('💥 Erreur détail formation dashboard:', error);
+        req.flash('error', 'Erreur lors du chargement de la formation');
+        res.redirect('/mes-formations');
     }
 });
 

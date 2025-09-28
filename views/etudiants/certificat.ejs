@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificats de Réussite - ADSIAM</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600;700&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Couleurs principales */
+            --primary-pink: #e7a6b7;      /* Rose gold doux */
+            --primary-blue: #a5bfd4;      /* Bleu poudré */
+            
+            /* Couleurs secondaires */
+            --light-pink: #fce8ec;        /* Rose très clair */
+            --light-blue: #e8f3f8;        /* Bleu très clair */
+            --soft-gray: #f5f5f7;         /* Gris clair neutre */
+            
+            /* Texte */
+            --text-dark: #2f2f2f;         /* Gris anthracite lisible */
+            --text-light: #6f6f6f;        /* Gris doux */
+            --white: #ffffff;
+
+            /* Dégradés */
+            --gradient-pink: linear-gradient(135deg, #fce8ec, #e7a6b7);
+            --gradient-blue: linear-gradient(135deg, #e8f3f8, #a5bfd4);
+            --gradient-contact: linear-gradient(135deg, #e7a6b7, #a5bfd4);
+            --gradient-purple: linear-gradient(135deg, #f0e1ff, #c7a3ff);
+            --gradient-green: linear-gradient(135deg, #e2f8ee, #9dd6b5);
+            --gradient-orange: linear-gradient(135deg, #ffe9dc, #ff9f80);
+            
+            /* Couleurs spéciales pour certificat */
+            --gold: #d4af37;
+            --gold-light: #f4e7a1;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--soft-gray);
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .certificate-selector {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .selector-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .selector-btn {
+            background: var(--gradient-contact);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+
+        .selector-btn:hover,
+        .selector-btn.active {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(231, 166, 183, 0.4);
+        }
+
+        /* CERTIFICAT VERSION CLASSIQUE UNIQUEMENT */
+        .certificate-classic {
+            width: 297mm;
+            height: 210mm;
+            background: var(--white);
+            margin: 0 auto 4rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transform: scale(0.8);
+            transform-origin: center;
+        }
+
+        .certificate-classic::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 20%, var(--light-pink) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, var(--light-blue) 0%, transparent 50%),
+                radial-gradient(circle at 40% 90%, var(--light-pink) 0%, transparent 30%);
+            opacity: 0.3;
+        }
+
+        .certificate-classic .border-frame {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            border: 3px solid var(--primary-pink);
+            border-radius: 15px;
+        }
+
+        .certificate-classic .border-frame::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            bottom: 15px;
+            border: 1px solid var(--primary-blue);
+            border-radius: 10px;
+        }
+
+        .certificate-classic .content {
+            position: relative;
+            z-index: 2;
+            padding: 60px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .certificate-classic .header {
+            margin-bottom: 40px;
+        }
+
+        .certificate-classic .logo-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .certificate-classic .logo {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient-contact);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .certificate-classic .org-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            letter-spacing: 0.1em;
+        }
+
+        .certificate-classic .org-subtitle {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            margin-top: 5px;
+        }
+
+        .certificate-classic .title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary-pink);
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+        }
+
+        .certificate-classic .subtitle {
+            font-size: 1.3rem;
+            color: var(--text-light);
+            margin-bottom: 40px;
+            font-style: italic;
+        }
+
+        .certificate-classic .recipient {
+            margin-bottom: 40px;
+        }
+
+        .certificate-classic .recipient-label {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            margin-bottom: 15px;
+        }
+
+        .certificate-classic .recipient-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.8rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 10px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .certificate-classic .recipient-name::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            height: 2px;
+            background: var(--gradient-contact);
+        }
+
+        .certificate-classic .achievement {
+            margin-bottom: 40px;
+        }
+
+        .certificate-classic .achievement-text {
+            font-size: 1.3rem;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .certificate-classic .formation-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--primary-blue);
+            margin-bottom: 15px;
+        }
+
+        .certificate-classic .formation-details {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+
+        .certificate-classic .detail-item {
+            text-align: center;
+        }
+
+        .certificate-classic .detail-label {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 5px;
+        }
+
+        .certificate-classic .detail-value {
+            font-size: 1.1rem;
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+
+        .certificate-classic .signatures {
+            margin-top: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+        }
+
+        .certificate-classic .signature-block {
+            text-align: center;
+        }
+
+        .certificate-classic .signature-line {
+            width: 200px;
+            height: 2px;
+            background: var(--text-light);
+            margin: 0 auto 10px;
+        }
+
+        .certificate-classic .signature-name {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 5px;
+        }
+
+        .certificate-classic .signature-title {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .certificate-classic .date-section {
+            text-align: center;
+        }
+
+        .certificate-classic .date-label {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .certificate-classic .date-value {
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 1.1rem;
+        }
+
+        /* Suppression du certificat moderne et styles associés */
+        .certificate-modern {
+            display: none !important;
+        }
+
+        /* Controls */
+        .controls {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            gap: 1rem;
+            z-index: 1000;
+        }
+
+        .control-btn {
+            background: var(--gradient-contact);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.2rem;
+            box-shadow: 0 15px 40px rgba(231, 166, 183, 0.4);
+        }
+
+        .control-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 20px 50px rgba(231, 166, 183, 0.5);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .certificate-classic {
+                transform: scale(0.6);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .certificate-classic {
+                transform: scale(0.4);
+            }
+        }
+
+        /* Print styles */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .certificate-selector,
+            .controls {
+                display: none;
+            }
+            
+            .certificate-classic {
+                transform: scale(1);
+                box-shadow: none;
+                page-break-after: always;
+            }
+        }
+
+        /* Animation d'apparition */
+        .certificate-classic {
+            opacity: 0;
+            transform: scale(0.8) translateY(50px);
+            animation: certificateAppear 0.8s ease forwards;
+        }
+
+        @keyframes certificateAppear {
+            to {
+                opacity: 1;
+                transform: scale(0.8) translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="certificate-selector">
+            <h1 style="font-family: 'Playfair Display', serif; font-size: 3rem; color: var(--text-dark); margin-bottom: 1rem;">Certificat ADSIAM</h1>
+            <p style="color: var(--text-light); font-size: 1.2rem; margin-bottom: 2rem;">Certificat de réussite professionnel - Version Classique</p>
+        </div>
+
+        <!-- CERTIFICAT CLASSIQUE -->
+        <div class="certificate-classic" id="classic-cert">
+            <div class="border-frame"></div>
+            <div class="content">
+                <div class="header">
+                    <div class="logo-section">
+                        <div class="logo">A+</div>
+                        <div>
+                            <div class="org-name">ADSIAM</div>
+                            <div class="org-subtitle">Organisme de Formation Professionnelle</div>
+                        </div>
+                    </div>
+                    
+                    <div class="title">Certificat</div>
+                    <div class="subtitle">de Réussite Professionnelle</div>
+                </div>
+
+                <div class="recipient">
+                    <div class="recipient-label">Il est certifié par les présentes que</div>
+                    <div class="recipient-name">Marie DUBOIS</div>
+                </div>
+
+                <div class="achievement">
+                    <div class="achievement-text">
+                        a suivi avec succès et validé l'intégralité de la formation
+                    </div>
+                    
+                    <div class="formation-name">"Communication & Relationnel"</div>
+                    
+                    <div class="formation-details">
+                        <div class="detail-item">
+                            <div class="detail-label">Durée</div>
+                            <div class="detail-value">3 heures</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Modules</div>
+                            <div class="detail-value">5 modules</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Note</div>
+                            <div class="detail-value">18/20</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="signatures">
+                    <div class="signature-block">
+                        <div class="signature-line"></div>
+                        <div class="signature-name">Dr. Claire Rousseau</div>
+                        <div class="signature-title">Directrice Pédagogique</div>
+                    </div>
+                    
+                    <div class="date-section">
+                        <div class="date-label">Délivré le</div>
+                        <div class="date-value">18 septembre 2025</div>
+                        <div style="margin-top: 20px; color: var(--text-light); font-size: 0.9rem;">
+                            N° Certificat: ADS-2025-001847
+                        </div>
+                    </div>
+                    
+                    <div class="signature-block">
+                        <div class="signature-line"></div>
+                        <div class="signature-name">Jean-Pierre Martin</div>
+                        <div class="signature-title">Directeur Général</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Suppression du certificat moderne -->
+    </div>
+
+    <!-- Contrôles -->
+    <div class="controls">
+        <button class="control-btn" onclick="printCertificate()" title="Imprimer">🖨️</button>
+        <button class="control-btn" onclick="downloadPDF()" title="Télécharger PDF">📄</button>
+        <button class="control-btn" onclick="shareCertificate()" title="Partager">📤</button>
+    </div>
+
+    <script>
+        function printCertificate() {
+            window.print();
+        }
+
+        function downloadPDF() {
+            alert('🔄 Génération PDF en cours...\n\nFonctionnalité à implémenter :\n• Conversion HTML vers PDF\n• Téléchargement automatique\n• Optimisation pour impression\n\n📧 Le certificat sera envoyé par email !');
+        }
+
+        function shareCertificate() {
+            const studentName = 'Marie DUBOIS';
+            const formationName = 'Communication & Relationnel';
+            const date = '18 septembre 2025';
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: `Certificat ADSIAM - ${studentName}`,
+                    text: `🎓 ${studentName} a obtenu son certificat de formation "${formationName}" le ${date} !`,
+                    url: window.location.href
+                });
+            } else {
+                const shareText = `🎓 Certificat ADSIAM obtenu !\n\nÉtudiante: ${studentName}\nFormation: ${formationName}\nDate: ${date}\n\n✨ Formation professionnelle validée avec ADSIAM !`;
+                
+                navigator.clipboard.writeText(shareText).then(() => {
+                    showNotification('📋 Texte de partage copié dans le presse-papier !', 'success');
+                }).catch(() => {
+                    showShareModal(shareText);
+                });
+            }
+        }
+
+        function showShareModal(text) {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+            `;
+            
+            modal.innerHTML = `
+                <div style="background: white; padding: 2rem; border-radius: 20px; max-width: 500px; text-align: center;">
+                    <h3 style="color: var(--text-dark); margin-bottom: 1rem;">📤 Partager le certificat</h3>
+                    <textarea readonly style="width: 100%; height: 150px; padding: 1rem; border: 2px solid var(--soft-gray); border-radius: 10px; margin-bottom: 1rem; font-family: inherit;">${text}</textarea>
+                    <div style="display: flex; gap: 1rem; justify-content: center;">
+                        <button onclick="copyToClipboard('${text.replace(/'/g, "\\'")}'); this.closest('.modal').remove();" style="background: var(--gradient-contact); color: white; border: none; padding: 0.8rem 1.5rem; border-radius: 25px; cursor: pointer;">📋 Copier</button>
+                        <button onclick="this.closest('.modal').remove();" style="background: var(--soft-gray); color: var(--text-dark); border: none; padding: 0.8rem 1.5rem; border-radius: 25px; cursor: pointer;">❌ Fermer</button>
+                    </div>
+                </div>
+            `;
+            
+            modal.className = 'modal';
+            document.body.appendChild(modal);
+            
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification('📋 Texte copié avec succès !', 'success');
+            });
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 2rem;
+                right: 2rem;
+                background: ${type === 'success' ? 'var(--gradient-green)' : 'var(--gradient-blue)'};
+                color: white;
+                padding: 1rem 2rem;
+                border-radius: 15px;
+                z-index: 10000;
+                font-weight: 600;
+                animation: slideInRight 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
+                box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Données dynamiques pour personnalisation
+        function updateCertificateData(data) {
+            const {
+                studentName = 'Marie DUBOIS',
+                formationName = 'Communication & Relationnel',
+                duration = '3 heures',
+                modules = '5 modules',
+                grade = '18/20',
+                date = '18 septembre 2025',
+                certificateNumber = 'ADS-2025-001847',
+                instructorName = 'Dr. Claire Rousseau',
+                directorName = 'Jean-Pierre Martin'
+            } = data;
+
+            // Mise à jour certificat classique
+            const classicCert = document.getElementById('classic-cert');
+            classicCert.querySelector('.recipient-name').textContent = studentName;
+            classicCert.querySelector('.formation-name').textContent = `"${formationName}"`;
+            classicCert.querySelector('.detail-value').textContent = duration;
+            classicCert.querySelectorAll('.detail-value')[1].textContent = modules;
+            classicCert.querySelectorAll('.detail-value')[2].textContent = grade;
+            classicCert.querySelector('.date-value').textContent = date;
+            classicCert.querySelector('.signature-name').textContent = instructorName;
+            classicCert.querySelectorAll('.signature-name')[1].textContent = directorName;
+            
+            // Mise à jour du numéro de certificat
+            const certNumberElement = classicCert.querySelector('div[style*="margin-top: 20px"]');
+            certNumberElement.textContent = `N° Certificat: ${certificateNumber}`;
+        }
+
+        // Formulaire de personnalisation (exemple)
+        function showCustomizationForm() {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+                overflow-y: auto;
+                padding: 2rem;
+            `;
+            
+            modal.innerHTML = `
+                <div style="background: white; padding: 3rem; border-radius: 25px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto;">
+                    <h3 style="color: var(--text-dark); margin-bottom: 2rem; text-align: center; font-family: 'Playfair Display', serif; font-size: 2rem;">✏️ Personnaliser le certificat</h3>
+                    
+                    <form id="certificateForm" style="display: grid; gap: 1.5rem;">
+                        <div>
+                            <label style="display: block; color: var(--text-dark); font-weight: 600; margin-bottom: 0.5rem;">Nom de l'étudiant(e)</label>
+                            <input type="text" name="studentName" value="Marie DUBOIS" style="width: 100%; padding: 1rem; border: 2px solid var(--soft-gray); border-radius: 10px; font-size: 1rem;">
+                        </div>
+                        
+                        <div>
+                            <label style="display: block; color: var(--text-dark); font-weight: 600; margin-bottom: 0.5rem;">Nom de la formation</label>
+                            <select name="formationName" style="width: 100%; padding: 1rem; border: 2px solid var(--soft-gray); border-radius: 10px; font-size: 1rem;">
+                                <option value="Communication & Relationnel">Communication & Relationnel</option>
+                                <option value="Hygiène, Sécurité & Prévention">Hygiène, Sécurité & Prévention</option>
+                                <option value="Ergonomie & Gestes Professionnels">Ergonomie & Gestes Professionnels</option>
+                                <option value="Gestion des Urgences & Premiers Secours">Gestion des Urgences & Premiers Secours</option>
+                                <option value="Préparation des Repas & Alimentation">Préparation des Repas & Alimentation</option>
+                                <option value="Pathologies & Situations Spécifiques">Pathologies & Situations Spécifiques</option>
+                            </select>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div>
+                                <label style="display: block; color: var(--text-dark); font-weight: 600; margin-bottom: 0.5rem;">Durée</label>
+                                <input type="text" name="duration" value="3 heures" style="width: 100%; padding: 1rem; border: 2px solid var(--soft-gray); border-radius: 10px; font-size: 1rem;">
+                            </div>
+                            <div>
+                                <label style="display: block; color: var(--text-dark); font-weight: 600; margin-bottom: 0.5rem;">Nombre de modules</label>
+                                <input type="text" name="modules" value="5 modules" style="width: 100%; padding: 1rem; border: 2px solid var(--soft-gray); border-radius: 10px; font-size: 1rem;">
+                            </div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div>
+                                <label style="display: block; color: var(--text-dark); font-weight: 600; margin-bottom: 0.5rem;">Note finale</label>
+                                <input type="text" name="grade" value="18/20" style="width: 100%; padding: 1rem; border: 2px solid var(--soft-gray); border-radius: 10px; font-size: 1rem;">
+                            </div>
+                            <div>
+                                <label style="display: block; color: var(--text-dark); font-weight: 600; margin-bottom: 0.5rem;">Date de délivrance</label>
+                                <input type="date" name="date" value="2025-09-18" style="width: 100%; padding: 1rem; border: 2px solid var(--soft-gray); border-radius: 10px; font-size: 1rem;">
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
+                            <button type="button" onclick="applyCertificateCustomization()" style="background: var(--gradient-contact); color: white; border: none; padding: 1rem 2rem; border-radius: 25px; cursor: pointer; font-weight: 600; font-size: 1rem;">✅ Appliquer</button>
+                            <button type="button" onclick="this.closest('.modal').remove();" style="background: var(--soft-gray); color: var(--text-dark); border: none; padding: 1rem 2rem; border-radius: 25px; cursor: pointer; font-weight: 600; font-size: 1rem;">❌ Annuler</button>
+                        </div>
+                    </form>
+                </div>
+            `;
+            
+            modal.className = 'modal';
+            document.body.appendChild(modal);
+            
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+
+        function applyCertificateCustomization() {
+            const form = document.getElementById('certificateForm');
+            const formData = new FormData(form);
+            
+            const data = {
+                studentName: formData.get('studentName'),
+                formationName: formData.get('formationName'),
+                duration: formData.get('duration'),
+                modules: formData.get('modules'),
+                grade: formData.get('grade'),
+                date: new Date(formData.get('date')).toLocaleDateString('fr-FR', { 
+                    day: 'numeric', 
+                    month: 'long', 
+                    year: 'numeric' 
+                }),
+                certificateNumber: `ADS-2025-${Math.floor(Math.random() * 900000) + 100000}`
+            };
+            
+            updateCertificateData(data);
+            document.querySelector('.modal').remove();
+            showNotification('✅ Certificat mis à jour avec succès !', 'success');
+        }
+
+        // Ajout du bouton de personnalisation
+        window.addEventListener('load', () => {
+            const controls = document.querySelector('.controls');
+            const customizeBtn = document.createElement('button');
+            customizeBtn.className = 'control-btn';
+            customizeBtn.innerHTML = '✏️';
+            customizeBtn.title = 'Personnaliser';
+            customizeBtn.onclick = showCustomizationForm;
+            controls.insertBefore(customizeBtn, controls.firstChild);
+            
+            console.log('🎓 Certificat ADSIAM chargé - Version Classique');
+            console.log('📋 Fonctionnalités : Impression, PDF, Partage, Personnalisation');
+        });
+
+        // Animations CSS additionnelles
+        const additionalStyles = document.createElement('style');
+        additionalStyles.textContent = `
+            @keyframes slideInRight {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            
+            @keyframes fadeOut {
+                from { opacity: 1; }
+                to { opacity: 0; }
+            }
+            
+            .certificate-classic:hover,
+            .certificate-modern:hover {
+                transform: scale(0.72);
+                transition: transform 0.3s ease;
+            }
+            
+            .control-btn:active {
+                transform: scale(0.95);
+            }
+            
+            .selector-btn:active {
+                transform: translateY(-1px);
+            }
+        `;
+        document.head.appendChild(additionalStyles);
+
+        // Gestion des raccourcis clavier
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'p':
+                        e.preventDefault();
+                        printCertificate();
+                        break;
+                    case 's':
+                        e.preventDefault();
+                        downloadPDF();
+                        break;
+                }
+            }
+            
+            if (e.key === 'Escape') {
+                const modal = document.querySelector('.modal');
+                if (modal) {
+                    modal.remove();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= formation.titre %> | Dashboard ADSIAM</title>
+    <link rel="stylesheet" href="/css/formation-detail.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+    <!-- Dashboard Header -->
+    <%- include('../partials/dashboard-header') %>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <%- include('../partials/dashboard-sidebar', { currentPage: 'formations' }) %>
+
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <div class="formation-detail-container">
+                <!-- Header de la formation -->
+                <div class="formation-header">
+                    <div class="formation-info">
+                        <div class="formation-icon">
+                            <% if(formation.domaine === 'communication'){ %>🗣️<% }
+                            else if(formation.domaine === 'hygiene'){ %>🛡️<% }
+                            else if(formation.domaine === 'urgences'){ %>🚨<% }
+                            else { %>📚<% } %>
+                        </div>
+                        <div class="formation-details">
+                            <h1><%= formation.titre %></h1>
+                            <p class="formation-description"><%= formation.description %></p>
+                            <div class="formation-meta">
+                                <span class="meta-item">📊 Progression: <%= formation.progression_pourcentage || 0 %>%</span>
+                                <span class="meta-item">📚 <%= formation.nombre_modules %> modules</span>
+                                <span class="meta-item">⏱️ <%= formation.duree_heures %>h</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="formation-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: <%= formation.progression_pourcentage || 0 %>%"></div>
+                        </div>
+                        <span class="progress-text"><%= formation.progression_pourcentage || 0 %>% terminé</span>
+                    </div>
+                </div>
+
+                <!-- Liste des modules -->
+                <div class="modules-section">
+                    <h2>Modules de formation</h2>
+                    <div class="modules-grid">
+                        <% modules.forEach((module, index) => { %>
+                        <div class="module-card" data-module-id="<%= module.id %>">
+                            <div class="module-header">
+                                <div class="module-number">
+                                    <span class="number"><%= index + 1 %></span>
+                                    <div class="module-status">
+                                        <% if(module.progression_statut === 'termine'){ %>
+                                            <span class="status-badge status-completed">✓ Terminé</span>
+                                        <% } else if(module.progression_statut === 'en_cours'){ %>
+                                            <span class="status-badge status-current">⏵ En cours</span>
+                                        <% } else { %>
+                                            <span class="status-badge status-locked">🔒 Verrouillé</span>
+                                        <% } %>
+                                    </div>
+                                </div>
+                                <div class="module-info">
+                                    <h3 class="module-title"><%= module.titre %></h3>
+                                    <p class="module-description"><%= module.description || 'Description du module' %></p>
+                                    <div class="module-meta">
+                                        <span class="meta-item">⏱️ <%= module.duree_minutes %>min</span>
+                                        <% if(module.temps_passe_minutes) { %>
+                                            <span class="meta-item">📊 <%= module.temps_passe_minutes %>min passées</span>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="module-actions">
+                                <% if(module.progression_statut === 'termine'){ %>
+                                    <button class="btn btn-secondary" onclick="replayModule(<%= module.id %>)">
+                                        🔄 Revoir
+                                    </button>
+                                <% } else if(module.progression_statut === 'en_cours'){ %>
+                                    <button class="btn btn-primary" onclick="continueModule(<%= module.id %>)">
+                                        ▶️ Continuer
+                                    </button>
+                                <% } else if(index === 0 || modules[index-1]?.progression_statut === 'termine'){ %>
+                                    <button class="btn btn-success" onclick="startModule(<%= module.id %>)">
+                                        🚀 Commencer
+                                    </button>
+                                <% } else { %>
+                                    <button class="btn btn-disabled" disabled>
+                                        🔒 Verrouillé
+                                    </button>
+                                <% } %>
+                            </div>
+
+                            <% if(module.progression_pourcentage && module.progression_pourcentage > 0) { %>
+                            <div class="module-progress">
+                                <div class="progress-bar small">
+                                    <div class="progress-fill" style="width: <%= module.progression_pourcentage %>%"></div>
+                                </div>
+                                <span class="progress-text"><%= module.progression_pourcentage %>%</span>
+                            </div>
+                            <% } %>
+                        </div>
+                        <% }); %>
+                    </div>
+                </div>
+
+                <!-- Actions de formation -->
+                <div class="formation-actions">
+                    <a href="/mes-formations" class="btn btn-secondary">
+                        ← Retour à mes formations
+                    </a>
+
+                    <% if(mode === 'revoir') { %>
+                        <button class="btn btn-info" onclick="downloadCertificate()">
+                            📜 Télécharger le certificat
+                        </button>
+                    <% } else if(moduleActuel) { %>
+                        <button class="btn btn-primary" onclick="continueModule(<%= moduleActuel.id %>)">
+                            ▶️ Continuer le module actuel
+                        </button>
+                    <% } %>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        function startModule(moduleId) {
+            console.log('Démarrage du module', moduleId);
+            // TODO: Implémenter le démarrage du module
+            alert('Fonctionnalité en développement: Démarrer le module ' + moduleId);
+        }
+
+        function continueModule(moduleId) {
+            console.log('Continuation du module', moduleId);
+            // TODO: Implémenter la continuation du module
+            alert('Fonctionnalité en développement: Continuer le module ' + moduleId);
+        }
+
+        function replayModule(moduleId) {
+            console.log('Révision du module', moduleId);
+            // TODO: Implémenter la révision du module
+            alert('Fonctionnalité en développement: Revoir le module ' + moduleId);
+        }
+
+        function downloadCertificate() {
+            console.log('Téléchargement du certificat');
+            // TODO: Implémenter le téléchargement du certificat
+            alert('Fonctionnalité en développement: Télécharger le certificat');
+        }
+    </script>
+</body>
+</html>

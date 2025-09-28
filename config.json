@@ -1,0 +1,15 @@
+{
+  "models": [
+    {
+      "title": "Mistral",
+      "provider": "openai",
+      "model": "mistral-medium",
+      "apiKey": "ton_api_key_mistral"
+    }
+  ],
+  "tabAutocompleteModel": {
+    "provider": "openai",
+    "model": "mistral-small",
+    "apiKey": "ton_api_key_mistral"
+  }
+}

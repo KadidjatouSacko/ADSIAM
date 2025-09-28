@@ -621,6 +621,8 @@ class FormationController {
       });
     }
   }
+
+  
 }
 
 export default new FormationController();
